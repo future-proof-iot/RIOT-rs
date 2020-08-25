@@ -1,6 +1,6 @@
+// test prelude
 #![no_main]
 #![no_std]
-// testing
 #![feature(custom_test_frameworks)]
 #![test_runner(riot_core::testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
@@ -11,9 +11,10 @@ extern "C" fn user_main() {
     test_main();
 }
 
-use riot_core::testing::println;
+// test prelude end
 
 use riot_core::runqueue::RunQueue;
+use riot_core::testing::println;
 
 #[test_case]
 fn test_rq_basic() {
@@ -60,4 +61,27 @@ fn test_rq_all32() {
         assert!(runqueue.get_next() == i);
         runqueue.advance(i as u8, 0);
     }
+}
+
+#[test_case]
+fn test_rq_basic_twoprio() {
+    let mut runqueue: RunQueue<8> = RunQueue::new();
+
+    runqueue.add(0, 0);
+    runqueue.add(1, 0);
+    runqueue.add(3, 0);
+
+    runqueue.add(2, 1);
+    runqueue.add(4, 1);
+
+    assert!(runqueue.get_next() == 4);
+    runqueue.del(4, 1);
+    assert!(runqueue.get_next() == 2);
+    runqueue.del(2, 1);
+    assert!(runqueue.get_next() == 3);
+    runqueue.del(3, 0);
+    assert!(runqueue.get_next() == 1);
+    runqueue.del(1, 0);
+    assert!(runqueue.get_next() == 0);
+    runqueue.del(0, 0);
 }
