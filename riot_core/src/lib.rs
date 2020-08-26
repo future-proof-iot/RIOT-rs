@@ -60,9 +60,6 @@ extern "C" {
 #[allow(unused_variables)]
 fn idle(arg: usize) {
     loop {
-        let mut p = cortex_m::peripheral::Peripherals::take().unwrap();
-        p.SCB.clear_sleepdeep();
-        cortex_m::asm::dsb();
         cortex_m::asm::wfi();
     }
 }
