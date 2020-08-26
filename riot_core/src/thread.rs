@@ -18,8 +18,8 @@ pub enum ThreadState {
 #[derive(Copy, Clone)]
 pub struct Thread {
     sp: usize,
+    high_regs: [usize; 8],
     state: ThreadState,
-    //    high_regs: [usize; 8],
     prio: u8,
     pub pid: u8,
 }
@@ -38,8 +38,9 @@ use crate::runqueue::RunQueue;
 
 static mut RUNQUEUE: RunQueue<SCHED_PRIO_LEVELS> = RunQueue::new();
 
+//unsafe extern "C" fn _
 #[no_mangle]
-unsafe fn _sched(old_sp: usize) -> usize {
+unsafe fn sched(old_sp: usize) {
     let mut current = Thread::current();
 
     let next_pid = RUNQUEUE.get_next();
@@ -47,18 +48,23 @@ unsafe fn _sched(old_sp: usize) -> usize {
     let next = Thread::get(next_pid as usize);
 
     if next as *const Thread == current as *const Thread {
-        return 0;
+        llvm_asm!("" :: "{r0}"(0)::"volatile");
+        return;
     }
 
     current.sp = old_sp;
     CURRENT_THREAD.store((next as *const Thread) as usize, Ordering::Release);
 
-    return next.sp;
+    // PendSV expects these three pointers in r1, r2 and r3
+    // write to registers manually, as ABI would return the values via stack
+    llvm_asm!("" :: "{r0}"(current.high_regs.as_ptr()), "{r1}"(next.high_regs.as_ptr()), "{r2}"(next.sp) :: "volatile" );
+    return;
 }
 
 static mut THREADS: [Thread; THREADS_NUMOF] = [Thread {
     sp: 0,
     state: ThreadState::Invalid,
+    high_regs: [0; 8],
     prio: 0,
     pid: 0,
 }; THREADS_NUMOF];
@@ -91,12 +97,14 @@ unsafe fn SVCall() {
 #[allow(non_snake_case)]
 unsafe fn PendSV() {
     llvm_asm!(
-            "
+        "
             mrs r0, psp
-            bl _sched
+            bl sched
             cmp r0, #0
             beq return
-            msr.n psp, r0
+            stmia r0, {r4-r11}
+            ldmia r1, {r4-r11}
+            msr.n psp, r2
             return:
             movw LR, #0xFFFd
             movt LR, #0xFFFF
@@ -189,10 +197,8 @@ impl Thread {
         let current = Thread::current();
         unsafe {
             RUNQUEUE.advance(current.pid, current.prio as usize);
-            llvm_asm!("push {r4-r11}" : : : : "volatile" );
             SCB::set_pendsv();
             cortex_m::asm::isb();
-            llvm_asm!("pop {r4-r11}" : : : : "volatile" );
         }
     }
 
