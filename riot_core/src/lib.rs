@@ -9,6 +9,13 @@
 #![feature(llvm_asm)]
 #![feature(naked_functions)]
 #![feature(const_generics)]
+#![feature(fn_traits)]
+#![feature(in_band_lifetimes)]
+// clist / memoffset
+#![feature(raw_ref_macros)]
+#![feature(const_ptr_offset_from)]
+#![feature(const_raw_ptr_deref)]
+#![feature(const_maybe_uninit_as_ptr)]
 // testing
 #![feature(custom_test_frameworks)]
 #![test_runner(testing::test_runner)]
