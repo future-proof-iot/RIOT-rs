@@ -14,7 +14,6 @@ extern "C" fn user_main() {
 // test prelude end
 
 use riot_core::runqueue::RunQueue;
-use riot_core::testing::println;
 
 #[test_case]
 fn test_rq_basic() {
