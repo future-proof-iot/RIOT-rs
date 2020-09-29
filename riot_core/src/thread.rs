@@ -1,14 +1,13 @@
+use core::cell::UnsafeCell;
 use core::ptr::write_volatile;
-
-use core::sync::atomic::AtomicUsize;
-use core::sync::atomic::Ordering;
+use core::sync::atomic::{AtomicUsize, Ordering};
 
 use cortex_m::interrupt;
 use cortex_m::peripheral::SCB;
 
 use clist::Link;
 
-use testing::println;
+//use testing::println;
 
 pub(crate) const SCHED_PRIO_LEVELS: usize = 8;
 pub(crate) const THREADS_NUMOF: usize = 16;
@@ -248,7 +247,7 @@ impl Thread {
         }
     }
 
-    pub unsafe fn receive_msg(&mut self) -> Msg {
+    pub fn receive_msg(&mut self) -> Msg {
         // disable_irq
         let r0: u32;
         let r1: u32;
@@ -258,13 +257,15 @@ impl Thread {
         self.set_state(ThreadState::MsgBlocked);
         Thread::yield_higher();
 
-        llvm_asm!(
+        unsafe {
+            llvm_asm!(
             "
             "
             : "={r0}"(r0), "={r1}"(r1), "={r2}"(r2), "={r3}"(r3)
             :
             :
             : "volatile" );
+        };
 
         Msg {
             a: r0,
@@ -274,7 +275,7 @@ impl Thread {
         }
     }
 
-    pub unsafe fn send_msg(m: Msg, target: &mut Thread) {
+    pub fn send_msg(m: Msg, target: &mut Thread) {
         // disable_irq
         if target.state == ThreadState::MsgBlocked {
             target.write_regs(m.a, m.b, m.c, m.d);
@@ -296,13 +297,13 @@ pub enum LockState {
 }
 
 pub struct Lock {
-    state: interrupt::Mutex<core::cell::UnsafeCell<LockState>>,
+    state: interrupt::Mutex<UnsafeCell<LockState>>,
 }
 
 impl Lock {
     pub const fn new() -> Lock {
         Lock {
-            state: interrupt::Mutex::new(core::cell::UnsafeCell::new(LockState::Unlocked)),
+            state: interrupt::Mutex::new(UnsafeCell::new(LockState::Unlocked)),
         }
     }
 
@@ -311,42 +312,38 @@ impl Lock {
     }
 
     pub fn is_locked(&self) -> bool {
-        cortex_m::interrupt::free(|cs| match self.get_state_mut(cs) {
+        interrupt::free(|cs| match self.get_state_mut(cs) {
             LockState::Unlocked => true,
             _ => false,
         })
     }
+
     pub fn acquire(&self) {
-        cortex_m::interrupt::free(|cs| {
+        interrupt::free(|cs| {
             let state = &mut self.get_state_mut(cs);
             if let LockState::Locked(list) = state {
-                //println!("acq locked");
                 Thread::current().wait_on(list, ThreadState::Paused);
             // other thread has popped us off the list and reset our thread state
             } else {
-                //println!("acq unlocked");
                 **state = LockState::Locked(ThreadList::new());
             }
         });
     }
+
     pub fn release(&self) {
-        cortex_m::interrupt::free(|cs| {
+        interrupt::free(|cs| {
             let state = &mut self.get_state_mut(cs);
             if let LockState::Locked(list) = state {
-                //println!("rel locked");
                 if let Some(waiting_thread) = list.lpop() {
-                    //println!("waking next: {}", waiting_thread.pid);
                     waiting_thread.set_state(ThreadState::Running);
                     if waiting_thread.prio > Thread::current().prio {
                         Thread::yield_higher();
                     }
                 } else {
-                    //println!("unlocked");
                     **state = LockState::Unlocked;
                 }
             } else {
-                //println!("rel not locked");
-                // panic?
+                // what now. panic?
             }
         });
     }
@@ -369,7 +366,7 @@ impl Thread {
     }
 
     // create with passing data on stack. used by spawn()
-    fn _create(stack: &'a mut [u8], func: usize, prio: u8, data: &[u8]) -> &'a Thread {
+    fn _create(stack: &mut [u8], func: usize, prio: u8, data: &[u8]) -> &'static Thread {
         unsafe {
             let unused_pid = Thread::find_unused().unwrap();
             let mut thread = &mut THREADS[unused_pid as usize];
@@ -395,7 +392,7 @@ impl Thread {
     }
 
     /// spawn thread using closure.
-    pub fn spawn<F, T>(stack: &mut [u8], f: F) -> &Thread
+    pub fn spawn<F, T>(stack: &'static mut [u8], f: F) -> &Thread
     where
         F: FnOnce() -> T,
         F: Send + 'static,
