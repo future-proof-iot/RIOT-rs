@@ -5,10 +5,10 @@ use riot_core::thread::{Lock, Thread};
 extern crate cortex_m;
 use cortex_m::peripheral::syst::SystClkSource;
 use cortex_m::peripheral::Peripherals;
-use cortex_m::peripheral::SCB;
 
 use riot_core::testing::println;
 
+#[allow(non_snake_case)]
 #[no_mangle]
 fn SysTick() {
     println!("systick").unwrap();
@@ -17,11 +17,11 @@ fn SysTick() {
 
 static mut STACK: [u8; 1024] = [0; 1024];
 
-static lock: Lock = Lock::new();
+static LOCK: Lock = Lock::new();
 
-fn func(arg: usize) {
+fn func(_arg: usize) {
     loop {
-        lock.acquire();
+        LOCK.acquire();
     }
 }
 
@@ -42,7 +42,7 @@ fn user_main() {
         Thread::create(&mut STACK, func, 0, 6);
     }
 
-    lock.acquire();
+    LOCK.acquire();
     Thread::yield_higher();
 
     const N: usize = 1000;
@@ -52,7 +52,7 @@ fn user_main() {
     let before = cortex_m::peripheral::SYST::get_current();
 
     for _ in 0..N {
-        lock.release();
+        LOCK.release();
     }
 
     let total = before - cortex_m::peripheral::SYST::get_current();

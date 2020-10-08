@@ -34,7 +34,7 @@ pub fn clist_bench() -> usize {
         list.lpush(link);
         i += 1;
     }
-    let mut sum = 0;
+    let sum = 0;
     for _ in 0..(N * N) {
         list.lpoprpush();
     }

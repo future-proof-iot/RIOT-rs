@@ -9,6 +9,7 @@ use cortex_m::peripheral::SCB;
 
 use riot_core::testing::println;
 
+#[allow(non_snake_case)]
 #[no_mangle]
 fn SysTick() {
     println!("systick").unwrap();
@@ -17,9 +18,9 @@ fn SysTick() {
 
 static mut STACK: [u8; 1024] = [0; 1024];
 
-fn func(arg: usize) {
+fn func(_arg: usize) {
     loop {
-        println!("func()");
+        println!("func()").unwrap();
         Thread::sleep();
     }
 }

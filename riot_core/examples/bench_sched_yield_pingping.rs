@@ -11,7 +11,7 @@ use riot_core::testing::println;
 
 static mut STACK: [u8; 1024] = [0; 1024];
 
-fn func(arg: usize) {
+fn func(_arg: usize) {
     loop {
         Thread::yield_next();
     }

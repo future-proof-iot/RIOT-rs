@@ -5,10 +5,10 @@ use riot_core::thread::{Msg, Thread};
 extern crate cortex_m;
 use cortex_m::peripheral::syst::SystClkSource;
 use cortex_m::peripheral::Peripherals;
-use cortex_m::peripheral::SCB;
 
 use riot_core::testing::println;
 
+#[allow(non_snake_case)]
 #[no_mangle]
 fn SysTick() {
     println!("systick").unwrap();
@@ -17,9 +17,9 @@ fn SysTick() {
 
 static mut STACK: [u8; 1024] = [0; 1024];
 
-fn func(arg: usize) {
+fn func(_arg: usize) {
     loop {
-        println!("func()");
+        println!("func()").unwrap();
         unsafe {
             Thread::send_msg(
                 Msg {
@@ -53,7 +53,7 @@ fn user_main() {
     }
 
     loop {
-        let m = unsafe { Thread::current().receive_msg() };
+        let m = Thread::current().receive_msg();
         println!("{:#?}", m).unwrap();
     }
 }

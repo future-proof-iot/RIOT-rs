@@ -29,7 +29,7 @@ fn user_main() {
 
     unsafe {
         Thread::spawn(&mut STACK, move || {
-            println!("from closure: {:x} {:x}", val, val2);
+            println!("from closure: {:x} {:x}", val, val2).unwrap();
         });
     };
 
