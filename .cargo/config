@@ -14,6 +14,8 @@ runner = "arm-none-eabi-gdb -q -x openocd.gdb"
 rustflags = [
   # LLD (shipped with the Rust toolchain) is used as the default linker
   "-C", "link-arg=-Tlink.x",
+  "-C", "link-arg=-Tlinkme.x",
+
   # "-C", "link-arg=/home/kaspar/src/own/rust/riot_core/hello-world.o",
   # "-C", "link-arg=-L/usr/arm-none-eabi/lib/thumb/v7e-m/nofp/",
   # "-C", "link-arg=-lc_nano",

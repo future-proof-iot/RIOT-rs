@@ -12,6 +12,8 @@ cortex-m-rt = "0.6.*"
 #panic-abort = "*"
 #panic-halt = "*"
 
+linkme = "0.2.2"
+
 testing = { path = "../testing" }
 clist = { path = "../../clist" }
 
