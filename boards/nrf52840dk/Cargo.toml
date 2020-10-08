@@ -1,0 +1,14 @@
+[package]
+name = "nrf52840dk"
+version = "0.1.0"
+authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+nrf52840-hal = "0.11.*"
+nrf52 = { path = "../nrf52" }
+testing = { path = "../../testing" }
+
+cortex-m-rt = "0.6.*"

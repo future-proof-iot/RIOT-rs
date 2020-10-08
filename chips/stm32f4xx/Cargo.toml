@@ -1,0 +1,16 @@
+[package]
+name = "stm32f4xx"
+version = "0.1.0"
+authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
+edition = "2018"
+
+[dependencies]
+bare-metal = "0.2.5"
+cortex-m = { version = "0.6.*", features = [ "inline-asm" ] }
+
+[dependencies.stm32f4xx-hal]
+version = "0.8.3"
+#features = [ "rt" ]
+
+[features]
+stm32f401 = ["stm32f4xx-hal/stm32f401" ]
