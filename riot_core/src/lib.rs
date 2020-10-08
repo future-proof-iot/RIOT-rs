@@ -1,6 +1,5 @@
-#![cfg(not(tests))]
-//
 #![no_std]
+#![cfg_attr(test, no_main)]
 //
 #![allow(incomplete_features)]
 // - const_generics
@@ -21,37 +20,19 @@
 #![test_runner(testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
-extern crate cortex_m;
-extern crate cortex_m_rt as rt;
-
-use rt::entry;
-use rt::exception;
-///
-// dev profile: easier to debug panics; can put a breakpoint on `rust_begin_unwind`
-// #[cfg(debug_assertions)]
-// use panic_halt as _;
-
-// release profile: minimize the binary size of the application
-// #[cfg(not(debug_assertions))]
-// use panic_abort as _;
-
-// makes `panic!` print messages to the host stderr using semihosting
-//#[cfg(not(test))]
-//extern crate panic_semihosting;
-
-//extern crate cortex_m_semihosting;
+use cortex_m;
+use cortex_m_rt::{entry, exception, ExceptionFrame};
 
 //use cortex_m_semihosting::hio::hstdout::;
 pub use testing;
 
+pub mod console;
 pub mod runqueue;
 pub mod thread;
 
 #[exception]
-fn HardFault(ef: &cortex_m_rt::ExceptionFrame) -> ! {
-    unsafe {
-        llvm_asm!("bkpt");
-    }
+unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
+    llvm_asm!("bkpt");
     // prints the exception frame as a panic message
     panic!("{:#?}", ef);
 }
@@ -64,19 +45,18 @@ extern "C" {
     fn user_main();
 }
 
-#[allow(unused_variables)]
-fn idle(arg: usize) {
+#[cfg(test)]
+unsafe fn user_main() {
+    test_main();
+}
+
+fn idle(_arg: usize) {
     loop {
         cortex_m::asm::wfi();
     }
 }
 
-#[allow(unused_variables)]
-fn main_trampoline(arg: usize) {
-    //   #[cfg(test)]
-    // test_main();
-
-    //#[cfg(not(test))]
+fn main_trampoline(_arg: usize) {
     unsafe {
         user_main();
     }
@@ -84,6 +64,8 @@ fn main_trampoline(arg: usize) {
 
 #[entry]
 fn main() -> ! {
+    boards::init();
+
     unsafe {
         thread::Thread::create(&mut IDLE_STACK, idle, 0, 0);
         thread::Thread::create(&mut MAIN_STACK, main_trampoline, 1, 5).jump_to();
