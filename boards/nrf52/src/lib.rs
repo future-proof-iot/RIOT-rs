@@ -3,5 +3,5 @@
 use testing::println;
 
 pub fn init() {
-    println!("nrf52::init()").unwrap();
+    println!("nrf52::init()");
 }
