@@ -20,25 +20,25 @@ where
     T: Fn(),
 {
     fn run(&self) {
-        print!("{}...\t", core::any::type_name::<T>()).unwrap();
+        print!("{}...\t", core::any::type_name::<T>());
         self();
-        println!("[ok]").unwrap();
+        println!("[ok]");
     }
 }
 
 pub fn test_runner(tests: &[&dyn Testable]) {
-    println!("Running {} tests", tests.len()).unwrap();
+    println!("Running {} tests", tests.len());
     for test in tests {
         test.run();
     }
-    println!("Done.").unwrap();
+    println!("Done.");
     debug::exit(debug::EXIT_SUCCESS);
 }
 
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
-    println!("[failed]\n").unwrap();
-    println!("Error: {}\n", info).unwrap();
+    println!("[failed]\n");
+    println!("Error: {}\n", info);
     debug::exit(debug::EXIT_FAILURE);
     loop {}
 }
