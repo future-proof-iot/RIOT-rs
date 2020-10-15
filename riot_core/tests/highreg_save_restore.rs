@@ -6,7 +6,7 @@
 #![reexport_test_harness_main = "test_main"]
 #![feature(llvm_asm)]
 
-use riot_core::thread::Thread;
+use riot_core::thread::{CreateFlags, Thread};
 
 #[no_mangle]
 extern "C" fn user_main() {
@@ -37,7 +37,7 @@ static mut STACK: [u8; 2048] = [0; 2048];
 #[test_case]
 fn test_hireg_save_restore() {
     unsafe {
-        Thread::create(&mut STACK, func, 0, 5);
+        Thread::create(&mut STACK, func, 0, 5, CreateFlags::empty());
     }
     unsafe {
         llvm_asm!("

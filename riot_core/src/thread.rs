@@ -5,6 +5,8 @@ use core::sync::atomic::{AtomicUsize, Ordering};
 use cortex_m::interrupt;
 use cortex_m::peripheral::SCB;
 
+use bitflags::bitflags;
+
 use clist::Link;
 
 //use testing::println;
@@ -33,6 +35,14 @@ pub struct Thread {
 
 const THREAD_RQ_OFFSET: usize = clist::offset_of!(Thread, list_entry);
 type ThreadList = clist::TypedList<Thread, THREAD_RQ_OFFSET>;
+
+bitflags! {
+    pub struct CreateFlags: u32 {
+        const SLEEPING      = 0b00000001;
+        const WITHOUT_YIELD = 0b00000010;
+        //const STACKTEST       = 0b00000100;
+    }
+}
 
 #[derive(Copy, Clone, Debug)]
 pub struct Msg {
@@ -149,7 +159,13 @@ impl Thread {
         None
     }
 
-    pub fn create(stack: &mut [u8], func: fn(arg: usize), arg: usize, prio: u8) -> &Thread {
+    pub fn create(
+        stack: &mut [u8],
+        func: fn(arg: usize),
+        arg: usize,
+        prio: u8,
+        flags: CreateFlags,
+    ) -> &Thread {
         unsafe {
             let unused_pid = Thread::find_unused().unwrap();
             let mut thread = &mut THREADS[unused_pid as usize];
@@ -157,8 +173,15 @@ impl Thread {
             thread.pid = unused_pid as u8;
             thread.prio = prio;
 
-            thread.state = ThreadState::Running;
-            RUNQUEUE.add(unused_pid as usize, thread.prio as usize);
+            if flags.contains(CreateFlags::SLEEPING) {
+                thread.state = ThreadState::Paused;
+            } else {
+                thread.state = ThreadState::Running;
+                RUNQUEUE.add(unused_pid as usize, thread.prio as usize);
+                if !flags.contains(CreateFlags::WITHOUT_YIELD) {
+                    Thread::yield_higher();
+                }
+            }
 
             return thread;
         }

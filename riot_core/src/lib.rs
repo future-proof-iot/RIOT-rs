@@ -23,6 +23,8 @@
 use cortex_m;
 use cortex_m_rt::{entry, exception, ExceptionFrame};
 
+use thread::{CreateFlags, Thread};
+
 //use cortex_m_semihosting::hio::hstdout::;
 pub use testing;
 
@@ -67,8 +69,15 @@ fn main() -> ! {
     boards::init();
 
     unsafe {
-        thread::Thread::create(&mut IDLE_STACK, idle, 0, 0);
-        thread::Thread::create(&mut MAIN_STACK, main_trampoline, 1, 5).jump_to();
+        Thread::create(&mut IDLE_STACK, idle, 0, 0, CreateFlags::WITHOUT_YIELD);
+        Thread::create(
+            &mut MAIN_STACK,
+            main_trampoline,
+            1,
+            5,
+            CreateFlags::WITHOUT_YIELD,
+        )
+        .jump_to();
     }
 
     loop {}
