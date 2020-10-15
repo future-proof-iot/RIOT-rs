@@ -34,5 +34,5 @@ fn user_main() {
     assert!(!p.SYST.has_wrapped());
 
     let total = before - cortex_m::peripheral::SYST::get_current();
-    println!("total: {} ticks: {}", total, total as usize / N).unwrap();
+    println!("total: {} ticks: {}", total, total as usize / N);
 }

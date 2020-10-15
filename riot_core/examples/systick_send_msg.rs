@@ -1,6 +1,6 @@
 #![no_main]
 #![no_std]
-use riot_core::thread::{Msg, Thread};
+use riot_core::thread::{CreateFlags, Msg, Thread};
 
 extern crate cortex_m;
 use cortex_m::peripheral::syst::SystClkSource;
@@ -11,7 +11,7 @@ use riot_core::testing::println;
 #[allow(non_snake_case)]
 #[no_mangle]
 fn SysTick() {
-    println!("systick").unwrap();
+    println!("systick");
     Thread::wakeup(2);
 }
 
@@ -19,7 +19,7 @@ static mut STACK: [u8; 1024] = [0; 1024];
 
 fn func(_arg: usize) {
     loop {
-        println!("func()").unwrap();
+        println!("func()");
         unsafe {
             Thread::send_msg(
                 Msg {
@@ -49,11 +49,11 @@ fn user_main() {
     p.SYST.enable_interrupt();
 
     unsafe {
-        Thread::create(&mut STACK, func, 0, 5);
+        Thread::create(&mut STACK, func, 0, 5, CreateFlags::empty());
     }
 
     loop {
         let m = Thread::current().receive_msg();
-        println!("{:#?}", m).unwrap();
+        println!("{:#?}", m);
     }
 }

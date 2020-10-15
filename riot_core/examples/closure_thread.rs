@@ -29,7 +29,7 @@ fn user_main() {
 
     unsafe {
         Thread::spawn(&mut STACK, move || {
-            println!("from closure: {:x} {:x}", val, val2).unwrap();
+            println!("from closure: {:x} {:x}", val, val2);
         });
     };
 
@@ -50,5 +50,5 @@ fn user_main() {
 
     assert!(!p.SYST.has_wrapped());
 
-    println!("total: {} ticks: {}", total, total as usize / N).unwrap();
+    println!("total: {} ticks: {}", total, total as usize / N);
 }

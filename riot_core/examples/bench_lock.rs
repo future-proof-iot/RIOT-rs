@@ -1,6 +1,6 @@
 #![no_main]
 #![no_std]
-use riot_core::thread::{Lock, Thread};
+use riot_core::thread::{CreateFlags, Lock, Thread};
 
 extern crate cortex_m;
 use cortex_m::peripheral::syst::SystClkSource;
@@ -11,7 +11,7 @@ use riot_core::testing::println;
 #[allow(non_snake_case)]
 #[no_mangle]
 fn SysTick() {
-    println!("systick").unwrap();
+    println!("systick");
     Thread::wakeup(2);
 }
 
@@ -39,7 +39,7 @@ fn user_main() {
     //p.SYST.enable_interrupt();
 
     unsafe {
-        Thread::create(&mut STACK, func, 0, 6);
+        Thread::create(&mut STACK, func, 0, 6, CreateFlags::empty());
     }
 
     LOCK.acquire();
@@ -59,5 +59,5 @@ fn user_main() {
 
     assert!(!p.SYST.has_wrapped());
 
-    println!("total: {} ticks: {}", total, total as usize / N).unwrap();
+    println!("total: {} ticks: {}", total, total as usize / N);
 }

@@ -1,6 +1,6 @@
 #![no_main]
 #![no_std]
-use riot_core::thread::Thread;
+use riot_core::thread::{CreateFlags, Thread};
 
 extern crate cortex_m;
 use cortex_m::peripheral::syst::SystClkSource;
@@ -31,7 +31,7 @@ fn user_main() {
     //p.SYST.disable_interrupt();
 
     unsafe {
-        Thread::create(&mut STACK, func, 0, 5);
+        Thread::create(&mut STACK, func, 0, 5, CreateFlags::empty());
     }
 
     const N: usize = 1000;
@@ -46,5 +46,5 @@ fn user_main() {
         }
     }
     let total = before - cortex_m::peripheral::SYST::get_current();
-    println!("total: {} ticks: {}", total, total as usize / (2 * N)).unwrap();
+    println!("total: {} ticks: {}", total, total as usize / (2 * N));
 }

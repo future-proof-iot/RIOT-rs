@@ -69,6 +69,6 @@ fn user_main() {
 
     assert!(!p.SYST.has_wrapped());
 
-    println!("{}", sum).unwrap();
-    println!("total: {} ticks: {}", total, total as usize / N).unwrap();
+    println!("{}", sum);
+    println!("total: {} ticks: {}", total, total as usize / N);
 }
