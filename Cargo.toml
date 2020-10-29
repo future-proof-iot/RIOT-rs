@@ -1,15 +1,18 @@
 [workspace]
 members = [
-    "riot_core",
+    "riot-rs-rt",
+    "riot-rs-core",
     #"chips/cortexm",
     "app",
     "testing",
     "boards",
+    "boards/lm3s6965evb",
     "boards/nrf52",
     "boards/nrf52840dk",
     "boards/nucleo-f401re",
     "chips",
     "chips/stm32f4xx",
+    "riot",
     ]
 
 default-members = [

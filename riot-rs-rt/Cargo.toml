@@ -1,5 +1,5 @@
 [package]
-name = "riot_core"
+name = "riot-rs-rt"
 version = "0.1.0"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2018"
@@ -7,16 +7,12 @@ edition = "2018"
 [dependencies]
 cortex-m = { version = "0.6.*", features = [ "inline-asm" ] }
 cortex-m-rt = "0.6.*"
+cortex-m-semihosting = "0.3.5"
 
-bitflags = "1.2.*"
+linkme = "0.2.2"
+
+#testing = { path = "../testing" }
 
 #panic-semihosting = { version = "*", features = [ "inline-asm" ] }
 #panic-abort = "*"
 #panic-halt = "*"
-
-linkme = "0.2.2"
-
-testing = { path = "../testing" }
-clist = { path = "../../clist" }
-
-boards = { path = "../boards" }

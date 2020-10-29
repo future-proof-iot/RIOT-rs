@@ -7,8 +7,10 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+cortex-m-rt = "0.6.*"
+cortex-m = "0.6.*"
+
+riot-rs-rt = { path = "../../riot-rs-rt" }
+
 nrf52840-hal = "0.11.*"
 nrf52 = { path = "../nrf52" }
-testing = { path = "../../testing" }
-
-cortex-m-rt = "0.6.*"

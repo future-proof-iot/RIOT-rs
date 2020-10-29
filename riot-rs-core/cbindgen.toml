@@ -1,0 +1,17 @@
+language = "C"
+cpp_compat = true
+documentation_style = "doxy"
+style = "type"
+pragma_once = true
+
+# Table of name conversions to apply to item names (lhs becomes rhs)
+[export.rename]
+"Pid" = "kernel_pid_t"
+
+[defines]
+"feature = core" = "RIOTCORE_RS_CORE"
+
+[macro_expansion]
+# Whether bindings should be generated for instances of the bitflags! macro.
+# default: false
+bitflags = true

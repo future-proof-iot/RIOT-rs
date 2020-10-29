@@ -1,6 +1,6 @@
 #![no_std]
 
-use testing::println;
+use riot_rs_rt::debug::println;
 
 pub fn init() {
     println!("nrf52::init()");
