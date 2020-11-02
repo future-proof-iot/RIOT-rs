@@ -100,9 +100,11 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
     let vecttbl = (hfsr & 0x02) == 0x02;
     let forced = (hfsr & 0x40000000) == 0x40000000;
 
-    let ici_it = (((ef.xpsr >> 25) & 0x3) << 6) | ((ef.xpsr >> 10) & 0x3f);
-    let thumb_bit = ((ef.xpsr >> 24) & 0x1) == 1;
-    let exception_number = (ef.xpsr & 0x1ff) as usize;
+    let xpsr = ef.xpsr();
+
+    let ici_it = (((xpsr >> 25) & 0x3) << 6) | ((xpsr >> 10) & 0x3f);
+    let thumb_bit = ((xpsr >> 24) & 0x1) == 1;
+    let exception_number = (xpsr & 0x1ff) as usize;
 
     panic!(
         "{} HardFault.\r\n\
@@ -145,23 +147,23 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
          ",
         mode_str,
         option_env!("RIOTCORE_KERNEL_VERSION").unwrap_or("unknown"),
-        ef.r0,
-        ef.r1,
-        ef.r2,
-        ef.r3,
-        ef.r12,
-        ef.lr,
-        ef.pc,
-        ef.xpsr,
-        (ef.xpsr >> 31) & 0x1,
-        (ef.xpsr >> 30) & 0x1,
-        (ef.xpsr >> 29) & 0x1,
-        (ef.xpsr >> 28) & 0x1,
-        (ef.xpsr >> 27) & 0x1,
-        (ef.xpsr >> 19) & 0x1,
-        (ef.xpsr >> 18) & 0x1,
-        (ef.xpsr >> 17) & 0x1,
-        (ef.xpsr >> 16) & 0x1,
+        ef.r0(),
+        ef.r1(),
+        ef.r2(),
+        ef.r3(),
+        ef.r12(),
+        ef.lr(),
+        ef.pc(),
+        xpsr,
+        (xpsr >> 31) & 0x1,
+        (xpsr >> 30) & 0x1,
+        (xpsr >> 29) & 0x1,
+        (xpsr >> 28) & 0x1,
+        (xpsr >> 27) & 0x1,
+        (xpsr >> 19) & 0x1,
+        (xpsr >> 18) & 0x1,
+        (xpsr >> 17) & 0x1,
+        (xpsr >> 16) & 0x1,
         ici_it,
         thumb_bit,
         exception_number,
