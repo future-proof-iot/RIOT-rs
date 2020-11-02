@@ -4,9 +4,13 @@ use core::fmt::Write;
 use cortex_m;
 use cortex_m_rt;
 use hal::pac::Peripherals;
+
+use linkme::distributed_slice;
+
 use nrf52;
 
 use riot_rs_rt::debug::println;
+use riot_rs_rt::init::INIT_FUNCS;
 
 use {
     hal::gpio::Level,
@@ -22,13 +26,11 @@ use {
 //     println!("UARTE0_UART0");
 // }
 
-pub fn init() {
+#[distributed_slice(INIT_FUNCS, 50)]
+pub fn nrf52840dk_init() {
     println!("nrf52840dk::init()");
     nrf52::init();
-    unsafe {
-        let p = cortex_m::peripheral::Peripherals::steal();
-        p.ICB.actlr.write(1u32);
-    }
+
     // let p = Peripherals::take().unwrap();
     // let p0 = hal::gpio::p0::Parts::new(p.P0);
 
@@ -48,3 +50,5 @@ pub fn init() {
 
     // write!(&mut uarte, "whatever works\n");
 }
+
+pub fn linkme_please() {}

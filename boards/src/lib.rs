@@ -10,13 +10,8 @@ cfg_if! {
     } else if #[cfg(feature = "lm3s6965evb")] {
         pub use lm3s6965evb as board;
     }
-    else {
-        pub mod board {
-            pub fn init() {}
-        }
-    }
 }
 
-pub fn init() {
-    board::init();
+pub fn linkme_please() {
+    board::linkme_please();
 }
