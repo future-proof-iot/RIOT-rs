@@ -30,12 +30,12 @@ use core::panic::PanicInfo;
 
 use cortex_m_semihosting::debug as sh_debug;
 
+pub mod init;
+
 pub mod debug {
     pub use cortex_m_semihosting::hprint as print;
     pub use cortex_m_semihosting::hprintln as println;
 }
-
-//pub use testing;
 
 // Table 2.5
 // http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0553a/CHDBIBGJ.html
@@ -210,19 +210,12 @@ fn panic(info: &PanicInfo) -> ! {
     loop {}
 }
 
-#[cfg(not(test))]
-extern "C" {
-    fn user_main();
-}
-
-#[cfg(test)]
-unsafe fn user_main() {
-    test_main();
-}
-
 #[entry]
 fn main() -> ! {
-    unsafe { user_main() };
+    debug::println!("riot_rs_rt::main()");
+    for func in init::INIT_FUNCS {
+        func();
+    }
 
     loop {}
 }

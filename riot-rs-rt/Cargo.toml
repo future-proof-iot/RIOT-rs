@@ -9,7 +9,7 @@ cortex-m = { version = "0.6.*", features = [ "inline-asm" ] }
 cortex-m-rt = "0.6.*"
 cortex-m-semihosting = "0.3.5"
 
-linkme = "0.2.2"
+linkme = "0.2.3"
 
 #testing = { path = "../testing" }
 
