@@ -189,7 +189,6 @@ impl Thread {
         unsafe {
             let unused_pid = Thread::find_unused().unwrap();
             let mut thread = &mut THREADS[unused_pid as usize];
-            println!("thread_func: {:#x}", func);
             thread.sp = Thread::setup_stack(stack, func, arg);
             thread.pid = unused_pid;
             thread.prio = prio;
@@ -334,10 +333,20 @@ impl Thread {
         false
     }
 
-    pub fn wait_on(&mut self, list: &mut ThreadList, wait_state: ThreadState) {
+    /// Put thread in waitlist with given state
+    fn wait_on(&mut self, list: &mut ThreadList, wait_state: ThreadState) {
         list.rpush(self);
         self.set_state(wait_state);
         Thread::yield_higher();
+    }
+
+    /// Start riot-rs-core scheduler
+    ///
+    /// Note: this can *only* be called once during startup.
+    pub unsafe fn start_threading() -> ! {
+        let next_pid = RUNQUEUE.get_next() as Pid;
+        Thread::get(next_pid).jump_to();
+        loop {}
     }
 }
 
@@ -545,16 +554,9 @@ pub mod c {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn cpu_switch_context_exit() {
-        // assume thread pid 1 is a runnable thread (probably main)
-        // TODO: find better way
-        llvm_asm!(
-            "
-            cpsie   i\n
-            "
-            :::: "volatile" );
-        Thread::get(1).jump_to();
-        loop {}
+    pub unsafe extern "C" fn cpu_switch_context_exit() -> ! {
+        llvm_asm!( "cpsie   i\n" :::: "volatile" );
+        Thread::start_threading()
     }
 
     #[no_mangle]
