@@ -1,3 +1,3 @@
 #![no_std]
 
-pub fn init() {}
+pub fn linkme_please() {}
