@@ -2,7 +2,7 @@
 #![no_main]
 #![no_std]
 #![feature(custom_test_frameworks)]
-#![test_runner(testing::test_runner)]
+#![test_runner(riot_rs_rt::testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
 #[no_mangle]
@@ -13,8 +13,8 @@ extern "C" fn user_main() {
 
 // test prelude end
 
+use riot_rs_core::runqueue::RunQueue;
 use riot_rs_rt as _;
-use riot_rs_sched::runqueue::RunQueue;
 
 #[test_case]
 fn test_rq_basic() {

@@ -1,6 +1,6 @@
 #![no_main]
 #![no_std]
-use riot_rs_sched::thread::{CreateFlags, Lock, Thread};
+use riot_rs_core::thread::{CreateFlags, Lock, Thread};
 
 extern crate cortex_m;
 use cortex_m::peripheral::syst::SystClkSource;

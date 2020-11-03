@@ -2,12 +2,12 @@
 #![no_std]
 // testing
 #![feature(custom_test_frameworks)]
-#![test_runner(testing::test_runner)]
+#![test_runner(riot_rs_rt::testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 #![feature(llvm_asm)]
 
+use riot_rs_core::thread::{CreateFlags, Thread};
 use riot_rs_rt as _;
-use riot_rs_sched::thread::{CreateFlags, Thread};
 
 #[no_mangle]
 extern "C" fn user_main() {

@@ -20,7 +20,7 @@
 #![feature(untagged_unions)]
 // testing
 #![feature(custom_test_frameworks)]
-#![test_runner(testing::test_runner)]
+#![test_runner(riot_rs_rt::testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
 pub mod runqueue;
