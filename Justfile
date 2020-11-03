@@ -1,4 +1,4 @@
-tests := "riot-rs-core"
+tests := "riot-rs-rt"
 
 test-core PROFILE="release" TARGET="thumbv7m-none-eabi":
     for test in {{tests}}; do \

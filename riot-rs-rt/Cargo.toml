@@ -16,3 +16,5 @@ linkme = "0.2.3"
 #panic-semihosting = { version = "*", features = [ "inline-asm" ] }
 #panic-abort = "*"
 #panic-halt = "*"
+[dev-dependencies]
+boards = { path = "../boards" }

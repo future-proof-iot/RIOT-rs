@@ -20,19 +20,19 @@
 #![feature(untagged_unions)]
 // testing
 #![feature(custom_test_frameworks)]
-#![test_runner(testing::test_runner)]
+#![test_runner(crate::testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
+pub mod testing;
 
 use cortex_m as _;
 use cortex_m_rt::{entry, exception, ExceptionFrame};
 
 use core::panic::PanicInfo;
 
-use cortex_m_semihosting::debug as sh_debug;
-
 pub mod init;
 
 pub mod debug {
+    pub use cortex_m_semihosting::debug::{exit, EXIT_FAILURE, EXIT_SUCCESS};
     pub use cortex_m_semihosting::hprint as print;
     pub use cortex_m_semihosting::hprintln as println;
 }
@@ -206,7 +206,7 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
 #[panic_handler]
 fn panic(info: &PanicInfo) -> ! {
     debug::println!("Error: {}\n", info);
-    sh_debug::exit(sh_debug::EXIT_FAILURE);
+    debug::exit(debug::EXIT_FAILURE);
     loop {}
 }
 
@@ -217,5 +217,12 @@ fn main() -> ! {
         func();
     }
 
+    #[cfg(test)]
+    test_main();
     loop {}
+}
+
+#[test_case]
+fn test_trivial() {
+    assert!(1 == 1);
 }

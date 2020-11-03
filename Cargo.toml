@@ -4,7 +4,6 @@ members = [
     "riot-rs-core",
     #"chips/cortexm",
     "app",
-    "testing",
     "boards",
     "boards/lm3s6965evb",
     "boards/nrf52",
@@ -34,6 +33,6 @@ opt-level = "s"
 
 [patch.crates-io]
 cortex-m = { git = "https://github.com/kaspar030/cortex-m" }
-cortex-m-rt = { git = "https://github.com/rust-embedded/cortex-m-rt" }
+cortex-m-rt = { git = "https://github.com/kaspar030/cortex-m-rt" }
 cortex-m-semihosting = { git = "https://github.com/rust-embedded/cortex-m-semihosting", rev = "8ab74cdb8c9ab669ded328072447ea6f6054ffe6" }
 linkme = { git = "https://github.com/kaspar030/linkme", branch = "split_out_none_os" }
