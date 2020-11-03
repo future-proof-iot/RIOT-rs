@@ -21,8 +21,8 @@ impl<const N: usize> RunQueue<{ N }> {
     }
 
     pub fn add(&mut self, n: usize, rq: usize) {
-        assert!(n < USIZE_BITS);
-        assert!(rq < N);
+        debug_assert!(n < USIZE_BITS);
+        debug_assert!(rq < N);
         compiler_fence(Ordering::AcqRel);
         self.bitcache |= 1 << rq;
         self.queues[rq] |= 1 << n;
@@ -30,8 +30,8 @@ impl<const N: usize> RunQueue<{ N }> {
     }
 
     pub fn del(&mut self, n: usize, rq: usize) {
-        assert!(n < USIZE_BITS);
-        assert!(rq < N);
+        debug_assert!(n < USIZE_BITS);
+        debug_assert!(rq < N);
         compiler_fence(Ordering::AcqRel);
         self.queues[rq] &= !(1 << n);
         if self.queues[rq] == 0 {
@@ -64,7 +64,7 @@ impl<const N: usize> RunQueue<{ N }> {
     }
 
     pub fn advance(&mut self, pid: u8, rq: usize) {
-        assert!(rq < N);
+        debug_assert!(rq < N);
         compiler_fence(Ordering::AcqRel);
         self.queues_pos[rq] = pid;
         compiler_fence(Ordering::AcqRel);
