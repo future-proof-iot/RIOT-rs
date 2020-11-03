@@ -8,4 +8,3 @@ edition = "2018"
 
 [dependencies]
 stm32f4xx = { path="../../chips/stm32f4xx", features=["stm32f401"] }
-testing = { path="../../testing" }
