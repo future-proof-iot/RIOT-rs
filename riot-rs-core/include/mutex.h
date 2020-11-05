@@ -1,7 +1,7 @@
 #ifndef MUTEX_H
 #define MUTEX_H
 
-#include "riotcore-rs.h"
+#include "riot-rs-core.h"
 
 struct __attribute__((aligned(MUTEX_T_ALIGNOF))) Lock {
     char data[MUTEX_T_SIZEOF];

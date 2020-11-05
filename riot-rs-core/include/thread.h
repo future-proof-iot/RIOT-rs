@@ -1,7 +1,7 @@
 #ifndef THREAD_H
 #define THREAD_H
 
-#include "riotcore-rs.h"
+#include "riot-rs-core.h"
 #include "cpu_conf.h"
 #include "thread_config.h"
 

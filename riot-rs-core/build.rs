@@ -16,18 +16,17 @@ fn main() {
 
     std::fs::create_dir_all(&gen_include_path).unwrap();
 
-    cbindgen::Builder::new()
-        .with_crate(crate_dir)
-        .generate()
+    cbindgen::generate(&crate_dir)
         .expect("Unable to generate bindings")
         .write_to_file(&*gen_header);
 
     // generate RIOT makefile snippet
     let makefile_content = format!(
-        "CFLAGS += -DUSE_RUST_CORE=1\n\
-         export USE_RUST_CORE = 1\n\
+        "export USE_RUST_CORE = 1\n\
          DISABLE_MODULE += core\n\
          USEMODULE += core_idle_thread\n\
+         USEMODULE += riot_rs_core\n\
+         PSEUDOMODULE += riot_rs_core\n\
          INCLUDES += -I{}\n\
          INCLUDES += -I{}\n",
         gen_include_path.to_string_lossy(),
@@ -44,4 +43,6 @@ fn main() {
         "cargo:MAKEFILE={}",
         out_path.join(&makefile_name).to_string_lossy()
     );
+
+    println!("cargo:rerun-if-changed=cbindgen.toml");
 }
