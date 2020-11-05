@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "riot-build",
     "riot-rs-rt",
     "riot-rs-core",
     #"chips/cortexm",
