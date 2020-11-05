@@ -22,7 +22,7 @@ cfg_if! {
 pub const SCHED_PRIO_LEVELS: usize = 8;
 pub const THREADS_NUMOF: usize = 16;
 
-pub type Pid = u8;
+pub type Pid = usize;
 
 #[derive(Copy, Clone)]
 pub struct Thread {
@@ -506,7 +506,7 @@ pub mod c {
         _name: &'static c_char,
     ) -> Pid {
         let stack_ptr = stack_ptr as *mut c_char as usize as *mut u8;
-        println!("stack_ptr as u8: {:#x}", stack_ptr as usize);
+        //println!("stack_ptr as u8: {:#x}", stack_ptr as usize);
         let stack = core::slice::from_raw_parts_mut(stack_ptr, stack_size);
         let thread = Thread::create_(
             stack,

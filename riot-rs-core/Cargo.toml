@@ -4,6 +4,8 @@ version = "0.1.0"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2018"
 
+links = "riot-rs-core"
+
 [dependencies]
 cortex-m = { version = "0.6.*", features = [ "inline-asm" ] }
 cortex-m-rt = "0.6.*"
@@ -18,8 +20,8 @@ clist = { path = "../../clist" }
 riot-rs-rt = { optional = true, path = "../riot-rs-rt" }
 cortex-m-semihosting = { version = "0.3.5" }
 
-#[build-dependencies]
-#cbindgen = "0.15.*"
+[build-dependencies]
+cbindgen = "0.15.*"
 
 [dev-dependencies]
 riot-rs-rt = { path = "../riot-rs-rt" }
