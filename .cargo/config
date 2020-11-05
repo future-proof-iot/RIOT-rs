@@ -25,3 +25,6 @@ rustflags = [
 target = "thumbv7m-none-eabi"    # Cortex-M3
 #target = "thumbv7em-none-eabi"   # Cortex-M4 and Cortex-M7 (no FPU)
 #target = "thumbv7em-none-eabihf" # Cortex-M4F and Cortex-M7F (with FPU)
+
+[unstable]
+features = ['all']
