@@ -4,7 +4,6 @@ members = [
     "riot-rs-rt",
     "riot-rs-core",
     #"chips/cortexm",
-    "app",
     "boards",
     "boards/lm3s6965evb",
     "boards/nrf52",
@@ -12,11 +11,12 @@ members = [
     "boards/nucleo-f401re",
     "chips",
     "chips/stm32f4xx",
+    "examples/*",
     "riot",
     ]
 
 default-members = [
-    "app",
+    "examples/hello-world",
     ]
 
 [profile.dev]
