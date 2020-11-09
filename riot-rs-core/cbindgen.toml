@@ -7,6 +7,7 @@ pragma_once = true
 # Table of name conversions to apply to item names (lhs becomes rhs)
 [export.rename]
 "Pid" = "kernel_pid_t"
+"ThreadState" = "thread_state_t"
 
 [defines]
 "feature = core" = "RIOT_RS_CORE"
