@@ -39,8 +39,8 @@ pub enum ThreadState {
     Invalid,
     Running,
     Paused,
-    MsgBlocked,
     MutexBlocked,
+    MsgBlocked,
 }
 
 const THREAD_RQ_OFFSET: usize = clist::offset_of!(Thread, list_entry);
@@ -68,13 +68,12 @@ use crate::runqueue::RunQueue;
 
 static mut RUNQUEUE: RunQueue<SCHED_PRIO_LEVELS> = RunQueue::new();
 
-//unsafe extern "C" fn _
 #[no_mangle]
 unsafe fn sched(old_sp: usize) {
     let mut current = Thread::current();
 
     let next_pid = RUNQUEUE.get_next() as Pid;
-    //hprintln!("_sched(): switching to {}", next_pid);
+
     let next = Thread::get(next_pid);
 
     if next as *const Thread == current as *const Thread {
@@ -127,7 +126,7 @@ unsafe fn SVCall() {
 #[allow(non_snake_case)]
 unsafe fn PendSV() {
     llvm_asm!(
-        "
+            "
             mrs r0, psp
             bl sched
             cmp r0, #0
@@ -278,13 +277,13 @@ impl Thread {
         }
     }
 
-    pub fn _wakeup(&mut self) {
+    pub(crate) fn _wakeup(&mut self) {
         assert!(self.state == ThreadState::Paused);
         self.set_state(ThreadState::Running);
         Thread::yield_higher();
     }
 
-    pub fn write_regs(&mut self, r0: u32, r1: u32, r2: u32, r3: u32) {
+    fn write_regs(&mut self, r0: u32, r1: u32, r2: u32, r3: u32) {
         let sp = self.sp as *mut u32;
         unsafe {
             write_volatile(sp.offset(0), r0); // -> R0
@@ -342,7 +341,7 @@ impl Thread {
 
     /// Start riot-rs-core scheduler
     ///
-    /// Note: this can *only* be called once during startup.
+    /// Note: this _must only be called once during startup_.
     pub unsafe fn start_threading() -> ! {
         let next_pid = RUNQUEUE.get_next() as Pid;
         Thread::get(next_pid).jump_to();
@@ -392,6 +391,18 @@ impl Lock {
             // other thread has popped us off the list and reset our thread state
             } else {
                 **state = LockState::Locked(ThreadList::new());
+            }
+        });
+    }
+
+    pub fn try_acquire(&self) -> bool {
+        return interrupt::free(|cs| {
+            let state = &mut self.get_state_mut(cs);
+            if let LockState::Unlocked = state {
+                **state = LockState::Locked(ThreadList::new());
+                true
+            } else {
+                false
             }
         });
     }
@@ -482,7 +493,6 @@ pub mod c {
     #[derive(RefCast)]
     #[repr(transparent)]
     pub struct thread_t(Thread);
-
     pub struct c_char(u8);
 
     #[no_mangle]
@@ -589,8 +599,21 @@ pub mod c {
     }
 
     #[no_mangle]
+    pub extern "C" fn mutex_trylock(mutex: &mut Lock) -> bool {
+        mutex.try_acquire()
+    }
+
+    #[no_mangle]
     pub extern "C" fn mutex_unlock(mutex: &mut Lock) {
         mutex.release()
+    }
+
+    #[no_mangle]
+    pub extern "C" fn mutex_unlock_and_sleep(mutex: &mut Lock) {
+        cortex_m::interrupt::free(|_| {
+            mutex.release();
+            Thread::sleep();
+        });
     }
 
     #[repr(C)]
@@ -626,5 +649,11 @@ pub mod c {
         msg.sender_pid = msg_.a as Pid;
         msg._type = msg_.b as u16;
         msg.content = msg_content_t { value: msg_.c };
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn msg_try_receive(msg: &'static mut msg_t) -> bool {
+        unimplemented!();
+        false
     }
 }
