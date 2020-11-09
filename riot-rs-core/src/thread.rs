@@ -1,4 +1,3 @@
-use core::cell::UnsafeCell;
 use core::ptr::write_volatile;
 use core::sync::atomic::{AtomicUsize, Ordering};
 
@@ -30,7 +29,7 @@ pub struct Thread {
     high_regs: [usize; 8],
     list_entry: Link,
     state: ThreadState,
-    prio: u8,
+    pub prio: u8,
     pub pid: Pid,
 }
 
@@ -44,7 +43,7 @@ pub enum ThreadState {
 }
 
 const THREAD_RQ_OFFSET: usize = clist::offset_of!(Thread, list_entry);
-type ThreadList = clist::TypedList<Thread, THREAD_RQ_OFFSET>;
+pub(crate) type ThreadList = clist::TypedList<Thread, THREAD_RQ_OFFSET>;
 
 bitflags! {
     #[derive(Default)]
@@ -109,6 +108,9 @@ pub fn cleanup() -> ! {
     loop {}
 }
 
+/// Supervisor Call exception handler
+///
+/// This is currently used to initiate threading.
 #[naked]
 #[no_mangle]
 #[allow(non_snake_case)]
@@ -121,6 +123,7 @@ unsafe fn SVCall() {
             :::: "volatile" );
 }
 
+/// PendSV exception handler
 #[naked]
 #[no_mangle]
 #[allow(non_snake_case)]
@@ -142,33 +145,7 @@ unsafe fn PendSV() {
 }
 
 impl Thread {
-    pub fn setup_stack(stack: &mut [u8], func: usize, arg: usize) -> usize {
-        let stack_start = stack.as_ptr() as usize;
-        let stack_pos = (stack_start + stack.len() - 36) as *mut usize;
-
-        unsafe {
-            write_volatile(stack_pos.offset(0), arg); // -> R0
-            write_volatile(stack_pos.offset(1), 1); // -> R1
-            write_volatile(stack_pos.offset(2), 2); // -> R2
-            write_volatile(stack_pos.offset(3), 3); // -> R3
-            write_volatile(stack_pos.offset(4), 12); // -> R12
-            write_volatile(stack_pos.offset(5), cleanup as usize); // -> LR
-            write_volatile(stack_pos.offset(6), func); // -> PC
-            write_volatile(stack_pos.offset(7), 0x01000000); // -> APSR
-        }
-
-        return stack_pos as usize;
-    }
-
-    unsafe fn find_unused() -> Option<Pid> {
-        for i in 0..THREADS_NUMOF {
-            if THREADS[i].state == ThreadState::Invalid {
-                return Some(i as Pid);
-            }
-        }
-        None
-    }
-
+    /// Create a new thread
     pub fn create(
         stack: &mut [u8],
         func: fn(arg: usize),
@@ -178,15 +155,11 @@ impl Thread {
     ) -> &Thread {
         Thread::create_(stack, func as usize, arg, prio, flags)
     }
-    pub fn create_(
-        stack: &mut [u8],
-        func: usize,
-        arg: usize,
-        prio: u8,
-        flags: CreateFlags,
-    ) -> &Thread {
+
+    ///
+    fn create_(stack: &mut [u8], func: usize, arg: usize, prio: u8, flags: CreateFlags) -> &Thread {
         unsafe {
-            let unused_pid = Thread::find_unused().unwrap();
+            let unused_pid = Thread::find_unused_pid().unwrap();
             let mut thread = &mut THREADS[unused_pid as usize];
             thread.sp = Thread::setup_stack(stack, func, arg);
             thread.pid = unused_pid;
@@ -283,57 +256,93 @@ impl Thread {
         Thread::yield_higher();
     }
 
-    fn write_regs(&mut self, r0: u32, r1: u32, r2: u32, r3: u32) {
-        let sp = self.sp as *mut u32;
+    /// Sets up stack for newly created threads.
+    ///
+    /// After running this, the stack should look as if the thread was
+    /// interrupted by an ISR. On the next return, it starts executing
+    /// `func`.
+    fn setup_stack(stack: &mut [u8], func: usize, arg: usize) -> usize {
+        let stack_start = stack.as_ptr() as usize;
+        let stack_pos = (stack_start + stack.len() - 36) as *mut usize;
+
         unsafe {
-            write_volatile(sp.offset(0), r0); // -> R0
-            write_volatile(sp.offset(1), r1); // -> R1
-            write_volatile(sp.offset(2), r2); // -> R2
-            write_volatile(sp.offset(3), r3); // -> R3
+            write_volatile(stack_pos.offset(0), arg); // -> R0
+            write_volatile(stack_pos.offset(1), 1); // -> R1
+            write_volatile(stack_pos.offset(2), 2); // -> R2
+            write_volatile(stack_pos.offset(3), 3); // -> R3
+            write_volatile(stack_pos.offset(4), 12); // -> R12
+            write_volatile(stack_pos.offset(5), cleanup as usize); // -> LR
+            write_volatile(stack_pos.offset(6), func); // -> PC
+            write_volatile(stack_pos.offset(7), 0x01000000); // -> APSR
         }
+
+        return stack_pos as usize;
     }
 
+    /// Find an unused PID
+    unsafe fn find_unused_pid() -> Option<Pid> {
+        for i in 0..THREADS_NUMOF {
+            if THREADS[i].state == ThreadState::Invalid {
+                return Some(i as Pid);
+            }
+        }
+        None
+    }
+
+    /// receive a message, blocking
     pub fn receive_msg(&mut self) -> Msg {
-        // disable_irq
-        let r0: u32;
-        let r1: u32;
-        let r2: u32;
-        let r3: u32;
+        interrupt::free(|_| {
+            let r0: u32;
+            let r1: u32;
+            let r2: u32;
+            let r3: u32;
 
-        self.set_state(ThreadState::MsgBlocked);
-        Thread::yield_higher();
+            self.set_state(ThreadState::MsgBlocked);
+            Thread::yield_higher();
 
-        unsafe {
-            llvm_asm!(
+            unsafe {
+                llvm_asm!(
             "
             "
             : "={r0}"(r0), "={r1}"(r1), "={r2}"(r2), "={r3}"(r3)
             :
             :
             : "volatile" );
-        };
+            };
 
-        Msg {
-            a: r0,
-            b: r1,
-            c: r2,
-            d: r3,
-        }
+            Msg {
+                a: r0,
+                b: r1,
+                c: r2,
+                d: r3,
+            }
+        })
     }
 
     pub fn send_msg(m: Msg, target: &mut Thread) -> bool {
-        // disable_irq
-        if target.state == ThreadState::MsgBlocked {
-            target.write_regs(m.a, m.b, m.c, m.d);
-            target.set_state(ThreadState::Running);
-            Thread::yield_higher();
-            return true;
+        impl Thread {
+            unsafe fn write_regs(&mut self, r0: u32, r1: u32, r2: u32, r3: u32) {
+                let sp = self.sp as *mut u32;
+                write_volatile(sp.offset(0), r0); // -> R0
+                write_volatile(sp.offset(1), r1); // -> R1
+                write_volatile(sp.offset(2), r2); // -> R2
+                write_volatile(sp.offset(3), r3); // -> R3
+            }
         }
-        false
+        interrupt::free(|_| {
+            if target.state == ThreadState::MsgBlocked {
+                // this is fine, correct thread state checked above
+                unsafe { target.write_regs(m.a, m.b, m.c, m.d) };
+                target.set_state(ThreadState::Running);
+                Thread::yield_higher();
+                return true;
+            }
+            false
+        })
     }
 
     /// Put thread in waitlist with given state
-    fn wait_on(&mut self, list: &mut ThreadList, wait_state: ThreadState) {
+    pub(crate) fn wait_on(&mut self, list: &mut ThreadList, wait_state: ThreadState) {
         list.rpush(self);
         self.set_state(wait_state);
         Thread::yield_higher();
@@ -346,83 +355,6 @@ impl Thread {
         let next_pid = RUNQUEUE.get_next() as Pid;
         Thread::get(next_pid).jump_to();
         loop {}
-    }
-}
-
-#[repr(C)]
-pub enum LockState {
-    Unlocked,
-    Locked(ThreadList),
-}
-
-pub struct Lock {
-    state: interrupt::Mutex<UnsafeCell<LockState>>,
-}
-
-impl Lock {
-    pub const fn new() -> Lock {
-        Lock {
-            state: interrupt::Mutex::new(UnsafeCell::new(LockState::Unlocked)),
-        }
-    }
-
-    // pub const fn new_locked() -> Lock {
-    //     Lock {
-    //         state: interrupt::Mutex::new(UnsafeCell::new(LockState::Locked(ThreadList::new()))),
-    //     }
-    // }
-
-    fn get_state_mut(&self, cs: &interrupt::CriticalSection) -> &mut LockState {
-        unsafe { &mut *self.state.borrow(cs).get() }
-    }
-
-    pub fn is_locked(&self) -> bool {
-        interrupt::free(|cs| match self.get_state_mut(cs) {
-            LockState::Unlocked => true,
-            _ => false,
-        })
-    }
-
-    pub fn acquire(&self) {
-        interrupt::free(|cs| {
-            let state = &mut self.get_state_mut(cs);
-            if let LockState::Locked(list) = state {
-                Thread::current().wait_on(list, ThreadState::Paused);
-            // other thread has popped us off the list and reset our thread state
-            } else {
-                **state = LockState::Locked(ThreadList::new());
-            }
-        });
-    }
-
-    pub fn try_acquire(&self) -> bool {
-        return interrupt::free(|cs| {
-            let state = &mut self.get_state_mut(cs);
-            if let LockState::Unlocked = state {
-                **state = LockState::Locked(ThreadList::new());
-                true
-            } else {
-                false
-            }
-        });
-    }
-
-    pub fn release(&self) {
-        interrupt::free(|cs| {
-            let state = &mut self.get_state_mut(cs);
-            if let LockState::Locked(list) = state {
-                if let Some(waiting_thread) = list.lpop() {
-                    waiting_thread.set_state(ThreadState::Running);
-                    if waiting_thread.prio > Thread::current().prio {
-                        Thread::yield_higher();
-                    }
-                } else {
-                    **state = LockState::Unlocked;
-                }
-            } else {
-                // what now. panic?
-            }
-        });
     }
 }
 
@@ -445,7 +377,7 @@ impl Thread {
     // create with passing data on stack. used by spawn()
     fn _create(stack: &mut [u8], func: usize, prio: u8, data: &[u8]) -> &'static Thread {
         unsafe {
-            let unused_pid = Thread::find_unused().unwrap();
+            let unused_pid = Thread::find_unused_pid().unwrap();
             let mut thread = &mut THREADS[unused_pid as usize];
             if data.len() > 16 {
                 let (stack, data_in_stack) = stack.split_at_mut(stack.len() - data.len());
@@ -488,7 +420,8 @@ pub mod c {
     use ref_cast::RefCast;
 
     use super::println;
-    use crate::thread::{CreateFlags, Lock, Msg, Pid, Thread};
+    use crate::lock::Lock;
+    use crate::thread::{CreateFlags, Msg, Pid, Thread};
 
     #[derive(RefCast)]
     #[repr(transparent)]
@@ -652,8 +585,12 @@ pub mod c {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn msg_try_receive(msg: &'static mut msg_t) -> bool {
+    pub unsafe extern "C" fn msg_try_receive(_msg: &'static mut msg_t) -> bool {
         unimplemented!();
-        false
     }
+}
+
+#[test_case]
+fn test_pid_is_one() {
+    assert!(Thread::current().pid == 1);
 }
