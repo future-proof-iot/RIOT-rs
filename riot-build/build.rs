@@ -6,14 +6,13 @@ use std::process::Command;
 fn main() {
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let out_dir = env::var("OUT_DIR").unwrap();
-    let riotbase = env::var_os("RIOTBASE").unwrap().into_string().unwrap();
-    let board = env::var_os("BOARD").unwrap().into_string().unwrap();
+    let riotbase = env::var("RIOTBASE").unwrap();
+    let board = env::var("BOARD").unwrap();
 
-    let out_path = Path::new(&out_dir);
     let riot_builddir = Path::new(&out_dir).join("libriot");
     let riot_bindir = riot_builddir.join("bin");
 
-    // assume they're nested
+    fs::create_dir_all(&riot_builddir).unwrap();
     fs::create_dir_all(&riot_bindir).unwrap();
 
     let app_name = "libriot";
@@ -29,6 +28,10 @@ fn main() {
         riotbase = &riotbase,
         crate_dir = &crate_dir
     );
+
+    if let Some(usemodule) = env::var_os("USEMODULE") {
+        makefile_content += &format!("USEMODULE += {}\n", &usemodule.into_string().unwrap());
+    }
 
     // if the riot_rs_core feature was set, configure the riot build accordingly
     if let Some(_) = env::var_os("CARGO_FEATURE_RIOT_RS_CORE") {
@@ -73,14 +76,15 @@ fn main() {
     // instruct cargo to link RIOT archive
     println!("cargo:rustc-link-search=native={}", out_dir);
     println!("cargo:rustc-link-lib=static=riot");
-    println!(
-        "cargo:MAKEFILE={}",
-        out_path.join("Makefile").to_string_lossy()
-    );
+
+    // with `links = "riot-build", this results in
+    // DEP_RIOT_BUILD_DIR=foo being passed to dependees
+    println!("cargo:DIR={}", riot_builddir.to_string_lossy());
 
     // change notifiers
     println!("cargo:rerun-if-env-changed=BOARD");
-    println!("cargo:rerun-if-env-changed=RIOTBASE");
     println!("cargo:rerun-if-env-changed=CARGO_FEATURE_RIOT_RS_CORE");
+    println!("cargo:rerun-if-env-changed=RIOTBASE");
+    println!("cargo:rerun-if-env-changed=USEMODULE");
     println!("cargo:rerun-if-changed=Makefile.riotbuild-rs");
 }
