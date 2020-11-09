@@ -24,5 +24,6 @@ cortex-m-semihosting = { version = "0.3.5" }
 cbindgen = "0.15.*"
 
 [dev-dependencies]
+linkme = "0.2.3"
 riot-rs-rt = { path = "../riot-rs-rt" }
 boards = { path = "../boards" }

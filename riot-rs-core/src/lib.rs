@@ -27,12 +27,23 @@ pub mod runqueue;
 pub mod thread;
 
 #[cfg(test)]
-use riot_rs_rt as _;
+pub mod startup;
 
-#[no_mangle]
 #[cfg(test)]
+mod test {
+    use linkme::distributed_slice;
+    use riot_rs_rt as _;
+    use riot_rs_rt::init::INIT_FUNCS;
+
+    #[distributed_slice(INIT_FUNCS, 99)]
+    fn startup() {
+        crate::startup::startup();
+    }
+}
+
+#[cfg(test)]
+#[no_mangle]
 extern "C" fn user_main() {
-    #[cfg(test)]
     test_main();
 }
 

@@ -9,9 +9,12 @@ fn idle(_arg: usize) {
     }
 }
 
+extern "C" {
+    fn user_main();
+}
+
 fn main_trampoline(_arg: usize) {
     unsafe {
-        extern "C" fn user_main();
         user_main();
     }
 }
