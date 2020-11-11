@@ -23,6 +23,7 @@
 #![test_runner(riot_rs_rt::testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+pub mod event_group;
 pub mod lock;
 pub mod mutex;
 pub mod runqueue;
