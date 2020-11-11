@@ -5,7 +5,6 @@ use crate::thread::{Thread, ThreadList, ThreadState};
 use core::cell::UnsafeCell;
 use cortex_m::interrupt;
 
-#[repr(C)]
 pub struct Lock {
     state: interrupt::Mutex<UnsafeCell<LockState>>,
 }

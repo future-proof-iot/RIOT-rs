@@ -48,4 +48,5 @@ fn main() {
     // list cbindgen.toml and all .rs that contain c bindings
     println!("cargo:rerun-if-changed=cbindgen.toml");
     println!("cargo:rerun-if-changed=src/thread.rs");
+    println!("cargo:rerun-if-changed=src/lock.rs");
 }
