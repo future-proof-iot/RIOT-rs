@@ -24,6 +24,7 @@
 #![reexport_test_harness_main = "test_main"]
 
 pub mod lock;
+pub mod mutex;
 pub mod runqueue;
 pub mod thread;
 
