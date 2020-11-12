@@ -21,7 +21,7 @@ fn riot_startup() {
     // Thus explitly link in a dummy.
     boards::linkme_please();
 
-    println!("riot::user_main()");
+    println!("riot_build::riot_startup(): launching RIOT startup");
     unsafe {
         board_init();
         //libc_init();
