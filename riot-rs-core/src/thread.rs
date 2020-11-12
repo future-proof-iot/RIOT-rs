@@ -42,8 +42,7 @@ pub enum ThreadState {
     MsgBlocked,
 }
 
-const THREAD_RQ_OFFSET: usize = clist::offset_of!(Thread, list_entry);
-pub(crate) type ThreadList = clist::TypedList<Thread, THREAD_RQ_OFFSET>;
+pub(crate) type ThreadList = clist::TypedList<Thread, { clist::offset_of!(Thread, list_entry) }>;
 
 bitflags! {
     #[derive(Default)]
