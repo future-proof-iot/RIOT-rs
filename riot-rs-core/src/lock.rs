@@ -21,11 +21,11 @@ impl Lock {
         }
     }
 
-    // pub const fn new_locked() -> Lock {
-    //     Lock {
-    //         state: interrupt::Mutex::new(UnsafeCell::new(LockState::Locked(ThreadList::new()))),
-    //     }
-    // }
+    pub const fn new_locked() -> Lock {
+        Lock {
+            state: interrupt::Mutex::new(UnsafeCell::new(LockState::Locked(ThreadList::new()))),
+        }
+    }
 
     pub fn is_locked(&self) -> bool {
         interrupt::free(|cs| match self.get_state_mut(cs) {
