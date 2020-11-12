@@ -20,6 +20,7 @@ cfg_if! {
 
 pub const SCHED_PRIO_LEVELS: usize = 8;
 pub const THREADS_NUMOF: usize = 16;
+pub const THREAD_FLAG_TIMEOUT: ThreadFlags = (1 as ThreadFlags) << 14;
 
 pub type Pid = usize;
 pub type ThreadFlags = u16;
@@ -495,7 +496,7 @@ pub mod c {
 
     use super::println;
     use crate::lock::Lock;
-    use crate::thread::{CreateFlags, Msg, Pid, Thread};
+    use crate::thread::{CreateFlags, Msg, Pid, Thread, ThreadFlags};
 
     #[derive(RefCast)]
     #[repr(transparent)]
@@ -661,6 +662,26 @@ pub mod c {
     #[no_mangle]
     pub unsafe extern "C" fn msg_try_receive(_msg: &'static mut msg_t) -> bool {
         unimplemented!();
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_flags_set(thread: &mut Thread, mask: ThreadFlags) {
+        thread.flag_set(mask)
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_flags_wait_any(mask: ThreadFlags) -> ThreadFlags {
+        Thread::flag_wait_any(mask)
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_flags_wait_all(mask: ThreadFlags) -> ThreadFlags {
+        Thread::flag_wait_all(mask)
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_flags_clear(mask: ThreadFlags) -> ThreadFlags {
+        Thread::flag_clear(mask)
     }
 }
 
