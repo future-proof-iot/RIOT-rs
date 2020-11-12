@@ -22,6 +22,7 @@ pub const SCHED_PRIO_LEVELS: usize = 8;
 pub const THREADS_NUMOF: usize = 16;
 
 pub type Pid = usize;
+pub type ThreadFlags = u16;
 
 #[derive(Copy, Clone)]
 pub struct Thread {
@@ -30,6 +31,7 @@ pub struct Thread {
     list_entry: Link,
     state: ThreadState,
     pub prio: u8,
+    pub flags: ThreadFlags,
     pub pid: Pid,
 }
 
@@ -40,6 +42,7 @@ pub enum ThreadState {
     Paused,
     MutexBlocked,
     MsgBlocked,
+    FlagBlocked(FlagWaitMode),
 }
 
 pub(crate) type ThreadList = clist::TypedList<Thread, { clist::offset_of!(Thread, list_entry) }>;
@@ -94,6 +97,7 @@ static mut THREADS: [Thread; THREADS_NUMOF] = [Thread {
     high_regs: [0; 8],
     prio: 0,
     pid: 0,
+    flags: 0,
 }; THREADS_NUMOF];
 
 static CURRENT_THREAD: AtomicUsize = AtomicUsize::new(0);
@@ -357,6 +361,77 @@ impl Thread {
     }
 }
 
+#[derive(Copy, Clone, PartialEq)]
+pub enum FlagWaitMode {
+    Any(ThreadFlags),
+    All(ThreadFlags),
+}
+
+impl Thread {
+    pub fn flag_set(&mut self, mask: ThreadFlags) {
+        interrupt::free(|_| {
+            self.flags |= mask;
+            if match self.state {
+                ThreadState::FlagBlocked(mode) => match mode {
+                    FlagWaitMode::Any(bits) => (self.flags & bits != 0),
+                    FlagWaitMode::All(bits) => (self.flags & bits == bits),
+                },
+                _ => false,
+            } {
+                self.set_state(ThreadState::Running);
+                Thread::yield_higher();
+            }
+        })
+    }
+
+    pub fn flag_wait_all(mask: ThreadFlags) -> ThreadFlags {
+        let thread = Thread::current();
+        loop {
+            if let Some(result) = cortex_m::interrupt::free(|_| {
+                if thread.flags & mask != 0 {
+                    let result = thread.flags & mask;
+                    thread.flags &= !mask;
+                    Some(result)
+                } else {
+                    None
+                }
+            }) {
+                return result;
+            } else {
+                thread.set_state(ThreadState::FlagBlocked(FlagWaitMode::All(mask)));
+                Thread::yield_higher();
+            }
+        }
+    }
+
+    pub fn flag_wait_any(mask: ThreadFlags) -> ThreadFlags {
+        let thread = Thread::current();
+        loop {
+            if let Some(result) = cortex_m::interrupt::free(|_| {
+                if thread.flags & mask == mask {
+                    thread.flags &= !mask;
+                    Some(mask)
+                } else {
+                    None
+                }
+            }) {
+                return result;
+            } else {
+                thread.set_state(ThreadState::FlagBlocked(FlagWaitMode::All(mask)));
+                Thread::yield_higher();
+            }
+        }
+    }
+
+    pub fn flag_clear(mask: ThreadFlags) -> ThreadFlags {
+        let thread = Thread::current();
+        cortex_m::interrupt::free(|_| {
+            let res = thread.flags & mask;
+            thread.flags &= !mask;
+            res
+        })
+    }
+}
 // this block contains experimental closure thread support
 impl Thread {
     pub fn setup_stack_noregs(stack: &mut [u8], func: usize) -> usize {
@@ -592,4 +667,42 @@ pub mod c {
 #[test_case]
 fn test_pid_is_one() {
     assert!(Thread::current().pid == 1);
+}
+
+#[test_case]
+fn test_thread_flags() {
+    fn func(arg: usize) {
+        let thread = arg as *mut Thread;
+        let thread = unsafe { &mut *thread };
+        thread.flag_set(0b1);
+        thread.flag_set(0b1010);
+        thread.flag_set(0b100);
+        thread.flag_set(0b11111);
+    }
+
+    static mut STACK: [u8; 1024] = [0; 1024];
+
+    use crate::thread::{CreateFlags, Thread};
+
+    let thread = Thread::current();
+
+    unsafe {
+        Thread::create(
+            &mut STACK,
+            func,
+            thread as *mut Thread as usize,
+            1,
+            CreateFlags::empty(),
+        );
+    }
+
+    assert_eq!(thread.flags, 0);
+    assert_eq!(Thread::flag_wait_any(0b1), 0b1);
+    assert_eq!(thread.flags, 0);
+    assert_eq!(Thread::flag_wait_any(0b10), 0b10);
+    assert_eq!(thread.flags, 0b1000);
+    assert_eq!(Thread::flag_wait_any(0b100), 0b100);
+    assert_eq!(thread.flags, 0b1000);
+    assert_eq!(Thread::flag_wait_all(0b111), 0b111);
+    assert_eq!(thread.flags, 0b11000);
 }
