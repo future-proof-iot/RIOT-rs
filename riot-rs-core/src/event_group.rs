@@ -82,7 +82,6 @@ impl Subscriber {
     pub fn new(event_group: &EventGroup) -> Subscriber {
         let mut subscription = Subscriber::new_unsubscribed();
         event_group.subscribe(&mut subscription);
-        subscription.lock.acquire();
         subscription
     }
 
