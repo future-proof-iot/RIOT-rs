@@ -32,7 +32,7 @@ pub struct Subscriber {
 }
 
 impl EventGroup {
-    pub fn new() -> EventGroup {
+    pub const fn new() -> EventGroup {
         EventGroup {
             0: cortex_m::interrupt::Mutex::new(UnsafeCell::new(EventGroupInner {
                 waiters: SubscriberList::new(),
@@ -80,15 +80,19 @@ impl EventGroup {
 
 impl Subscriber {
     pub fn new(event_group: &EventGroup) -> Subscriber {
-        let mut subscription = Subscriber {
-            list_entry: Link::new(),
-            state: 0,
-            mode: SubscribeMode::None,
-            lock: Lock::new(),
-        };
+        let mut subscription = Subscriber::new_unsubscribed();
         event_group.subscribe(&mut subscription);
         subscription.lock.acquire();
         subscription
+    }
+
+    pub const fn new_unsubscribed() -> Subscriber {
+        Subscriber {
+            list_entry: Link::new(),
+            state: 0,
+            mode: SubscribeMode::None,
+            lock: Lock::new_locked(),
+        }
     }
 
     pub fn wait(&mut self, events: SubscribeMode) -> u32 {
@@ -121,6 +125,14 @@ impl Subscriber {
             cortex_m::interrupt::free(|_| self.mode = events.clone());
             self.lock.acquire();
         }
+    }
+
+    pub fn clear(&mut self, mask: u32) -> u32 {
+        cortex_m::interrupt::free(|_| {
+            let cleared = self.state & mask;
+            self.state &= !mask;
+            cleared
+        })
     }
 }
 
