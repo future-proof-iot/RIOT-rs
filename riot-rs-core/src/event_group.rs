@@ -135,22 +135,20 @@ impl Subscriber {
     }
 }
 
-#[cfg(test)]
-static mut STACK: [u8; 1024] = [0; 1024];
-
-#[cfg(test)]
-fn func(arg: usize) {
-    let event_group = arg as *const EventGroup;
-    let event_group = unsafe { &*event_group };
-    event_group.set(0b1);
-    event_group.set(0b1010);
-    event_group.set(0b100);
-    event_group.set(0b11111);
-}
-
 #[test_case]
 fn test_event_group() {
     use crate::thread::{CreateFlags, Thread};
+
+    static mut STACK: [u8; 1024] = [0; 1024];
+
+    fn func(arg: usize) {
+        let event_group = arg as *const EventGroup;
+        let event_group = unsafe { &*event_group };
+        event_group.set(0b1);
+        event_group.set(0b1010);
+        event_group.set(0b100);
+        event_group.set(0b11111);
+    }
 
     let event_group = EventGroup::new();
     let mut subscriber = Subscriber::new(&event_group);
