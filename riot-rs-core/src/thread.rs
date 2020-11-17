@@ -619,9 +619,6 @@ pub mod c {
         println!("Hello from Rust!");
     }
 
-    pub const MUTEX_T_SIZEOF: usize = 8; //core::mem::size_of::<Lock>();
-    pub const MUTEX_T_ALIGNOF: usize = 4; //core::mem::align_of::<Lock>();
-
     // #[no_mangle]
     // pub unsafe extern "C" fn MUTEX_INIT() -> mutex_t {
     //     let lock = Lock::new();
@@ -656,14 +653,21 @@ pub mod c {
         });
     }
 
+    // we need to put both a ptr and a value in here.
+    // but ffi::c_void is not copy. This needs to be Copy to be used
+    // with mbox. so make "ptr" a usize field, and manually add
+    // msg_content_t to msg.h (tell cbindgen to ignore this)
+    /// cbindgen:ignore
     #[repr(C)]
+    #[derive(Copy, Clone)]
     pub union msg_content_t {
-        ptr: &'static mut core::ffi::c_void,
         value: u32,
+        ptr: usize,
     }
 
     /// cbindgen:field-names=[sender_pid, type, content]
     #[repr(C)]
+    #[derive(Copy, Clone)]
     pub struct msg_t {
         sender_pid: Pid,
         _type: u16,
@@ -719,6 +723,22 @@ pub mod c {
     #[no_mangle]
     pub unsafe extern "C" fn thread_flags_clear(mask: ThreadFlags) -> ThreadFlags {
         Thread::flag_clear(mask)
+    }
+
+    // the C bindings use aligned byte arrays to represent Rust types that can
+    // not be expressed in C, but need their size at compile time on the C side.
+    // These const values are used to pass the corrext sizes to the C headers.
+    // Alas, cbindgen doesn't understand const functions, so we need to hard-code
+    // the values.
+    //
+    // Test cases ensure that the values match.
+    pub const MUTEX_T_SIZEOF: usize = 8; //core::mem::size_of::<Lock>();
+    pub const MUTEX_T_ALIGNOF: usize = 4; //core::mem::align_of::<Lock>();
+
+    #[test_case]
+    fn test_const_defines() {
+        assert_eq!(core::mem::size_of::<Lock>(), MUTEX_T_SIZEOF);
+        assert_eq!(core::mem::align_of::<Lock>(), MUTEX_T_ALIGNOF);
     }
 }
 

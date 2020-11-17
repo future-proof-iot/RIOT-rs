@@ -4,6 +4,8 @@ documentation_style = "doxy"
 style = "type"
 pragma_once = true
 
+includes = ["msg_content.h"]
+
 # Table of name conversions to apply to item names (lhs becomes rhs)
 [export.rename]
 "Pid" = "kernel_pid_t"
