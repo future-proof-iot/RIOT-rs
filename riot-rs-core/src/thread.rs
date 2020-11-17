@@ -30,7 +30,7 @@ pub struct Thread {
     sp: usize,
     high_regs: [usize; 8],
     list_entry: Link,
-    state: ThreadState,
+    pub(crate) state: ThreadState,
     pub prio: u8,
     pub flags: ThreadFlags,
     pub pid: Pid,
@@ -44,6 +44,8 @@ pub enum ThreadState {
     MutexBlocked,
     MsgBlocked,
     FlagBlocked(FlagWaitMode),
+    ChannelRxBlocked(usize),
+    ChannelTxBlocked(usize),
 }
 
 pub(crate) type ThreadList = clist::TypedList<Thread, { clist::offset_of!(Thread, list_entry) }>;

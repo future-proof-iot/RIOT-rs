@@ -15,6 +15,9 @@
 #![feature(const_ptr_offset_from)]
 #![feature(const_raw_ptr_deref)]
 #![feature(const_maybe_uninit_as_ptr)]
+// ringbuffer
+#![feature(const_fn)]
+#![feature(const_mut_refs)]
 // for msg_content_t union
 // error[E0658]: unions with non-`Copy` fields other than `ManuallyDrop<T>` are unstable
 #![feature(untagged_unions)]
@@ -23,6 +26,7 @@
 #![test_runner(riot_rs_rt::testing::test_runner)]
 #![reexport_test_harness_main = "test_main"]
 
+pub mod channel;
 pub mod event_group;
 pub mod lock;
 pub mod mutex;
