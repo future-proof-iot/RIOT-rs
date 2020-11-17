@@ -434,6 +434,28 @@ impl Thread {
         }
     }
 
+    pub fn flag_wait_one(mask: ThreadFlags) -> ThreadFlags {
+        let thread = Thread::current();
+        loop {
+            if let Some(result) = cortex_m::interrupt::free(|_| {
+                if thread.flags & mask != 0 {
+                    let mut res = thread.flags & mask;
+                    // clear all but least significant bit
+                    res &= !res + 1;
+                    thread.flags &= !res;
+                    Some(res)
+                } else {
+                    None
+                }
+            }) {
+                return result;
+            } else {
+                thread.set_state(ThreadState::FlagBlocked(FlagWaitMode::Any(mask)));
+                Thread::yield_higher();
+            }
+        }
+    }
+
     pub fn flag_clear(mask: ThreadFlags) -> ThreadFlags {
         let thread = Thread::current();
         cortex_m::interrupt::free(|_| {
@@ -682,6 +704,11 @@ pub mod c {
     #[no_mangle]
     pub unsafe extern "C" fn thread_flags_wait_any(mask: ThreadFlags) -> ThreadFlags {
         Thread::flag_wait_any(mask)
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_flags_wait_one(mask: ThreadFlags) -> ThreadFlags {
+        Thread::flag_wait_one(mask)
     }
 
     #[no_mangle]
