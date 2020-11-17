@@ -49,4 +49,5 @@ fn main() {
     println!("cargo:rerun-if-changed=cbindgen.toml");
     println!("cargo:rerun-if-changed=src/thread.rs");
     println!("cargo:rerun-if-changed=src/lock.rs");
+    println!("cargo:rerun-if-changed=src/channel.rs");
 }
