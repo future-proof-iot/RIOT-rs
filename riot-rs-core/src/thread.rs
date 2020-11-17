@@ -243,6 +243,13 @@ impl Thread {
         cortex_m::asm::isb();
     }
 
+    pub fn isr_enable_disable() {
+        core::sync::atomic::compiler_fence(Ordering::SeqCst);
+        unsafe { cortex_m::interrupt::enable() };
+        cortex_m::asm::isb();
+        cortex_m::interrupt::disable();
+    }
+
     pub fn sleep() {
         Thread::current().set_state(ThreadState::Paused);
         Thread::yield_higher();
