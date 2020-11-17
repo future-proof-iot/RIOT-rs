@@ -418,16 +418,17 @@ impl Thread {
         let thread = Thread::current();
         loop {
             if let Some(result) = cortex_m::interrupt::free(|_| {
-                if thread.flags & mask == mask {
-                    thread.flags &= !mask;
-                    Some(mask)
+                if thread.flags & mask != 0 {
+                    let res = thread.flags & mask;
+                    thread.flags &= !res;
+                    Some(res)
                 } else {
                     None
                 }
             }) {
                 return result;
             } else {
-                thread.set_state(ThreadState::FlagBlocked(FlagWaitMode::All(mask)));
+                thread.set_state(ThreadState::FlagBlocked(FlagWaitMode::Any(mask)));
                 Thread::yield_higher();
             }
         }
@@ -729,7 +730,7 @@ fn test_thread_flags() {
     assert_eq!(thread.flags, 0);
     assert_eq!(Thread::flag_wait_any(0b1), 0b1);
     assert_eq!(thread.flags, 0);
-    assert_eq!(Thread::flag_wait_any(0b10), 0b10);
+    assert_eq!(Thread::flag_wait_any(0b11), 0b10);
     assert_eq!(thread.flags, 0b1000);
     assert_eq!(Thread::flag_wait_any(0b100), 0b100);
     assert_eq!(thread.flags, 0b1000);
