@@ -21,6 +21,8 @@
 // for msg_content_t union
 // error[E0658]: unions with non-`Copy` fields other than `ManuallyDrop<T>` are unstable
 #![feature(untagged_unions)]
+// for THREAD_MSG_WAITERS static initialization
+#![feature(const_in_array_repeat_expressions)]
 // testing
 #![feature(custom_test_frameworks)]
 #![test_runner(riot_rs_rt::testing::test_runner)]

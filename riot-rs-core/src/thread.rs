@@ -1,3 +1,4 @@
+use core::mem::MaybeUninit;
 use core::ptr::write_volatile;
 use core::sync::atomic::{AtomicUsize, Ordering};
 
@@ -20,6 +21,7 @@ cfg_if! {
 pub const SCHED_PRIO_LEVELS: usize = 16;
 
 pub const THREADS_NUMOF: usize = 16;
+pub const THREAD_FLAG_MSG_WAITING: ThreadFlags = (1 as ThreadFlags) << 15;
 pub const THREAD_FLAG_TIMEOUT: ThreadFlags = (1 as ThreadFlags) << 14;
 
 pub type Pid = u16;
@@ -42,7 +44,8 @@ pub enum ThreadState {
     Running,
     Paused,
     MutexBlocked,
-    MsgBlocked,
+    MsgRxBlocked(*mut Msg),
+    MsgTxBlocked(*const Msg),
     FlagBlocked(FlagWaitMode),
     ChannelRxBlocked(usize),
     ChannelTxBlocked(usize),
@@ -71,7 +74,10 @@ pub struct Msg {
     pub a: u32,
     pub b: u32,
     pub c: u32,
-    pub d: u32,
+}
+
+pub enum MsgError {
+    WouldBlock,
 }
 
 use crate::runqueue::RunQueue;
@@ -108,6 +114,8 @@ static mut THREADS: [Thread; THREADS_NUMOF] = [Thread {
     pid: 0,
     flags: 0,
 }; THREADS_NUMOF];
+
+static mut THREAD_MSG_WAITERS: [ThreadList; THREADS_NUMOF] = [ThreadList::new(); THREADS_NUMOF];
 
 static CURRENT_THREAD: AtomicUsize = AtomicUsize::new(0);
 
@@ -320,58 +328,6 @@ impl Thread {
         None
     }
 
-    /// receive a message, blocking
-    pub fn receive_msg(&mut self) -> Msg {
-        interrupt::free(|_| {
-            let r0: u32;
-            let r1: u32;
-            let r2: u32;
-            let r3: u32;
-
-            self.set_state(ThreadState::MsgBlocked);
-            Thread::yield_higher();
-
-            unsafe {
-                llvm_asm!(
-            "
-            "
-            : "={r0}"(r0), "={r1}"(r1), "={r2}"(r2), "={r3}"(r3)
-            :
-            :
-            : "volatile" );
-            };
-
-            Msg {
-                a: r0,
-                b: r1,
-                c: r2,
-                d: r3,
-            }
-        })
-    }
-
-    pub fn send_msg(m: Msg, target: &mut Thread) -> bool {
-        impl Thread {
-            unsafe fn write_regs(&mut self, r0: u32, r1: u32, r2: u32, r3: u32) {
-                let sp = self.sp as *mut u32;
-                write_volatile(sp.offset(0), r0); // -> R0
-                write_volatile(sp.offset(1), r1); // -> R1
-                write_volatile(sp.offset(2), r2); // -> R2
-                write_volatile(sp.offset(3), r3); // -> R3
-            }
-        }
-        interrupt::free(|_| {
-            if target.state == ThreadState::MsgBlocked {
-                // this is fine, correct thread state checked above
-                unsafe { target.write_regs(m.a, m.b, m.c, m.d) };
-                target.set_state(ThreadState::Running);
-                Thread::yield_higher();
-                return true;
-            }
-            false
-        })
-    }
-
     /// Put thread in waitlist with given state
     pub(crate) fn wait_on(&mut self, list: &mut ThreadList, wait_state: ThreadState) {
         list.rpush(self);
@@ -389,10 +345,76 @@ impl Thread {
     }
 }
 
-#[derive(Copy, Clone, PartialEq)]
-pub enum FlagWaitMode {
-    Any(ThreadFlags),
-    All(ThreadFlags),
+impl Thread {
+    // msg send/receive implementation
+    // not supposed to stay, need a proper SyncChannel<T>.
+    // But this implements what's needed to support RIOT's msg API
+    /// receive a message, blocking
+    fn try_receive_msg_impl(&mut self) -> Result<Msg, MsgError> {
+        if let Some(sender) = self.get_msg_waiters().lpop() {
+            if let ThreadState::MsgTxBlocked(ptr) = sender.state {
+                let res = unsafe { *ptr };
+                sender.set_state(ThreadState::Running);
+                Thread::yield_higher();
+                Ok(res)
+            } else {
+                unreachable! {}
+            }
+        } else {
+            Err(MsgError::WouldBlock)
+        }
+    }
+
+    pub fn try_receive_msg(&mut self) -> Result<Msg, MsgError> {
+        interrupt::free(|_| self.try_receive_msg_impl())
+    }
+
+    pub fn receive_msg(&mut self) -> Msg {
+        interrupt::free(|_| {
+            if let Ok(msg) = self.try_receive_msg_impl() {
+                msg
+            } else {
+                let mut msg: MaybeUninit<Msg> = MaybeUninit::uninit();
+
+                self.set_state(ThreadState::MsgRxBlocked(msg.as_mut_ptr()));
+
+                Thread::yield_higher();
+                Thread::isr_enable_disable();
+
+                unsafe { msg.assume_init() }
+            }
+        })
+    }
+
+    fn try_send_msg_impl(m: Msg, target: &mut Thread) -> Result<(), MsgError> {
+        if let ThreadState::MsgRxBlocked(ptr) = target.state {
+            unsafe { *ptr = m };
+            target.set_state(ThreadState::Running);
+            Thread::yield_higher();
+            Ok(())
+        } else {
+            Err(MsgError::WouldBlock)
+        }
+    }
+
+    pub fn try_send_msg(m: Msg, target: &mut Thread) -> Result<(), MsgError> {
+        interrupt::free(|_| Thread::try_send_msg_impl(m, target))
+    }
+
+    fn get_msg_waiters(&self) -> &mut ThreadList {
+        unsafe { &mut THREAD_MSG_WAITERS[self.pid as usize] }
+    }
+
+    pub fn send_msg(m: Msg, target: &mut Thread) {
+        interrupt::free(|_| {
+            if Thread::try_send_msg_impl(m, target).is_err() {
+                let sender = Thread::current();
+                assert!(sender.pid != target.pid);
+                target.flag_set(THREAD_FLAG_MSG_WAITING);
+                sender.wait_on(target.get_msg_waiters(), ThreadState::MsgTxBlocked(&m));
+            }
+        })
+    }
 }
 
 impl Thread {
@@ -632,11 +654,6 @@ pub mod c {
         panic!("rust core_panic()");
     }
 
-    #[no_mangle]
-    pub extern "C" fn rust_hello() {
-        println!("Hello from Rust!");
-    }
-
     // #[no_mangle]
     // pub unsafe extern "C" fn MUTEX_INIT() -> mutex_t {
     //     let lock = Lock::new();
@@ -692,30 +709,105 @@ pub mod c {
         content: msg_content_t,
     }
 
+    impl msg_t {
+        fn from_msg(other: Msg) -> msg_t {
+            msg_t {
+                sender_pid: other.a as Pid,
+                _type: other.b as u16,
+                content: msg_content_t { value: other.c },
+            }
+        }
+    }
+
     #[no_mangle]
-    pub unsafe extern "C" fn msg_send(msg: &'static mut msg_t, target_pid: Pid) {
+    pub unsafe extern "C" fn msg_send(msg: &'static mut msg_t, target_pid: Pid) -> i32 {
+        // TODO: handle nonexisting Pid
+        msg.sender_pid = Thread::current_pid();
+        if msg.sender_pid == target_pid {
+            return msg_send_to_self(msg);
+        }
+        let target = Thread::get_mut(target_pid);
+        let msg_ = Msg {
+            a: msg.sender_pid as u32,
+            b: msg._type as u32,
+            c: msg.content.value,
+        };
+        Thread::send_msg(msg_, target);
+        1
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn msg_receive(msg: &'static mut msg_t) {
+        *msg = msg_t::from_msg(Thread::current().receive_msg());
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn msg_try_receive(msg: &'static mut msg_t) -> bool {
+        match Thread::current().try_receive_msg() {
+            Ok(res) => {
+                *msg = msg_t::from_msg(res);
+                true
+            }
+            _ => false,
+        }
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn msg_send_receive(
+        msg: &'static mut msg_t,
+        reply: &'static mut msg_t,
+        target_pid: Pid,
+    ) -> bool {
+        // TODO: this is broken compared to the RIOT implementation. It can receive a message
+        // that was not a reply.
+        msg_send(msg, target_pid);
+        msg_receive(reply);
+        true
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn msg_reply(msg: &'static mut msg_t, reply: &'static mut msg_t) -> i32 {
+        if msg_try_send(reply, msg.sender_pid as Pid) {
+            1
+        } else {
+            -1
+        }
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn msg_try_send(msg: &'static mut msg_t, target_pid: Pid) -> bool {
         msg.sender_pid = Thread::current_pid();
         let target = Thread::get_mut(target_pid);
         let msg_ = Msg {
             a: msg.sender_pid as u32,
             b: msg._type as u32,
             c: msg.content.value,
-            d: 0,
         };
-        Thread::send_msg(msg_, target);
+        Thread::try_send_msg(msg_, target).is_ok()
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn msg_receive(msg: &'static mut msg_t) {
-        let msg_ = Thread::current().receive_msg();
-        msg.sender_pid = msg_.a as Pid;
-        msg._type = msg_.b as u16;
-        msg.content = msg_content_t { value: msg_.c };
+    pub unsafe extern "C" fn msg_init_queue(_array: &'static mut msg_t, _num: usize) {
+        // TODO: implement
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn msg_try_receive(_msg: &'static mut msg_t) -> bool {
-        unimplemented!();
+    pub unsafe extern "C" fn msg_send_to_self(_msg: &'static mut msg_t) -> i32 {
+        use super::println;
+        println!("msg_send_to_self() pid={} stub", thread_getpid());
+        // TODO: implement
+        0
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_has_msg_queue(_thread: &Thread) -> bool {
+        false
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn msg_avail() -> i32 {
+        // TODO: implement
+        0
     }
 
     #[no_mangle]
@@ -801,4 +893,37 @@ fn test_thread_flags() {
     assert_eq!(thread.flags, 0b1000);
     assert_eq!(Thread::flag_wait_all(0b111), 0b111);
     assert_eq!(thread.flags, 0b11000);
+}
+
+#[test_case]
+fn test_msg() {
+    use riot_rs_rt::debug::println;
+
+    fn func(arg: usize) {
+        let thread = arg as *mut Thread;
+        let thread = unsafe { &mut *thread };
+        println!("thread send()");
+        Thread::send_msg(Msg { a: 0, b: 1, c: 2 }, thread);
+        println!("thread done()");
+    }
+
+    static mut STACK: [u8; 1024] = [0; 1024];
+
+    use crate::thread::{CreateFlags, Thread};
+
+    let thread = Thread::current();
+
+    unsafe {
+        Thread::create(
+            &mut STACK,
+            func,
+            thread as *mut Thread as usize,
+            6,
+            CreateFlags::empty(),
+        );
+    }
+
+    assert_eq!(Thread::current().receive_msg(), Msg { a: 0, b: 1, c: 2 });
+    assert!(Thread::current().try_receive_msg().is_err());
+    println!("main done");
 }
