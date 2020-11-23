@@ -13,7 +13,6 @@ cfg_if! {
     if #[cfg(feature = "riot-rs-rt")] {
         pub(crate) use riot_rs_rt::debug::{println};
     } else {
-        //use cortex_m_semihosting::hprint as print;
         pub(crate) use cortex_m_semihosting::hprintln as println;
     }
 }
@@ -385,6 +384,7 @@ pub enum FlagWaitMode {
 }
 
 impl Thread {
+    // thread flags implementation
     pub fn flag_set(&mut self, mask: ThreadFlags) {
         interrupt::free(|_| {
             self.flags |= mask;
@@ -533,7 +533,6 @@ pub mod c {
     #![allow(non_camel_case_types)]
     use ref_cast::RefCast;
 
-    use super::println;
     use crate::lock::Lock;
     use crate::thread::{CreateFlags, Msg, Pid, Thread, ThreadFlags};
 
