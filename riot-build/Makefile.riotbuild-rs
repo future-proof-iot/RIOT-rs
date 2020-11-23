@@ -15,7 +15,8 @@ CFLAGS += -Disr_pendsv=PendSV -Disr_svc=SVCall -Ddummy_handler_default=DefaultHa
 CFLAGS += -Dmain=riot_main
 
 # TODO: this is nrf52840 specific
-CFLAGS += -Disr_uart0=UARTE0_UART0 -Disr_timer0=TIMER0 -Disr_timer1=TIMER1
+CFLAGS += -Disr_uart0=UARTE0_UART0 -Disr_timer0=TIMER0 -Disr_timer1=TIMER1 -Disr_timer2=TIMER2 -Disr_usbd=USBD
+CFLAGS += -Disr_radio=RADIO
 CFLAGS += -Disr_rtc1=RTC1 -Disr_rtc2=RTC2
 
 # enable LTO
