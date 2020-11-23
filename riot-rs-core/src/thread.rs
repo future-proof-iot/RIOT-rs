@@ -18,7 +18,8 @@ cfg_if! {
     }
 }
 
-pub const SCHED_PRIO_LEVELS: usize = 8;
+pub const SCHED_PRIO_LEVELS: usize = 16;
+
 pub const THREADS_NUMOF: usize = 16;
 pub const THREAD_FLAG_TIMEOUT: ThreadFlags = (1 as ThreadFlags) << 14;
 
