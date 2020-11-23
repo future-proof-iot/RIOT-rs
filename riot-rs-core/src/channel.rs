@@ -171,8 +171,7 @@ where
 
     pub fn send(&mut self, msg: T) {
         interrupt::free(|_| {
-            if let Ok(()) = self.try_send_impl(msg) {
-            } else {
+            if self.try_send_impl(msg).is_err() {
                 match self.state {
                     ChannelState::FullWithTxBlocked(_) => (),
                     _ => self.state = ChannelState::FullWithTxBlocked(ThreadList::new()),
@@ -191,13 +190,20 @@ where
             }
         })
     }
+
+    pub fn capacity(&self) -> usize {
+        self.rb.capacity()
+    }
+
+    pub fn available(&self) -> usize {
+        self.rb.available()
+    }
 }
 
 pub mod c {
+    #![allow(non_camel_case_types)]
     use super::Channel;
-    #[allow(non_camel_case_types)]
-    use crate::thread::c::{msg_content_t, msg_t};
-    use crate::thread::{CreateFlags, Msg, Pid, Thread, ThreadFlags};
+    use crate::thread::c::msg_t;
     use core::mem::MaybeUninit;
     use ref_cast::RefCast;
 
@@ -228,20 +234,17 @@ pub mod c {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn mbox_put(mbox: &'static mut mbox_t, msg: &'static mut msg_t) {
+    pub unsafe extern "C" fn mbox_put(mbox: &mut mbox_t, msg: &mut msg_t) {
         mbox.0.send(*msg)
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn mbox_get(mbox: &'static mut mbox_t, msg: &'static mut msg_t) {
+    pub unsafe extern "C" fn mbox_get(mbox: &mut mbox_t, msg: &mut msg_t) {
         *msg = mbox.0.recv()
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn mbox_try_put(
-        mbox: &'static mut mbox_t,
-        msg: &'static mut msg_t,
-    ) -> bool {
+    pub unsafe extern "C" fn mbox_try_put(mbox: &mut mbox_t, msg: &mut msg_t) -> bool {
         match mbox.0.try_send(*msg) {
             Ok(()) => true,
             _ => false,
@@ -249,10 +252,7 @@ pub mod c {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn mbox_try_get(
-        mbox: &'static mut mbox_t,
-        msg: &'static mut msg_t,
-    ) -> bool {
+    pub unsafe extern "C" fn mbox_try_get(mbox: &mut mbox_t, msg: &mut msg_t) -> bool {
         match mbox.0.try_recv() {
             Ok(res) => {
                 *msg = res;
@@ -260,6 +260,16 @@ pub mod c {
             }
             _ => false,
         }
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn mbox_size(mbox: &mbox_t) -> usize {
+        mbox.0.capacity()
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn mbox_avail(mbox: &mbox_t) -> usize {
+        mbox.0.available()
     }
 }
 
