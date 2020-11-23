@@ -23,7 +23,7 @@ pub const SCHED_PRIO_LEVELS: usize = 16;
 pub const THREADS_NUMOF: usize = 16;
 pub const THREAD_FLAG_TIMEOUT: ThreadFlags = (1 as ThreadFlags) << 14;
 
-pub type Pid = usize;
+pub type Pid = u16;
 pub type ThreadFlags = u16;
 
 #[derive(Copy, Clone)]
