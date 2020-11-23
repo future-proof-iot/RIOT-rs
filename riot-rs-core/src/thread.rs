@@ -199,6 +199,18 @@ impl Thread {
         return &mut THREADS[pid as usize];
     }
 
+    pub fn pid_is_valid(pid: Pid) -> bool {
+        if pid as usize >= unsafe { THREADS.len() } {
+            false
+        } else {
+            let thread = unsafe { &THREADS[pid as usize] };
+            match thread.state {
+                ThreadState::Invalid => false,
+                _ => true,
+            }
+        }
+    }
+
     pub fn current() -> &'static mut Thread {
         unsafe {
             return &mut *(CURRENT_THREAD.load(Ordering::Acquire) as *mut Thread);
