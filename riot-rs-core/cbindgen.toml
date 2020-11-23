@@ -19,3 +19,9 @@ includes = ["msg_content.h"]
 # Whether bindings should be generated for instances of the bitflags! macro.
 # default: false
 bitflags = true
+
+[ptr]
+# An optional string to decorate all pointers that are
+# required to be non null. Nullability is inferred from the Rust type: `&T`,
+# `&mut T` and `NonNull<T>` all require a valid pointer value. 
+non_null_attribute = "_Nonnull"
