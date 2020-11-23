@@ -61,7 +61,13 @@ bitflags! {
     }
 }
 
-#[derive(Copy, Clone, Debug)]
+#[derive(Copy, Clone, PartialEq)]
+pub enum FlagWaitMode {
+    Any(ThreadFlags),
+    All(ThreadFlags),
+}
+
+#[derive(Copy, Clone, Debug, PartialEq)]
 pub struct Msg {
     pub a: u32,
     pub b: u32,
