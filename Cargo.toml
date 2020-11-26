@@ -1,5 +1,6 @@
 [workspace]
 members = [
+    "riot-app",
     "riot-build",
     "riot-rs-rt",
     "riot-rs-core",
@@ -12,7 +13,6 @@ members = [
     "chips",
     "chips/stm32f4xx",
     "examples/*",
-    "riot",
     ]
 
 default-members = [
