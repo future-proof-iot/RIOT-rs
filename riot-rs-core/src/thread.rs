@@ -1,4 +1,3 @@
-use core::mem::MaybeUninit;
 use core::ptr::write_volatile;
 use core::sync::atomic::{AtomicUsize, Ordering};
 
@@ -44,8 +43,6 @@ pub enum ThreadState {
     Running,
     Paused,
     MutexBlocked,
-    MsgRxBlocked(*mut Msg),
-    MsgTxBlocked(*const Msg),
     FlagBlocked(FlagWaitMode),
     ChannelRxBlocked(usize),
     ChannelTxBlocked(usize),
@@ -67,17 +64,6 @@ bitflags! {
 pub enum FlagWaitMode {
     Any(ThreadFlags),
     All(ThreadFlags),
-}
-
-#[derive(Copy, Clone, Debug, PartialEq)]
-pub struct Msg {
-    pub a: u32,
-    pub b: u32,
-    pub c: u32,
-}
-
-pub enum MsgError {
-    WouldBlock,
 }
 
 use crate::runqueue::RunQueue;
@@ -114,8 +100,6 @@ static mut THREADS: [Thread; THREADS_NUMOF] = [Thread {
     pid: 0,
     flags: 0,
 }; THREADS_NUMOF];
-
-static mut THREAD_MSG_WAITERS: [ThreadList; THREADS_NUMOF] = [ThreadList::new(); THREADS_NUMOF];
 
 static CURRENT_THREAD: AtomicUsize = AtomicUsize::new(0);
 
@@ -346,78 +330,6 @@ impl Thread {
 }
 
 impl Thread {
-    // msg send/receive implementation
-    // not supposed to stay, need a proper SyncChannel<T>.
-    // But this implements what's needed to support RIOT's msg API
-    /// receive a message, blocking
-    fn try_receive_msg_impl(&mut self) -> Result<Msg, MsgError> {
-        if let Some(sender) = self.get_msg_waiters().lpop() {
-            if let ThreadState::MsgTxBlocked(ptr) = sender.state {
-                let res = unsafe { *ptr };
-                sender.set_state(ThreadState::Running);
-                Thread::yield_higher();
-                Ok(res)
-            } else {
-                unreachable! {}
-            }
-        } else {
-            Err(MsgError::WouldBlock)
-        }
-    }
-
-    pub fn try_receive_msg(&mut self) -> Result<Msg, MsgError> {
-        interrupt::free(|_| self.try_receive_msg_impl())
-    }
-
-    pub fn receive_msg(&mut self) -> Msg {
-        interrupt::free(|_| {
-            if let Ok(msg) = self.try_receive_msg_impl() {
-                msg
-            } else {
-                let mut msg: MaybeUninit<Msg> = MaybeUninit::uninit();
-
-                self.set_state(ThreadState::MsgRxBlocked(msg.as_mut_ptr()));
-
-                Thread::yield_higher();
-                Thread::isr_enable_disable();
-
-                unsafe { msg.assume_init() }
-            }
-        })
-    }
-
-    fn try_send_msg_impl(m: Msg, target: &mut Thread) -> Result<(), MsgError> {
-        if let ThreadState::MsgRxBlocked(ptr) = target.state {
-            unsafe { *ptr = m };
-            target.set_state(ThreadState::Running);
-            Thread::yield_higher();
-            Ok(())
-        } else {
-            Err(MsgError::WouldBlock)
-        }
-    }
-
-    pub fn try_send_msg(m: Msg, target: &mut Thread) -> Result<(), MsgError> {
-        interrupt::free(|_| Thread::try_send_msg_impl(m, target))
-    }
-
-    fn get_msg_waiters(&self) -> &mut ThreadList {
-        unsafe { &mut THREAD_MSG_WAITERS[self.pid as usize] }
-    }
-
-    pub fn send_msg(m: Msg, target: &mut Thread) {
-        interrupt::free(|_| {
-            if Thread::try_send_msg_impl(m, target).is_err() {
-                let sender = Thread::current();
-                assert!(sender.pid != target.pid);
-                target.flag_set(THREAD_FLAG_MSG_WAITING);
-                sender.wait_on(target.get_msg_waiters(), ThreadState::MsgTxBlocked(&m));
-            }
-        })
-    }
-}
-
-impl Thread {
     // thread flags implementation
     pub fn flag_set(&mut self, mask: ThreadFlags) {
         interrupt::free(|_| {
@@ -568,7 +480,7 @@ pub mod c {
     use ref_cast::RefCast;
 
     use crate::lock::Lock;
-    use crate::thread::{CreateFlags, Msg, Pid, Thread, ThreadFlags};
+    use crate::thread::{CreateFlags, Pid, Thread, ThreadFlags};
 
     #[derive(RefCast)]
     #[repr(transparent)]
@@ -709,14 +621,13 @@ pub mod c {
         content: msg_content_t,
     }
 
-    impl msg_t {
-        fn from_msg(other: Msg) -> msg_t {
-            msg_t {
-                sender_pid: other.a as Pid,
-                _type: other.b as u16,
-                content: msg_content_t { value: other.c },
-            }
-        }
+    use crate::channel::BufferedChannel;
+
+    static mut THREAD_MSG_CHANNELS: [BufferedChannel<msg_t>; super::THREADS_NUMOF] =
+        [BufferedChannel::new(None); super::THREADS_NUMOF];
+
+    pub(crate) fn get_channel_for_pid(pid: Pid) -> &'static mut BufferedChannel<'static, msg_t> {
+        unsafe { &mut THREAD_MSG_CHANNELS[pid as usize] }
     }
 
     #[no_mangle]
@@ -726,26 +637,24 @@ pub mod c {
         if msg.sender_pid == target_pid {
             return msg_send_to_self(msg);
         }
-        let target = Thread::get_mut(target_pid);
-        let msg_ = Msg {
-            a: msg.sender_pid as u32,
-            b: msg._type as u32,
-            c: msg.content.value,
-        };
-        Thread::send_msg(msg_, target);
+        let target = get_channel_for_pid(target_pid);
+        target.send(*msg);
+        thread_flags_set(Thread::get_mut(target_pid), super::THREAD_FLAG_MSG_WAITING);
         1
     }
 
     #[no_mangle]
     pub unsafe extern "C" fn msg_receive(msg: &'static mut msg_t) {
-        *msg = msg_t::from_msg(Thread::current().receive_msg());
+        let channel = get_channel_for_pid(Thread::current_pid());
+        *msg = channel.recv();
     }
 
     #[no_mangle]
     pub unsafe extern "C" fn msg_try_receive(msg: &'static mut msg_t) -> bool {
-        match Thread::current().try_receive_msg() {
+        let channel = get_channel_for_pid(Thread::current_pid());
+        match channel.try_recv() {
             Ok(res) => {
-                *msg = msg_t::from_msg(res);
+                *msg = res;
                 true
             }
             _ => false,
@@ -777,37 +686,41 @@ pub mod c {
     #[no_mangle]
     pub unsafe extern "C" fn msg_try_send(msg: &'static mut msg_t, target_pid: Pid) -> bool {
         msg.sender_pid = Thread::current_pid();
-        let target = Thread::get_mut(target_pid);
-        let msg_ = Msg {
-            a: msg.sender_pid as u32,
-            b: msg._type as u32,
-            c: msg.content.value,
-        };
-        Thread::try_send_msg(msg_, target).is_ok()
+        let channel = get_channel_for_pid(target_pid);
+        match channel.try_send(*msg) {
+            Ok(()) => {
+                thread_flags_set(Thread::get_mut(target_pid), super::THREAD_FLAG_MSG_WAITING);
+                true
+            }
+            _ => false,
+        }
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn msg_init_queue(_array: &'static mut msg_t, _num: usize) {
-        // TODO: implement
+    pub unsafe extern "C" fn msg_init_queue(array: &'static mut msg_t, num: usize) {
+        let channel = get_channel_for_pid(Thread::current_pid());
+        channel.set_backing_array(Some(core::slice::from_raw_parts_mut(array, num)));
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn msg_send_to_self(_msg: &'static mut msg_t) -> i32 {
+    pub unsafe extern "C" fn msg_send_to_self(msg: &'static mut msg_t) -> i32 {
         use super::println;
-        println!("msg_send_to_self() pid={} stub", thread_getpid());
-        // TODO: implement
-        0
+        let my_pid = thread_getpid();
+        if msg_try_send(msg, my_pid) {
+            1
+        } else {
+            0
+        }
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn thread_has_msg_queue(_thread: &Thread) -> bool {
-        false
+    pub unsafe extern "C" fn thread_has_msg_queue(thread: &Thread) -> bool {
+        get_channel_for_pid(thread.pid).capacity() > 0
     }
 
     #[no_mangle]
     pub unsafe extern "C" fn msg_avail() -> i32 {
-        // TODO: implement
-        0
+        get_channel_for_pid(Thread::current_pid()).available() as i32
     }
 
     #[no_mangle]
@@ -893,37 +806,4 @@ fn test_thread_flags() {
     assert_eq!(thread.flags, 0b1000);
     assert_eq!(Thread::flag_wait_all(0b111), 0b111);
     assert_eq!(thread.flags, 0b11000);
-}
-
-#[test_case]
-fn test_msg() {
-    use riot_rs_rt::debug::println;
-
-    fn func(arg: usize) {
-        let thread = arg as *mut Thread;
-        let thread = unsafe { &mut *thread };
-        println!("thread send()");
-        Thread::send_msg(Msg { a: 0, b: 1, c: 2 }, thread);
-        println!("thread done()");
-    }
-
-    static mut STACK: [u8; 1024] = [0; 1024];
-
-    use crate::thread::{CreateFlags, Thread};
-
-    let thread = Thread::current();
-
-    unsafe {
-        Thread::create(
-            &mut STACK,
-            func,
-            thread as *mut Thread as usize,
-            6,
-            CreateFlags::empty(),
-        );
-    }
-
-    assert_eq!(Thread::current().receive_msg(), Msg { a: 0, b: 1, c: 2 });
-    assert!(Thread::current().try_receive_msg().is_err());
-    println!("main done");
 }
