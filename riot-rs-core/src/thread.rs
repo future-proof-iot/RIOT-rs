@@ -8,15 +8,6 @@ use bitflags::bitflags;
 
 use clist::Link;
 
-use cfg_if::cfg_if;
-cfg_if! {
-    if #[cfg(feature = "riot-rs-rt")] {
-        pub(crate) use riot_rs_rt::debug::{println};
-    } else {
-        pub(crate) use cortex_m_semihosting::hprintln as println;
-    }
-}
-
 pub const SCHED_PRIO_LEVELS: usize = 16;
 
 pub const THREADS_NUMOF: usize = 16;
@@ -704,9 +695,7 @@ pub mod c {
 
     #[no_mangle]
     pub unsafe extern "C" fn msg_send_to_self(msg: &'static mut msg_t) -> i32 {
-        use super::println;
-        let my_pid = thread_getpid();
-        if msg_try_send(msg, my_pid) {
+        if msg_try_send(msg, thread_getpid()) {
             1
         } else {
             0

@@ -4,9 +4,6 @@
 //       It feels too complex.
 //
 
-#[cfg(test)]
-use riot_rs_rt::debug::println;
-
 pub trait Channel<T>
 where
     T: Copy,
@@ -497,7 +494,6 @@ pub mod c {
 fn test_channel_lowprio_sender() {
     use crate::thread::{CreateFlags, Thread};
     use core::mem::MaybeUninit;
-    use riot_rs_rt::debug::println;
 
     static mut STACK: [u8; 1024] = [0; 1024];
 
@@ -572,8 +568,6 @@ fn test_channel_hiprio_sender() {
 #[test_case]
 fn test_sync_channel_lowprio_sender() {
     use crate::thread::{CreateFlags, Thread};
-    use core::mem::MaybeUninit;
-    use riot_rs_rt::debug::println;
 
     static mut STACK: [u8; 1024] = [0; 1024];
 
