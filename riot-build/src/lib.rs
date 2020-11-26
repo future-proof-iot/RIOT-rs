@@ -1,4 +1,5 @@
 #![no_std]
+#![no_main]
 
 use linkme::distributed_slice;
 use riot_rs_rt::debug::println;
@@ -28,3 +29,5 @@ fn riot_startup() {
         kernel_init();
     }
 }
+
+pub fn linkme_please() {}

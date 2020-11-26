@@ -1,4 +1,6 @@
+use std::collections::HashMap;
 use std::env;
+use std::ffi::OsString;
 use std::fs;
 use std::path::Path;
 use std::process::Command;
@@ -6,57 +8,113 @@ use std::process::Command;
 fn main() {
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let out_dir = env::var("OUT_DIR").unwrap();
-    let riotbase = env::var("RIOTBASE").unwrap();
-    let board = env::var("BOARD").unwrap();
+    let riotbase = env::var("RIOTBASE").expect("Error getting RIOTBASE env variable");
+    let board = env::var("BOARD").expect("Error getting BOARD env variable");
 
-    let riot_builddir = Path::new(&out_dir).join("libriot");
-    let riot_bindir = riot_builddir.join("bin");
+    let riot_app_mode = env::var("CARGO_FEATURE_RIOT_APP").is_ok();
 
-    fs::create_dir_all(&riot_builddir).unwrap();
-    fs::create_dir_all(&riot_bindir).unwrap();
+    let (app_name, riot_bindir, riot_builddir, build_output) = if riot_app_mode {
+        // building a RIOT application
+        let app = env::var("APP").unwrap();
+        let riot_builddir = Path::new(&riotbase).join(app);
+        let riot_bindir = riot_builddir.join("bin");
 
-    let app_name = "libriot";
+        let mut riot_extra_makefiles = vec![format!("{}/Makefile.riotbuild-rs", &crate_dir)];
 
-    // create makefile for RIOT build system
-    let mut makefile_content = format!(
-        "APPLICATION={app_name}\n\
-        BOARD={board}\n\
-        RIOTBASE={riotbase}\n\
-        include {crate_dir}/Makefile.riotbuild-rs\n",
-        app_name = &app_name,
-        board = &board,
-        riotbase = &riotbase,
-        crate_dir = &crate_dir
-    );
+        // if the riot_rs_core feature was set, configure the riot build accordingly
+        if let Some(_) = env::var_os("CARGO_FEATURE_RIOT_RS_CORE") {
+            let riot_rs_core_makefile = env::var_os("DEP_RIOT_RS_CORE_MAKEFILE").unwrap();
+            riot_extra_makefiles.push(format!("{}", riot_rs_core_makefile.to_string_lossy()));
+        }
 
-    if let Some(usemodule) = env::var_os("USEMODULE") {
-        makefile_content += &format!("USEMODULE += {}\n", &usemodule.into_string().unwrap());
-    }
+        let mut riot_make_env = HashMap::<OsString, OsString>::new();
+        riot_make_env.insert(
+            "RIOT_MAKEFILES_GLOBAL_PRE".into(),
+            riot_extra_makefiles.join(" ").into(),
+        );
 
-    // if the riot_rs_core feature was set, configure the riot build accordingly
-    if let Some(_) = env::var_os("CARGO_FEATURE_RIOT_RS_CORE") {
-        let riot_rs_core_makefile = env::var_os("DEP_RIOT_RS_CORE_MAKEFILE").unwrap();
+        fn get_riot_var(riot_builddir: &str, var: &str) -> String {
+            let output = Command::new("sh")
+                .arg("-c")
+                .arg(format!(
+                    "make --no-print-directory -C {} info-debug-variable-{}",
+                    riot_builddir, var
+                ))
+                .output()
+                .unwrap()
+                .stdout;
+            String::from_utf8_lossy(output.as_slice()).trim_end().into()
+        }
 
-        makefile_content += &format!("include {}\n", riot_rs_core_makefile.to_string_lossy());
-    }
+        let app_name = get_riot_var(&*riot_builddir.to_string_lossy(), "APPLICATION");
+        // call out to RIOT build system
+        let build_output = Command::new("sh")
+            .arg("-c")
+            .envs(&riot_make_env)
+            .arg(format!(
+                "make -C {} clean afile QUIET=0",
+                &riot_builddir.to_string_lossy()
+            ))
+            .output()
+            .expect("failed to compile RIOT");
 
-    // include base RIOT Makefile, must be last in `makefile_content`.
-    makefile_content += &format!("include {}/Makefile.include\n", riotbase);
+        (app_name, riot_bindir, riot_builddir, build_output)
+    } else {
+        // building RIOT as library
+        let riot_builddir = Path::new(&out_dir).join("libriot");
+        let riot_bindir = riot_builddir.join("bin");
 
-    // finalize and write Makefile
-    let makefile_content = makefile_content;
-    fs::write(riot_builddir.join("Makefile"), &makefile_content)
-        .expect("Couldn't write RIOT makefile!");
+        fs::create_dir_all(&riot_builddir).unwrap();
+        fs::create_dir_all(&riot_bindir).unwrap();
 
-    // call out to RIOT build system
-    let build_output = Command::new("sh")
-        .arg("-c")
-        .arg(format!(
-            "make -C {} clean afile QUIET=0",
-            &riot_builddir.to_string_lossy()
-        ))
-        .output()
-        .expect("failed to compile RIOT");
+        let app_name = "libriot";
+
+        // create makefile for RIOT build system
+        let mut makefile_content = format!(
+            "APPLICATION={app_name}\n\
+             BOARD={board}\n\
+             RIOTBASE={riotbase}\n\
+             include {crate_dir}/Makefile.riotbuild-rs\n",
+            app_name = &app_name,
+            board = &board,
+            riotbase = &riotbase,
+            crate_dir = &crate_dir
+        );
+
+        if let Some(usemodule) = env::var_os("USEMODULE") {
+            makefile_content += &format!("USEMODULE += {}\n", &usemodule.into_string().unwrap());
+        }
+        // if the riot_rs_core feature was set, configure the riot build accordingly
+        if let Some(_) = env::var_os("CARGO_FEATURE_RIOT_RS_CORE") {
+            let riot_rs_core_makefile = env::var_os("DEP_RIOT_RS_CORE_MAKEFILE").unwrap();
+
+            makefile_content += &format!("include {}\n", riot_rs_core_makefile.to_string_lossy());
+        }
+        // include base RIOT Makefile, must be last in `makefile_content`.
+        makefile_content += &format!("include {}/Makefile.include\n", riotbase);
+
+        // finalize and write Makefile
+        let makefile_content = makefile_content;
+        fs::write(riot_builddir.join("Makefile"), &makefile_content)
+            .expect("Couldn't write RIOT makefile!");
+
+        // call out to RIOT build system
+        let build_output = Command::new("sh")
+            .arg("-c")
+            .arg(format!(
+                "make -C {} clean afile QUIET=0",
+                &riot_builddir.to_string_lossy()
+            ))
+            .output()
+            .expect("failed to compile RIOT");
+
+        (
+            String::from(app_name),
+            riot_bindir,
+            riot_builddir,
+            build_output,
+        )
+    };
 
     // debug-print output
     eprint!(
@@ -82,7 +140,9 @@ fn main() {
     println!("cargo:DIR={}", riot_builddir.to_string_lossy());
 
     // change notifiers
+    println!("cargo:rerun-if-env-changed=APP");
     println!("cargo:rerun-if-env-changed=BOARD");
+    println!("cargo:rerun-if-env-changed=CARGO_FEATURE_RIOT_APP");
     println!("cargo:rerun-if-env-changed=CARGO_FEATURE_RIOT_RS_CORE");
     println!("cargo:rerun-if-env-changed=RIOTBASE");
     println!("cargo:rerun-if-env-changed=USEMODULE");

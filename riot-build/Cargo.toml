@@ -19,3 +19,4 @@ boards = { path = "../boards" }
 
 [features]
 riot-os-core = [ "riot-rs-core" ]
+riot-app = []
