@@ -14,5 +14,5 @@ riot-build = { path = "../../riot-build", features = ["riot-rs-core"] }
 boards = { path = "../../boards" }
 
 riot-sys = { version = "0.3.2", features = ["riot-build" ]}
-riot-wrappers = { version = "0.5.1", default-features = false }
+riot-wrappers = { version = "0.5.1", default-features = false, features = ["riot-rs-core"] }
 embedded-hal = { version = "0.2.4", features = ["unproven"] }
