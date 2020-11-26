@@ -210,6 +210,13 @@ fn panic(info: &PanicInfo) -> ! {
     loop {}
 }
 
+#[exception]
+unsafe fn DefaultHandler(irqn: i16) {
+    debug::println!("IRQn = {}", irqn);
+    debug::exit(debug::EXIT_FAILURE);
+    loop {}
+}
+
 #[entry]
 fn main() -> ! {
     debug::println!("riot_rs_rt::main()");
