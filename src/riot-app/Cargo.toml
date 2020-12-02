@@ -9,5 +9,5 @@ linkme = "0.2.3"
 
 riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-core = { path = "../riot-rs-core" }
-boards = { path = "../boards" }
+riot-rs-boards = { path = "../riot-rs-boards" }
 riot-build = { path = "../riot-build", features = ["riot-app"]}

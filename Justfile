@@ -2,12 +2,12 @@
 host_build := "target/host"
 
 # testing
-tests := "riot-rs-rt riot-rs-core"
+tests := "src/riot-rs-rt src/riot-rs-core"
 
 test-core PROFILE="release" TARGET="thumbv7m-none-eabi":
     @for test in {{tests}}; do \
        echo "Testing $test in {{PROFILE}} profile..."; \
-       cargo -Zunstable-options test --manifest-path $test/Cargo.toml --features boards/lm3s6965evb --profile {{PROFILE}} \
+       cargo -Zunstable-options test --manifest-path $test/Cargo.toml --features riot-rs-boards/lm3s6965evb --profile {{PROFILE}} \
             --target {{TARGET}}; \
     done
 

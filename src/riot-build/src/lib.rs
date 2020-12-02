@@ -13,14 +13,14 @@ fn riot_startup() {
     extern "C" {
         pub fn board_init();
         pub fn kernel_init();
-    //pub fn libc_init();
+        //pub fn libc_init();
     }
 
     // due to https://github.com/rust-lang/rust/issues/47384,
     // the board's additions to INIT_FUNCS get silently discarded
     // if there's not other symbol used from the modules.
     // Thus explitly link in a dummy.
-    boards::linkme_please();
+    riot_rs_boards::linkme_please();
 
     println!("riot_build::riot_startup(): launching RIOT startup");
     unsafe {

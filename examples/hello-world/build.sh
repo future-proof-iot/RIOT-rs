@@ -7,4 +7,4 @@ else
     ACTION="build"
 fi
 
-cargo $ACTION --features "boards/$BOARD" --target thumbv7em-none-eabi "$@"
+cargo $ACTION --features "riot-rs-boards/$BOARD" --target thumbv7em-none-eabi "$@"

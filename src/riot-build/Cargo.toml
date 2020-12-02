@@ -15,7 +15,7 @@ riot-rs-core = { optional = true, path = "../riot-rs-core" }
 # currently riot-build provides startup code,
 # which in turn currently needs to pull in boards stuff
 # because of a bug in rustc. see src/lib.rs for more info.
-boards = { path = "../boards" }
+riot-rs-boards = { path = "../riot-rs-boards" }
 
 [features]
 riot-os-core = [ "riot-rs-core" ]

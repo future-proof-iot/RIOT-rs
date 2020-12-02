@@ -7,11 +7,11 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-riot-rs-rt = { path = "../../riot-rs-rt" }
-riot-rs-core = { path = "../../riot-rs-core" }
-riot-build = { path = "../../riot-build", features = ["riot-rs-core"] }
+riot-rs-rt = { path = "../../src/riot-rs-rt" }
+riot-rs-core = { path = "../../src/riot-rs-core" }
+riot-build = { path = "../../src/riot-build", features = ["riot-rs-core"] }
 
-boards = { path = "../../boards" }
+riot-rs-boards = { path = "../../src/riot-rs-boards" }
 
 riot-sys = { version = "0.3.2", features = ["riot-build" ]}
 riot-wrappers = { version = "0.5.1", default-features = false, features = ["riot-rs-core"] }

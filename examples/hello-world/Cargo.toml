@@ -5,7 +5,7 @@ authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2018"
 
 [dependencies]
-riot-rs-rt = { path = "../../riot-rs-rt" }
-riot-rs-core = { path = "../../riot-rs-core" }
-riot-build = { path = "../../riot-build", features = ["riot-rs-core"]}
-boards = { path = "../../boards" }
+riot-rs-rt = { path = "../../src/riot-rs-rt" }
+riot-rs-core = { path = "../../src/riot-rs-core" }
+riot-build = { path = "../../src/riot-build", features = ["riot-rs-core"]}
+riot-rs-boards = { path = "../../src/riot-rs-boards" }

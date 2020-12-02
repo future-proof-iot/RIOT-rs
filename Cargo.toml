@@ -1,19 +1,17 @@
 [workspace]
 members = [
-    "riot-app",
-    "riot-build",
-    "riot-rs-rt",
-    "riot-rs-core",
-    #"chips/cortexm",
-    "boards",
-    "boards/lm3s6965evb",
-    "boards/nrf52",
-    "boards/nrf52840dk",
-    "boards/nucleo-f401re",
-    "chips",
-    "chips/stm32f4xx",
+    "src/*",
+    "src/riot-rs-boards",
+    "src/riot-rs-boards/lm3s6965evb",
+    "src/riot-rs-boards/nrf52",
+    "src/riot-rs-boards/nrf52840dk",
+    "src/riot-rs-boards/nucleo-f401re",
+    "src/riot-rs-chips",
+    "src/lib/*",
     "examples/*",
     ]
+
+exclude = [ "src/lib" ]
 
 default-members = [
     "examples/hello-world",

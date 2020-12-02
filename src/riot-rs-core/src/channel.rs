@@ -36,7 +36,7 @@ pub mod buffered {
 
     use super::{TryRecvError, TrySendError};
     use crate::thread::{Thread, ThreadList, ThreadState};
-    use queue::RingBuffer;
+    use ringbuffer::RingBuffer;
 
     pub enum BufferedChannelState {
         Idle,

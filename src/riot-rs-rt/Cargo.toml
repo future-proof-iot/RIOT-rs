@@ -17,4 +17,4 @@ linkme = "0.2.3"
 #panic-abort = "*"
 #panic-halt = "*"
 [dev-dependencies]
-boards = { path = "../boards" }
+riot-rs-boards = { path = "../riot-rs-boards" }

@@ -14,8 +14,8 @@ bitflags = "1.2.*"
 cfg-if = "1.0.0"
 ref-cast = "1.0"
 
-clist = { path = "../../clist" }
-queue = { path = "../../queue" }
+clist = { path = "../lib/clist" }
+ringbuffer = { path = "../lib/ringbuffer" }
 
 # select one one of these to get a suitable println for debugging
 riot-rs-rt = { optional = true, path = "../riot-rs-rt" }
@@ -27,4 +27,4 @@ cbindgen = "0.15.*"
 [dev-dependencies]
 linkme = "0.2.3"
 riot-rs-rt = { path = "../riot-rs-rt" }
-boards = { path = "../boards" }
+riot-rs-boards = { path = "../riot-rs-boards" }

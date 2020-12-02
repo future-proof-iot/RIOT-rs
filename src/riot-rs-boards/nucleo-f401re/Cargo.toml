@@ -1,5 +1,5 @@
 [package]
-name = "chips"
+name = "nucleo-f401re"
 version = "0.1.0"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2018"
@@ -7,7 +7,4 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-stm32f4xx = { optional=true, path="stm32f4xx" }
-
-[features]
-stm32f401 = ["stm32f4xx/stm32f401" ]
+stm32f4xx = { path="../../riot-rs-chips/stm32f4xx", features=["stm32f401"] }

@@ -1,0 +1,15 @@
+[package]
+name = "riot-rs-boards"
+version = "0.1.0"
+authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cfg-if = "1.0.0"
+linkme = "0.2.3"
+
+lm3s6965evb = { optional=true, path="lm3s6965evb" }
+nrf52840dk = { optional=true, path="nrf52840dk" }
+nucleo-f401re = { optional=true, path="nucleo-f401re" }

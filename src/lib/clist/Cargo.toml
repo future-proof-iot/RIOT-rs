@@ -1,10 +1,11 @@
 [package]
-name = "nucleo-f401re"
-version = "0.1.0"
+name = "clist"
+version = "0.1.1"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
-[dependencies]
-stm32f4xx = { path="../../chips/stm32f4xx", features=["stm32f401"] }
+[dependencies.memoffset]
+git = "https://github.com/Gilnaa/memoffset"
+features = ["unstable_const", "unstable_raw"]
