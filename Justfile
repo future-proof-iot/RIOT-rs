@@ -12,6 +12,7 @@ tests := "src/riot-rs-rt src/riot-rs-core"
 test-core PROFILE="release" TARGET="thumbv7m-none-eabi":
     @for test in {{tests}}; do \
        echo "Testing $test in {{PROFILE}} profile..."; \
+       . env/lm3s6965evb.env ; \
        cargo -Zunstable-options test --manifest-path $test/Cargo.toml --features riot-rs-boards/lm3s6965evb --profile {{PROFILE}} \
             --target {{TARGET}}; \
     done
