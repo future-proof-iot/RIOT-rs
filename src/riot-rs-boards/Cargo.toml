@@ -8,7 +8,6 @@ edition = "2018"
 
 [dependencies]
 cfg-if = "1.0.0"
-linkme = "0.2.3"
 
 lm3s6965evb = { optional=true, path="lm3s6965evb" }
 nrf52840dk = { optional=true, path="nrf52840dk" }

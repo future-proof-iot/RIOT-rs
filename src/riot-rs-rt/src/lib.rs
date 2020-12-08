@@ -29,8 +29,6 @@ use cortex_m_rt::{entry, exception, ExceptionFrame};
 
 use core::panic::PanicInfo;
 
-pub mod init;
-
 pub mod debug {
     pub use cortex_m_semihosting::debug::{exit, EXIT_FAILURE, EXIT_SUCCESS};
     pub use cortex_m_semihosting::hprint as print;
@@ -220,9 +218,10 @@ unsafe fn DefaultHandler(irqn: i16) {
 #[entry]
 fn main() -> ! {
     debug::println!("riot_rs_rt::main()");
-    for func in init::INIT_FUNCS {
-        func();
+    extern "C" {
+        fn riot_rs_rt_startup();
     }
+    riot_rs_rt_startup();
 
     #[cfg(test)]
     test_main();

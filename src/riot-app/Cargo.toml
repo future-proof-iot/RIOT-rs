@@ -5,8 +5,6 @@ authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2018"
 
 [dependencies]
-linkme = "0.2.3"
-
 riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-core = { path = "../riot-rs-core" }
 riot-rs-boards = { path = "../riot-rs-boards" }

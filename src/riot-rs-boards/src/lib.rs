@@ -12,6 +12,6 @@ cfg_if! {
     }
 }
 
-pub fn linkme_please() {
-    board::linkme_please();
+pub fn init() {
+    board::init();
 }

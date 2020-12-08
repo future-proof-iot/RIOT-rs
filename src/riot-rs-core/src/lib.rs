@@ -40,11 +40,8 @@ pub mod startup;
 
 #[cfg(test)]
 mod test {
-    use linkme::distributed_slice;
     use riot_rs_rt as _;
-    use riot_rs_rt::init::INIT_FUNCS;
 
-    #[distributed_slice(INIT_FUNCS, 99)]
     fn startup() {
         crate::startup::startup();
     }
