@@ -1,5 +1,4 @@
 #![no_std]
-#![no_main]
 
 use linkme::distributed_slice;
 use riot_rs_rt::debug::println;
