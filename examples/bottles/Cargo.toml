@@ -1,10 +1,10 @@
 [package]
 name = "bottles"
 version = "0.1.0"
-authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
-edition = "2018"
+authors = [ "Christian M. Amsüss <ca@etonomy.org>", "Kaspar Schleiser <kaspar@schleiser.de>" ]
+licence = "LGPLv2.1"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+edition = "2018"
 
 [dependencies]
 riot-rs-rt = { path = "../../src/riot-rs-rt" }
