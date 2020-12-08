@@ -35,5 +35,5 @@ cortex-m = { git = "https://github.com/kaspar030/cortex-m" }
 cortex-m-rt = { git = "https://github.com/kaspar030/cortex-m-rt" }
 cortex-m-semihosting = { git = "https://github.com/rust-embedded/cortex-m-semihosting", rev = "8ab74cdb8c9ab669ded328072447ea6f6054ffe6" }
 linkme = { git = "https://github.com/kaspar030/linkme", branch = "split_out_none_os" }
-riot-sys = { path = "/home/kaspar/src/own/rust/riot-sys" }
-riot-wrappers = { path = "/home/kaspar/src/own/rust/riot-wrappers" }
+riot-sys = { git = "https://gitlab.com/kaspar030/riot-sys", branch = "support_riot-build" }
+riot-wrappers = { git = "https://gitlab.com/kaspar030/riot-wrappers", branch = "add_riotrs_support" }
