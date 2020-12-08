@@ -2,7 +2,7 @@
 name = "bottles"
 version = "0.1.0"
 authors = [ "Christian M. Amsüss <ca@etonomy.org>", "Kaspar Schleiser <kaspar@schleiser.de>" ]
-licence = "LGPLv2.1"
+license = "LGPLv2.1"
 
 edition = "2018"
 
