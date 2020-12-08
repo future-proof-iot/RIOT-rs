@@ -8,4 +8,4 @@ edition = "2018"
 riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-core = { path = "../riot-rs-core" }
 riot-rs-boards = { path = "../riot-rs-boards" }
-riot-build = { version = "0.1.0", features = ["riot-app"]}
+riot-build = { path = "../riot-build", features = ["riot-app"]}
