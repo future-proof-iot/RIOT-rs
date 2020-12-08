@@ -11,7 +11,10 @@ members = [
     "examples/*",
     ]
 
-exclude = [ "src/lib" ]
+exclude = [
+    "src/lib",
+    "src/riot-app",
+    ]
 
 default-members = [
     "examples/hello-world",
@@ -37,3 +40,4 @@ cortex-m-semihosting = { git = "https://github.com/rust-embedded/cortex-m-semiho
 linkme = { git = "https://github.com/kaspar030/linkme", branch = "split_out_none_os" }
 riot-sys = { git = "https://gitlab.com/kaspar030/riot-sys", branch = "support_riot-build" }
 riot-wrappers = { git = "https://gitlab.com/kaspar030/riot-wrappers", branch = "add_riotrs_support" }
+riot-build = { git = "https://github.com/kaspar030/riot-build", branch = "main" }
