@@ -77,7 +77,7 @@ unsafe fn sched(old_sp: usize) {
     current.sp = old_sp;
     CURRENT_THREAD.store((next as *const Thread) as usize, Ordering::Release);
 
-    // PendSV expects these three pointers in r1, r2 and r3
+    // PendSV expects these three pointers in r0, r1 and r2
     // write to registers manually, as ABI would return the values via stack
     llvm_asm!("" :: "{r0}"(current.high_regs.as_ptr()), "{r1}"(next.high_regs.as_ptr()), "{r2}"(next.sp) :: "volatile" );
 }
