@@ -24,6 +24,9 @@ This currently only supports the Nordic nrf52840dk.
 
 ## Quickstart
 
+There's currently one example that will run on one board. Assuming you have
+a Nordic nrf52840dk connected, this should get you somewhere:
+
 1. install needed system dependencies. On Ubuntu, this should be sufficient:
 
     $ apt-get install build-essentials curl git python3 pkg-config libssl-dev llvm-dev cmake libclang-dev gcc-arm-none-eabi clang libnewlib-nano-arm-none-eabi unzip
