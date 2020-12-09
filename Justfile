@@ -5,6 +5,8 @@ export SCRIPTS := justfile_directory() + "/scripts"
 host_build := "target/host"
 RIOT_URL := "https://github.com/kaspar030/RIOT -b riot.rs"
 
+# currently the recipes in this file depend on bash
+set shell := ["/bin/bash", "-c"]
 
 # list of folders that "just test" should run "cargo test" in
 tests := "src/riot-rs-rt src/riot-rs-core"
