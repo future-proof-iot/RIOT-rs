@@ -11,6 +11,10 @@ __This is highly experimental. Expect heavy changes and breakage!__
 If you're looking for a more production ready way of writing RIOT applications
 in Rust, check out [riot-wrappers](https://gitlab.com/etonomy/riot-wrappers).
 
+# Supported hardware
+
+This currently only supports the Nordic nrf52840dk.
+
 ## Goals
 
 - improve RIOT OS using the merits of Rust.
