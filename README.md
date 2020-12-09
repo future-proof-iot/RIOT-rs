@@ -26,7 +26,7 @@ This currently only supports the Nordic nrf52840dk.
 
 1. install needed system dependencies. On Ubuntu, this should be sufficient:
 
-    $ apt-get install build-essentials curl git python3 pkg-config libssl-dev llvm-dev cmake libclang-dev
+    $ apt-get install build-essentials curl git python3 pkg-config libssl-dev llvm-dev cmake libclang-dev gcc-arm-none-eabi clang libnewlib-nano-arm-none-eabi unzip
 
 1. install [rustup](https://rustup.rs/)
 1. install [just](https://github.com/casey/just): `cargo install just`
