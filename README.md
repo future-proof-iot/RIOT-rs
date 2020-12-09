@@ -11,7 +11,7 @@ __This is highly experimental. Expect heavy changes and breakage!__
 If you're looking for a more production ready way of writing RIOT applications
 in Rust, check out [riot-wrappers](https://gitlab.com/etonomy/riot-wrappers).
 
-# Supported hardware
+## Supported hardware
 
 This currently only supports the Nordic nrf52840dk.
 
@@ -24,11 +24,18 @@ This currently only supports the Nordic nrf52840dk.
 
 ## Quickstart
 
-1. install [rustup](https://rustup.rs/) and [just](https://github.com/casey/just)
-1. clone this repository
+1. install needed system dependencies. On Ubuntu, this should be sufficient:
+
+    $ apt-get install build-essentials curl git python3 pkg-config libssl-dev llvm-dev cmake libclang-dev
+
+1. install [rustup](https://rustup.rs/)
+1. install [just](https://github.com/casey/just): `cargo install just`
+1. clone this repository and cd into it
 1. run `just install-reqs` (Warning: this will also compile c2rust, which needs *a lot* (>6gb) of RAM)
    this will require the dev packages for some system libraries: TBD
-1. run `just bin=examples/bottles build`
+1. run `just bin=examples/bottles run`. in gdb, press "c" followed by enter
+1. in another window, run a terminal program of your choice to watch the
+   nrf52840dk's serial output
 
 ## Minimum Supported Rust Version (MSRV)
 
