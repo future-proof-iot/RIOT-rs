@@ -28,6 +28,7 @@ install-reqs: install-toolchains install-c2rust clone-riot
 
 install-toolchains:
     rustup target add thumbv7m-none-eabi
+    rustup target add thumbv7em-none-eabi
     rustup target add thumbv7em-none-eabihf
 
 create-host_build:
@@ -51,11 +52,11 @@ board_bin_common := "source env/" + BOARD + ".env ; source " + bin + "/env ; cd 
 cargo CMD *ARGS:
     {{board_bin_common}} cargo {{CMD}} {{ARGS}}
 
-build *ARGS:
+build *ARGS: clone-riot
     @echo "Building {{bin}} for {{BOARD}}..."
     {{board_bin_common}} cargo build --features "$FEATURES" {{ARGS}}
 
-run *ARGS:
+run *ARGS: clone-riot
     @echo "Running {{bin}} for {{BOARD}}..."
     {{board_bin_common}} cargo run --features "$FEATURES" {{ARGS}}
 
