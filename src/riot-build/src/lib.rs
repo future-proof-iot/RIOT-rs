@@ -12,6 +12,9 @@ fn riot_rs_rt_startup() {
         pub fn kernel_init();
     }
 
+    /* riot-rs board initialization */
+    riot_rs_boards::init();
+
     println!("riot_build::riot_startup(): launching RIOT startup");
     unsafe {
         board_init();

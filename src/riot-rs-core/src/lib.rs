@@ -56,6 +56,7 @@ extern "C" fn user_main() {
 #[cfg(test)]
 #[no_mangle]
 extern "C" fn riot_rs_rt_startup() {
+    riot_rs_boards::init();
     test::startup();
 }
 
