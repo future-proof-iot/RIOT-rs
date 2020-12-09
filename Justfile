@@ -52,11 +52,11 @@ cargo CMD *ARGS:
     {{board_bin_common}} cargo {{CMD}} {{ARGS}}
 
 build *ARGS:
-    @echo "Building {bin} for {BOARD}..."
+    @echo "Building {{bin}} for {{BOARD}}..."
     {{board_bin_common}} cargo build --features "$FEATURES" {{ARGS}}
 
 run *ARGS:
-    @echo "Running {bin} for {BOARD}..."
+    @echo "Running {{bin}} for {{BOARD}}..."
     {{board_bin_common}} cargo run --features "$FEATURES" {{ARGS}}
 
 cmd +CMD:
