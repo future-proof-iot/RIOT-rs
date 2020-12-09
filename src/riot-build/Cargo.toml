@@ -7,16 +7,9 @@ links = "riot-build"
 
 [dependencies]
 cfg-if = "1.0.0"
-linkme = "0.2.3"
 
 riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-core = { optional = true, path = "../riot-rs-core" }
 
-# currently riot-build provides startup code,
-# which in turn currently needs to pull in boards stuff
-# because of a bug in rustc. see src/lib.rs for more info.
-riot-rs-boards = { path = "../riot-rs-boards" }
-
 [features]
-riot-os-core = [ "riot-rs-core" ]
 riot-app = []

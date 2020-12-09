@@ -215,13 +215,18 @@ unsafe fn DefaultHandler(irqn: i16) {
     loop {}
 }
 
+extern "C" {
+    fn riot_rs_rt_startup();
+}
+
 #[entry]
 fn main() -> ! {
     debug::println!("riot_rs_rt::main()");
-    extern "C" {
-        fn riot_rs_rt_startup();
+
+    #[cfg(not(test))]
+    unsafe {
+        riot_rs_rt_startup();
     }
-    riot_rs_rt_startup();
 
     #[cfg(test)]
     test_main();

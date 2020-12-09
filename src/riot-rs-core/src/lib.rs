@@ -42,7 +42,7 @@ pub mod startup;
 mod test {
     use riot_rs_rt as _;
 
-    fn startup() {
+    pub fn startup() {
         crate::startup::startup();
     }
 }
@@ -51,6 +51,12 @@ mod test {
 #[no_mangle]
 extern "C" fn user_main() {
     test_main();
+}
+
+#[cfg(test)]
+#[no_mangle]
+extern "C" fn riot_rs_rt_startup() {
+    test::startup();
 }
 
 #[test_case]
