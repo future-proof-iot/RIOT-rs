@@ -1,3 +1,5 @@
+[![Build Status](https://drone.schleiser.de/api/badges/future-proof-iot/RIOT-rs/status.svg?ref=refs/heads/main)](https://drone.schleiser.de/future-proof-iot/RIOT-rs)
+
 # RIOT-rs
 
     Rust & RIOT OS combined for ergonomic embedded development
