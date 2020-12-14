@@ -47,7 +47,7 @@ a Nordic nrf52840dk connected, this should get you somewhere:
 RIOT-rs makes heavy use of Rust unstable features. For the time being, it is
 recommended to use a current nightly.
 
-## License
+## Copyright & License
 
 RIOT-rs is licensed under either of
 
@@ -58,6 +58,10 @@ at your option.
 
 RIOT-rs links with many components of [RIOT OS](https://github.com/RIOT-OS/RIOT),
 which is licenced under the terms of LGPLv2.1.
+
+Copyright (C) 2020 Freie Universität Berlin
+Copyright (C) 2020 Inria
+Copyright (C) 2020 Kaspar Schleiser
 
 ## Contribution
 
