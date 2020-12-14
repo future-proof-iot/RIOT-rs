@@ -59,9 +59,7 @@ at your option.
 RIOT-rs links with many components of [RIOT OS](https://github.com/RIOT-OS/RIOT),
 which is licenced under the terms of LGPLv2.1.
 
-Copyright (C) 2020 Freie Universität Berlin
-Copyright (C) 2020 Inria
-Copyright (C) 2020 Kaspar Schleiser
+Copyright (C) 2020 Freie Universität Berlin, Inria, Kaspar Schleiser
 
 ## Contribution
 
