@@ -614,8 +614,10 @@ pub mod c {
 
     use crate::channel::BufferedChannel;
 
+    // "const {...}" in array initializer causes ICE on rustc 1.53, so use temporary
+    const TMP: BufferedChannel<msg_t> = BufferedChannel::new(None);
     static mut THREAD_MSG_CHANNELS: [BufferedChannel<msg_t>; super::THREADS_NUMOF] =
-        [BufferedChannel::new(None); super::THREADS_NUMOF];
+        [TMP; super::THREADS_NUMOF];
 
     pub(crate) fn get_channel_for_pid(pid: Pid) -> &'static mut BufferedChannel<'static, msg_t> {
         unsafe { &mut THREAD_MSG_CHANNELS[pid as usize] }

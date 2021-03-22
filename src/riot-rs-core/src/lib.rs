@@ -10,8 +10,8 @@
 #![feature(const_generics)]
 #![feature(fn_traits)]
 #![feature(in_band_lifetimes)]
+#![feature(inline_const)] // for THREAD_MSG_CHANNELS initialization
 // clist / memoffset
-#![feature(raw_ref_macros)]
 #![feature(const_ptr_offset_from)]
 #![feature(const_raw_ptr_deref)]
 #![feature(const_maybe_uninit_as_ptr)]
@@ -21,8 +21,6 @@
 // for msg_content_t union
 // error[E0658]: unions with non-`Copy` fields other than `ManuallyDrop<T>` are unstable
 #![feature(untagged_unions)]
-// for THREAD_MSG_WAITERS static initialization
-#![feature(const_in_array_repeat_expressions)]
 // testing
 #![feature(custom_test_frameworks)]
 #![test_runner(riot_rs_rt::testing::test_runner)]
