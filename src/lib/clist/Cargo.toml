@@ -8,4 +8,4 @@ edition = "2018"
 
 [dependencies.memoffset]
 git = "https://github.com/Gilnaa/memoffset"
-features = ["unstable_const", "unstable_raw"]
+features = ["unstable_const"]
