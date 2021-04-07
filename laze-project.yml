@@ -1,0 +1,108 @@
+context:
+  # base context that all other contexts inherit from
+  - name: default
+    env:
+      RUSTFLAGS:
+        - "-Clink-arg=-Tlink.x"
+      FEATURES:
+        - riot-rs-boards/${builder}
+      SCRIPTS: scripts
+      CARGO_ENV:
+        - >-
+          OPENOCD_ARGS="${OPENOCD_ARGS}"
+          SCRIPTS=${relroot}/${SCRIPTS}
+          CARGO_BUILD_TARGET=${RUSTC_TARGET}
+          ${CARGO_TARGET_PREFIX}_RUNNER=${relroot}/${CARGO_RUNNER}
+          ${CARGO_TARGET_PREFIX}_RUSTFLAGS=${RUSTFLAGS}
+      RIOT_ENV:
+        - RIOTBASE=~/src/riot.rs
+        - BOARD=${builder}
+        - USEMODULE="${USEMODULE}"
+      PROFILE: release
+      BAUDRATE: "115200"
+      PORT: /dev/ttyACM0
+    var_options:
+      # this turns ${FEATURES} from a list to "--features=feature1,feature2"
+      FEATURES:
+        start: --features=
+        joiner: ","
+    rule:
+      - name: LINK
+        cmd: cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo build --${PROFILE} ${FEATURES}
+    tasks:
+      cargo:
+        cmd:
+          - cd ${relpath} && ${CARGO_ENV} cargo
+        build: false
+
+      debug:
+        cmd:
+          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo run --${PROFILE} ${FEATURES}
+        build: false
+
+      flash:
+        cmd:
+          - >-
+            _flash () { openocd
+            ${OPENOCD_ARGS}
+            -c 'init'
+            -c 'targets'
+            -c 'reset halt'
+            -c "flash write_image erase \"${1}\" 0 elf"
+            -c "verify_image \"${1}\" 0 elf"
+            -c 'reset run'
+            -c 'shutdown' ; } ;
+            _flash target/${RUSTC_TARGET}/${PROFILE}/${app}
+
+      reset:
+        cmd:
+          - >-
+            openocd
+            ${OPENOCD_ARGS}
+            -c 'init'
+            -c 'targets'
+            -c 'reset'
+            -c 'shutdown'
+      term:
+        cmd:
+          - picocom -b ${BAUDRATE} --imap lfcrlf ${PORT}
+
+  - name: cortex-m
+  - name: thumbv7em-none-eabi
+    parent: cortex-m
+    env:
+      RUSTC_TARGET: thumbv7em-none-eabi
+      CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7EM_NONE_EABI
+      CARGO_RUNNER:
+        - ${SCRIPTS}/debug-openocd.sh
+
+  - name: thumbv7em-none-eabihf
+    parent: cortex-m
+    env:
+      RUSTC_TARGET: thumbv7em-none-eabihf
+      CARGO_ENV_TARGET: CARGO_TARGET_THUMBV7EM_NONE_EABIHF
+
+module:
+  - name: release
+    selects:
+      - release-arch
+  - name: release-arch
+    context: cortex-m
+    selects:
+      - ?no-semihosting
+  - name: no-semihosting
+    context: cortex-m
+    env:
+      global:
+        FEATURES:
+          - riot-rs-core/no-semihosting
+
+builder:
+  - name: nrf52840dk
+    parent: thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+    env:
+      OPENOCD_ARGS:
+        - "-f board/nordic_nrf52_dk.cfg"
+
+subdirs:
+  - examples

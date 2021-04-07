@@ -1,0 +1,10 @@
+app:
+  - name: bottles
+    selects:
+      - release
+    env:
+      global:
+        USEMODULE:
+          - ztimer
+          - ztimer_msec
+          - ztimer_periph_rtt
