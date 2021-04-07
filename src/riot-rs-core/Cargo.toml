@@ -7,8 +7,8 @@ edition = "2018"
 links = "riot-rs-core"
 
 [dependencies]
-cortex-m = { version = "0.6.5", features = [ "inline-asm" ] }
-cortex-m-rt = "0.6.*"
+cortex-m = { version = "0.7", features = [ "inline-asm" ] }
+cortex-m-rt = "0.6.99"
 
 bitflags = "1.2.*"
 cfg-if = "1.0.0"
@@ -19,7 +19,10 @@ ringbuffer = { path = "../lib/ringbuffer" }
 
 # select one one of these to get a suitable println for debugging
 riot-rs-rt = { optional = true, path = "../riot-rs-rt" }
-cortex-m-semihosting = { optional = true, version = "0.3.7" }
+cortex-m-semihosting = { optional = true, version = "0.4.1" }
+
+[features]
+no-semihosting = [ "cortex-m-semihosting/no-semihosting" ]
 
 [build-dependencies]
 cbindgen = "0.15.*"

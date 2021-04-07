@@ -33,6 +33,8 @@ opt-level = "s"
 [patch.crates-io]
 cortex-m = { git = "https://github.com/kaspar030/cortex-m" }
 cortex-m-rt = { git = "https://github.com/kaspar030/cortex-m-rt" }
+cortex-m-semihosting = { git = "https://github.com/kaspar030/cortex-m" }
+nrf52840-pac = { path = "/home/kaspar/src/rust-embedded/nrf52840-pac" }
 riot-sys = { git = "https://gitlab.com/kaspar030/riot-sys", branch = "support_riot-build" }
 riot-wrappers = { git = "https://gitlab.com/kaspar030/riot-wrappers", branch = "add_riotrs_support" }
 riot-build = { path = "src/riot-build" }
