@@ -31,11 +31,15 @@ lto = true
 opt-level = "s"
 
 [patch.crates-io]
+# these three are forks to get a version that's current and allows "no-semihosting"
 cortex-m = { git = "https://github.com/kaspar030/cortex-m" }
 cortex-m-rt = { git = "https://github.com/kaspar030/cortex-m-rt" }
 cortex-m-semihosting = { git = "https://github.com/kaspar030/cortex-m" }
-nrf52840-pac = { path = "/home/kaspar/src/rust-embedded/nrf52840-pac" }
-riot-sys = { git = "https://gitlab.com/kaspar030/riot-sys", branch = "support_riot-build" }
+# this is forked to allow cortex-m 0.7.x
+nrf52840-pac = { git = "https://github.com/kaspar030/nrf52840-pac", branch = "riot.rs" }
+# these have some patches to support riot.rs
+riot-sys = { git = "https://gitlab.com/kaspar030/riot-sys", branch = "add_riotrs_support" }
 riot-wrappers = { git = "https://gitlab.com/kaspar030/riot-wrappers", branch = "add_riotrs_support" }
+# these are listed so deps doesn't pull from crates.io
 riot-build = { path = "src/riot-build" }
 riot-rs-core = { path = "src/riot-rs-core" }
