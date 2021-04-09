@@ -558,7 +558,7 @@ mod tests {
         struct Data {
             data: u32,
             list_entry: Link,
-        };
+        }
 
         let mut list: TypedList<Data, { offset_of!(Data, list_entry) }> = TypedList::new();
 
