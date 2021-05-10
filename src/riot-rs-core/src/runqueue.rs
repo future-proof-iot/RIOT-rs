@@ -4,6 +4,11 @@ use core::sync::atomic::Ordering;
 
 const USIZE_BITS: usize = mem::size_of::<usize>() * 8;
 
+/// assumptions:
+/// - runqueue numbers are 0..N (exclusive)
+/// - pids are 0..USIZE_BITS (supporting max 32 threads)
+/// - higher runqueue number means higher priority
+
 // TODO: use atomics
 pub struct RunQueue<const N: usize> {
     bitcache: usize,
@@ -20,6 +25,7 @@ impl<const N: usize> RunQueue<{ N }> {
         }
     }
 
+    /// add thread with pid n to runqueue number rq
     pub fn add(&mut self, n: usize, rq: usize) {
         debug_assert!(n < USIZE_BITS);
         debug_assert!(rq < N);
@@ -29,6 +35,7 @@ impl<const N: usize> RunQueue<{ N }> {
         compiler_fence(Ordering::AcqRel);
     }
 
+    /// remove thread with pid n from runqueue number rq
     pub fn del(&mut self, n: usize, rq: usize) {
         debug_assert!(n < USIZE_BITS);
         debug_assert!(rq < N);
@@ -40,6 +47,9 @@ impl<const N: usize> RunQueue<{ N }> {
         compiler_fence(Ordering::AcqRel);
     }
 
+    /// get pid that should run next
+    /// returns the next runnable thread of
+    /// the runqueue with the highest index
     pub fn get_next(&self) -> u32 {
         fn ffs(val: usize) -> u32 {
             USIZE_BITS as u32 - val.leading_zeros()
@@ -63,6 +73,9 @@ impl<const N: usize> RunQueue<{ N }> {
         return 0;
     }
 
+    /// advance runqueue number rq
+    /// pid = current pid
+    /// TODO: drop pid parameter from interface
     pub fn advance(&mut self, pid: u8, rq: usize) {
         debug_assert!(rq < N);
         compiler_fence(Ordering::AcqRel);
