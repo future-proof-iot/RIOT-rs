@@ -106,6 +106,7 @@ pub fn cleanup() -> ! {
 /// Supervisor Call exception handler
 ///
 /// This is currently used to initiate threading.
+#[cfg(any(armv7m))]
 #[naked]
 #[no_mangle]
 #[allow(non_snake_case)]
@@ -118,7 +119,26 @@ unsafe fn SVCall() {
             :::: "volatile" );
 }
 
+#[cfg(any(armv6m))]
+#[naked]
+#[no_mangle]
+#[allow(non_snake_case)]
+unsafe fn SVCall() {
+    llvm_asm!(
+            "
+            ldr r0, SVCALL_RETURN_PSP
+            mov LR, r0
+            bx lr
+
+            .align 4
+            SVCALL_RETURN_PSP:
+            .word 0xFFFFFFFD
+            "
+            :::: "volatile" );
+}
+
 /// PendSV exception handler
+#[cfg(any(armv7m))]
 #[naked]
 #[no_mangle]
 #[allow(non_snake_case)]
@@ -135,6 +155,55 @@ unsafe fn PendSV() {
             return:
             movw LR, #0xFFFd
             movt LR, #0xFFFF
+            "
+            :::: "volatile" );
+}
+
+#[cfg(any(armv6m))]
+#[naked]
+#[no_mangle]
+#[allow(non_snake_case)]
+unsafe fn PendSV() {
+    llvm_asm!(
+            "
+            mrs r0, psp
+            bl sched
+            cmp r0, #0
+            beq return
+
+            //stmia r0!, {r4-r7}
+            str r4, [r0, #16]
+            str r5, [r0, #20]
+            str r6, [r0, #24]
+            str r7, [r0, #28]
+
+            mov  r4, r8
+            mov  r5, r9
+            mov  r6, r10
+            mov  r7, r11
+
+            str r4, [r0, #0]
+            str r5, [r0, #4]
+            str r6, [r0, #8]
+            str r7, [r0, #12]
+
+            //
+            ldmia r1!, {r4-r7}
+            mov r11, r7
+            mov r10, r6
+            mov r9,  r5
+            mov r8,  r4
+            ldmia r1!, {r4-r7}
+
+            msr.n psp, r2
+            return:
+            ldr r0, PENDSV_RETURN_PSP
+            mov LR, r0
+            bx lr
+
+            .align 4
+            PENDSV_RETURN_PSP:
+            .word 0xFFFFFFFD
             "
             :::: "volatile" );
 }
