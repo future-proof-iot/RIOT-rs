@@ -3,6 +3,21 @@ use std::env;
 use std::fs;
 use std::path::Path;
 
+fn arch_cfg() {
+    let target = env::var("TARGET").unwrap();
+
+    if target.starts_with("thumbv6m") {
+        println!("cargo:rustc-cfg=armv6m")
+    }
+
+    if target.starts_with("thumbv7m")
+        | target.starts_with("thumbv7em")
+        | target.starts_with("thumbv8m")
+    {
+        println!("cargo:rustc-cfg=armv7m")
+    }
+}
+
 fn main() {
     let crate_dir = env::var("CARGO_MANIFEST_DIR").unwrap();
     let out_dir = env::var("OUT_DIR").unwrap();
@@ -44,10 +59,14 @@ fn main() {
         out_path.join(&makefile_name).to_string_lossy()
     );
 
+    // set target specific config values
+    arch_cfg();
+
     // to make sure this script is re-run on binding changes,
     // list cbindgen.toml and all .rs that contain c bindings
     println!("cargo:rerun-if-changed=cbindgen.toml");
     println!("cargo:rerun-if-changed=src/thread.rs");
     println!("cargo:rerun-if-changed=src/lock.rs");
     println!("cargo:rerun-if-changed=src/channel.rs");
+    println!("cargo:rerun-if-changed=build.rs");
 }
