@@ -74,6 +74,7 @@ impl<const N: usize> RunQueue<{ N }> {
     }
 
     /// advance runqueue number rq
+    /// (this is used to "yield" to another thread of *the same* priority)
     /// pid = current pid
     /// TODO: drop pid parameter from interface
     pub fn advance(&mut self, pid: u8, rq: usize) {
