@@ -17,6 +17,8 @@ ref-cast = "1.0"
 clist = { path = "../lib/clist" }
 ringbuffer = { path = "../lib/ringbuffer" }
 
+riot-rs-runqueue = "0.1.*"
+
 # select one one of these to get a suitable println for debugging
 riot-rs-rt = { optional = true, path = "../riot-rs-rt" }
 cortex-m-semihosting = { optional = true, version = "0.4.1" }

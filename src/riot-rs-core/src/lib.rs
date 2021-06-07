@@ -11,6 +11,7 @@
 #![feature(fn_traits)]
 #![feature(in_band_lifetimes)]
 #![feature(inline_const)] // for THREAD_MSG_CHANNELS initialization
+#![feature(option_result_unwrap_unchecked)]
 // clist / memoffset
 #![feature(const_ptr_offset_from)]
 #![feature(const_raw_ptr_deref)]
@@ -30,7 +31,6 @@ pub mod channel;
 pub mod event_group;
 pub mod lock;
 pub mod mutex;
-pub mod runqueue;
 pub mod thread;
 
 #[cfg(test)]

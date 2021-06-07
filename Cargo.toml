@@ -1,21 +1,19 @@
 [workspace]
 members = [
-    "src/*",
-    "src/riot-rs-boards",
-    "src/riot-rs-boards/lm3s6965evb",
-    "src/riot-rs-boards/nrf52",
-    "src/riot-rs-boards/nrf52840dk",
-    "src/riot-rs-boards/nucleo-f401re",
-    "src/riot-rs-chips",
-    "src/lib/*",
-    "examples/*",
-    ]
+  "src/*",
+  "src/riot-rs-boards",
+  "src/riot-rs-boards/lm3s6965evb",
+  "src/riot-rs-boards/nrf52",
+  "src/riot-rs-boards/nrf52840dk",
+  "src/riot-rs-boards/nucleo-f401re",
+  "src/riot-rs-chips",
+  "src/lib/*",
+  "examples/*",
+]
 
-exclude = [ "src/lib" ]
+exclude = ["src/lib"]
 
-default-members = [
-    "examples/hello-world",
-    ]
+default-members = ["examples/hello-world"]
 
 [profile.dev]
 incremental = false
@@ -43,3 +41,4 @@ riot-wrappers = { git = "https://gitlab.com/kaspar030/riot-wrappers", branch = "
 # these are listed so deps doesn't pull from crates.io
 riot-build = { path = "src/riot-build" }
 riot-rs-core = { path = "src/riot-rs-core" }
+riot-rs-runqueue = { git = "https://github.com/future-proof-iot/riot-rs-runqueue", branch = "main" }

@@ -7,6 +7,7 @@ use cortex_m::peripheral::SCB;
 use bitflags::bitflags;
 
 use clist::Link;
+use riot_rs_runqueue::{RunQueue, RunqueueId, ThreadId};
 
 pub const SCHED_PRIO_LEVELS: usize = 16;
 
@@ -14,7 +15,7 @@ pub const THREADS_NUMOF: usize = 16;
 pub const THREAD_FLAG_MSG_WAITING: ThreadFlags = (1 as ThreadFlags) << 15;
 pub const THREAD_FLAG_TIMEOUT: ThreadFlags = (1 as ThreadFlags) << 14;
 
-pub type Pid = u16;
+pub type Pid = ThreadId;
 pub type ThreadFlags = u16;
 
 #[derive(Copy, Clone)]
@@ -23,7 +24,7 @@ pub struct Thread {
     high_regs: [usize; 8],
     list_entry: Link,
     pub(crate) state: ThreadState,
-    pub prio: u8,
+    pub prio: RunqueueId,
     pub flags: ThreadFlags,
     pub pid: Pid,
 }
@@ -57,15 +58,13 @@ pub enum FlagWaitMode {
     All(ThreadFlags),
 }
 
-use crate::runqueue::RunQueue;
-
-static mut RUNQUEUE: RunQueue<SCHED_PRIO_LEVELS> = RunQueue::new();
+static mut RUNQUEUE: RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF> = RunQueue::new();
 
 #[no_mangle]
 unsafe fn sched(old_sp: usize) {
     let mut current = Thread::current();
 
-    let next_pid = RUNQUEUE.get_next() as Pid;
+    let next_pid = RUNQUEUE.get_next().unwrap_unchecked() as Pid;
 
     let next = Thread::get(next_pid);
 
@@ -233,7 +232,7 @@ impl Thread {
                 thread.state = ThreadState::Paused;
             } else {
                 thread.state = ThreadState::Running;
-                RUNQUEUE.add(unused_pid as usize, thread.prio as usize);
+                RUNQUEUE.add(unused_pid, thread.prio);
                 if !flags.contains(CreateFlags::WITHOUT_YIELD) {
                     Thread::yield_higher();
                 }
@@ -278,11 +277,11 @@ impl Thread {
         self.state = state;
         if old_state != ThreadState::Running && state == ThreadState::Running {
             unsafe {
-                RUNQUEUE.add(self.pid as usize, self.prio as usize);
+                RUNQUEUE.add(self.pid, self.prio);
             }
         } else if old_state == ThreadState::Running && state != ThreadState::Running {
             unsafe {
-                RUNQUEUE.del(self.pid as usize, self.prio as usize);
+                RUNQUEUE.del(self.pid, self.prio);
             }
         }
     }
@@ -304,7 +303,7 @@ impl Thread {
     pub fn yield_next() {
         let current = Thread::current();
         unsafe {
-            RUNQUEUE.advance(current.pid as u8, current.prio as usize);
+            RUNQUEUE.advance(current.prio);
             SCB::set_pendsv();
             cortex_m::asm::isb();
         }
@@ -383,7 +382,7 @@ impl Thread {
     ///
     /// Note: this _must only be called once during startup_.
     pub unsafe fn start_threading() -> ! {
-        let next_pid = RUNQUEUE.get_next() as Pid;
+        let next_pid = RUNQUEUE.get_next().unwrap_unchecked() as Pid;
         Thread::get(next_pid).jump_to();
         loop {}
     }
@@ -514,7 +513,7 @@ impl Thread {
             thread.prio = prio;
 
             thread.state = ThreadState::Running;
-            RUNQUEUE.add(unused_pid as usize, thread.prio as usize);
+            RUNQUEUE.add(unused_pid, thread.prio);
 
             return thread;
         }

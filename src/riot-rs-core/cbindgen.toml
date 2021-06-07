@@ -6,6 +6,10 @@ pragma_once = true
 
 includes = ["msg_content.h"]
 
+[parse]
+parse_deps = true
+include = ["riot-rs-runqueue"]
+
 # Table of name conversions to apply to item names (lhs becomes rhs)
 [export.rename]
 "Pid" = "kernel_pid_t"
