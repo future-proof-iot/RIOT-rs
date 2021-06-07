@@ -54,7 +54,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         let popped = self.queues.pop_head(rq as u8);
         //
         assert_eq!(popped, Some(n as u8));
-        if self.queues.empty(rq) {
+        if self.queues.is_empty(rq) {
             self.bitcache &= !(1 << rq);
         }
     }
@@ -108,7 +108,7 @@ mod clist {
             0xFF
         }
 
-        pub fn empty(&self, rq: RunqueueId) -> bool {
+        pub fn is_empty(&self, rq: RunqueueId) -> bool {
             self.tail[rq as usize] == Self::sentinel()
         }
 
@@ -162,7 +162,7 @@ mod clist {
         #[test]
         fn test_clist_basic() {
             let mut clist: CList<8, 32> = CList::new();
-            assert!(clist.empty(0));
+            assert!(clist.is_empty(0));
             clist.push(0, 0);
             assert_eq!(clist.pop_head(0), Some(0));
             assert_eq!(clist.pop_head(0), None);
@@ -171,31 +171,31 @@ mod clist {
         #[test]
         fn test_clist_push_already_in_list() {
             let mut clist: CList<8, 32> = CList::new();
-            assert!(clist.empty(0));
+            assert!(clist.is_empty(0));
             clist.push(0, 0);
             clist.push(0, 0);
             assert_eq!(clist.pop_head(0), Some(0));
             assert_eq!(clist.pop_head(0), None);
-            assert!(clist.empty(0));
+            assert!(clist.is_empty(0));
         }
 
         #[test]
         fn test_clist_push_two() {
             let mut clist: CList<8, 32> = CList::new();
-            assert!(clist.empty(0));
+            assert!(clist.is_empty(0));
             clist.push(0, 0);
             clist.push(1, 0);
             assert_eq!(clist.pop_head(0), Some(0));
             assert_eq!(clist.pop_head(0), Some(1));
             assert_eq!(clist.pop_head(0), None);
-            assert!(clist.empty(0));
+            assert!(clist.is_empty(0));
         }
 
         #[test]
         fn test_clist_push_all() {
             const N: usize = 255;
             let mut clist: CList<8, N> = CList::new();
-            assert!(clist.empty(0));
+            assert!(clist.is_empty(0));
             for i in 0..(N - 1) {
                 println!("pushing {}", i);
                 clist.push(i as u8, 0);
@@ -205,26 +205,26 @@ mod clist {
                 assert_eq!(clist.pop_head(0), Some(i as u8));
             }
             assert_eq!(clist.pop_head(0), None);
-            assert!(clist.empty(0));
+            assert!(clist.is_empty(0));
         }
 
         #[test]
         fn test_clist_advance() {
             let mut clist: CList<8, 32> = CList::new();
-            assert!(clist.empty(0));
+            assert!(clist.is_empty(0));
             clist.push(0, 0);
             clist.push(1, 0);
             clist.advance(0);
             assert_eq!(clist.pop_head(0), Some(1));
             assert_eq!(clist.pop_head(0), Some(0));
             assert_eq!(clist.pop_head(0), None);
-            assert!(clist.empty(0));
+            assert!(clist.is_empty(0));
         }
 
         #[test]
         fn test_clist_peek_head() {
             let mut clist: CList<8, 32> = CList::new();
-            assert!(clist.empty(0));
+            assert!(clist.is_empty(0));
             clist.push(0, 0);
             clist.push(1, 0);
             assert_eq!(clist.peek_head(0), Some(0));
@@ -235,7 +235,7 @@ mod clist {
             assert_eq!(clist.peek_head(0), None);
             assert_eq!(clist.peek_head(0), None);
             assert_eq!(clist.pop_head(0), None);
-            assert!(clist.empty(0));
+            assert!(clist.is_empty(0));
         }
     }
 }
