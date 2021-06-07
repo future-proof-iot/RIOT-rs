@@ -1,7 +1,7 @@
 #![cfg_attr(not(test), no_std)]
 
 mod runqueue;
-pub use runqueue::RunQueue;
+pub use runqueue::{RunQueue, RunqueueId, ThreadId};
 
 #[cfg(test)]
 mod tests {
