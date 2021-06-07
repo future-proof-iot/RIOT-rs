@@ -9,7 +9,7 @@ mod tests {
 
     #[test]
     fn test_rq_basic() {
-        let mut runqueue: RunQueue<8> = RunQueue::new();
+        let mut runqueue: RunQueue<8, 32> = RunQueue::new();
 
         runqueue.add(0, 0);
         runqueue.add(1, 0);
@@ -37,7 +37,7 @@ mod tests {
 
     #[test]
     fn test_rq_all32() {
-        let mut runqueue: RunQueue<32> = RunQueue::new();
+        let mut runqueue: RunQueue<8, 32> = RunQueue::new();
 
         for i in 0..=31 {
             runqueue.add(i, 0);
@@ -56,7 +56,7 @@ mod tests {
 
     #[test]
     fn test_rq_basic_twoprio() {
-        let mut runqueue: RunQueue<8> = RunQueue::new();
+        let mut runqueue: RunQueue<8, 32> = RunQueue::new();
 
         runqueue.add(0, 0);
         runqueue.add(1, 0);

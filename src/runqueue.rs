@@ -11,23 +11,24 @@ const USIZE_BITS: usize = mem::size_of::<usize>() * 8;
 use self::clist::CList;
 
 // TODO: use atomics
-pub struct RunQueue<const N: usize> {
+pub struct RunQueue<const N_QUEUES: usize, const N_THREADS: usize> {
     bitcache: usize,
-    queues: [clist::CList<N>; N],
+    queues: [clist::CList<N_THREADS>; N_QUEUES],
 }
 
-impl<const N: usize> RunQueue<{ N }> {
-    pub const fn new() -> RunQueue<{ N }> {
+impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_THREADS }> {
+    pub const fn new() -> RunQueue<{ N_QUEUES }, { N_THREADS }> {
         RunQueue {
             bitcache: 0,
-            queues: [CList::new(); N],
+            queues: [CList::new(); N_QUEUES],
         }
     }
 
     /// add thread with pid n to runqueue number rq
     pub fn add(&mut self, n: usize, rq: usize) {
         debug_assert!(n < USIZE_BITS);
-        debug_assert!(rq < N);
+        debug_assert!(n < N_THREADS);
+        debug_assert!(rq < N_QUEUES);
         self.bitcache |= 1 << rq;
         self.queues[rq].push(n as u8);
     }
@@ -37,7 +38,7 @@ impl<const N: usize> RunQueue<{ N }> {
     /// This is fine, RIOT-rs only ever calls del() for the current thread.
     pub fn del(&mut self, n: usize, rq: usize) {
         debug_assert!(n < USIZE_BITS);
-        debug_assert!(rq < N);
+        debug_assert!(rq < N_QUEUES);
         let popped = self.queues[rq].pop_head();
         //
         assert_eq!(popped, Some(n as u8));
@@ -67,7 +68,7 @@ impl<const N: usize> RunQueue<{ N }> {
     /// advance runqueue number rq
     /// (this is used to "yield" to another thread of *the same* priority)
     pub fn advance(&mut self, rq: usize) {
-        debug_assert!(rq < N);
+        debug_assert!(rq < N_QUEUES);
         self.queues[rq].advance()
     }
 }
