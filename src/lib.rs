@@ -77,4 +77,22 @@ mod tests {
         runqueue.del(3, 0);
         assert_eq!(runqueue.get_next(), None);
     }
+    #[test]
+    fn test_push_twice() {
+        let mut runqueue: RunQueue<8, 32> = RunQueue::new();
+
+        runqueue.add(0, 0);
+        runqueue.add(1, 0);
+
+        assert_eq!(runqueue.get_next(), Some(0));
+        runqueue.del(0, 0);
+        assert_eq!(runqueue.get_next(), Some(1));
+
+        runqueue.add(0, 0);
+
+        assert_eq!(runqueue.get_next(), Some(1));
+
+        runqueue.advance(0);
+        assert_eq!(runqueue.get_next(), Some(0));
+    }
 }
