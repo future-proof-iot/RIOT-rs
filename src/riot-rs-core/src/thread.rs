@@ -109,7 +109,7 @@ pub fn cleanup() -> ! {
 #[naked]
 #[no_mangle]
 #[allow(non_snake_case)]
-unsafe fn SVCall() {
+unsafe extern "C" fn SVCall() {
     llvm_asm!(
             "
             movw LR, #0xFFFd
@@ -122,7 +122,7 @@ unsafe fn SVCall() {
 #[naked]
 #[no_mangle]
 #[allow(non_snake_case)]
-unsafe fn SVCall() {
+unsafe extern "C" fn SVCall() {
     llvm_asm!(
             "
             ldr r0, SVCALL_RETURN_PSP
@@ -141,7 +141,7 @@ unsafe fn SVCall() {
 #[naked]
 #[no_mangle]
 #[allow(non_snake_case)]
-unsafe fn PendSV() {
+unsafe extern "C" fn PendSV() {
     llvm_asm!(
             "
             mrs r0, psp
@@ -162,7 +162,7 @@ unsafe fn PendSV() {
 #[naked]
 #[no_mangle]
 #[allow(non_snake_case)]
-unsafe fn PendSV() {
+unsafe extern "C" fn PendSV() {
     llvm_asm!(
             "
             mrs r0, psp
