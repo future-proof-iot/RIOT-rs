@@ -1,6 +1,6 @@
 [package]
 name = "riot-rs-runqueue"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2018"
 
