@@ -86,6 +86,10 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
 }
 
 mod clist {
+    // this module implements an array of N_QUEUES circular linked lists over an
+    // array of size N_THREADS.
+    // the array is used for "next" pointers, so each integer value in the array
+    // corresponds to one element, which can only be in one of the lists.
     use super::{RunqueueId, ThreadId};
 
     #[derive(Debug, Copy, Clone)]
