@@ -133,15 +133,24 @@ mod clist {
 
         pub fn pop_head(&mut self, rq: RunqueueId) -> Option<u8> {
             if self.tail[rq as usize] == Self::sentinel() {
+                // rq is empty, do nothing
                 None
             } else {
-                let res = self.next_idxs[self.tail[rq as usize] as usize];
-                if res == self.tail[rq as usize] {
+                let head = self.next_idxs[self.tail[rq as usize] as usize];
+                if head == self.tail[rq as usize] {
+                    // rq's tail bites itself, so there's only one entry.
+                    // so, clear tail.
                     self.tail[rq as usize] = Self::sentinel();
+                    // rq is now empty
                 } else {
-                    self.next_idxs[self.tail[rq as usize] as usize] = self.next_idxs[res as usize];
+                    // rq has multiple entries,
+                    // so set tail.next to head.next (second in list)
+                    self.next_idxs[self.tail[rq as usize] as usize] = self.next_idxs[head as usize];
                 }
-                Some(res)
+
+                // now clear head's next value
+                self.next_idxs[head as usize] = Self::sentinel();
+                Some(head)
             }
         }
 
