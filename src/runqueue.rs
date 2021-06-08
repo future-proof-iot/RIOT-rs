@@ -42,7 +42,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         debug_assert!((n as usize) < N_THREADS);
         debug_assert!((rq as usize) < N_QUEUES);
         self.bitcache |= 1 << rq;
-        self.queues.push(n as u8, rq as u8);
+        self.queues.push(n, rq);
     }
 
     /// remove thread with pid n from runqueue number rq
@@ -51,7 +51,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     pub fn del(&mut self, n: ThreadId, rq: RunqueueId) {
         debug_assert!((n as usize) < N_THREADS);
         debug_assert!((rq as usize) < N_QUEUES);
-        let popped = self.queues.pop_head(rq as u8);
+        let popped = self.queues.pop_head(rq);
         //
         assert_eq!(popped, Some(n as u8));
         if self.queues.is_empty(rq) {
@@ -70,8 +70,8 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         compiler_fence(Ordering::AcqRel);
         let rq_ffs = Self::ffs(self.bitcache);
         if rq_ffs > 0 {
-            let rq = (rq_ffs - 1) as usize;
-            self.queues.peek_head(rq as u8)
+            let rq = (rq_ffs - 1) as RunqueueId;
+            self.queues.peek_head(rq)
         } else {
             None
         }
@@ -81,7 +81,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     /// (this is used to "yield" to another thread of *the same* priority)
     pub fn advance(&mut self, rq: RunqueueId) {
         debug_assert!((rq as usize) < N_QUEUES);
-        self.queues.advance(rq as u8)
+        self.queues.advance(rq)
     }
 }
 
@@ -116,11 +116,16 @@ mod clist {
             assert!(n < Self::sentinel());
             if self.next_idxs[n as usize] == Self::sentinel() {
                 if self.tail[rq as usize] == Self::sentinel() {
+                    // rq is empty, link both tail and n.next to n
                     self.tail[rq as usize] = n;
                     self.next_idxs[n as usize] = n;
                 } else {
+                    // rq has an entry already, so
+                    // 1. n.next = old_tail.next ("first" in list)
                     self.next_idxs[n as usize] = self.next_idxs[self.tail[rq as usize] as usize];
+                    // 2. old_tail.next = n
                     self.next_idxs[self.tail[rq as usize] as usize] = n;
+                    // 3. tail = n
                     self.tail[rq as usize] = n;
                 }
             }
