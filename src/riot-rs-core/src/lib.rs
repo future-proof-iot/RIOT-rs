@@ -12,12 +12,12 @@
 #![feature(in_band_lifetimes)]
 #![feature(inline_const)] // for THREAD_MSG_CHANNELS initialization
 #![feature(option_result_unwrap_unchecked)]
+#![feature(const_fn_trait_bound)]
 // clist / memoffset
 #![feature(const_ptr_offset_from)]
 #![feature(const_raw_ptr_deref)]
 #![feature(const_maybe_uninit_as_ptr)]
 // ringbuffer
-#![feature(const_fn)]
 #![feature(const_mut_refs)]
 // for msg_content_t union
 // error[E0658]: unions with non-`Copy` fields other than `ManuallyDrop<T>` are unstable
