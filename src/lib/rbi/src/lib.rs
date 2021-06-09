@@ -1,5 +1,4 @@
 #![cfg_attr(not(test), no_std)]
-#![feature(const_fn)]
 
 #[derive(Debug)]
 pub struct RingBufferIndex {
