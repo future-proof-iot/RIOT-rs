@@ -16,6 +16,7 @@ fn main() {
     let (app_name, riot_bindir, riot_builddir, build_output) = if riot_app_mode {
         // building a RIOT application
         let app = env::var("APP").unwrap();
+        eprintln!("riot-build: RIOT C application mode, APP=\"{}\"", &app);
         let riot_builddir = Path::new(&riotbase).join(app);
         let riot_bindir = riot_builddir.join("bin");
 
@@ -61,6 +62,7 @@ fn main() {
         (app_name, riot_bindir, riot_builddir, build_output)
     } else {
         // building RIOT as library
+        eprintln!("riot-build: Rust application mode");
         let riot_builddir = Path::new(&out_dir).join("libriot");
         let riot_bindir = riot_builddir.join("bin");
 
