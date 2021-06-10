@@ -2,10 +2,11 @@ context:
   # base context that all other contexts inherit from
   - name: default
     env:
+      bindir: "${build-dir}/bin/${builder}/${app}"
       RUSTFLAGS:
         - "-Clink-arg=-Tlink.x"
       FEATURES:
-        - riot-rs-boards/${builder}
+        - riot-rs-boards/${BOARD}
       SCRIPTS: scripts
       CARGO_ENV:
         - >-
@@ -14,10 +15,15 @@ context:
           CARGO_BUILD_TARGET=${RUSTC_TARGET}
           ${CARGO_TARGET_PREFIX}_RUNNER=${relroot}/${CARGO_RUNNER}
           ${CARGO_TARGET_PREFIX}_RUSTFLAGS=${RUSTFLAGS}
+          CARGO_TARGET_DIR=${relroot}/${build-dir}/bin/${builder}/${app}/cargo
       RIOT_ENV:
         - RIOTBASE=~/src/riot.rs
-        - BOARD=${builder}
+        - BOARD=${BOARD}
         - USEMODULE="${USEMODULE}"
+        - NEWLIB_ARCH=${NEWLIB_ARCH}
+      CARGO_ARGS:
+        - -Zextra-link-arg
+      BOARD: ${builder}
       PROFILE: release
       BAUDRATE: "115200"
       PORT: /dev/ttyACM0
@@ -28,16 +34,29 @@ context:
         joiner: ","
     rule:
       - name: LINK
-        cmd: cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo build --${PROFILE} ${FEATURES}
+        pool: console
+        cmd: >-
+          cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
+          && cp ${relroot}/${build-dir}/bin/${builder}/${app}/cargo/${RUSTC_TARGET}/${PROFILE}/${app} ${relroot}/${out}
     tasks:
       cargo:
         cmd:
-          - cd ${relpath} && ${CARGO_ENV} cargo
+          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo
         build: false
 
       debug:
         cmd:
-          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo run --${PROFILE} ${FEATURES}
+          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
+        build: false
+
+      gdb:
+        cmd:
+          - arm-none-eabi-gdb -ex "target extended-remote localhost:1234" ${out}
+        build: false
+
+      bloat:
+        cmd:
+          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo bloat --${PROFILE} ${FEATURES}
         build: false
 
       flash:
@@ -52,7 +71,7 @@ context:
             -c "verify_image \"${1}\" 0 elf"
             -c 'reset run'
             -c 'shutdown' ; } ;
-            _flash target/${RUSTC_TARGET}/${PROFILE}/${app}
+            _flash ${out}
 
       reset:
         cmd:
@@ -68,19 +87,37 @@ context:
           - picocom -b ${BAUDRATE} --imap lfcrlf ${PORT}
 
   - name: cortex-m
+
+  - name: thumbv6m-none-eabi
+    parent: cortex-m
+    env:
+      RUSTC_TARGET: thumbv6m-none-eabi
+      CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV6M_NONE_EABI
+      NEWLIB_ARCH: thumb/v6-m/nofp
+
   - name: thumbv7em-none-eabi
     parent: cortex-m
     env:
       RUSTC_TARGET: thumbv7em-none-eabi
       CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7EM_NONE_EABI
-      CARGO_RUNNER:
-        - ${SCRIPTS}/debug-openocd.sh
+      NEWLIB_ARCH: thumb/v7e-m/nofp
 
   - name: thumbv7em-none-eabihf
     parent: cortex-m
     env:
       RUSTC_TARGET: thumbv7em-none-eabihf
       CARGO_ENV_TARGET: CARGO_TARGET_THUMBV7EM_NONE_EABIHF
+      NEWLIB_ARCH: v7e-m+fp/hard
+
+  - name: microbit-base
+    # this is a context, not a builder, to be used as parent by  "microbit" and
+    # "microbit-qemu"
+    parent: thumbv6m-none-eabi
+    env:
+      # override "${builder}"
+      BOARD: microbit
+      OPENOCD_ARGS:
+        - "-f board/nordic_nrf52_dk.cfg"
 
 module:
   - name: release
@@ -101,8 +138,35 @@ builder:
   - name: nrf52840dk
     parent: thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
     env:
+      CARGO_RUNNER:
+        - ${SCRIPTS}/debug-openocd.sh
       OPENOCD_ARGS:
         - "-f board/nordic_nrf52_dk.cfg"
+
+  - name: microbit
+    parent: microbit-base
+    env:
+      CARGO_RUNNER:
+        - ${SCRIPTS}/debug-openocd.sh
+      OPENOCD_ARGS:
+        - "-f board/nordic_nrf52_dk.cfg"
+
+  - name: microbit-qemu
+    parent: microbit-base
+    env:
+      CARGO_RUNNER:
+        - '"qemu-system-arm -machine microbit -nographic -semihosting-config enable=on,target=native -s -S -kernel"'
+    disable_module:
+      - periph_rtt
+
+  # missing riot support
+  # - name: lm3s6965evb
+  #   parent: thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+  #   env:
+  #     CARGO_RUNNER:
+  #       - '"qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"'
+  #     OPENOCD_ARGS:
+  #       - "-f board/nordic_nrf52_dk.cfg"
 
 subdirs:
   - examples

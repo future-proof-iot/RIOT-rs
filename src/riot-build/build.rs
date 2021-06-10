@@ -135,6 +135,13 @@ fn main() {
     println!("cargo:rustc-link-search=native={}", out_dir);
     println!("cargo:rustc-link-lib=static=riot");
 
+    // instruct cargo to link in newlib
+    println!(
+        "cargo:rustc-link-arg=-L/usr/arm-none-eabi/lib/{}",
+        env::var("NEWLIB_ARCH").expect("missing NEWLIB_ARCH")
+    );
+    println!("cargo:rustc-link-arg=-lc_nano");
+
     // with `links = "riot-build", this results in
     // DEP_RIOT_BUILD_DIR=foo being passed to dependees
     println!("cargo:DIR={}", riot_builddir.to_string_lossy());
