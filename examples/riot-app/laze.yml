@@ -1,0 +1,8 @@
+app:
+  - name: riot-app
+    selects:
+      - release
+    env:
+      global:
+        RIOT_ENV:
+          - APP=tests/hello-world

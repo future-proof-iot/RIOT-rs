@@ -873,7 +873,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "riot"
+name = "riot-app"
 version = "0.1.0"
 dependencies = [
  "riot-build",
