@@ -35,6 +35,8 @@ cortex-m-rt = { git = "https://github.com/kaspar030/cortex-m-rt" }
 cortex-m-semihosting = { git = "https://github.com/kaspar030/cortex-m" }
 # this is forked to allow cortex-m 0.7.x
 nrf52840-pac = { git = "https://github.com/kaspar030/nrf52840-pac", branch = "riot.rs" }
+# this is forked for ld-memory dynamic memory.x support
+nrf52840-hal = { git = "https://github.com/kaspar030/nrf-hal", branch = "nrf52840_use_ldmemory" }
 # these have some patches to support riot.rs
 riot-sys = { git = "https://gitlab.com/kaspar030/riot-sys", branch = "add_riotrs_support" }
 riot-wrappers = { git = "https://gitlab.com/kaspar030/riot-wrappers", branch = "add_riotrs_support" }
