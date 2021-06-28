@@ -24,7 +24,7 @@
 pub mod testing;
 
 use cortex_m as _;
-use cortex_m_rt::{entry, exception, ExceptionFrame};
+use cortex_m_rt::{entry, exception, ExceptionFrame, __RESET_VECTOR};
 
 use core::panic::PanicInfo;
 
@@ -220,6 +220,19 @@ extern "C" {
 
 #[entry]
 fn main() -> ! {
+    // First, configure vector table address.
+    // This is necessary when the vector table is not at its default position,
+    // e.g., when there's a bootloader the default address.
+    // Here, we're deriving the vector table address from the reset vector,
+    // which is always the second entry in the vector table, after the initial
+    // ISR stack pointer.
+    // TODO: make cortex_m only
+    unsafe {
+        (*cortex_m::peripheral::SCB::ptr())
+            .vtor
+            .write(&__RESET_VECTOR as *const _ as u32 - 4)
+    };
+
     debug::println!("riot_rs_rt::main()");
 
     #[cfg(not(test))]
