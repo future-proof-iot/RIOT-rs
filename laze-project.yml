@@ -35,6 +35,7 @@ context:
     rule:
       - name: LINK
         pool: console
+        always: true
         cmd: >-
           cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
           && cp ${relroot}/${build-dir}/bin/${builder}/${app}/cargo/${RUSTC_TARGET}/${PROFILE}/${app} ${relroot}/${out}
