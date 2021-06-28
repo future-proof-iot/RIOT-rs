@@ -124,9 +124,9 @@ dependencies = [
 
 [[package]]
 name = "bytemuck"
-version = "1.5.1"
+version = "1.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "bed57e2090563b83ba8f83366628ce535a7584c9afa4c9fc0612a03925c6df58"
+checksum = "9966d2ab714d0f785dbac0a0396251a35280aeb42413281617d0209ab4898435"
 
 [[package]]
 name = "byteorder"
@@ -456,9 +456,9 @@ dependencies = [
 
 [[package]]
 name = "hermit-abi"
-version = "0.1.18"
+version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "322f4de77956e22ed0e5032c359a0f1273f1f7f0d79bfa3b8ffbc730d7fbcc5c"
+checksum = "62b467343b94ba476dcb2500d242dadbb39557df889310ac77c5d99100aaac33"
 dependencies = [
  "libc",
 ]
@@ -507,10 +507,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "830d08ce1d1d941e6b30645f1a0eb5643013d835ce3779a5fc208261dbe10f55"
 
 [[package]]
-name = "libc"
-version = "0.2.96"
+name = "ld-memory"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5600b4e6efc5421841a2138a6b082e07fe12f9aaa12783d50e5d13325b26b4fc"
+checksum = "04bc0f0bf793bad8dbf361de772e81287217b55d57148fec7cd4b4d95b93a144"
+
+[[package]]
+name = "libc"
+version = "0.2.97"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "12b8adadd720df158f4d70dfe7ccc6adb0472d7c55ca83445f6a5ab3e36f8fb6"
 
 [[package]]
 name = "libloading"
@@ -596,23 +602,6 @@ dependencies = [
 
 [[package]]
 name = "nrf-hal-common"
-version = "0.11.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "299e8e5b67542ae134c93722f03f3137d349b3786a35dd2b02a87701ea779201"
-dependencies = [
- "cast",
- "cfg-if 0.1.10",
- "cortex-m 0.6.7",
- "embedded-hal",
- "fixed",
- "nb 1.0.0",
- "nrf52840-pac",
- "rand_core 0.5.1",
- "void",
-]
-
-[[package]]
-name = "nrf-hal-common"
 version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "567951d43bf21dbda6cc962a92fce46f2cd41f356bbc39d972886964fa567bed"
@@ -625,6 +614,23 @@ dependencies = [
  "fixed",
  "nb 1.0.0",
  "nrf51 0.9.0",
+ "rand_core 0.5.1",
+ "void",
+]
+
+[[package]]
+name = "nrf-hal-common"
+version = "0.12.2"
+source = "git+https://github.com/kaspar030/nrf-hal?branch=nrf52840_use_ldmemory#7cffa75df5766f815172ab5062ffaa39356cc375"
+dependencies = [
+ "cast",
+ "cfg-if 1.0.0",
+ "cortex-m 0.6.7",
+ "embedded-dma",
+ "embedded-hal",
+ "fixed",
+ "nb 1.0.0",
+ "nrf52840-pac",
  "rand_core 0.5.1",
  "void",
 ]
@@ -655,7 +661,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "fee71b7406199aef4d40fcf3b3a17b5f5790cc983474108b4dd8e21fe5198b2e"
 dependencies = [
  "embedded-hal",
- "nrf-hal-common 0.12.2",
+ "nrf-hal-common 0.12.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "nrf51 0.9.0",
 ]
 
@@ -668,12 +674,12 @@ dependencies = [
 
 [[package]]
 name = "nrf52840-hal"
-version = "0.11.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "87f7e01810b986e03c6cbe24dbcdd479a930e23e6b738540fe71c8b6389f475c"
+version = "0.12.2"
+source = "git+https://github.com/kaspar030/nrf-hal?branch=nrf52840_use_ldmemory#7cffa75df5766f815172ab5062ffaa39356cc375"
 dependencies = [
  "embedded-hal",
- "nrf-hal-common 0.11.1",
+ "ld-memory",
+ "nrf-hal-common 0.12.2 (git+https://github.com/kaspar030/nrf-hal?branch=nrf52840_use_ldmemory)",
  "nrf52840-pac",
 ]
 
@@ -762,13 +768,13 @@ dependencies = [
 
 [[package]]
 name = "rand"
-version = "0.8.3"
+version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0ef9e7e66b4468674bfcb0c81af8b7fa0bb154fa9f28eb840da5c447baeb8d7e"
+checksum = "2e7573632e6454cf6b99d7aac4ccca54be06da05aca2ef7423d22d27d4d4bcd8"
 dependencies = [
  "libc",
  "rand_chacha",
- "rand_core 0.6.2",
+ "rand_core 0.6.3",
  "rand_hc",
 ]
 
@@ -779,7 +785,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e6c10a63a0fa32252be49d21e7709d4d4baf8d231c2dbce1eaa8141b9b127d88"
 dependencies = [
  "ppv-lite86",
- "rand_core 0.6.2",
+ "rand_core 0.6.3",
 ]
 
 [[package]]
@@ -790,20 +796,20 @@ checksum = "90bde5296fc891b0cef12a6d03ddccc162ce7b2aff54160af9338f8d40df6d19"
 
 [[package]]
 name = "rand_core"
-version = "0.6.2"
+version = "0.6.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "34cf66eb183df1c5876e2dcf6b13d57340741e8dc255b48e40a26de954d06ae7"
+checksum = "d34f1408f55294453790c48b2f1ebbb1c5b4b7563eb1f418bcfcfdbb06ebb4e7"
 dependencies = [
  "getrandom",
 ]
 
 [[package]]
 name = "rand_hc"
-version = "0.3.0"
+version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3190ef7066a446f2e7f42e239d161e905420ccab01eb967c9eb27d21b2322a73"
+checksum = "d51e9f596de227fda2ea6c84607f5558e196eeaf43c986b724ba4fb8fdf497e7"
 dependencies = [
- "rand_core 0.6.2",
+ "rand_core 0.6.3",
 ]
 
 [[package]]
@@ -812,9 +818,9 @@ version = "0.1.0"
 
 [[package]]
 name = "redox_syscall"
-version = "0.2.8"
+version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "742739e41cd49414de871ea5e549afb7e2a3ac77b589bcbebe8c82fab37147fc"
+checksum = "5ab49abadf3f9e1c4bc499e8845e152ad87d2ad2d30371841171169e9d75feee"
 dependencies = [
  "bitflags",
 ]
