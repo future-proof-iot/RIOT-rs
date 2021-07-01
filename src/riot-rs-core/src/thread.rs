@@ -307,15 +307,12 @@ impl Thread {
 
     pub unsafe fn jump_to(&self) {
         CURRENT_THREAD.store((self as *const Thread) as usize, Ordering::Release);
-        llvm_asm!(
+        asm!(
             "
             msr psp, r1
             svc 0
-            "
-        :
-        : "{r1}"(self.sp)
-        :
-        : "volatile" );
+            ",
+        in("r1")self.sp);
     }
 
     //#[inline]
@@ -635,7 +632,7 @@ pub mod c {
 
     #[no_mangle]
     pub unsafe extern "C" fn cpu_switch_context_exit() -> ! {
-        llvm_asm!( "cpsie   i\n" :::: "volatile" );
+        asm!("cpsie i");
         Thread::start_threading()
     }
 
