@@ -14,7 +14,7 @@ context:
           SCRIPTS=${relroot}/${SCRIPTS}
           CARGO_BUILD_TARGET=${RUSTC_TARGET}
           ${CARGO_TARGET_PREFIX}_RUNNER=${relroot}/${CARGO_RUNNER}
-          ${CARGO_TARGET_PREFIX}_RUSTFLAGS=${RUSTFLAGS}
+          ${CARGO_TARGET_PREFIX}_RUSTFLAGS="${RUSTFLAGS}"
           CARGO_TARGET_DIR=${relroot}/${build-dir}/bin/${builder}/${app}/cargo
       RIOT_ENV:
         - RIOTBASE=~/src/riot.rs
