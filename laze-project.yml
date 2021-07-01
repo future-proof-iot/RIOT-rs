@@ -1,6 +1,8 @@
 context:
   # base context that all other contexts inherit from
   - name: default
+  # base context for all RIOT-rs applications
+  - name: riot-rs
     env:
       bindir: "${build-dir}/bin/${builder}/${app}"
       RUSTFLAGS:
@@ -104,6 +106,7 @@ context:
           - picocom -b ${BAUDRATE} --imap lfcrlf ${PORT}
 
   - name: cortex-m
+    parent: riot-rs
     env:
       OBJCOPY: arm-none-eabi-objcopy
 
