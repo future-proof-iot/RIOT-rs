@@ -168,6 +168,32 @@ module:
          - NRF52840_FLASH_SLOT=0
 
 builder:
+  # host builder (for housekeeping tasks)
+  - name: host
+    rule:
+      # currently, laze requires a LINK rule for every context/builder
+      # that gets an application configured.
+      # so, provide a dummy one
+      - name: LINK
+        cmd: "true"
+    tasks:
+      install-toolchain:
+        build: false
+        cmd:
+          - rustup target add thumbv7m-none-eabi
+          - rustup target add thumbv7em-none-eabi
+          - rustup target add thumbv7em-none-eabihf
+
+      install-c2rust:
+        build: false
+        cmd:
+          - echo "Installing riot-sys compatible version of c2rust."
+          - 'echo "WARNING: This uses *a lot* of memory!"'
+          - rustup install nightly-2019-12-05
+          - rustup component add --toolchain nightly-2019-12-05 rustfmt rustc-dev
+          - git clone https://github.com/kaspar030/c2rust -b for-riot ${build-dir}/c2rust
+          - cargo +nightly-2019-12-05 install --path ${build-dir}/c2rust/c2rust --locked
+
   - name: nrf52840dk
     parent: thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
     env:
@@ -200,6 +226,10 @@ builder:
   #       - '"qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"'
   #     OPENOCD_ARGS:
   #       - "-f board/nordic_nrf52_dk.cfg"
+
+app:
+  - name: host
+    context: host
 
 subdirs:
   - examples
