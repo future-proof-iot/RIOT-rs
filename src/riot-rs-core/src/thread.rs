@@ -653,6 +653,11 @@ pub mod c {
     }
 
     #[no_mangle]
+    pub extern "C" fn mutex_init_locked(mutex: &mut Lock) {
+        *mutex = Lock::new_locked()
+    }
+
+    #[no_mangle]
     pub extern "C" fn mutex_lock(mutex: &mut Lock) {
         mutex.acquire()
     }
