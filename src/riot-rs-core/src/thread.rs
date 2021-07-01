@@ -60,11 +60,23 @@ pub enum FlagWaitMode {
 
 static mut RUNQUEUE: RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF> = RunQueue::new();
 
+extern "C" {
+    fn pm_set_lowest();
+}
+
 #[no_mangle]
-unsafe fn sched(old_sp: usize) {
+pub unsafe fn sched(old_sp: usize) {
     let mut current = Thread::current();
 
-    let next_pid = RUNQUEUE.get_next().unwrap_unchecked() as Pid;
+    let next_pid;
+
+    loop {
+        if let Some(pid) = RUNQUEUE.get_next() {
+            next_pid = pid;
+            break;
+        }
+        pm_set_lowest();
+    }
 
     let next = Thread::get(next_pid);
 
