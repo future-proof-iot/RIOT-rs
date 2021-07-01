@@ -39,7 +39,6 @@ fn main() {
     let makefile_content = format!(
         "export USE_RUST_CORE = 1\n\
          DISABLE_MODULE += core\n\
-         USEMODULE += core_idle_thread\n\
          USEMODULE += riot_rs_core\n\
          PSEUDOMODULE += riot_rs_core\n\
          INCLUDES += -I{}\n\
