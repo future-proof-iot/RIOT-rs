@@ -5,7 +5,7 @@
 // - const_generics
 
 // features
-#![feature(llvm_asm)]
+#![feature(asm)]
 #![feature(naked_functions)]
 #![feature(const_generics)]
 #![feature(fn_traits)]

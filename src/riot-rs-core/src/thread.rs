@@ -81,7 +81,7 @@ pub unsafe fn sched(old_sp: usize) {
     let next = Thread::get(next_pid);
 
     if next as *const Thread == current as *const Thread {
-        llvm_asm!("" :: "{r0}"(0)::"volatile");
+        asm!("", in("r0") 0);
         return;
     }
 
@@ -90,7 +90,7 @@ pub unsafe fn sched(old_sp: usize) {
 
     // PendSV expects these three pointers in r0, r1 and r2
     // write to registers manually, as ABI would return the values via stack
-    llvm_asm!("" :: "{r0}"(current.high_regs.as_ptr()), "{r1}"(next.high_regs.as_ptr()), "{r2}"(next.sp) :: "volatile" );
+    asm!("", in("r0") current.high_regs.as_ptr(), in("r1") next.high_regs.as_ptr(), in("r2")next.sp);
 }
 
 static mut THREADS: [Thread; THREADS_NUMOF] = [Thread {
@@ -122,12 +122,14 @@ pub fn cleanup() -> ! {
 #[no_mangle]
 #[allow(non_snake_case)]
 unsafe extern "C" fn SVCall() {
-    llvm_asm!(
-            "
+    asm!(
+        "
             movw LR, #0xFFFd
             movt LR, #0xFFFF
-            "
-            :::: "volatile" );
+            bx lr
+            ",
+        options(noreturn)
+    );
 }
 
 #[cfg(any(armv6m))]
@@ -135,8 +137,8 @@ unsafe extern "C" fn SVCall() {
 #[no_mangle]
 #[allow(non_snake_case)]
 unsafe extern "C" fn SVCall() {
-    llvm_asm!(
-            "
+    asm!(
+        "
             ldr r0, SVCALL_RETURN_PSP
             mov LR, r0
             bx lr
@@ -144,8 +146,9 @@ unsafe extern "C" fn SVCall() {
             .align 4
             SVCALL_RETURN_PSP:
             .word 0xFFFFFFFD
-            "
-            :::: "volatile" );
+            ",
+        options(noreturn)
+    );
 }
 
 /// PendSV exception handler
@@ -154,20 +157,23 @@ unsafe extern "C" fn SVCall() {
 #[no_mangle]
 #[allow(non_snake_case)]
 unsafe extern "C" fn PendSV() {
-    llvm_asm!(
-            "
+    asm!(
+        "
             mrs r0, psp
-            bl sched
+            bl {sched}
             cmp r0, #0
             beq return
-            stmia r0, {r4-r11}
-            ldmia r1, {r4-r11}
+            stmia r0, {{r4-r11}}
+            ldmia r1, {{r4-r11}}
             msr.n psp, r2
             return:
             movw LR, #0xFFFd
             movt LR, #0xFFFF
-            "
-            :::: "volatile" );
+            bx LR
+            ",
+        sched = sym sched,
+        options(noreturn)
+    );
 }
 
 #[cfg(any(armv6m))]
@@ -175,14 +181,14 @@ unsafe extern "C" fn PendSV() {
 #[no_mangle]
 #[allow(non_snake_case)]
 unsafe extern "C" fn PendSV() {
-    llvm_asm!(
-            "
+    asm!(
+        "
             mrs r0, psp
             bl sched
             cmp r0, #0
             beq return
 
-            //stmia r0!, {r4-r7}
+            //stmia r0!, {{r4-r7}}
             str r4, [r0, #16]
             str r5, [r0, #20]
             str r6, [r0, #24]
@@ -199,12 +205,12 @@ unsafe extern "C" fn PendSV() {
             str r7, [r0, #12]
 
             //
-            ldmia r1!, {r4-r7}
+            ldmia r1!, {{r4-r7}}
             mov r11, r7
             mov r10, r6
             mov r9,  r5
             mov r8,  r4
-            ldmia r1!, {r4-r7}
+            ldmia r1!, {{r4-r7}}
 
             msr.n psp, r2
             return:
@@ -215,8 +221,9 @@ unsafe extern "C" fn PendSV() {
             .align 4
             PENDSV_RETURN_PSP:
             .word 0xFFFFFFFD
-            "
-            :::: "volatile" );
+            ",
+        options(noreturn)
+    );
 }
 
 impl Thread {
