@@ -21,7 +21,6 @@ fn main_trampoline(_arg: usize) {
 
 pub fn startup() {
     unsafe {
-        Thread::create(&mut IDLE_STACK, idle, 0, 0, CreateFlags::WITHOUT_YIELD);
         Thread::create(
             &mut MAIN_STACK,
             main_trampoline,
