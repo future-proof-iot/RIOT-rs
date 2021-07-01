@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 use std::env;
 use std::ffi::OsString;
-use std::fs;
-use std::path::Path;
+use std::fs::{copy, create_dir_all, write, File};
+use std::io::Write;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 fn main() {
@@ -66,8 +67,8 @@ fn main() {
         let riot_builddir = Path::new(&out_dir).join("libriot");
         let riot_bindir = riot_builddir.join("bin");
 
-        fs::create_dir_all(&riot_builddir).unwrap();
-        fs::create_dir_all(&riot_bindir).unwrap();
+        create_dir_all(&riot_builddir).unwrap();
+        create_dir_all(&riot_bindir).unwrap();
 
         let app_name = "libriot";
 
@@ -97,7 +98,7 @@ fn main() {
 
         // finalize and write Makefile
         let makefile_content = makefile_content;
-        fs::write(riot_builddir.join("Makefile"), &makefile_content)
+        write(riot_builddir.join("Makefile"), &makefile_content)
             .expect("Couldn't write RIOT makefile!");
 
         // call out to RIOT build system
@@ -131,7 +132,7 @@ fn main() {
     // fetch archive created by RIOT build system
     let archive = riot_bindir.join(&board).join(format!("{}.a", app_name));
     eprintln!("archive: {}", archive.to_string_lossy());
-    fs::copy(archive, Path::new(&out_dir).join("libriot.a")).unwrap();
+    copy(archive, Path::new(&out_dir).join("libriot.a")).unwrap();
 
     // instruct cargo to link RIOT archive
     println!("cargo:rustc-link-search=native={}", out_dir);
@@ -147,6 +148,14 @@ fn main() {
     // with `links = "riot-build", this results in
     // DEP_RIOT_BUILD_DIR=foo being passed to dependees
     println!("cargo:DIR={}", riot_builddir.to_string_lossy());
+
+    // xfa support
+    File::create(PathBuf::from(out_dir).join("xfa.ld"))
+        .unwrap()
+        .write_all(include_bytes!("xfa.ld"))
+        .unwrap();
+    println!("cargo:rerun-if-changed=xfa.ld");
+    println!("cargo:rustc-link-arg=-Txfa.ld");
 
     // change notifiers
     println!("cargo:rerun-if-env-changed=APP");
