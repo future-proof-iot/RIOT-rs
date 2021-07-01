@@ -7,4 +7,7 @@
 #define KERNEL_PID_FIRST 0
 #define KERNEL_PID_LAST THREADS_NUMOF
 
+/* TODO: ensure this is correct */
+#define PRIkernel_pid "c"
+
 #endif /* SCHED_H */
