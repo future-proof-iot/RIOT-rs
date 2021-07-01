@@ -5,4 +5,4 @@ app:
     env:
       global:
         RIOT_ENV:
-          - APP=tests/hello-world
+          - APP=examples/hello-world
