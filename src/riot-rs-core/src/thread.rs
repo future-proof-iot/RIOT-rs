@@ -18,7 +18,7 @@ pub const THREAD_FLAG_TIMEOUT: ThreadFlags = (1 as ThreadFlags) << 14;
 pub type Pid = ThreadId;
 pub type ThreadFlags = u16;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub struct Thread {
     sp: usize,
     high_regs: [usize; 8],
@@ -29,7 +29,7 @@ pub struct Thread {
     pub pid: Pid,
 }
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum ThreadState {
     Invalid,
     Running,
@@ -52,7 +52,7 @@ bitflags! {
     }
 }
 
-#[derive(Copy, Clone, PartialEq)]
+#[derive(Copy, Clone, PartialEq, Debug)]
 pub enum FlagWaitMode {
     Any(ThreadFlags),
     All(ThreadFlags),
@@ -692,9 +692,15 @@ pub mod c {
         ptr: usize,
     }
 
+    impl core::fmt::Debug for msg_content_t {
+        fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+            f.debug_struct("msg_content_t(not shown)").finish()
+        }
+    }
+
     /// cbindgen:field-names=[sender_pid, type, content]
     #[repr(C)]
-    #[derive(Copy, Clone)]
+    #[derive(Copy, Clone, Debug)]
     pub struct msg_t {
         sender_pid: Pid,
         _type: u16,

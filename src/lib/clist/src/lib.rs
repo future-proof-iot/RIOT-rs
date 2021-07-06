@@ -248,6 +248,7 @@ impl<'a> Iterator for IterMut<'a> {
     }
 }
 
+#[derive(Debug)]
 pub struct TypedList<T, const OFFSET: usize> {
     list: List,
     _phantom: core::marker::PhantomData<T>,

@@ -38,6 +38,7 @@ pub mod buffered {
     use crate::thread::{Thread, ThreadList, ThreadState};
     use ringbuffer::RingBuffer;
 
+    #[derive(Debug)]
     pub enum BufferedChannelState {
         Idle,
         MessagesAvailable,
@@ -45,6 +46,7 @@ pub mod buffered {
         EmptyWithRxBlocked(ThreadList),
     }
 
+    #[derive(Debug)]
     pub struct BufferedChannel<'a, T>
     where
         T: Copy,

@@ -6,6 +6,7 @@
 use core::mem::MaybeUninit;
 use rbi::RingBufferIndex;
 
+#[derive(Debug)]
 pub struct RingBuffer<'a, T>
 where
     T: Copy + Sized,
