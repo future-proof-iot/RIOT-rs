@@ -12,8 +12,5 @@ cortex-m-semihosting = "0.4.1"
 [features]
 silent-panic = []
 
-#panic-semihosting = { version = "*", features = [ "inline-asm" ] }
-#panic-abort = "*"
-#panic-halt = "*"
 [dev-dependencies]
 riot-rs-boards = { path = "../riot-rs-boards" }
