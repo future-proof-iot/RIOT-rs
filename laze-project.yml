@@ -53,11 +53,13 @@ context:
         cmd:
           - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
         build: false
+        ignore_ctrl_c: true
 
       gdb:
         cmd:
           - arm-none-eabi-gdb -ex "target extended-remote localhost:1234" ${out}
         build: false
+        ignore_ctrl_c: true
 
       bloat:
         cmd:
