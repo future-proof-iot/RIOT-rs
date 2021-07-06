@@ -201,20 +201,20 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
 }
 
 #[panic_handler]
-fn panic(info: &PanicInfo) -> ! {
+fn panic(_info: &PanicInfo) -> ! {
     #[cfg(not(feature = "silent-panic"))]
     {
-        debug::println!("panic: {}\n", info);
+        debug::println!("panic: {}\n", _info);
         debug::exit(debug::EXIT_FAILURE);
     }
     loop {}
 }
 
 #[exception]
-unsafe fn DefaultHandler(irqn: i16) {
+unsafe fn DefaultHandler(_irqn: i16) {
     #[cfg(not(feature = "silent-panic"))]
     {
-        debug::println!("IRQn = {}", irqn);
+        debug::println!("IRQn = {}", _irqn);
         debug::exit(debug::EXIT_FAILURE);
     }
     loop {}
