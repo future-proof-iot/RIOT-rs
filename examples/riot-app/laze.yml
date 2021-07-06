@@ -4,6 +4,7 @@ app:
       - ?release
     env:
       global:
+        # override this using "laze build -b <board> -DRIOT_APP=foo/bar"
         RIOT_APP: examples/hello-world
         RIOT_ENV:
           - APP=${RIOT_APP}
