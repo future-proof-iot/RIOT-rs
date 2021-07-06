@@ -9,7 +9,8 @@ cortex-m = { version = "0.7", features = [ "inline-asm" ] }
 cortex-m-rt = "0.6.99"
 cortex-m-semihosting = "0.4.1"
 
-#testing = { path = "../testing" }
+[features]
+silent-panic = []
 
 #panic-semihosting = { version = "*", features = [ "inline-asm" ] }
 #panic-abort = "*"

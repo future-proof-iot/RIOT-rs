@@ -147,6 +147,7 @@ module:
   - name: release
     selects:
       - release-arch
+      - ?silent-panic
   - name: release-arch
     context: cortex-m
     selects:
@@ -157,6 +158,13 @@ module:
       global:
         FEATURES:
           - riot-rs-core/no-semihosting
+
+  - name: silent-panic
+    context: riot-rs
+    env:
+      global:
+        FEATURES:
+          - riot-rs-rt/silent-panic
 
   - name: riotboot
     context: nrf52840dk
