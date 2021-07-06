@@ -1,6 +1,10 @@
 context:
   # base context that all other contexts inherit from
   - name: default
+    env:
+      RIOTBASE: target/RIOT
+      RIOT_URL: "https://github.com/kaspar030/RIOT -b riot.rs"
+
   # base context for all RIOT-rs applications
   - name: riot-rs
     env:
@@ -12,6 +16,10 @@ context:
       FEATURES:
         - riot-rs-boards/${BOARD}
       SCRIPTS: scripts
+      # laze doesn't know the concept of "export" as make does, so each variable
+      # that needs to be passed via environment needs to be listed in that rule
+      # or task's command list.
+      # "CARGO_ENV" and "RIOT_ENV" are used for that.
       CARGO_ENV:
         - >-
           OPENOCD_ARGS="${OPENOCD_ARGS}"
@@ -21,7 +29,7 @@ context:
           ${CARGO_TARGET_PREFIX}_RUSTFLAGS="${RUSTFLAGS}"
           CARGO_TARGET_DIR=${relroot}/${build-dir}/bin/${builder}/${app}/cargo
       RIOT_ENV:
-        - RIOTBASE=~/src/riot.rs
+        - RIOTBASE=$$(realpath ${relroot}/${RIOTBASE})
         - BOARD=${BOARD}
         - USEMODULE="${USEMODULE}"
         - NEWLIB_ARCH=${NEWLIB_ARCH}
@@ -31,11 +39,13 @@ context:
       PROFILE: release
       BAUDRATE: "115200"
       PORT: /dev/ttyACM0
+
     var_options:
       # this turns ${FEATURES} from a list to "--features=feature1,feature2"
       FEATURES:
         start: --features=
         joiner: ","
+
     rule:
       - name: LINK
         pool: console
@@ -43,6 +53,7 @@ context:
         cmd: >-
           cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
           && cp ${relroot}/${build-dir}/bin/${builder}/${app}/cargo/${RUSTC_TARGET}/${PROFILE}/${app} ${relroot}/${out}
+
     tasks:
       cargo:
         cmd:
@@ -150,10 +161,12 @@ module:
     selects:
       - release-arch
       - ?silent-panic
+
   - name: release-arch
     context: cortex-m
     selects:
       - ?no-semihosting
+
   - name: no-semihosting
     context: cortex-m
     env:
@@ -188,6 +201,7 @@ builder:
       # so, provide a dummy one
       - name: LINK
         cmd: "true"
+
     tasks:
       install-toolchain:
         build: false
@@ -205,6 +219,11 @@ builder:
           - rustup component add --toolchain nightly-2019-12-05 rustfmt rustc-dev
           - git clone https://github.com/kaspar030/c2rust -b for-riot ${build-dir}/c2rust
           - cargo +nightly-2019-12-05 install --path ${build-dir}/c2rust/c2rust --locked
+      clone-riot:
+        build: false
+        cmd:
+          - set -e
+          - test -f ${RIOTBASE}/.cloned || git clone ${RIOT_URL} ${RIOTBASE} && touch ${RIOTBASE}/.cloned
 
   - name: nrf52840dk
     parent: thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
@@ -240,6 +259,7 @@ builder:
   #       - "-f board/nordic_nrf52_dk.cfg"
 
 app:
+  # define a dummy host application so the host tasks work
   - name: host
     context: host
 
