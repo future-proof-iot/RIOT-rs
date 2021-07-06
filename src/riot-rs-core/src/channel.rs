@@ -101,7 +101,7 @@ pub mod buffered {
                             let res = unsafe { *(ptr as *mut T) };
                             sender.set_state(ThreadState::Running);
                             if senders.is_empty() {
-                                self.state = BufferedChannelState::MessagesAvailable;
+                                self.state = BufferedChannelState::Idle;
                             }
                             Ok(res)
                         } else {
