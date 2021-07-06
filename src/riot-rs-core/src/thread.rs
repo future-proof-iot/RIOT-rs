@@ -758,11 +758,7 @@ pub mod c {
 
     #[no_mangle]
     pub unsafe extern "C" fn msg_reply(msg: &'static mut msg_t, reply: &'static mut msg_t) -> i32 {
-        if msg_try_send(reply, msg.sender_pid as Pid) {
-            1
-        } else {
-            -1
-        }
+        msg_send(reply, msg.sender_pid as Pid)
     }
 
     #[no_mangle]
