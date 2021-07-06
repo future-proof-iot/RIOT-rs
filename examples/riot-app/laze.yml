@@ -1,8 +1,9 @@
 app:
   - name: riot-app
     selects:
-      - release
+      - ?release
     env:
       global:
+        RIOT_APP: examples/hello-world
         RIOT_ENV:
-          - APP=examples/hello-world
+          - APP=${RIOT_APP}
