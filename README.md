@@ -43,18 +43,19 @@ Assuming you have a Nordic nrf52840dk connected, this should get you somewhere:
 
 1. clone this repository and cd into it
 
-1. run `laze task install-toolchain`
+1. set up RIOT-rs toolchain
 
-1. run `laze task install-c2rust` (Warning: this will compile c2rust, which needs
-   _a lot_ (>6gb) of RAM)
-   (this will require the dev packages for some system libraries: TBD)
-1. run `laze task clone-riot`
+    laze task install-toolchain
+    laze task install-c2rust
+    laze task clone-riot
 
 ### Flash some example
 
-1.run `laze -C examples/bottles task -b nrf52840dk flash`.
+1. Compile and flash the bottles example
 
-1.in another window, run a terminal program of your choice to watch the
+   laze -C examples/bottles task -b nrf52840dk flash
+
+1. in another window, run a terminal program of your choice to watch the
   nrf52840dk's serial output
 
 ## Building RIOT C applications with RIOT-rs
@@ -63,6 +64,12 @@ It is possible to build any RIOT application using RIOT-rs and its core
 implementation, using `examples/riot-app`:
 
     laze -Cexamples/riot-app task -b nrf52840dk -DRIOT_APP=foo/bar flash
+
+See the [riot-app docs](examples/riot-app/README.md) for more information.
+
+## More information
+
+Please look [here](doc/build_system.md) for more usage information.
 
 ## Minimum Supported Rust Version (MSRV)
 
