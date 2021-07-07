@@ -848,8 +848,9 @@ pub mod c {
 }
 
 #[test_case]
-fn test_pid_is_one() {
-    assert!(Thread::current().pid == 1);
+fn test_pid_is_zero() {
+    // note: this is true if there's no idle thread
+    assert!(Thread::current().pid == 0);
 }
 
 #[test_case]
