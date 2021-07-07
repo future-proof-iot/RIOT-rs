@@ -108,6 +108,7 @@ context:
             _flash ${out}
 
       reset:
+        build: false
         cmd:
           - >-
             openocd
@@ -117,6 +118,7 @@ context:
             -c 'reset'
             -c 'shutdown'
       term:
+        build: false
         cmd:
           - picocom -b ${BAUDRATE} --imap lfcrlf ${PORT}
 
