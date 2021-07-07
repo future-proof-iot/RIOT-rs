@@ -42,7 +42,8 @@ install-c2rust: create-host_build
 
     rustup install nightly-2019-12-05
     rustup component add --toolchain nightly-2019-12-05 rustfmt rustc-dev
-    cargo +nightly-2019-12-05 install --debug --git https://github.com/kaspar030/c2rust --branch for-riot c2rust
+    git clone https://github.com/kaspar030/c2rust --branch for-riot target/c2rust
+    cargo +nightly-2019-12-05 install --locked --path target/c2rust/c2rust
 
 
 # some convenience targets
