@@ -45,9 +45,9 @@ Assuming you have a Nordic nrf52840dk connected, this should get you somewhere:
 
 1. set up RIOT-rs toolchain
 
-    laze task install-toolchain
-    laze task install-c2rust
-    laze task clone-riot
+        laze task install-toolchain
+        laze task install-c2rust
+        laze task clone-riot
 
 ### Flash some example
 
