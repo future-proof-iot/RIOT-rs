@@ -4,14 +4,16 @@ This assumes the board is already supported by RIOT (C).
 Currently, each board needs special support in RIOT-rs, as not RIOT's bringup and
 linking is uses, but Rust stuff.
 
-## nrf52840 based
+## nrf528xx based
 
 This is fairly straight forward. Currently, RIOT-rs doesn't do anything with
-peripherals itself (only through the riot-wrappers), so all nrf52840 based
+peripherals itself (only through the riot-wrappers), so all nrf528xx based
 should work with the same code, apart from flashing.
 
-1. copy `src/riot-rs-boards/nrf52840dk` to `src/riot-rs-boards/<board>`
-1. replace all nrf52840dk in string literals with the new board name
+1. choose a suitable base board (nrf52dk for nrf52832 based board, nrf52840dk
+   for nrf52840)
+1. copy `src/riot-rs-boards/<base board>` to `src/riot-rs-boards/<board>`
+1. replace all base board names in string literals with the new board name
 1. add the new board to the features at src/riot-rs-boards/Cargo.toml, e.g.,
 
         new_board = { optional=true, path="new_board" }
@@ -20,7 +22,7 @@ should work with the same code, apart from flashing.
    `pub use` but not in the feature name, e.g., if the board and feature
    `nrf52840-mdk` -> `pub use nrf52840_mdk as board;`.
 
-1. in laze-project.yml, copy the "nrf52840dk" builder entry (and fix the name)
+1. in laze-project.yml, copy the base board builder entry (and fix the name)
 
 1. try it: `laze -Cexamples/bottles build -b <new-board>`
 
