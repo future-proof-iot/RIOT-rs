@@ -1,0 +1,16 @@
+[package]
+name = "dwm1001"
+version = "0.1.0"
+authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
+edition = "2018"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+cortex-m-rt = "0.6.99"
+cortex-m = "0.7"
+
+riot-rs-rt = { path = "../../riot-rs-rt" }
+
+nrf52832-hal = "0.12.*"
+nrf52 = { path = "../nrf52" }
