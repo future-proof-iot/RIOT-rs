@@ -9,12 +9,13 @@ steps:
   commands:
   - whoami
   - set
-  - cargo install just
-  - just install-reqs
-  - just clone-riot
+  - cargo install laze
+  - laze task install-toolchain
+  - laze task install-c2rust
+  - laze task clone-riot
   - just test
 ---
 kind: signature
-hmac: 84f300131480c222ed7d034bbec3836c59cd358e3b5ea597fc8b0936573a6bec
+hmac: da9c75b29d973f920e2e13eb68c6d96d356882bb25f28a73a477d3dd631cc3f1
 
 ...
