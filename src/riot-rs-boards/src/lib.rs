@@ -3,7 +3,9 @@
 use cfg_if::cfg_if;
 
 cfg_if! {
-    if #[cfg(feature = "nrf52840dk")] {
+    if #[cfg(feature = "nrf52dk")] {
+        pub use nrf52dk as board;
+    } else if #[cfg(feature = "nrf52840dk")] {
         pub use nrf52840dk as board;
     } else if #[cfg(feature = "nrf52840-mdk")] {
         pub use nrf52840_mdk as board;

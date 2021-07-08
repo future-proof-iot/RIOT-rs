@@ -614,6 +614,7 @@ dependencies = [
  "fixed",
  "nb 1.0.0",
  "nrf51 0.9.0",
+ "nrf52832-pac",
  "rand_core 0.5.1",
  "void",
 ]
@@ -673,6 +674,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "nrf52832-hal"
+version = "0.12.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a2f70768195d89da5a762014008ecf54e24a12c6b1c47f5e49a559f312d283be"
+dependencies = [
+ "embedded-hal",
+ "nrf-hal-common 0.12.2 (registry+https://github.com/rust-lang/crates.io-index)",
+ "nrf52832-pac",
+]
+
+[[package]]
+name = "nrf52832-pac"
+version = "0.9.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72920484274fae0792a40345049da2723612465c7202561b6a17ad3c127259db"
+dependencies = [
+ "bare-metal",
+ "cortex-m 0.6.7",
+ "cortex-m-rt",
+ "vcell",
+]
+
+[[package]]
 name = "nrf52840-hal"
 version = "0.12.2"
 source = "git+https://github.com/kaspar030/nrf-hal?branch=nrf52840_use_ldmemory#7cffa75df5766f815172ab5062ffaa39356cc375"
@@ -713,6 +737,17 @@ dependencies = [
  "cortex-m-rt",
  "nrf52",
  "nrf52840-hal",
+ "riot-rs-rt",
+]
+
+[[package]]
+name = "nrf52dk"
+version = "0.1.0"
+dependencies = [
+ "cortex-m 0.7.2",
+ "cortex-m-rt",
+ "nrf52",
+ "nrf52832-hal",
  "riot-rs-rt",
 ]
 
@@ -909,6 +944,7 @@ dependencies = [
  "microbit",
  "nrf52840-mdk",
  "nrf52840dk",
+ "nrf52dk",
  "nucleo-f401re",
 ]
 

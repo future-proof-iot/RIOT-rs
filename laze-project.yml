@@ -158,6 +158,20 @@ context:
       OPENOCD_ARGS:
         - "-f board/nordic_nrf52_dk.cfg"
 
+  - name: nrf52
+    parent: thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+    env:
+      CARGO_RUNNER:
+        - ${SCRIPTS}/debug-openocd.sh
+      OPENOCD_ARGS:
+        - "-f board/nordic_nrf52_dk.cfg"
+
+  - name: nrf52832
+    parent: nrf52
+
+  - name: nrf52840
+    parent: nrf52
+
 module:
   - name: release
     selects:
@@ -184,7 +198,7 @@ module:
           - riot-rs-rt/silent-panic
 
   - name: riotboot
-    context: nrf52840dk
+    context: nrf52840
     env:
       global:
         FLASH_OFFSET: "0x2000"
@@ -227,21 +241,14 @@ builder:
           - set -e
           - test -f ${RIOTBASE}/.cloned || git clone ${RIOT_URL} ${RIOTBASE} && touch ${RIOTBASE}/.cloned
 
+  - name: nrf52dk
+    parent: nrf52832
+
   - name: nrf52840dk
-    parent: thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
-    env:
-      CARGO_RUNNER:
-        - ${SCRIPTS}/debug-openocd.sh
-      OPENOCD_ARGS:
-        - "-f board/nordic_nrf52_dk.cfg"
+    parent: nrf52840
 
   - name: nrf52840-mdk
-    parent: thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
-    env:
-      CARGO_RUNNER:
-        - ${SCRIPTS}/debug-openocd.sh
-      OPENOCD_ARGS:
-        - "-f board/nordic_nrf52_dk.cfg"
+    parent: nrf52840
 
   - name: microbit
     parent: microbit-base
