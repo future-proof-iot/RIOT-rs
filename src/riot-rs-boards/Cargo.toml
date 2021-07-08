@@ -11,5 +11,6 @@ cfg-if = "1.0.0"
 
 lm3s6965evb = { optional=true, path="lm3s6965evb" }
 nrf52840dk = { optional=true, path="nrf52840dk" }
+nrf52840-mdk = { optional=true, path="nrf52840-mdk" }
 nucleo-f401re = { optional=true, path="nucleo-f401re" }
 microbit = { optional=true, path="microbit" }

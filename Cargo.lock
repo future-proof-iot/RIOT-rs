@@ -684,6 +684,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "nrf52840-mdk"
+version = "0.1.0"
+dependencies = [
+ "cortex-m 0.7.2",
+ "cortex-m-rt",
+ "nrf52",
+ "nrf52840-hal",
+ "riot-rs-rt",
+]
+
+[[package]]
 name = "nrf52840-pac"
 version = "0.9.1"
 source = "git+https://github.com/kaspar030/nrf52840-pac?branch=riot.rs#9be467d088fd4b41e4a2e952ac62dd25eb50d542"
@@ -896,6 +907,7 @@ dependencies = [
  "cfg-if 1.0.0",
  "lm3s6965evb",
  "microbit",
+ "nrf52840-mdk",
  "nrf52840dk",
  "nucleo-f401re",
 ]

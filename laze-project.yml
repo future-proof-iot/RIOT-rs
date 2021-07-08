@@ -235,6 +235,14 @@ builder:
       OPENOCD_ARGS:
         - "-f board/nordic_nrf52_dk.cfg"
 
+  - name: nrf52840-mdk
+    parent: thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+    env:
+      CARGO_RUNNER:
+        - ${SCRIPTS}/debug-openocd.sh
+      OPENOCD_ARGS:
+        - "-f board/nordic_nrf52_dk.cfg"
+
   - name: microbit
     parent: microbit-base
     env:
