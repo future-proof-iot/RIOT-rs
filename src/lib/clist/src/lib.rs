@@ -11,6 +11,7 @@
 //! clist::rpeek()        | O(1)    | get the tail without removing it
 //! clist::rpop()         | O(n)    | remove and return tail (rightmost node)
 //! clist::lpoprpush()    | O(1)    | move first element to the end of the list
+//! clist::contains(      | O(n)    | check if list contains element
 //! clist::find()         | O(n)    | find and return node
 //! clist::find_before()  | O(n)    | find node return node pointing to node
 //! clist::remove()       | O(n)    | remove and return node
@@ -50,6 +51,11 @@ impl Link {
         Link {
             next: core::ptr::null_mut(),
         }
+    }
+
+    /// check if this Link is currently part of a list.
+    pub fn is_linked(&self) -> bool {
+        self.next == core::ptr::null_mut()
     }
 
     fn set_next(&mut self, next: *mut Link) {
@@ -111,6 +117,10 @@ impl List {
             }
             pos = unsafe { &mut *pos.next };
         }
+    }
+
+    pub fn contains(&mut self, element: &Link) -> bool {
+        self.find_prev(element).is_some()
     }
 
     pub fn remove(&mut self, element: &mut Link) -> bool {
