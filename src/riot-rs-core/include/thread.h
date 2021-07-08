@@ -6,6 +6,8 @@
 #include "cpu_conf.h"
 #include "thread_config.h"
 
+typedef void *(*thread_task_func_t)(void *arg);
+
 static inline uint8_t thread_create(char *stack_ptr,
                                     uintptr_t stack_size,
                                     uint8_t priority,
