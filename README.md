@@ -25,6 +25,15 @@ This currently only supports the Nordic nrf52840dk.
   embedded development
 - rewrite parts of RIOT in Rust to improve robustness and maintainability
 
+## Status
+
+This project currently allows to build a RIOT application with an embedded Rust
+based rt+linking. In addition, it provides a Rust rewrite of RIOT's "core" module,
+providing API compatible implementations of RIOT's scheduler, mutexes, thread flags,
+msg and mbox.
+[riot-wrappers](https://gitlab.com/etonomy/riot-wrappers) are integrated for
+developing applications using Rust, though this has not been used / tested much.
+
 ## Quickstart
 
 Assuming you have a Nordic nrf52840dk connected, this should get you somewhere:
@@ -33,7 +42,7 @@ Assuming you have a Nordic nrf52840dk connected, this should get you somewhere:
 
 1.install needed system dependencies. On Ubuntu, this should be sufficient:
 
-        apt-get install build-essentials curl git python3 pkg-config \
+        apt-get install build-essential curl git python3 pkg-config \
                    libssl-dev llvm-dev cmake libclang-dev gcc-arm-none-eabi \
                    clang libnewlib-nano-arm-none-eabi unzip lld ninja-build
 
