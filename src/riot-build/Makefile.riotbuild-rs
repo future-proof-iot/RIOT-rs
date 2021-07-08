@@ -19,5 +19,8 @@ CFLAGS += -Disr_uart0=UARTE0_UART0 -Disr_timer0=TIMER0 -Disr_timer1=TIMER1 -Disr
 CFLAGS += -Disr_radio=RADIO
 CFLAGS += -Disr_rtc1=RTC1 -Disr_rtc2=RTC2
 
+# disable EXTERNAL_MODULE_DIRS warning. remove after 2021.07!
+export WARNING_EXTERNAL_MODULE_DIRS = 0
+
 # enable LTO
 #LTO=1
