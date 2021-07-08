@@ -305,6 +305,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7313c0d620d0cb4dbd9d019e461a4beb501071ff46ec0ab933efb4daa76d73e3"
 
 [[package]]
+name = "dwm1001"
+version = "0.1.0"
+dependencies = [
+ "cortex-m 0.7.2",
+ "cortex-m-rt",
+ "nrf52",
+ "nrf52832-hal",
+ "riot-rs-rt",
+]
+
+[[package]]
 name = "embedded-dma"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -940,6 +951,7 @@ name = "riot-rs-boards"
 version = "0.1.0"
 dependencies = [
  "cfg-if 1.0.0",
+ "dwm1001",
  "lm3s6965evb",
  "microbit",
  "nrf52840-mdk",

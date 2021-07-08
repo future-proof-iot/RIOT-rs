@@ -81,6 +81,7 @@ context:
         cmd:
           - >-
             _flash () { openocd
+            ${OPENOCD_ADAPTER_INIT}
             ${OPENOCD_ARGS}
             -c 'init'
             -c 'targets'
@@ -247,8 +248,14 @@ builder:
   - name: nrf52840dk
     parent: nrf52840
 
+  - name: dwm1001
+    parent: nrf52832
+
   - name: nrf52840-mdk
     parent: nrf52840
+    env:
+      OPENOCD_ADAPTER_INIT:
+        - " -c 'source [find interface/cmsis-dap.cfg]'"
 
   - name: microbit
     parent: microbit-base
@@ -263,6 +270,7 @@ builder:
     env:
       CARGO_RUNNER:
         - '"qemu-system-arm -machine microbit -nographic -semihosting-config enable=on,target=native -s -S -kernel"'
+
     disable_module:
       - periph_rtt
 
