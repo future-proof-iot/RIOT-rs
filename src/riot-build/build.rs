@@ -16,9 +16,19 @@ fn main() {
 
     let (app_name, riot_bindir, riot_builddir, build_output) = if riot_app_mode {
         // building a RIOT application
-        let app = env::var("APP").unwrap();
-        eprintln!("riot-build: RIOT C application mode, APP=\"{}\"", &app);
-        let riot_builddir = Path::new(&riotbase).join(app);
+        let riot_builddir = {
+            if let Ok(app_dir) = env::var("APP_DIR") {
+                eprintln!(
+                    "riot-build: RIOT C application mode, APP_DIR=\"{}\"",
+                    &app_dir
+                );
+                PathBuf::from(&app_dir)
+            } else {
+                let app = env::var("APP").unwrap();
+                eprintln!("riot-build: RIOT C application mode, APP=\"{}\"", &app);
+                Path::new(&riotbase).join(app)
+            }
+        };
         let riot_bindir = riot_builddir.join("bin");
 
         let mut riot_extra_makefiles = vec![format!("{}/Makefile.riotbuild-rs", &crate_dir)];
