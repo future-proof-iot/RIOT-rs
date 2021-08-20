@@ -34,6 +34,7 @@ pub enum ThreadState {
     Invalid,
     Running,
     Paused,
+    Zombie,
     MutexBlocked,
     FlagBlocked(FlagWaitMode),
     ChannelRxBlocked(usize),
@@ -398,6 +399,23 @@ impl Thread {
         list.rpush(self);
         self.set_state(wait_state);
         Thread::yield_higher();
+    }
+
+    // Zombify thread
+    pub fn zombify(&mut self) {
+        self.set_state(ThreadState::Zombie);
+        Thread::yield_higher();
+    }
+
+    pub fn zombie_kill(&mut self) -> i32 {
+        match self.state {
+            ThreadState::Zombie => {
+                self.set_state(ThreadState::Invalid);
+                THREADS_IN_USE.fetch_sub(1, Ordering::SeqCst);
+                1
+            }
+            _ => -1,
+        }
     }
 
     /// Start riot-rs-core scheduler
@@ -836,6 +854,26 @@ pub mod c {
     #[no_mangle]
     pub unsafe extern "C" fn thread_flags_clear(mask: ThreadFlags) -> ThreadFlags {
         Thread::flag_clear(mask)
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_zombify() {
+        cortex_m::interrupt::free(|_| {
+            let current = Thread::current();
+            current.zombify();
+        });
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_kill_zombie(pid: Pid) -> i32 {
+        cortex_m::interrupt::free(|_| {
+            if Thread::pid_is_valid(pid) {
+                return -1; /* STATUS_NOT_FOUND */
+            }
+
+            let thread = Thread::get_mut(pid);
+            thread.zombie_kill()
+        })
     }
 
     // the C bindings use aligned byte arrays to represent Rust types that can
