@@ -192,6 +192,7 @@ fn main() {
 
     // change notifiers
     println!("cargo:rerun-if-env-changed=APP");
+    println!("cargo:rerun-if-env-changed=APP_DIR");
     println!("cargo:rerun-if-env-changed=BOARD");
     println!("cargo:rerun-if-env-changed=CARGO_FEATURE_RIOT_APP");
     println!("cargo:rerun-if-env-changed=CARGO_FEATURE_RIOT_RS_CORE");
