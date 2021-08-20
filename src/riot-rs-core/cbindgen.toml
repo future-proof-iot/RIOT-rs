@@ -4,7 +4,7 @@ documentation_style = "doxy"
 style = "type"
 pragma_once = true
 
-includes = ["msg_content.h"]
+includes = ["msg_content.h", "sched_num_threads.h"]
 
 [parse]
 parse_deps = true

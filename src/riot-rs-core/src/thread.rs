@@ -105,11 +105,15 @@ static mut THREADS: [Thread; THREADS_NUMOF] = [Thread {
 
 static CURRENT_THREAD: AtomicUsize = AtomicUsize::new(0);
 
+#[no_mangle]
+pub static THREADS_IN_USE: AtomicUsize = AtomicUsize::new(0);
+
 pub fn cleanup() -> ! {
     let current = Thread::current();
     //hprintln!("thread {} ended.", current.pid);
     current.set_state(ThreadState::Invalid);
-    Thread::yield_next();
+    THREADS_IN_USE.fetch_sub(1, Ordering::SeqCst);
+    Thread::yield_higher();
 
     loop {}
 }
@@ -246,6 +250,8 @@ impl Thread {
             thread.sp = Thread::setup_stack(stack, func, arg);
             thread.pid = unused_pid;
             thread.prio = prio;
+
+            THREADS_IN_USE.fetch_add(1, Ordering::SeqCst);
 
             if flags.contains(CreateFlags::SLEEPING) {
                 thread.state = ThreadState::Paused;
@@ -530,6 +536,8 @@ impl Thread {
 
             thread.state = ThreadState::Running;
             RUNQUEUE.add(unused_pid, thread.prio);
+
+            THREADS_IN_USE.fetch_add(1, Ordering::SeqCst);
 
             return thread;
         }
