@@ -49,8 +49,8 @@ fn main() {
             let output = Command::new("sh")
                 .arg("-c")
                 .arg(format!(
-                    "make --no-print-directory -C {} info-debug-variable-{}",
-                    riot_builddir, var
+                    "{} make --no-print-directory -C {} info-debug-variable-{}",
+                    "WARNING_EXTERNAL_MODULE_DIRS=0", riot_builddir, var
                 ))
                 .output()
                 .unwrap()
