@@ -176,6 +176,7 @@ fn main() {
         env::var("NEWLIB_ARCH").expect("missing NEWLIB_ARCH")
     );
     println!("cargo:rustc-link-arg=-lc_nano");
+    println!("cargo:rustc-link-arg=-lm");
 
     // with `links = "riot-build", this results in
     // DEP_RIOT_BUILD_DIR=foo being passed to dependees
