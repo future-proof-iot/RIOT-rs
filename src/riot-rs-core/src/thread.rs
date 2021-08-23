@@ -611,7 +611,28 @@ pub mod c {
         _name: &'static c_char,
     ) -> Pid {
         let stack_ptr = stack_ptr as *mut c_char as usize as *mut u8;
-        //println!("stack_ptr as u8: {:#x}", stack_ptr as usize);
+        // println!(
+        //     "stack_ptr as u8: {:#x} size: {}",
+        //     stack_ptr as usize, stack_size
+        // );
+
+        // align end of stack (lowest address)
+        let misalign = stack_ptr as usize & 0x7;
+        let mut stack_ptr = stack_ptr;
+        let mut stack_size = stack_size;
+        if misalign > 0 {
+            stack_ptr = (stack_ptr as usize + 8 - misalign) as *mut u8;
+            stack_size -= 8 - misalign;
+        }
+
+        // align start of stack (lowest address plus stack_size)
+        stack_size &= !0x7;
+
+        // println!(
+        //     "aligned stack_ptr as u8: {:#x} size: {}",
+        //     stack_ptr as usize, stack_size
+        // );
+
         let stack = core::slice::from_raw_parts_mut(stack_ptr, stack_size);
         let thread = Thread::create_(
             stack,
