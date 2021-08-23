@@ -16,7 +16,7 @@ static inline uint8_t thread_create(char *stack_ptr,
                                     void *arg,
                                     const char *_name)
 {
-    return _thread_create(stack_ptr, stack_size, SCHED_PRIO_LEVELS - priority, flags,
+    return _thread_create(stack_ptr, stack_size, SCHED_PRIO_LEVELS - 1 - priority, flags,
                           (uintptr_t)thread_func, (uintptr_t)arg, _name);
 }
 
