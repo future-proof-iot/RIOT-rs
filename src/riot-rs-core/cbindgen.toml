@@ -16,6 +16,7 @@ include = ["riot-rs-runqueue"]
 "ThreadState" = "thread_state_t"
 "ThreadFlags" = "thread_flags_t"
 "Thread" = "thread_t"
+"AtomicBool" = "uint8_t"
 
 [defines]
 "feature = core" = "RIOT_RS_CORE"
