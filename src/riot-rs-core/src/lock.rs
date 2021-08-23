@@ -11,7 +11,7 @@
 
 use crate::thread::{Thread, ThreadList, ThreadState};
 use core::cell::UnsafeCell;
-use cortex_m::interrupt;
+use cortex_m::interrupt::{self, CriticalSection};
 
 pub struct Lock {
     state: interrupt::Mutex<UnsafeCell<LockState>>,
@@ -85,6 +85,33 @@ impl Lock {
                 false
             }
         });
+    }
+
+    /// Check if current thread is in this lock's waiting list. Remove if it is.
+    ///
+    /// This function is supposed to be used for implementing acquire() with
+    /// timeout.
+    ///
+    /// which is unfortunately an O(n) operation if it is.
+    ///
+    /// Returns `true` if the thread was removed from the list, `false` otherwise.
+    ///
+    /// Note: _Not allowed to be called from ISR context!_
+    pub(crate) fn fix_cancelled_acquire(&self, cs: &CriticalSection) -> bool {
+        let list_entry = Thread::current().list_entry;
+        if list_entry.is_linked() {
+            let state = &mut self.get_state_mut(cs);
+            if let LockState::Locked(list) = state {
+                // if this thread was removed, the lock acquire was cancelled.
+                // in that case, return false.
+                list.remove(Thread::current())
+            } else {
+                // shouldn't happen
+                false
+            }
+        } else {
+            false
+        }
     }
 
     /// Release a Lock.

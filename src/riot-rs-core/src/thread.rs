@@ -22,7 +22,7 @@ pub type ThreadFlags = u16;
 pub struct Thread {
     sp: usize,
     high_regs: [usize; 8],
-    list_entry: Link,
+    pub(crate) list_entry: Link,
     pub(crate) state: ThreadState,
     pub prio: RunqueueId,
     pub flags: ThreadFlags,
@@ -578,6 +578,8 @@ impl Thread {
 
 pub mod c {
     #![allow(non_camel_case_types)]
+    use core::sync::atomic::{AtomicBool, Ordering};
+
     use ref_cast::RefCast;
 
     use crate::lock::Lock;
@@ -704,6 +706,71 @@ pub mod c {
             mutex.release();
             Thread::sleep();
         });
+    }
+
+    #[repr(C)]
+    pub struct mutex_cancel_t {
+        lock: &'static Lock,
+        pid: Pid,
+        cancelled: AtomicBool,
+    }
+
+    #[no_mangle]
+    pub extern "C" fn mutex_cancel_init(mutex: &'static Lock) -> mutex_cancel_t {
+        mutex_cancel_t {
+            lock: mutex,
+            pid: Thread::current_pid(),
+            cancelled: AtomicBool::new(false),
+        }
+    }
+
+    #[no_mangle]
+    pub extern "C" fn mutex_cancel(mutex_cancel: &mutex_cancel_t) {
+        if !AtomicBool::swap(&mutex_cancel.cancelled, true, Ordering::SeqCst) {
+            unsafe { Thread::get_mut(mutex_cancel.pid).set_state(super::ThreadState::Running) };
+        }
+    }
+
+    #[no_mangle]
+    pub extern "C" fn mutex_lock_cancelable(mutex_cancel: &mutex_cancel_t) -> i32 {
+        let early_cancel = cortex_m::interrupt::free(|_| {
+            if AtomicBool::load(&mutex_cancel.cancelled, Ordering::SeqCst) {
+                return 2;
+            } else if mutex_cancel.lock.try_acquire() {
+                return 1;
+            } else {
+                mutex_cancel.lock.acquire();
+                return 0;
+            }
+        });
+
+        match early_cancel {
+            2 => -140,
+            1 => 0,
+            _ => {
+                cortex_m::interrupt::free(|cs| {
+                    // if we end up here, the mutex was neither cancelled early,
+                    // nor did try_acquire() get it.
+                    if mutex_cancel.lock.fix_cancelled_acquire(cs) {
+                        // we were removed from the waiting list.
+                        // that means the acquire was cancelled.
+                        // return -ECANCELED (-140 in newlib)
+                        // TODO: use proper constant
+                        -140
+                    } else {
+                        // we were not removed from the waiting list.
+                        // that means we got the mutex in the meantime,
+                        // or we were the thread locking the mutex (it was locked,
+                        // but with an empty waiting list).
+                        if AtomicBool::load(&mutex_cancel.cancelled, Ordering::SeqCst) {
+                            -140
+                        } else {
+                            0
+                        }
+                    }
+                })
+            }
+        }
     }
 
     // we need to put both a ptr and a value in here.
