@@ -695,6 +695,11 @@ pub mod c {
     //     let lock = Lock::new();
     //     core::mem::transmute(lock)
     // }
+    #[no_mangle]
+    pub static MUTEX_INIT: Lock = Lock::new();
+
+    #[no_mangle]
+    pub static MUTEX_INIT_LOCKED: Lock = Lock::new_locked();
 
     #[no_mangle]
     pub extern "C" fn mutex_init(mutex: &mut Lock) {
