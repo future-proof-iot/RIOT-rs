@@ -31,12 +31,15 @@ context:
         - BOARD=${BOARD}
         - USEMODULE="${USEMODULE}"
         - NEWLIB_ARCH=${NEWLIB_ARCH}
+        - CFLAGS_OPT=${CFLAGS_OPT}
       CARGO_ARGS:
         - -Zextra-link-arg
       BOARD: ${builder}
       PROFILE: release
       BAUDRATE: "115200"
       PORT: /dev/ttyACM0
+      # this will be the default optimization
+      CFLAGS_OPT: -Os
 
     var_options:
       # this turns ${FEATURES} from a list to "--features=feature1,feature2"
@@ -205,6 +208,15 @@ module:
           - -Cembed-bitcode=yes
           - -Clto=fat
           - -Ccodegen-units=1
+
+  - name: opt_speed
+    context: riot-rs
+    env:
+      global:
+        RUSTFLAGS:
+          - -Copt-level=3
+        # note: this overrides CFLAGS_OPT in riot-rs context
+        CFLAGS_OPT: -O3
 
   - name: cross-language-lto
     # use clang/lld to link, enables cross-language LTO.
