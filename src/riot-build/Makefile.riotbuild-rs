@@ -22,5 +22,5 @@ CFLAGS += -Disr_rtc1=RTC1 -Disr_rtc2=RTC2
 # disable EXTERNAL_MODULE_DIRS warning. remove after 2021.07!
 export WARNING_EXTERNAL_MODULE_DIRS = 0
 
-# enable LTO
-#LTO=1
+# enable LTO (can stay enabled, only used if Rust links with lto enabled)
+LTO=1
