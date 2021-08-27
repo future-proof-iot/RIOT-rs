@@ -26,8 +26,8 @@ opt-level = 1
 incremental = false
 codegen-units = 1
 debug = true
-lto = true
-opt-level = 3
+lto = false
+opt-level = "s"
 
 [patch.crates-io]
 # these three are forks to get a version that's current and allows "no-semihosting"

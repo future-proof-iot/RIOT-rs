@@ -176,6 +176,7 @@ module:
     selects:
       - release-arch
       - ?silent-panic
+      - ?lto
 
   - name: release-arch
     context: cortex-m
@@ -196,10 +197,21 @@ module:
         FEATURES:
           - riot-rs-rt/silent-panic
 
+  - name: lto
+    context: riot-rs
+    env:
+      global:
+        RUSTFLAGS:
+          - -Cembed-bitcode=yes
+          - -Clto=fat
+          - -Ccodegen-units=1
+
   - name: cross-language-lto
     # use clang/lld to link, enables cross-language LTO.
     # This requires rustc's llvm and clang's llvm version to match.
     context: riot-rs
+    depends:
+      - lto
     env:
         global:
           RUSTFLAGS:
