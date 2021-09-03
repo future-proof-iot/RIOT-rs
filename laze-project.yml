@@ -209,6 +209,13 @@ module:
           - -Clto=fat
           - -Ccodegen-units=1
 
+  - name: no_overflow_checks
+    context: riot-rs
+    env:
+      global:
+        RUSTFLAGS:
+          - -Coverflow-checks=off
+
   - name: opt_speed
     context: riot-rs
     env:
