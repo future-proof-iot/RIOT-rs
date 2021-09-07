@@ -186,6 +186,7 @@ pub mod buffered {
         }
 
         pub fn send(&mut self, msg: T) {
+            let msg_ref: &T = &msg;
             interrupt::free(|_| {
                 if self.try_send_impl(msg).is_err() {
                     match self.state {
@@ -199,14 +200,15 @@ pub mod buffered {
                         println!("send() waiting");
                         Thread::current().wait_on(
                             waiters,
-                            ThreadState::ChannelTxBlocked(&msg as *const T as usize),
+                            ThreadState::ChannelTxBlocked(msg_ref as *const T as usize),
                         );
                         Thread::yield_higher();
                     } else {
                         unreachable!();
                     }
                 }
-            })
+            });
+            unsafe { asm!("/* {0} */", in(reg) msg_ref) };
         }
 
         pub fn capacity(&self) -> usize {
