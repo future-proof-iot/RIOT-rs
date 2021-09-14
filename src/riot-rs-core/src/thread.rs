@@ -580,12 +580,14 @@ impl Thread {
 
 pub mod c {
     #![allow(non_camel_case_types)]
+    use core::ffi::c_void;
     use core::sync::atomic::{AtomicBool, Ordering};
 
     use ref_cast::RefCast;
+    use riot_rs_runqueue::RunqueueId;
 
     use crate::lock::Lock;
-    use crate::thread::{CreateFlags, Pid, Thread, ThreadFlags, ThreadState};
+    use crate::thread::{CreateFlags, FlagWaitMode, Pid, Thread, ThreadFlags, ThreadState};
 
     #[derive(RefCast)]
     #[repr(transparent)]
@@ -652,18 +654,17 @@ pub mod c {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn thread_get(pid: Pid) -> &'static mut thread_t {
-        thread_t::ref_cast_mut(Thread::get_mut(pid))
+    pub unsafe extern "C" fn thread_get(pid: Pid) -> *mut thread_t {
+        if Thread::pid_is_valid(pid) {
+            thread_t::ref_cast_mut(Thread::get_mut(pid)) as *mut thread_t
+        } else {
+            core::ptr::null_mut()
+        }
     }
 
     #[no_mangle]
     pub unsafe extern "C" fn thread_wakeup(pid: Pid) {
         Thread::wakeup(pid)
-    }
-
-    #[no_mangle]
-    pub extern "C" fn thread_get_stack_size(_thread: &'static mut thread_t) -> usize {
-        0usize
     }
 
     #[no_mangle]
@@ -982,6 +983,117 @@ pub mod c {
             let thread = Thread::get_mut(pid);
             thread.zombie_kill()
         })
+    }
+
+    #[repr(C)]
+    pub enum thread_status_t {
+        Invalid,
+        Running,
+        Paused,
+        Zombie,
+        MutexBlocked,
+        FlagBlockedAny,
+        FlagBlockedAll,
+        ChannelRxBlocked,
+        ChannelTxBlocked,
+        ChannelReplyBlocked,
+        ChannelTxReplyBlocked,
+    }
+
+    impl core::convert::From<ThreadState> for thread_status_t {
+        fn from(item: ThreadState) -> thread_status_t {
+            match item {
+                ThreadState::Invalid => thread_status_t::Invalid,
+                ThreadState::Running => thread_status_t::Running,
+                ThreadState::Paused => thread_status_t::Paused,
+                ThreadState::Zombie => thread_status_t::Zombie,
+                ThreadState::MutexBlocked => thread_status_t::MutexBlocked,
+                ThreadState::FlagBlocked(FlagWaitMode::Any(_)) => thread_status_t::FlagBlockedAny,
+                ThreadState::FlagBlocked(FlagWaitMode::All(_)) => thread_status_t::FlagBlockedAll,
+                ThreadState::ChannelRxBlocked(_) => thread_status_t::ChannelRxBlocked,
+                ThreadState::ChannelTxBlocked(_) => thread_status_t::ChannelTxBlocked,
+                ThreadState::ChannelReplyBlocked(_) => thread_status_t::ChannelReplyBlocked,
+                ThreadState::ChannelTxReplyBlocked(_) => thread_status_t::ChannelTxReplyBlocked,
+            }
+        }
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_state_to_string(state: thread_status_t) -> *const c_char {
+        let res = match state {
+            thread_status_t::Running => b"pending\0".as_ptr(),
+            thread_status_t::Zombie => b"zombie\0".as_ptr(),
+            thread_status_t::Paused => b"sleeping\0".as_ptr(),
+            thread_status_t::MutexBlocked => b"bl mutex\0".as_ptr(),
+            thread_status_t::FlagBlockedAny => b"bl anyfl\0".as_ptr(),
+            thread_status_t::FlagBlockedAll => b"bl allfl\0".as_ptr(),
+            thread_status_t::ChannelTxBlocked => b"bl send\0".as_ptr(),
+            thread_status_t::ChannelRxBlocked => b"bl rx\0".as_ptr(),
+            thread_status_t::ChannelTxReplyBlocked => b"bl txrx\0".as_ptr(),
+            thread_status_t::ChannelReplyBlocked => b"bl reply\0".as_ptr(),
+            _ => b"unknown\0".as_ptr(),
+        };
+        res as *const u8 as usize as *const c_char
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_get_status(thread: &Thread) -> thread_status_t {
+        thread_status_t::from(thread.state)
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_get_pid(thread: &Thread) -> Pid {
+        thread.pid
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_get_priority(thread: &Thread) -> RunqueueId {
+        thread.prio
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_is_active(thread: &Thread) -> bool {
+        thread.state == ThreadState::Running
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_get_sp(thread: &Thread) -> *const c_void {
+        thread.sp as *const c_void
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_get_stackstart(_thread: &Thread) -> *const c_void {
+        core::ptr::null() as *const c_void
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_get_stacksize(_thread: &Thread) -> usize {
+        0
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_measure_stack_free(_start: *const c_void) -> usize {
+        0
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_isr_stack_start() -> *mut c_void {
+        0 as *mut c_void
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_isr_stack_pointer() -> *mut c_void {
+        0 as *mut c_void
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_isr_stack_size() -> usize {
+        0
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_isr_stack_usage() -> usize {
+        0
     }
 
     // the C bindings use aligned byte arrays to represent Rust types that can
