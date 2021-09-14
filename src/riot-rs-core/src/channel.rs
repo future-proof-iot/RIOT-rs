@@ -87,8 +87,14 @@ pub mod buffered {
                     let sender = senders.lpop().unwrap();
                     let res = if let Some(msg) = self.rb.get() {
                         if let ThreadState::ChannelTxBlocked(ptr) = sender.state {
-                            self.rb.put(unsafe { *(ptr as *mut T) });
+                            self.rb.put(unsafe { core::ptr::read(ptr as *const T) });
                             sender.set_state(ThreadState::Running);
+                            if senders.is_empty() {
+                                self.state = BufferedChannelState::MessagesAvailable;
+                            }
+                        } else if let ThreadState::ChannelTxReplyBlocked(ptr) = sender.state {
+                            self.rb.put(unsafe { core::ptr::read(ptr as *const T) });
+                            sender.set_state(ThreadState::ChannelReplyBlocked(ptr));
                             if senders.is_empty() {
                                 self.state = BufferedChannelState::MessagesAvailable;
                             }
@@ -100,8 +106,15 @@ pub mod buffered {
                         #[cfg(test)]
                         println!("recv direct copy()");
                         if let ThreadState::ChannelTxBlocked(ptr) = sender.state {
-                            let res = unsafe { *(ptr as *mut T) };
+                            let res = unsafe { core::ptr::read(ptr as *const T) };
                             sender.set_state(ThreadState::Running);
+                            if senders.is_empty() {
+                                self.state = BufferedChannelState::Idle;
+                            }
+                            Ok(res)
+                        } else if let ThreadState::ChannelTxReplyBlocked(ptr) = sender.state {
+                            let res = unsafe { core::ptr::read(ptr as *const T) };
+                            sender.set_state(ThreadState::ChannelReplyBlocked(ptr));
                             if senders.is_empty() {
                                 self.state = BufferedChannelState::Idle;
                             }
@@ -153,7 +166,7 @@ pub mod buffered {
                 if let ThreadState::ChannelRxBlocked(ptr) = waiter.state {
                     #[cfg(test)]
                     println!("copying message");
-                    unsafe { *(ptr as *mut T) = msg };
+                    unsafe { core::ptr::write_volatile(ptr as *mut T, msg) };
                     waiter.set_state(ThreadState::Running);
                     Thread::yield_higher();
                     if waiters.is_empty() {
@@ -209,6 +222,38 @@ pub mod buffered {
                 }
             });
             unsafe { asm!("/* {0} */", in(reg) msg_ref) };
+        }
+
+        pub fn send_reply(&mut self, msg: T) -> T {
+            let mut reply = MaybeUninit::<T>::uninit();
+            let reply_ptr = reply.as_mut_ptr();
+            interrupt::free(|_| {
+                if self.try_send_impl(msg).is_err() {
+                    match self.state {
+                        BufferedChannelState::FullWithTxBlocked(_) => (),
+                        _ => {
+                            self.state = BufferedChannelState::FullWithTxBlocked(ThreadList::new())
+                        }
+                    }
+                    if let BufferedChannelState::FullWithTxBlocked(waiters) = &mut self.state {
+                        #[cfg(test)]
+                        println!("send_reply() waiting");
+                        unsafe { core::ptr::write(reply_ptr, msg) };
+                        Thread::current().wait_on(
+                            waiters,
+                            ThreadState::ChannelTxReplyBlocked(reply_ptr as usize),
+                        );
+                        Thread::yield_higher();
+                    } else {
+                        unreachable!();
+                    }
+                } else {
+                    Thread::current()
+                        .set_state(ThreadState::ChannelReplyBlocked(reply_ptr as usize));
+                    Thread::yield_higher();
+                }
+            });
+            unsafe { reply.assume_init() }
         }
 
         pub fn capacity(&self) -> usize {

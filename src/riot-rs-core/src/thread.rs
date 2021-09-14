@@ -39,6 +39,8 @@ pub enum ThreadState {
     FlagBlocked(FlagWaitMode),
     ChannelRxBlocked(usize),
     ChannelTxBlocked(usize),
+    ChannelReplyBlocked(usize),
+    ChannelTxReplyBlocked(usize),
 }
 
 pub(crate) type ThreadList = clist::TypedList<Thread, { clist::offset_of!(Thread, list_entry) }>;
@@ -583,7 +585,7 @@ pub mod c {
     use ref_cast::RefCast;
 
     use crate::lock::Lock;
-    use crate::thread::{CreateFlags, Pid, Thread, ThreadFlags};
+    use crate::thread::{CreateFlags, Pid, Thread, ThreadFlags, ThreadState};
 
     #[derive(RefCast)]
     #[repr(transparent)]
@@ -874,16 +876,29 @@ pub mod c {
         reply: &'static mut msg_t,
         target_pid: Pid,
     ) -> bool {
-        // TODO: this is broken compared to the RIOT implementation. It can receive a message
-        // that was not a reply.
-        msg_send(msg, target_pid);
-        msg_receive(reply);
+        msg.sender_pid = Thread::current_pid();
+        if msg.sender_pid == target_pid {
+            return false;
+        }
+        let target = get_channel_for_pid(target_pid);
+        *reply = target.send_reply(*msg);
+
         true
     }
 
     #[no_mangle]
     pub unsafe extern "C" fn msg_reply(msg: &'static mut msg_t, reply: &'static mut msg_t) -> i32 {
-        msg_send(reply, msg.sender_pid as Pid)
+        cortex_m::interrupt::free(|_| {
+            let target = Thread::get_mut(msg.sender_pid);
+            if let ThreadState::ChannelReplyBlocked(ptr) = target.state {
+                core::ptr::write_volatile(ptr as *mut msg_t, *reply);
+                target.set_state(ThreadState::Running);
+                Thread::yield_higher();
+                1
+            } else {
+                -1
+            }
+        })
     }
 
     #[no_mangle]
