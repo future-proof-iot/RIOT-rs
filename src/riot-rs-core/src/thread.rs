@@ -1,7 +1,10 @@
+use core::borrow::{Borrow, BorrowMut};
+use core::cell::UnsafeCell;
 use core::ptr::write_volatile;
 use core::sync::atomic::{AtomicUsize, Ordering};
 
-use cortex_m::interrupt;
+use cortex_m::interrupt::Mutex;
+use cortex_m::interrupt::{self, CriticalSection};
 use cortex_m::peripheral::SCB;
 
 use bitflags::bitflags;
@@ -17,6 +20,16 @@ pub const THREAD_FLAG_TIMEOUT: ThreadFlags = (1 as ThreadFlags) << 14;
 
 pub type Pid = ThreadId;
 pub type ThreadFlags = u16;
+
+trait UncheckedMut<T> {
+    fn unchecked_mut<'cs>(&self, cs: &'cs CriticalSection) -> &mut T;
+}
+
+impl<T> UncheckedMut<T> for UnsafeCell<T> {
+    fn unchecked_mut<'cs>(&self, _cs: &'cs CriticalSection) -> &mut T {
+        unsafe { self.get().as_mut().unwrap_unchecked() }
+    }
+}
 
 #[derive(Copy, Clone, Debug)]
 pub struct Thread {
@@ -61,7 +74,8 @@ pub enum FlagWaitMode {
     All(ThreadFlags),
 }
 
-static mut RUNQUEUE: RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF> = RunQueue::new();
+static mut RUNQUEUE: UnsafeCell<RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF>> =
+    UnsafeCell::new(RunQueue::new());
 
 extern "C" {
     fn pm_set_lowest();
@@ -74,7 +88,7 @@ pub unsafe fn sched(old_sp: usize) {
     let next_pid;
 
     loop {
-        if let Some(pid) = RUNQUEUE.get_next() {
+        if let Some(pid) = RUNQUEUE.unchecked_mut(&CriticalSection::new()).get_next() {
             next_pid = pid;
             break;
         }
@@ -260,7 +274,7 @@ impl Thread {
                 thread.state = ThreadState::Paused;
             } else {
                 thread.state = ThreadState::Running;
-                RUNQUEUE.add(unused_pid, thread.prio);
+                interrupt::free(|cs| RUNQUEUE.unchecked_mut(cs).add(unused_pid, thread.prio));
                 if !flags.contains(CreateFlags::WITHOUT_YIELD) {
                     Thread::yield_higher();
                 }
@@ -301,17 +315,15 @@ impl Thread {
     }
 
     pub fn set_state(&mut self, state: ThreadState) {
-        let old_state = self.state;
-        self.state = state;
-        if old_state != ThreadState::Running && state == ThreadState::Running {
-            unsafe {
-                RUNQUEUE.add(self.pid, self.prio);
+        interrupt::free(|cs| {
+            let old_state = self.state;
+            self.state = state;
+            if old_state != ThreadState::Running && state == ThreadState::Running {
+                unsafe { RUNQUEUE.unchecked_mut(cs).add(self.pid, self.prio) };
+            } else if old_state == ThreadState::Running && state != ThreadState::Running {
+                unsafe { RUNQUEUE.unchecked_mut(cs).del(self.pid, self.prio) };
             }
-        } else if old_state == ThreadState::Running && state != ThreadState::Running {
-            unsafe {
-                RUNQUEUE.del(self.pid, self.prio);
-            }
-        }
+        });
     }
 
     pub unsafe fn jump_to(&self) {
@@ -328,7 +340,7 @@ impl Thread {
     pub fn yield_next() {
         let current = Thread::current();
         unsafe {
-            RUNQUEUE.advance(current.prio);
+            interrupt::free(|cs| RUNQUEUE.unchecked_mut(cs).advance(current.prio));
             SCB::set_pendsv();
             cortex_m::asm::isb();
         }
@@ -424,7 +436,8 @@ impl Thread {
     ///
     /// Note: this _must only be called once during startup_.
     pub unsafe fn start_threading() -> ! {
-        let next_pid = RUNQUEUE.get_next().unwrap_unchecked() as Pid;
+        let next_pid =
+            interrupt::free(|cs| RUNQUEUE.unchecked_mut(cs).get_next().unwrap_unchecked() as Pid);
         Thread::get(next_pid).jump_to();
         loop {}
     }
@@ -555,7 +568,7 @@ impl Thread {
             thread.prio = prio;
 
             thread.state = ThreadState::Running;
-            RUNQUEUE.add(unused_pid, thread.prio);
+            interrupt::free(|cs| RUNQUEUE.unchecked_mut(cs).add(unused_pid, thread.prio));
 
             THREADS_IN_USE.fetch_add(1, Ordering::SeqCst);
 
