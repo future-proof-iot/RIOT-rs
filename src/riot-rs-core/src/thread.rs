@@ -1042,7 +1042,7 @@ pub mod c {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn thread_get_pid(thread: &Thread) -> Pid {
+    pub unsafe extern "C" fn thread_getpid_of(thread: &Thread) -> Pid {
         thread.pid
     }
 
