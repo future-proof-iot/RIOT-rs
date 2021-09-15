@@ -882,7 +882,7 @@ pub mod c {
             return false;
         }
         let target = get_channel_for_pid(target_pid);
-        *reply = target.send_reply(*msg);
+        *reply = target.send_reply(*msg, target_pid);
 
         true
     }

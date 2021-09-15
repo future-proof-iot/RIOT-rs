@@ -224,7 +224,7 @@ pub mod buffered {
             unsafe { asm!("/* {0} */", in(reg) msg_ref) };
         }
 
-        pub fn send_reply(&mut self, msg: T) -> T {
+        pub fn send_reply(&mut self, msg: T, target: crate::thread::Pid) -> T {
             let mut reply = MaybeUninit::<T>::uninit();
             let reply_ptr = reply.as_mut_ptr();
             interrupt::free(|_| {
@@ -243,6 +243,9 @@ pub mod buffered {
                             waiters,
                             ThreadState::ChannelTxReplyBlocked(reply_ptr as usize),
                         );
+                        unsafe {
+                            Thread::get_mut(target).flag_set(crate::thread::THREAD_FLAG_MSG_WAITING)
+                        };
                         Thread::yield_higher();
                     } else {
                         unreachable!();
@@ -250,6 +253,9 @@ pub mod buffered {
                 } else {
                     Thread::current()
                         .set_state(ThreadState::ChannelReplyBlocked(reply_ptr as usize));
+                    unsafe {
+                        Thread::get_mut(target).flag_set(crate::thread::THREAD_FLAG_MSG_WAITING)
+                    };
                     Thread::yield_higher();
                 }
             });
