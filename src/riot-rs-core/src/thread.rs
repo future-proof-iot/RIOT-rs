@@ -1,9 +1,7 @@
-use core::borrow::{Borrow, BorrowMut};
 use core::cell::UnsafeCell;
 use core::ptr::write_volatile;
 use core::sync::atomic::{AtomicUsize, Ordering};
 
-use cortex_m::interrupt::Mutex;
 use cortex_m::interrupt::{self, CriticalSection};
 use cortex_m::peripheral::SCB;
 
