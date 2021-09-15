@@ -4,6 +4,9 @@
 TOOLCHAIN = llvm
 CFLAGS += -std=c11
 
+# cbindgen doesn't set nullability for e.g., thread_get_sp()
+CFLAGS += -Wno-nullability-completeness
+
 # only thumb7(e)m with softfp for now
 DISABLE_MODULE += cortexm_fpu
 
