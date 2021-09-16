@@ -77,7 +77,7 @@ context:
 
       bloat:
         cmd:
-          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo bloat --${PROFILE} ${FEATURES}
+          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} bloat --${PROFILE} ${FEATURES}
         build: false
 
       flash:
