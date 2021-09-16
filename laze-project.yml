@@ -100,7 +100,7 @@ context:
           - riotboot-genhdr generate ${out} $(date +%s) $((${FLASH_OFFSET} + ${FLASH_SLOT_OFFSET})) ${FLASH_SLOT_OFFSET} - > ${out}.hdr.bin
           - ${OBJCOPY} -Obinary ${out} ${out}.bin
           - cat ${out}.hdr.bin ${out}.bin > ${out}.riotboot.bin
-          -  _flash () { openocd
+          - _flash () { openocd
             ${OPENOCD_ARGS}
             -c 'init'
             -c 'targets'
@@ -234,8 +234,8 @@ module:
     depends:
       - lto
     env:
-        global:
-          RUSTFLAGS:
+      global:
+        RUSTFLAGS:
           - "-Clinker-plugin-lto -Clinker=clang -Clink-arg=-fuse-ld=lld -Clink-arg=--target=${RUSTC_TARGET}"
 
   - name: riotboot
@@ -245,9 +245,9 @@ module:
         FLASH_OFFSET: "0x2000"
         FLASH_SLOT_OFFSET: "0x400"
         CARGO_ENV:
-         - NRF52840_FLASH_OFFSET=${FLASH_OFFSET}
-         - NRF52840_FLASH_SLOT_OFFSET=${FLASH_SLOT_OFFSET}
-         - NRF52840_FLASH_SLOT=0
+          - NRF52840_FLASH_OFFSET=${FLASH_OFFSET}
+          - NRF52840_FLASH_SLOT_OFFSET=${FLASH_SLOT_OFFSET}
+          - NRF52840_FLASH_SLOT=0
 
 builder:
   # host builder (for housekeeping tasks)
