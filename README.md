@@ -72,7 +72,7 @@ Assuming you have a Nordic nrf52840dk connected, this should get you somewhere:
 It is possible to build any RIOT application using RIOT-rs and its core
 implementation, using `examples/riot-app`:
 
-    laze -Cexamples/riot-app task -b nrf52840dk -DRIOT_APP=foo/bar flash
+    laze -Cexamples/riot-app task -b nrf52840dk -a riot-app -DRIOT_APP=foo/bar flash
 
 See the [riot-app docs](examples/riot-app/README.md) for more information.
 
