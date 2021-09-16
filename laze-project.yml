@@ -2,7 +2,8 @@ context:
   # base context that all other contexts inherit from
   - name: default
     env:
-      RIOTBASE: target/RIOT
+      RIOTBASE_IN_TREE: target/RIOT
+      RIOTBASE: $$(realpath ${relroot}/${RIOTBASE_IN_TREE})
       RIOT_URL: "https://github.com/kaspar030/RIOT -b riot.rs"
 
   # base context for all RIOT-rs applications
@@ -27,7 +28,7 @@ context:
           ${CARGO_TARGET_PREFIX}_RUSTFLAGS="${RUSTFLAGS}"
           CARGO_TARGET_DIR=${relroot}/${build-dir}/bin/${builder}/${app}/cargo
       RIOT_ENV:
-        - RIOTBASE=$$(realpath ${relroot}/${RIOTBASE})
+        - RIOTBASE=${RIOTBASE}
         - BOARD=${BOARD}
         - USEMODULE="${USEMODULE}"
         - NEWLIB_ARCH=${NEWLIB_ARCH}
