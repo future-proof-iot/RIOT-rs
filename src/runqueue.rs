@@ -1,6 +1,4 @@
 use core::mem;
-use core::sync::atomic::compiler_fence;
-use core::sync::atomic::Ordering;
 
 use self::clist::CList;
 
@@ -67,7 +65,6 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     /// returns the next runnable thread of
     /// the runqueue with the highest index
     pub fn get_next(&self) -> Option<u8> {
-        compiler_fence(Ordering::AcqRel);
         let rq_ffs = Self::ffs(self.bitcache);
         if rq_ffs > 0 {
             let rq = (rq_ffs - 1) as RunqueueId;
