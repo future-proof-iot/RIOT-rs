@@ -8,3 +8,11 @@ app:
         RIOT_APP: examples/hello-world
         RIOT_ENV:
           - APP=${RIOT_APP}
+
+  - name: riot-appdir
+    selects:
+      - ?release
+      # set out of tree path using "laze build -b <board> -DAPP_DIR=path/to/app"
+    env:
+      global:
+        riot_binary: riot-app
