@@ -41,6 +41,7 @@ context:
       PORT: /dev/ttyACM0
       # this will be the default optimization
       CFLAGS_OPT: -Os
+      riot_binary: ${app}
 
     var_options:
       # this turns ${FEATURES} from a list to "--features=feature1,feature2"
@@ -54,7 +55,7 @@ context:
         always: true
         cmd: >-
           cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
-          && cp ${relroot}/${build-dir}/bin/${builder}/${app}/cargo/${RUSTC_TARGET}/${PROFILE}/${app} ${relroot}/${out}
+          && cp ${relroot}/${build-dir}/bin/${builder}/${app}/cargo/${RUSTC_TARGET}/${PROFILE}/${riot_binary} ${relroot}/${out}
 
     tasks:
       cargo:
