@@ -182,14 +182,6 @@ fn main() {
     // DEP_RIOT_BUILD_DIR=foo being passed to dependees
     println!("cargo:DIR={}", riot_builddir.to_string_lossy());
 
-    // xfa support
-    File::create(PathBuf::from(out_dir).join("xfa.ld"))
-        .unwrap()
-        .write_all(include_bytes!("xfa.ld"))
-        .unwrap();
-    println!("cargo:rerun-if-changed=xfa.ld");
-    println!("cargo:rustc-link-arg=-Txfa.ld");
-
     // change notifiers
     println!("cargo:rerun-if-env-changed=APP");
     println!("cargo:rerun-if-env-changed=APP_DIR");
