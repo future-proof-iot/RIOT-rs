@@ -1,8 +1,7 @@
 use std::collections::HashMap;
 use std::env;
 use std::ffi::OsString;
-use std::fs::{copy, create_dir_all, write, File};
-use std::io::Write;
+use std::fs::{copy, create_dir_all, write};
 use std::path::{Path, PathBuf};
 use std::process::Command;
 
@@ -171,12 +170,12 @@ fn main() {
 
     // instruct cargo to link in newlib
     println!(
-        "cargo:rustc-link-arg=-L{}/{}",
+        "cargo:rustc-link-search={}/{}",
         newlib_path,
         env::var("NEWLIB_ARCH").expect("missing NEWLIB_ARCH")
     );
-    println!("cargo:rustc-link-arg=-lc_nano");
-    println!("cargo:rustc-link-arg=-lm");
+    println!("cargo:rustc-link-lib=c_nano");
+    println!("cargo:rustc-link-lib=m");
 
     // with `links = "riot-build", this results in
     // DEP_RIOT_BUILD_DIR=foo being passed to dependees

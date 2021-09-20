@@ -13,6 +13,6 @@ riot-build = { path = "../../src/riot-build", features = ["riot-rs-core"] }
 
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 
-riot-sys = { version = "0.3.7", features = ["riot-build" ]}
-riot-wrappers = { version = "0.6.5", default-features = false, features = ["riot-rs-core"] }
+riot-sys = { version = "0.4.1", features = ["riot-build" ]}
+riot-wrappers = { version = "0.7.4", default-features = false, features = ["riot-rs-core"] }
 embedded-hal = { version = "0.2.4", features = ["unproven"] }

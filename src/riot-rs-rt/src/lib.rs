@@ -5,9 +5,8 @@
 // - const_generics
 
 // features
-#![feature(llvm_asm)]
+#![feature(asm)]
 #![feature(naked_functions)]
-#![feature(const_generics)]
 #![feature(fn_traits)]
 #![feature(in_band_lifetimes)]
 // clist / memoffset
@@ -62,7 +61,7 @@ pub fn ipsr_isr_number_to_str(isr_number: usize) -> &'static str {
 #[allow(non_snake_case)]
 #[exception]
 unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
-    llvm_asm!("bkpt");
+    asm!("bkpt");
 
     let mode_str = "Kernel";
 

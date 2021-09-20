@@ -7,7 +7,6 @@
 // features
 #![feature(asm)]
 #![feature(naked_functions)]
-#![feature(const_generics)]
 #![feature(fn_traits)]
 #![feature(in_band_lifetimes)]
 #![feature(inline_const)] // for THREAD_MSG_CHANNELS initialization

@@ -181,11 +181,17 @@ unsafe extern "C" fn PendSV() {
             mrs r0, psp
             bl {sched}
             cmp r0, #0
-            beq return
+            /* label rules:
+             * - number only
+             * - no combination of *only* [01]
+             * - add f or b for 'next matching forward/backward'
+             * so let's use '99' forward ('99f')
+             */
+            beq 99f
             stmia r0, {{r4-r11}}
             ldmia r1, {{r4-r11}}
             msr.n psp, r2
-            return:
+            99:
             movw LR, #0xFFFd
             movt LR, #0xFFFF
             bx LR
