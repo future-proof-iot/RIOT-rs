@@ -3,7 +3,7 @@ context:
   - name: default
     env:
       RIOTBASE_IN_TREE: target/RIOT
-      RIOTBASE: $$(realpath ${relroot}/${RIOTBASE_IN_TREE})
+      RIOTBASE: $$(realpath -m ${relroot}/${RIOTBASE_IN_TREE})
       RIOT_URL: "https://github.com/kaspar030/RIOT -b riot.rs"
 
   # base context for all RIOT-rs applications
