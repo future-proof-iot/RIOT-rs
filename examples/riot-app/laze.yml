@@ -16,3 +16,5 @@ app:
     env:
       global:
         riot_binary: riot-app
+        RIOT_ENV:
+          - APP_DIR=${APP_DIR}
