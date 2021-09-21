@@ -5,6 +5,7 @@ context:
       RIOTBASE_IN_TREE: target/RIOT
       RIOTBASE: $$(realpath -m ${relroot}/${RIOTBASE_IN_TREE})
       RIOT_URL: "https://github.com/kaspar030/RIOT -b riot.rs"
+      CFLAGS_OPT: -Os
 
   # base context for all RIOT-rs applications
   - name: riot-rs
@@ -38,7 +39,6 @@ context:
       BAUDRATE: "115200"
       PORT: /dev/ttyACM0
       # this will be the default optimization
-      CFLAGS_OPT: -Os
       riot_binary: ${app}
 
     var_options:
@@ -123,6 +123,10 @@ context:
         build: false
         cmd:
           - picocom -b ${BAUDRATE} --imap lfcrlf ${PORT}
+
+      size:
+        cmd:
+          - llvm-size ${out}
 
   - name: cortex-m
     parent: riot-rs
