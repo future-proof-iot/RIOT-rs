@@ -48,7 +48,7 @@ fn main() {
             let output = Command::new("sh")
                 .arg("-c")
                 .arg(format!(
-                    "{} make --no-print-directory -C {} info-debug-variable-{}",
+                    "{} make --no-print-directory -C {} TOOLCHAIN=llvm info-debug-variable-{}",
                     "WARNING_EXTERNAL_MODULE_DIRS=0", riot_builddir, var
                 ))
                 .output()
@@ -63,7 +63,7 @@ fn main() {
             .arg("-c")
             .envs(&riot_make_env)
             .arg(format!(
-                "make -C {} clean afile QUIET=0",
+                "make -C {} clean afile QUIET=0 TOOLCHAIN=llvm",
                 &riot_builddir.to_string_lossy()
             ))
             .output()
