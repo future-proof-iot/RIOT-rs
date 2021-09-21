@@ -1013,7 +1013,7 @@ source = "git+https://github.com/future-proof-iot/riot-rs-runqueue?branch=main#3
 [[package]]
 name = "riot-sys"
 version = "0.4.1"
-source = "git+https://gitlab.com/kaspar030/riot-sys?branch=add_riotrs_support#e0634ebb477c9ef8a580c025d031bb055d1f7b0e"
+source = "git+https://gitlab.com/kaspar030/riot-sys?branch=add_riotrs_support#ac220155ea14d9cbf29d0c2519618f58f21b4c49"
 dependencies = [
  "bindgen",
  "c2rust-asm-casts",
