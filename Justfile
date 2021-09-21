@@ -19,7 +19,7 @@ test-core PROFILE="release" TARGET="thumbv7m-none-eabi":
             --target {{TARGET}}; \
     done
 
-test: (test-core "debug") (test-core "release")
+test: (test-core "dev") (test-core "release")
 
 clone-riot:
     @[ "{{RIOTBASE}}" = "target/RIOT" ] && test -f {{RIOTBASE}}/.cloned || git clone {{RIOT_URL}} {{RIOTBASE}} && touch {{RIOTBASE}}/.cloned
