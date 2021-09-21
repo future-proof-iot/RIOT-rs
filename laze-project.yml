@@ -206,12 +206,21 @@ module:
 
   - name: lto
     context: riot-rs
+    selects:
+      - ?lto-riot
     env:
       global:
         RUSTFLAGS:
           - -Cembed-bitcode=yes
           - -Clto=fat
           - -Ccodegen-units=1
+
+  - name: lto-riot
+    context: riot-rs
+    env:
+      global:
+        RIOT_ENV:
+          - LTO=1
 
   - name: no_overflow_checks
     context: riot-rs

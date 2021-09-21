@@ -190,5 +190,6 @@ fn main() {
     println!("cargo:rerun-if-env-changed=RIOTBASE");
     println!("cargo:rerun-if-env-changed=USEMODULE");
     println!("cargo:rerun-if-env-changed=CFLAGS_OPT");
+    println!("cargo:rerun-if-env-changed=LTO");
     println!("cargo:rerun-if-changed=Makefile.riotbuild-rs");
 }
