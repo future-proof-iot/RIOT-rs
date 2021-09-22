@@ -275,7 +275,7 @@ dependencies = [
 [[package]]
 name = "cortex-m-rt"
 version = "0.6.99"
-source = "git+https://github.com/kaspar030/cortex-m-rt#b81106119c949acacd51982c877ebe6a211a2c87"
+source = "git+https://github.com/kaspar030/cortex-m-rt#d5435379a05042dfeae4a38be61ae46d470282e3"
 dependencies = [
  "cortex-m-rt-macros",
 ]
@@ -283,7 +283,7 @@ dependencies = [
 [[package]]
 name = "cortex-m-rt-macros"
 version = "0.6.11"
-source = "git+https://github.com/kaspar030/cortex-m-rt#b81106119c949acacd51982c877ebe6a211a2c87"
+source = "git+https://github.com/kaspar030/cortex-m-rt#d5435379a05042dfeae4a38be61ae46d470282e3"
 dependencies = [
  "proc-macro2",
  "quote",
