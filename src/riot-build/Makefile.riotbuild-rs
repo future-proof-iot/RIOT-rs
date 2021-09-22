@@ -17,10 +17,24 @@ USEMODULE += riot_rs_rt
 CFLAGS += -Disr_pendsv=PendSV -Disr_svc=SVCall -Ddummy_handler_default=DefaultHandler
 CFLAGS += -Dmain=riot_main
 
-# TODO: this is nrf52840 specific
-CFLAGS += -Disr_uart0=UARTE0_UART0 -Disr_timer0=TIMER0 -Disr_timer1=TIMER1 -Disr_timer2=TIMER2 -Disr_usbd=USBD
+# TODO: this is nrf52xxx specific
 CFLAGS += -Disr_radio=RADIO
-CFLAGS += -Disr_rtc1=RTC1 -Disr_rtc2=RTC2
+CFLAGS += -Disr_uart0=UARTE0_UART0
+CFLAGS += -Disr_spi0_twi0=SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0
+CFLAGS += -Disr_spi1_twi1=SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1
+CFLAGS += -Disr_spi2=SPIM2_SPIS2_SPI2
+CFLAGS += -Disr_gpiote=GPIOTE
+CFLAGS += -Disr_timer0=TIMER0
+CFLAGS += -Disr_timer1=TIMER1
+CFLAGS += -Disr_timer2=TIMER2
+CFLAGS += -Disr_timer3=TIMER3
+CFLAGS += -Disr_timer4=TIMER4
+CFLAGS += -Disr_rtc0=RTC0
+CFLAGS += -Disr_rtc1=RTC1
+CFLAGS += -Disr_rtc2=RTC2
+CFLAGS += -Disr_usbd=USBD
+CFLAGS += -Disr_rng=RNG
+
 
 # disable EXTERNAL_MODULE_DIRS warning. remove after 2021.07!
 export WARNING_EXTERNAL_MODULE_DIRS = 0
