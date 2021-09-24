@@ -128,15 +128,17 @@ impl Lock {
             let state = &mut self.get_state_mut(cs);
             if let LockState::Locked(list) = state {
                 if let Some(waiting_thread) = list.lpop() {
+                    // Lock was locked, there's a waiting thread.
                     waiting_thread.set_state(ThreadState::Running);
                     if waiting_thread.prio > Thread::current().prio {
                         Thread::yield_higher();
                     }
                 } else {
+                    // Lock was locked, there was no waiting thread.
                     **state = LockState::Unlocked;
                 }
             } else {
-                // what now. panic? ignore?
+                // Lock was unlocked
             }
         });
     }
