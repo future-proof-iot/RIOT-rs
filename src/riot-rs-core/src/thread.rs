@@ -10,6 +10,10 @@ use bitflags::bitflags;
 use clist::Link;
 use riot_rs_runqueue::{RunQueue, RunqueueId, ThreadId};
 
+#[derive(Debug)]
+#[allow(non_camel_case_types)]
+pub struct c_char(u8);
+
 pub const SCHED_PRIO_LEVELS: usize = 16;
 
 pub const THREADS_NUMOF: usize = 16;
@@ -38,6 +42,13 @@ pub struct Thread {
     pub prio: RunqueueId,
     pub flags: ThreadFlags,
     pub pid: Pid,
+
+    #[cfg(feature = "thread_info")]
+    name: Option<&'static c_char>,
+    #[cfg(feature = "thread_info")]
+    stack_bottom: usize,
+    #[cfg(feature = "thread_info")]
+    stack_size: usize,
 }
 
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -119,6 +130,12 @@ static mut THREADS: [Thread; THREADS_NUMOF] = [Thread {
     prio: 0,
     pid: 0,
     flags: 0,
+    #[cfg(feature = "thread_info")]
+    name: None,
+    #[cfg(feature = "thread_info")]
+    stack_size: 0,
+    #[cfg(feature = "thread_info")]
+    stack_bottom: 0,
 }; THREADS_NUMOF];
 
 static CURRENT_THREAD: AtomicUsize = AtomicUsize::new(0);
@@ -271,7 +288,13 @@ impl Thread {
     }
 
     ///
-    fn create_(stack: &mut [u8], func: usize, arg: usize, prio: u8, flags: CreateFlags) -> &Thread {
+    fn create_(
+        stack: &mut [u8],
+        func: usize,
+        arg: usize,
+        prio: u8,
+        flags: CreateFlags,
+    ) -> &mut Thread {
         unsafe {
             let unused_pid = Thread::find_unused_pid().unwrap();
             let mut thread = &mut THREADS[unused_pid as usize];
@@ -543,6 +566,53 @@ impl Thread {
         })
     }
 }
+
+#[cfg(feature = "thread_info")]
+impl Thread {
+    pub fn name(&self) -> Option<&'static c_char> {
+        self.name
+    }
+
+    pub fn stack_size(&self) -> usize {
+        self.stack_size
+    }
+
+    pub fn stack_bottom(&self) -> *const u8 {
+        self.stack_bottom as *const u8
+    }
+
+    pub fn stack_top(&self) -> *const u8 {
+        ((self.stack_bottom as usize) + self.stack_size()) as *const u8
+    }
+
+    fn stack_canary_fill(stack: &[u8]) {
+        let start_addr = stack.as_ptr() as usize;
+        for i in 0..(stack.len() / 4) {
+            let pos = start_addr + (i * 4);
+            unsafe { *(pos as *mut usize) = pos };
+        }
+    }
+}
+
+#[cfg(not(feature = "thread_info"))]
+impl Thread {
+    pub fn name(&self) -> Option<&'static c_char> {
+        None
+    }
+
+    pub fn stack_size(&self) -> usize {
+        0
+    }
+
+    pub fn stack_bottom(&self) -> *const u8 {
+        0 as *const u8
+    }
+
+    pub fn stack_top(&self) -> *const u8 {
+        0 as *const u8
+    }
+}
+
 // this block contains experimental closure thread support
 impl Thread {
     pub fn setup_stack_noregs(stack: &mut [u8], func: usize) -> usize {
@@ -613,10 +683,11 @@ pub mod c {
     use crate::lock::Lock;
     use crate::thread::{CreateFlags, FlagWaitMode, Pid, Thread, ThreadFlags, ThreadState};
 
+    use crate::thread::c_char;
+
     #[derive(RefCast)]
     #[repr(transparent)]
     pub struct thread_t(Thread);
-    pub struct c_char(u8);
 
     #[no_mangle]
     pub static mut sched_context_switch_request: bool = false;
@@ -662,13 +733,30 @@ pub mod c {
         // );
 
         let stack = core::slice::from_raw_parts_mut(stack_ptr, stack_size);
-        let thread = Thread::create_(
+
+        #[cfg(feature = "thread_info")]
+        Thread::stack_canary_fill(&stack);
+
+        #[allow(unused_mut)] // (mut not needed without "thread_info" feature)
+        let mut thread = Thread::create_(
             stack,
             thread_func,
             arg,
             priority,
             CreateFlags::from_bits_truncate(flags),
         );
+
+        #[cfg(feature = "thread_info")]
+        {
+            thread.name = if _name as *const c_char as usize != 0 {
+                Some(&*_name)
+            } else {
+                None
+            };
+            thread.stack_size = stack_size;
+            thread.stack_bottom = stack_ptr as usize;
+        }
+
         thread.pid
     }
 
@@ -1086,18 +1174,33 @@ pub mod c {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn thread_get_stackstart(_thread: &Thread) -> *const c_void {
-        core::ptr::null() as *const c_void
+    pub unsafe extern "C" fn thread_get_stackstart(thread: &Thread) -> *const c_void {
+        thread.stack_bottom() as *const c_void
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn thread_get_stacksize(_thread: &Thread) -> usize {
-        0
+    pub unsafe extern "C" fn thread_get_stacksize(thread: &Thread) -> usize {
+        thread.stack_size()
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn thread_measure_stack_free(_start: *const c_void) -> usize {
-        0
+    pub unsafe extern "C" fn thread_get_name(thread: &Thread) -> *const c_char {
+        if let Some(name) = thread.name() {
+            name as *const c_char
+        } else {
+            0 as *const c_char
+        }
+    }
+
+    #[no_mangle]
+    pub unsafe extern "C" fn thread_measure_stack_free(start: *const c_void) -> usize {
+        // assume proper alignment
+        assert!((start as usize & 0x3) == 0);
+        let mut pos = start as usize;
+        while *(pos as *const usize) == pos as usize {
+            pos = pos + core::mem::size_of::<usize>();
+        }
+        pos as usize - start as usize
     }
 
     #[no_mangle]

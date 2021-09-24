@@ -25,6 +25,7 @@ cortex-m-semihosting = { optional = true, version = "0.4.1" }
 
 [features]
 no-semihosting = [ "cortex-m-semihosting/no-semihosting" ]
+thread_info = []
 
 [build-dependencies]
 cbindgen = "0.15.*"

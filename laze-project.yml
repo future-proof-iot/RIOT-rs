@@ -33,7 +33,8 @@ context:
         - BOARD=${BOARD}
         - USEMODULE="${USEMODULE}"
         - NEWLIB_ARCH=${NEWLIB_ARCH}
-        - CFLAGS_OPT=${CFLAGS_OPT}
+        - CFLAGS="${CFLAGS}"
+        - CFLAGS_OPT="${CFLAGS_OPT}"
       BOARD: ${builder}
       PROFILE: release
       BAUDRATE: "115200"
@@ -237,6 +238,16 @@ module:
           - -Copt-level=3
         # note: this overrides CFLAGS_OPT in riot-rs context
         CFLAGS_OPT: -O3
+
+  - name: thread_info
+    # enable thread names & stack info
+    context: riot-rs
+    env:
+      global:
+        FEATURES:
+          - riot-rs-core/thread_info
+        CFLAGS:
+          - -DCONFIG_THREAD_NAMES
 
   - name: cross-language-lto
     # use clang/lld to link, enables cross-language LTO.
