@@ -91,6 +91,9 @@ pub unsafe fn sched(old_sp: usize) {
             break;
         }
         pm_set_lowest();
+        cortex_m::interrupt::enable();
+        // pending interrupts would now get to run their ISRs
+        cortex_m::interrupt::disable();
     }
 
     let next = Thread::get(next_pid);
@@ -179,7 +182,9 @@ unsafe extern "C" fn PendSV() {
     asm!(
         "
             mrs r0, psp
+            cpsid i
             bl {sched}
+            cpsie i
             cmp r0, #0
             /* label rules:
              * - number only
@@ -209,7 +214,9 @@ unsafe extern "C" fn PendSV() {
     asm!(
         "
             mrs r0, psp
+            cpsid i
             bl sched
+            cpsie i
             cmp r0, #0
             beq return
 
