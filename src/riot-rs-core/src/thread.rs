@@ -16,7 +16,7 @@ pub struct c_char(u8);
 
 pub const SCHED_PRIO_LEVELS: usize = 16;
 
-pub const THREADS_NUMOF: usize = 16;
+pub const THREADS_NUMOF: usize = 12;
 pub const THREAD_FLAG_MSG_WAITING: ThreadFlags = (1 as ThreadFlags) << 15;
 pub const THREAD_FLAG_TIMEOUT: ThreadFlags = (1 as ThreadFlags) << 14;
 
