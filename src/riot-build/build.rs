@@ -12,6 +12,12 @@ fn main() {
     let board = env::var("BOARD").expect("Error getting BOARD env variable");
 
     let riot_app_mode = env::var("CARGO_FEATURE_RIOT_APP").is_ok();
+    let mut riot_make_env = HashMap::<OsString, OsString>::new();
+
+    // pass Cargo's job server to submake
+    if let Ok(var) = env::var("CARGO_MAKEFLAGS") {
+        riot_make_env.insert("MAKEFLAGS".into(), var.into());
+    }
 
     let (app_name, riot_bindir, riot_builddir, build_output) = if riot_app_mode {
         // building a RIOT application
@@ -38,7 +44,6 @@ fn main() {
             riot_extra_makefiles.push(format!("{}", riot_rs_core_makefile.to_string_lossy()));
         }
 
-        let mut riot_make_env = HashMap::<OsString, OsString>::new();
         riot_make_env.insert(
             "RIOT_MAKEFILES_GLOBAL_PRE".into(),
             riot_extra_makefiles.join(" ").into(),
@@ -112,6 +117,7 @@ fn main() {
 
         // call out to RIOT build system
         let build_output = Command::new("sh")
+            .envs(&riot_make_env)
             .arg("-c")
             .arg(format!(
                 "make -C {} clean afile QUIET=0",
