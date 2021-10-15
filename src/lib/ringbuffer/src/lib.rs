@@ -3,6 +3,10 @@
 #![feature(const_mut_refs)]
 #![feature(const_raw_ptr_deref)]
 
+//! Typed FIFO ringbuffer supporting single element put/get/peek
+//!
+//! This implementation allows to be initialized without backing storage.
+
 use core::mem::MaybeUninit;
 use rbi::RingBufferIndex;
 
