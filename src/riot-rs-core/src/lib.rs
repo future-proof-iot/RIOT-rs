@@ -1,3 +1,12 @@
+//! RIOT-rs kernel implementation
+//!
+//! This module implements the RIOT-rs kernel functionality. It contains the
+//! implementations of the scheduler and task switching, thread handling, messaging,
+//! thread flags and locking.
+//!
+//! It currently also contains the implementation of the C bindings / glue code
+//! for the corresponding RIOT modules thread, msg, mutex, and thread_flags.
+
 #![no_std]
 #![cfg_attr(test, no_main)]
 //
