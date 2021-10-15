@@ -1,5 +1,17 @@
 #![cfg_attr(not(test), no_std)]
 
+//! This module provides a FIFO index queue that can be used for implementing
+//! a ring buffer.
+//!
+//! It keeps track of indexes from 0..N (with N being a power of two).
+//!
+//! `put()` marks an index "used".
+//! `get()` returns an indexe that has been `put()` (if any) and marks it unused.
+//! `peek()` returns the index that `get()` would return next
+//! (if any) without marking it unused.
+//!
+//! All operations are O(1).
+
 #[derive(Debug)]
 pub struct RingBufferIndex {
     reads: u8,
@@ -18,7 +30,7 @@ pub const fn next_smaller_power_of_two(val: u8) -> u8 {
 impl RingBufferIndex {
     /// Create a new RingBufferIndex instance.
     ///
-    /// *should* be a power of two. Only `floor(log2(size))` elements will
+    /// `size` *should* be a power of two. Only `floor(log2(size))` elements will
     /// ever be used.
     pub const fn new(size: u8) -> RingBufferIndex {
         RingBufferIndex {
@@ -28,20 +40,24 @@ impl RingBufferIndex {
         }
     }
 
+    /// Returns the number of slots available for `get()`
     pub fn available(&self) -> u8 {
         self.writes - self.reads
     }
 
+    /// Returns "true" if no element is available for `get()`
     pub fn is_empty(&self) -> bool {
         self.writes.wrapping_sub(self.reads) == 0
     }
 
+    /// Returns "true" if no element can be `put()`
     pub fn is_full(&self) -> bool {
         // sadly the first check is necessary to not break
         // for zero-sized indexes
         (self.mask == 0) || (self.available() > self.mask)
     }
 
+    /// Returns a "used" index (if any) and marks it unused.
     pub fn get(&mut self) -> Option<u8> {
         if !self.is_empty() {
             let reads = self.reads;
@@ -52,6 +68,7 @@ impl RingBufferIndex {
         }
     }
 
+    /// Returns a "used" index (if any).
     pub fn peek(&self) -> Option<u8> {
         if !self.is_empty() {
             Some(self.reads & self.mask)
@@ -60,6 +77,7 @@ impl RingBufferIndex {
         }
     }
 
+    /// marks the next available index "used" (if any) and returns it
     pub fn put(&mut self) -> Option<u8> {
         if !self.is_full() {
             let writes = self.writes;
@@ -70,6 +88,7 @@ impl RingBufferIndex {
         }
     }
 
+    /// returns the total capacity of indexes that this instance keeps track of
     pub fn capacity(&self) -> usize {
         if self.mask > 0 {
             self.mask as usize + 1
