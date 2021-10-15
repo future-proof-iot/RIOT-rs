@@ -1,8 +1,8 @@
-// multi producer multi receiver channel
-//
-// TODO: This is a first implementation, built to match RIOT's semantics.
-//       It feels too complex.
-//
+//! multi producer multi receiver channel
+//!
+//! TODO: This is a first implementation, built to match RIOT's semantics.
+//!       It feels too complex.
+//!
 
 pub trait Channel<T>
 where
@@ -27,6 +27,7 @@ pub enum TrySendError {
 pub use self::buffered::BufferedChannel;
 pub use self::sync::SyncChannel;
 
+/// Channel with (optional) buffer
 pub mod buffered {
     use cortex_m::interrupt;
     #[cfg(test)]
@@ -300,6 +301,7 @@ pub mod buffered {
     }
 }
 
+/// channel with out buffer
 pub mod sync {
     use cortex_m::interrupt;
     #[cfg(test)]
@@ -472,6 +474,9 @@ pub mod sync {
     }
 }
 
+/// C bindings for BufferedChannel to support RIOT's "mbox" API
+///
+/// ("msg" is implemented in thread.rs)
 pub mod c {
     #![allow(non_camel_case_types)]
     use super::BufferedChannel;

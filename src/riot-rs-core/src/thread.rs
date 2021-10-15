@@ -14,15 +14,25 @@ use riot_rs_runqueue::{RunQueue, RunqueueId, ThreadId};
 #[allow(non_camel_case_types)]
 pub struct c_char(u8);
 
+/// global defining the number of possible priority levels
 pub const SCHED_PRIO_LEVELS: usize = 16;
 
+/// global defining the number of threads that can be created
 pub const THREADS_NUMOF: usize = 12;
+
+/// Flag that gets set whenever there's a message that can be received
 pub const THREAD_FLAG_MSG_WAITING: ThreadFlags = (1 as ThreadFlags) << 15;
+
+/// Flag to indicate timeout of some operations
 pub const THREAD_FLAG_TIMEOUT: ThreadFlags = (1 as ThreadFlags) << 14;
 
+/// type used as numerical ID for threads
 pub type Pid = ThreadId;
+
+/// type of thread flags
 pub type ThreadFlags = u16;
 
+/// Trait used to hide forced access to a global using a critical section
 trait UncheckedMut<T> {
     fn unchecked_mut<'cs>(&self, cs: &'cs CriticalSection) -> &mut T;
 }
@@ -33,6 +43,7 @@ impl<T> UncheckedMut<T> for UnsafeCell<T> {
     }
 }
 
+/// Main struct for holding thread data
 #[derive(Copy, Clone, Debug)]
 pub struct Thread {
     sp: usize,
@@ -51,6 +62,7 @@ pub struct Thread {
     stack_size: usize,
 }
 
+/// Possible states of a thread
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum ThreadState {
     Invalid,
@@ -65,8 +77,12 @@ pub enum ThreadState {
     ChannelTxReplyBlocked(usize),
 }
 
+/// type used to add threads to lists (e.g., waiting for Lock, ...)
 pub(crate) type ThreadList = clist::TypedList<Thread, { clist::offset_of!(Thread, list_entry) }>;
 
+/// flags that can be set on thread creation
+///
+/// (Part of the C API)
 bitflags! {
     #[derive(Default)]
     #[repr(C)]
@@ -77,19 +93,23 @@ bitflags! {
     }
 }
 
+/// Possible waiting modes for thread flags
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum FlagWaitMode {
     Any(ThreadFlags),
     All(ThreadFlags),
 }
 
+/// global thread runqueue
 static mut RUNQUEUE: UnsafeCell<RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF>> =
     UnsafeCell::new(RunQueue::new());
 
+/// RIOT's power management hook
 extern "C" {
     fn pm_set_lowest();
 }
 
+/// scheduler
 #[no_mangle]
 pub unsafe fn sched(old_sp: usize) {
     let mut current = Thread::current();
@@ -122,6 +142,7 @@ pub unsafe fn sched(old_sp: usize) {
     asm!("", in("r0") current.high_regs.as_ptr(), in("r1") next.high_regs.as_ptr(), in("r2")next.sp);
 }
 
+/// global thread list
 static mut THREADS: [Thread; THREADS_NUMOF] = [Thread {
     sp: 0,
     state: ThreadState::Invalid,
@@ -138,11 +159,17 @@ static mut THREADS: [Thread; THREADS_NUMOF] = [Thread {
     stack_bottom: 0,
 }; THREADS_NUMOF];
 
+/// global pointing to currently active thread
 static CURRENT_THREAD: AtomicUsize = AtomicUsize::new(0);
 
+/// global number of currently used (non-invalid) threads
 #[no_mangle]
 pub static THREADS_IN_USE: AtomicUsize = AtomicUsize::new(0);
 
+/// thread cleanup function
+///
+/// This gets hooked into a newly created thread stack so it gets called when
+/// the thread function returns.
 pub fn cleanup() -> ! {
     let current = Thread::current();
     //hprintln!("thread {} ended.", current.pid);
@@ -348,6 +375,10 @@ impl Thread {
         Thread::current().pid
     }
 
+    /// set state of thread
+    ///
+    /// This function handles adding/removing the thread to the Runqueue depending
+    /// on its previous or new state.
     pub fn set_state(&mut self, state: ThreadState) {
         interrupt::free(|cs| {
             let old_state = self.state;
@@ -370,7 +401,7 @@ impl Thread {
         in("r1")self.sp);
     }
 
-    //#[inline]
+    /// "yields" to other threads of the same priority, if any
     pub fn yield_next() {
         let current = Thread::current();
         unsafe {
@@ -380,11 +411,15 @@ impl Thread {
         }
     }
 
+    /// triggers the scheduler
     pub fn yield_higher() {
         SCB::set_pendsv();
         cortex_m::asm::isb();
     }
 
+    /// shortly enable interrupts
+    ///
+    /// Supposed to be called within a critical section to allow interrupts.
     pub fn isr_enable_disable() {
         core::sync::atomic::compiler_fence(Ordering::SeqCst);
         unsafe { cortex_m::interrupt::enable() };
@@ -392,11 +427,16 @@ impl Thread {
         cortex_m::interrupt::disable();
     }
 
+    /// Make thread "sleep"
+    ///
+    /// 1. sets thread state to "Paused"
+    /// 2. triggers scheduler
     pub fn sleep() {
         Thread::current().set_state(ThreadState::Paused);
         Thread::yield_higher();
     }
 
+    /// Wakes up a sleeping thread
     pub fn wakeup(pid: Pid) {
         unsafe {
             Thread::get_mut(pid)._wakeup();
@@ -672,6 +712,7 @@ impl Thread {
     }
 }
 
+/// C bindings and glue code
 pub mod c {
     #![allow(non_camel_case_types)]
     use core::ffi::c_void;

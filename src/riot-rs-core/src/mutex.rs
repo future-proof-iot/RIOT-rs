@@ -16,7 +16,7 @@ use crate::thread::Thread;
 ///
 /// Unlike the [std::sync::Mutex], this has no concept of poisoning, so waiting for mutexes in
 /// paniced (and thus locked) threads will lock the accessing thread as well. This is because RIOT
-/// threds don't unwind Rust code. As a consequence, the mutex interface is different from the
+/// threads don't unwind Rust code. As a consequence, the mutex interface is different from the
 /// standard library's.
 ///
 /// Several methods (into_inner, get_mut) are not implemented until they're actually needed.

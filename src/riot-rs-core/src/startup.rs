@@ -1,3 +1,4 @@
+///! RIOT-rs startup code, used when RIOT is not being linked in
 use crate::thread::{CreateFlags, Thread};
 
 static mut IDLE_STACK: [u8; 256] = [0; 256];
