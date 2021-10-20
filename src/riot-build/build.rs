@@ -49,19 +49,6 @@ fn main() {
             riot_extra_makefiles.join(" ").into(),
         );
 
-        fn get_riot_var(riot_builddir: &str, var: &str) -> String {
-            let output = Command::new("sh")
-                .arg("-c")
-                .arg(format!(
-                    "{} make --no-print-directory -C {} TOOLCHAIN=llvm info-debug-variable-{}",
-                    "WARNING_EXTERNAL_MODULE_DIRS=0", riot_builddir, var
-                ))
-                .output()
-                .unwrap()
-                .stdout;
-            String::from_utf8_lossy(output.as_slice()).trim_end().into()
-        }
-
         let app_name = get_riot_var(&*riot_builddir.to_string_lossy(), "APPLICATION");
         // call out to RIOT build system
         let build_output = Command::new("sh")
@@ -202,4 +189,17 @@ fn main() {
     println!("cargo:rerun-if-env-changed=CFLAGS_OPT");
     println!("cargo:rerun-if-env-changed=LTO");
     println!("cargo:rerun-if-changed=Makefile.riotbuild-rs");
+}
+
+fn get_riot_var(riot_builddir: &str, var: &str) -> String {
+    let output = Command::new("sh")
+        .arg("-c")
+        .arg(format!(
+            "{} make --no-print-directory -C {} TOOLCHAIN=llvm info-debug-variable-{}",
+            "WARNING_EXTERNAL_MODULE_DIRS=0", riot_builddir, var
+        ))
+        .output()
+        .unwrap()
+        .stdout;
+    String::from_utf8_lossy(output.as_slice()).trim_end().into()
 }
