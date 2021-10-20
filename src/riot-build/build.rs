@@ -153,35 +153,38 @@ fn main() {
     println!("cargo:rustc-link-search=native={}", out_dir);
     println!("cargo:rustc-link-lib=static=riot");
 
-    // figure out newlib path
-    let newlib_path = if let Ok(newlib_path) = env::var("NEWLIB_PATH") {
-        newlib_path
-    } else {
-        fn strip_trailing_newline(input: &str) -> &str {
-            input
-                .strip_suffix("\r\n")
-                .or(input.strip_suffix("\n"))
-                .unwrap_or(&input)
-        }
+    #[cfg(feature = "newlib")]
+    {
+        // figure out newlib path
+        let newlib_path = if let Ok(newlib_path) = env::var("NEWLIB_PATH") {
+            newlib_path
+        } else {
+            fn strip_trailing_newline(input: &str) -> &str {
+                input
+                    .strip_suffix("\r\n")
+                    .or(input.strip_suffix("\n"))
+                    .unwrap_or(&input)
+            }
 
-        let output = Command::new("arm-none-eabi-gcc")
-            .arg("-print-sysroot")
-            .output()
-            .expect("Failed to execute arm-none-eabi-gcc");
-        let newlib_path = String::from_utf8(output.stdout).unwrap();
-        let mut newlib_path = strip_trailing_newline(&newlib_path).to_string();
-        newlib_path.push_str("/lib");
-        newlib_path
-    };
+            let output = Command::new("arm-none-eabi-gcc")
+                .arg("-print-sysroot")
+                .output()
+                .expect("Failed to execute arm-none-eabi-gcc");
+            let newlib_path = String::from_utf8(output.stdout).unwrap();
+            let mut newlib_path = strip_trailing_newline(&newlib_path).to_string();
+            newlib_path.push_str("/lib");
+            newlib_path
+        };
 
-    // instruct cargo to link in newlib
-    println!(
-        "cargo:rustc-link-search={}/{}",
-        newlib_path,
-        env::var("NEWLIB_ARCH").expect("missing NEWLIB_ARCH")
-    );
-    println!("cargo:rustc-link-lib=c_nano");
-    println!("cargo:rustc-link-lib=m");
+        // instruct cargo to link in newlib
+        println!(
+            "cargo:rustc-link-search={}/{}",
+            newlib_path,
+            env::var("NEWLIB_ARCH").expect("missing NEWLIB_ARCH")
+        );
+        println!("cargo:rustc-link-lib=c_nano");
+        println!("cargo:rustc-link-lib=m");
+    }
 
     // with `links = "riot-build", this results in
     // DEP_RIOT_BUILD_DIR=foo being passed to dependees

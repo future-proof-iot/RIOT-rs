@@ -14,3 +14,4 @@ riot-rs-boards = { path = "../riot-rs-boards" }
 
 [features]
 riot-app = []
+newlib = []

@@ -9,6 +9,9 @@ context:
 
   # base context for all RIOT-rs applications
   - name: riot-rs
+    select:
+      - ?newlib
+
     env:
       bindir: "${build-dir}/bin/${builder}/${app}"
       RUSTFLAGS:
@@ -270,6 +273,25 @@ module:
           - NRF52840_FLASH_OFFSET=${FLASH_OFFSET}
           - NRF52840_FLASH_SLOT_OFFSET=${FLASH_SLOT_OFFSET}
           - NRF52840_FLASH_SLOT=0
+
+  - name: libc_default
+    context: riot-rs
+    selects:
+      - riot_libc|newlib
+
+  - name: newlib
+    context: riot-rs
+    env:
+      global:
+        FEATURES:
+          - riot-build/newlib
+
+  - name: riot_libc
+    context: riot-rs
+    env:
+      global:
+        USEMODULE:
+          - libc
 
 builder:
   # host builder (for housekeeping tasks)
