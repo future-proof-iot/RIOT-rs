@@ -242,6 +242,15 @@ module:
         # note: this overrides CFLAGS_OPT in riot-rs context
         CFLAGS_OPT: -O3
 
+  - name: opt_size
+    context: riot-rs
+    env:
+      global:
+        RUSTFLAGS:
+          - -Copt-level=z
+        # note: this overrides CFLAGS_OPT in riot-rs context
+        CFLAGS_OPT: -Oz
+
   - name: thread_info
     # enable thread names & stack info
     context: riot-rs
