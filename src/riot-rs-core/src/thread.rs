@@ -80,12 +80,12 @@ pub enum ThreadState {
 /// type used to add threads to lists (e.g., waiting for Lock, ...)
 pub(crate) type ThreadList = clist::TypedList<Thread, { clist::offset_of!(Thread, list_entry) }>;
 
-/// flags that can be set on thread creation
-///
-/// (Part of the C API)
 bitflags! {
     #[derive(Default)]
     #[repr(C)]
+/// flags that can be set on thread creation
+///
+/// (Part of the C API)
     pub struct CreateFlags: u32 {
         const SLEEPING      = 0b00000001;
         const WITHOUT_YIELD = 0b00000010;
