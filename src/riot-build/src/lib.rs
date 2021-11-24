@@ -15,6 +15,7 @@ use riot_rs_core as _;
 #[no_mangle]
 fn riot_rs_rt_startup() {
     extern "C" {
+        pub fn cpu_init();
         pub fn board_init();
         pub fn kernel_init();
     }
@@ -24,6 +25,7 @@ fn riot_rs_rt_startup() {
 
     println!("riot_build::riot_startup(): launching RIOT startup");
     unsafe {
+        cpu_init();
         board_init();
         //libc_init();
         kernel_init();
