@@ -53,6 +53,7 @@ context:
 
     rule:
       - name: LINK
+        description: CARGO ${out}
         pool: console
         always: true
         cmd: >-
