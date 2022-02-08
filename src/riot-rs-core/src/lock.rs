@@ -144,6 +144,6 @@ impl Lock {
     }
 
     fn get_state_mut(&self, cs: &interrupt::CriticalSection) -> &mut LockState {
-        unsafe { &mut *self.state.borrow(cs).get() }
+        unsafe { &mut *self.state.borrow(*cs).get() }
     }
 }

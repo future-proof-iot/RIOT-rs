@@ -41,7 +41,7 @@ impl EventGroup {
     }
 
     fn get_inner_mut(&self, cs: &cortex_m::interrupt::CriticalSection) -> &mut EventGroupInner {
-        unsafe { &mut *self.0.borrow(cs).get() }
+        unsafe { &mut *self.0.borrow(*cs).get() }
     }
 
     pub fn subscribe(&self, subscriber: &mut Subscriber) {

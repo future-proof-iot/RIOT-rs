@@ -8,7 +8,7 @@ links = "riot-rs-core"
 
 [dependencies]
 cortex-m = { version = "0.7", features = [ "inline-asm" ] }
-cortex-m-rt = "0.6.99"
+cortex-m-rt = "0.7"
 
 bitflags = "1.2.*"
 cfg-if = "1.0.0"

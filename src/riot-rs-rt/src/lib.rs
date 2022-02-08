@@ -5,14 +5,11 @@
 // - const_generics
 
 // features
-#![feature(asm)]
 #![feature(naked_functions)]
 #![feature(fn_traits)]
 #![feature(in_band_lifetimes)]
 // clist / memoffset
 #![feature(const_ptr_offset_from)]
-#![feature(const_raw_ptr_deref)]
-#![feature(const_maybe_uninit_as_ptr)]
 // for msg_content_t union
 // error[E0658]: unions with non-`Copy` fields other than `ManuallyDrop<T>` are unstable
 #![feature(untagged_unions)]
@@ -61,6 +58,7 @@ pub fn ipsr_isr_number_to_str(isr_number: usize) -> &'static str {
 #[allow(non_snake_case)]
 #[exception]
 unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
+    use core::arch::asm;
     asm!("bkpt");
 
     let mode_str = "Kernel";
@@ -233,7 +231,7 @@ fn main() -> ! {
     // ISR stack pointer.
     // TODO: make cortex_m only
     unsafe {
-        (*cortex_m::peripheral::SCB::ptr())
+        (*cortex_m::peripheral::SCB::PTR)
             .vtor
             .write(&__RESET_VECTOR as *const _ as u32 - 4)
     };

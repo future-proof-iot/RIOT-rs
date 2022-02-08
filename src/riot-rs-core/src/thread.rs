@@ -1,3 +1,4 @@
+use core::arch::asm;
 use core::cell::UnsafeCell;
 use core::ptr::write_volatile;
 use core::sync::atomic::{AtomicUsize, Ordering};
@@ -837,7 +838,7 @@ pub mod c {
 
     #[no_mangle]
     pub unsafe extern "C" fn cpu_switch_context_exit() -> ! {
-        asm!("cpsie i");
+        core::arch::asm!("cpsie i");
         Thread::start_threading()
     }
 

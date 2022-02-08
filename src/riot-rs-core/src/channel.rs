@@ -222,7 +222,7 @@ pub mod buffered {
                     }
                 }
             });
-            unsafe { asm!("/* {0} */", in(reg) msg_ref) };
+            unsafe { core::arch::asm!("/* {0} */", in(reg) msg_ref) };
         }
 
         pub fn send_reply(&mut self, msg: T, target: crate::thread::Pid) -> T {

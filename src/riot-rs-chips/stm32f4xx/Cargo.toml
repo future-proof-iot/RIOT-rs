@@ -6,10 +6,10 @@ edition = "2018"
 
 [dependencies]
 bare-metal = "0.2.5"
-cortex-m = { version = "0.6.*", features = [ "inline-asm" ] }
+cortex-m = { version = "0.7.*", features = [ "inline-asm" ] }
 
 [dependencies.stm32f4xx-hal]
-version = "0.8.3"
+version = "0.11"
 #features = [ "rt" ]
 
 [features]

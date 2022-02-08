@@ -14,17 +14,14 @@
 // - const_generics
 
 // features
-#![feature(asm)]
 #![feature(naked_functions)]
 #![feature(fn_traits)]
 #![feature(in_band_lifetimes)]
 #![feature(inline_const)] // for THREAD_MSG_CHANNELS initialization
-#![feature(option_result_unwrap_unchecked)]
 #![feature(const_fn_trait_bound)]
+#![feature(asm_sym)]
 // clist / memoffset
 #![feature(const_ptr_offset_from)]
-#![feature(const_raw_ptr_deref)]
-#![feature(const_maybe_uninit_as_ptr)]
 // ringbuffer
 #![feature(const_mut_refs)]
 // for msg_content_t union
