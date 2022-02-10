@@ -1,7 +1,7 @@
+use atomic_polyfill::{AtomicUsize, Ordering};
 use core::arch::asm;
 use core::cell::UnsafeCell;
 use core::ptr::write_volatile;
-use core::sync::atomic::{AtomicUsize, Ordering};
 
 use cortex_m::interrupt::{self, CriticalSection};
 use cortex_m::peripheral::SCB;
@@ -206,12 +206,18 @@ unsafe extern "C" fn SVCall() {
 unsafe extern "C" fn SVCall() {
     asm!(
         "
-            ldr r0, SVCALL_RETURN_PSP
+            /* label rules:
+             * - number only
+             * - no combination of *only* [01]
+             * - add f or b for 'next matching forward/backward'
+             * so let's use '99' forward ('99f')
+             */
+            ldr r0, 99f
             mov LR, r0
             bx lr
 
             .align 4
-            SVCALL_RETURN_PSP:
+            99:
             .word 0xFFFFFFFD
             ",
         options(noreturn)
@@ -263,7 +269,7 @@ unsafe extern "C" fn PendSV() {
             bl sched
             cpsie i
             cmp r0, #0
-            beq return
+            beq 99f
 
             //stmia r0!, {{r4-r7}}
             str r4, [r0, #16]
@@ -290,13 +296,13 @@ unsafe extern "C" fn PendSV() {
             ldmia r1!, {{r4-r7}}
 
             msr.n psp, r2
-            return:
-            ldr r0, PENDSV_RETURN_PSP
+            99:
+            ldr r0, 999f
             mov LR, r0
             bx lr
 
             .align 4
-            PENDSV_RETURN_PSP:
+            999:
             .word 0xFFFFFFFD
             ",
         options(noreturn)
@@ -716,8 +722,8 @@ impl Thread {
 /// C bindings and glue code
 pub mod c {
     #![allow(non_camel_case_types)]
+    use atomic_polyfill::{AtomicBool, Ordering};
     use core::ffi::c_void;
-    use core::sync::atomic::{AtomicBool, Ordering};
 
     use ref_cast::RefCast;
     use riot_rs_runqueue::RunqueueId;
