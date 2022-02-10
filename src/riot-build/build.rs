@@ -19,6 +19,13 @@ fn main() {
         riot_make_env.insert("MAKEFLAGS".into(), var.into());
     }
 
+    let compile_commands = format!("{}/{}", out_dir, "compile_commands.json");
+    riot_make_env.insert(
+        "COMPILE_COMMANDS_PATH".into(),
+        compile_commands.clone().into(),
+    );
+    riot_make_env.insert("COMPILE_COMMANDS_FLAGS".into(), "--clang".into());
+
     let (app_name, riot_bindir, riot_builddir, build_output) = if riot_app_mode {
         // building a RIOT application
         let riot_builddir = {
@@ -55,7 +62,7 @@ fn main() {
             .arg("-c")
             .envs(&riot_make_env)
             .arg(format!(
-                "make -C {} clean afile QUIET=0 TOOLCHAIN=llvm",
+                "make -C {} clean afile compile-commands QUIET=0 TOOLCHAIN=llvm",
                 &riot_builddir.to_string_lossy()
             ))
             .output()
@@ -107,7 +114,7 @@ fn main() {
             .envs(&riot_make_env)
             .arg("-c")
             .arg(format!(
-                "make -C {} clean afile QUIET=0",
+                "make -C {} clean afile compile-commands QUIET=0",
                 &riot_builddir.to_string_lossy()
             ))
             .output()
@@ -174,8 +181,9 @@ fn main() {
     }
 
     // with `links = "riot-build", this results in
-    // DEP_RIOT_BUILD_DIR=foo being passed to dependees
+    // DEP_RIOT_BUILD_<variable>=foo being passed to dependees
     println!("cargo:DIR={}", riot_builddir.to_string_lossy());
+    println!("cargo:COMPILE_COMMANDS_JSON={}", &compile_commands);
 
     // change notifiers
     println!("cargo:rerun-if-env-changed=APP");
