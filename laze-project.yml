@@ -42,8 +42,14 @@ context:
       PROFILE: release
       BAUDRATE: "115200"
       PORT: /dev/ttyACM0
-      # this will be the default optimization
       riot_binary: ${app}
+      QEMU_SYSTEM_ARM: >-
+        qemu-system-arm
+        -machine ${QEMU_MACHINE}
+        -nographic
+        -serial mon:stdio
+        -semihosting-config enable=on,target=native
+        -kernel
 
     var_options:
       # this turns ${FEATURES} from a list to "--features=feature1,feature2"
@@ -364,6 +370,12 @@ builder:
     env:
       CARGO_RUNNER:
         - '"qemu-system-arm -machine microbit -nographic -semihosting-config enable=on,target=native -s -S -kernel"'
+      QEMU_MACHINE: microbit
+    tasks:
+      qemu:
+        build: true
+        cmd:
+          - ${QEMU_SYSTEM_ARM} ${out}
 
     disable_module:
       - periph_rtt
