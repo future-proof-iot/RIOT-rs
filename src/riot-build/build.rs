@@ -95,6 +95,12 @@ fn main() {
         if let Some(usemodule) = env::var_os("USEMODULE") {
             makefile_content += &format!("USEMODULE += {}\n", &usemodule.into_string().unwrap());
         }
+        if let Some(external_module_dirs) = env::var_os("EXTERNAL_MODULE_DIRS") {
+            makefile_content += &format!(
+                "EXTERNAL_MODULE_DIRS += {}\n",
+                &external_module_dirs.into_string().unwrap()
+            );
+        }
         // if the riot_rs_core feature was set, configure the riot build accordingly
         if let Some(_) = env::var_os("CARGO_FEATURE_RIOT_RS_CORE") {
             let riot_rs_core_makefile = env::var_os("DEP_RIOT_RS_CORE_MAKEFILE").unwrap();
@@ -193,6 +199,7 @@ fn main() {
     println!("cargo:rerun-if-env-changed=CARGO_FEATURE_RIOT_RS_CORE");
     println!("cargo:rerun-if-env-changed=RIOTBASE");
     println!("cargo:rerun-if-env-changed=USEMODULE");
+    println!("cargo:rerun-if-env-changed=EXTERNAL_MODULE_DIRS");
     println!("cargo:rerun-if-env-changed=CFLAGS");
     println!("cargo:rerun-if-env-changed=CFLAGS_OPT");
     println!("cargo:rerun-if-env-changed=LTO");
