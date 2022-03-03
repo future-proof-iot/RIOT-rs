@@ -1,6 +1,7 @@
 [workspace]
 members = [
   "src/*",
+  "src/riot-rs",
   "src/riot-rs-boards",
   "src/riot-rs-boards/lm3s6965evb",
   "src/riot-rs-boards/nrf52",

@@ -1,0 +1,17 @@
+[package]
+name = "riot-rs"
+version = "0.1.0"
+authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
+edition = "2021"
+
+[dependencies]
+riot-build = { path = "../riot-build", features = [ "riot-rs-core"] }
+riot-rs-rt = { path = "../riot-rs-rt" }
+riot-rs-core = { path = "../riot-rs-core" }
+riot-rs-boards = { path = "../riot-rs-boards" }
+
+[features]
+newlib = [ "riot-build/newlib" ]
+no-semihosting = [ "riot-rs-core/no-semihosting" ]
+silent-panic = [ "riot-rs-rt/silent-panic" ]
+thread_info = [ "riot-rs-core/thread_info" ]
