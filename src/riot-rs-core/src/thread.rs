@@ -1142,6 +1142,7 @@ pub mod c {
         })
     }
 
+    #[derive(Debug)]
     #[repr(C)]
     pub enum thread_status_t {
         Invalid,
