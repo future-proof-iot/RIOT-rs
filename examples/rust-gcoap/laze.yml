@@ -1,0 +1,32 @@
+app:
+  - name: rust-gcoap
+    selects:
+      - ?release
+    env:
+      global:
+        USEMODULE:
+          # Basic networking, and gcoap
+          - gcoap
+            #- netdev_default
+          - auto_init_gnrc_netif
+          - gnrc_ipv6_default
+          - gnrc_icmpv6_echo
+          - rust-gcoap-vfs
+
+          - ztimer
+          - ztimer_usec
+          - ztimer_msec
+          - ztimer_sec
+          - ztimer_periph_rtt
+          - usbus_cdc_ecm
+
+          - vfs
+          - constfs
+        CFLAGS:
+          - -DCONFIG_GNRC_IPV6_NIB_SLAAC=1
+
+        # This is passed to the RIOT bild system, registering the containing
+        # folder as "external module directory".
+        # It allows the "rust-gcoap-vfs" module to be picked up.
+        EXTERNAL_MODULE_DIRS:
+          - ${project-root}/${relpath}

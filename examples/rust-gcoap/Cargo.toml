@@ -1,0 +1,22 @@
+[package]
+name = "rust-gcoap"
+version = "0.1.0"
+authors = ["Christian Amsüss <chrysn@fsfe.org>"]
+edition = "2021"
+
+[dependencies]
+riot-rs-rt = { path = "../../src/riot-rs-rt" }
+riot-rs-core = { path = "../../src/riot-rs-core" }
+riot-build = { path = "../../src/riot-build", features = ["riot-rs-core"] }
+
+riot-rs-boards = { path = "../../src/riot-rs-boards" }
+
+riot-wrappers = { version = "^0.7", default-features = false, features = [
+  "with_coap_message",
+  "with_coap_handler",
+  "with_riot_rs",
+] }
+
+coap-message-demos = { git = "https://gitlab.com/chrysn/coap-message-demos/", default-features = false }
+coap-handler-implementations = "0.3"
+riot-coap-handler-demos = { git = "https://gitlab.com/etonomy/riot-module-examples/", features = ["vfs"] }

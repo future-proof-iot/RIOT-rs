@@ -2,3 +2,4 @@ subdirs:
   - bottles
   - hello-world
   - riot-app
+  - rust-gcoap
