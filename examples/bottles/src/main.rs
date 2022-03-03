@@ -1,5 +1,5 @@
-#![no_main]
 #![no_std]
+#![no_main]
 
 use riot_build as _;
 use riot_rs_rt as _;
@@ -10,7 +10,7 @@ use riot_wrappers::{stdio::println, ztimer};
 
 #[no_mangle]
 fn riot_main() {
-    let mut delay = ztimer::ZTimer::msec();
+    let mut delay = ztimer::Clock::msec();
 
     let mut bottles = 99;
 

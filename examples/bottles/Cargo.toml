@@ -4,7 +4,7 @@ version = "0.1.0"
 authors = [ "Christian M. Amsüss <ca@etonomy.org>", "Kaspar Schleiser <kaspar@schleiser.de>" ]
 license = "LGPLv2.1"
 
-edition = "2018"
+edition = "2021"
 
 [dependencies]
 riot-rs-rt = { path = "../../src/riot-rs-rt" }
@@ -13,6 +13,6 @@ riot-build = { path = "../../src/riot-build", features = ["riot-rs-core"] }
 
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 
-riot-sys = { version = "0.7.99", features = ["with_riot_rs" ]}
-riot-wrappers = { version = "0.7.4", default-features = false, features = ["riot-rs-core"] }
-embedded-hal = { version = "0.2.4", features = ["unproven"] }
+riot-sys = { version = "0.7.2", features = ["riot-rs" ] }
+riot-wrappers = { version = "0.7.17", default-features = false, features = ["with_riot_rs"] }
+embedded-hal = { version = "0.2.7", features = ["unproven"] }
