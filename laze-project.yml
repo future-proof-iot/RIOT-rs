@@ -214,14 +214,14 @@ module:
     env:
       global:
         FEATURES:
-          - riot-rs-core/no-semihosting
+          - riot-rs/no-semihosting
 
   - name: silent-panic
     context: riot-rs
     env:
       global:
         FEATURES:
-          - riot-rs-rt/silent-panic
+          - riot-rs/silent-panic
 
   - name: lto
     context: riot-rs
@@ -272,7 +272,7 @@ module:
     env:
       global:
         FEATURES:
-          - riot-rs-core/thread_info
+          - riot-rs/thread_info
         CFLAGS:
           - -DCONFIG_THREAD_NAMES
 
@@ -308,7 +308,7 @@ module:
     env:
       global:
         FEATURES:
-          - riot-build/newlib
+          - riot-rs/newlib
 
   - name: riot_libc
     context: riot-rs
