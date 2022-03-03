@@ -203,8 +203,8 @@ fn get_riot_var(riot_builddir: &str, var: &str) -> String {
     let output = Command::new("sh")
         .arg("-c")
         .arg(format!(
-            "{} make --no-print-directory -C {} TOOLCHAIN=llvm info-debug-variable-{}",
-            "WARNING_EXTERNAL_MODULE_DIRS=0", riot_builddir, var
+            "make --no-print-directory -C {} TOOLCHAIN=llvm info-debug-variable-{}",
+            riot_builddir, var
         ))
         .output()
         .unwrap()

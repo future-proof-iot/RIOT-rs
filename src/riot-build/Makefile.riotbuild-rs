@@ -37,6 +37,3 @@ CFLAGS += -Disr_rng=RNG
 
 # compensate for RIOT allocating thread_t on stack
 CFLAGS += -DTHREAD_STACKSIZE_DEFAULT=972
-
-# disable EXTERNAL_MODULE_DIRS warning. remove after 2021.07!
-export WARNING_EXTERNAL_MODULE_DIRS = 0
