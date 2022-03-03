@@ -5,10 +5,7 @@ authors = ["Christian Amsüss <chrysn@fsfe.org>"]
 edition = "2021"
 
 [dependencies]
-riot-rs-rt = { path = "../../src/riot-rs-rt" }
-riot-rs-core = { path = "../../src/riot-rs-core" }
-riot-build = { path = "../../src/riot-build", features = ["riot-rs-core"] }
-
+riot-rs = { path = "../../src/riot-rs" }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 
 riot-wrappers = { version = "^0.7", default-features = false, features = [
