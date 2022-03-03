@@ -7,7 +7,6 @@
 // features
 #![feature(naked_functions)]
 #![feature(fn_traits)]
-#![feature(in_band_lifetimes)]
 // clist / memoffset
 #![feature(const_ptr_offset_from)]
 // for msg_content_t union
