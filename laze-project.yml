@@ -189,6 +189,13 @@ context:
 
   - name: nrf52840
     parent: nrf52
+    env:
+      PROBE_RS_CHIP: nrf52840
+
+    tasks:
+      flash-rs:
+        cmd:
+          - probe-rs-cli download ${out} --chip ${PROBE_RS_CHIP}
 
 module:
   - name: release
