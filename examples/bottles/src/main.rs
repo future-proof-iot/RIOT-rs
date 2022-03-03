@@ -1,8 +1,7 @@
 #![no_std]
 #![no_main]
 
-use riot_build as _;
-use riot_rs_rt as _;
+use riot_rs as _;
 
 use embedded_hal::blocking::delay::DelayMs;
 
