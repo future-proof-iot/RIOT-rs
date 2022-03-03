@@ -7,13 +7,10 @@ use cortex_m::interrupt::{self, CriticalSection};
 use cortex_m::peripheral::SCB;
 
 use bitflags::bitflags;
+use cstr_core::c_char;
 
 use clist::Link;
 use riot_rs_runqueue::{RunQueue, RunqueueId, ThreadId};
-
-#[derive(Debug)]
-#[allow(non_camel_case_types)]
-pub struct c_char(u8);
 
 /// global defining the number of possible priority levels
 pub const SCHED_PRIO_LEVELS: usize = 16;
