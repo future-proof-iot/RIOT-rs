@@ -35,7 +35,7 @@ fn riot_main() {
             "CoAP server ready; waiting for interfaces to settle before reporting addresses..."
         );
 
-        let sectimer = ztimer::ZTimer::sec();
+        let sectimer = ztimer::Clock::sec();
         sectimer.sleep_ticks(5);
 
         for netif in gnrc::Netif::all() {
@@ -46,7 +46,7 @@ fn riot_main() {
             );
             match netif.ipv6_addrs() {
                 Ok(addrs) => {
-                    for a in addrs.addresses() {
+                    for a in &addrs {
                         println!("    Address {:?}", a);
                     }
                 }
