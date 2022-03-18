@@ -102,7 +102,7 @@ pub enum FlagWaitMode {
 static mut RUNQUEUE: UnsafeCell<RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF>> =
     UnsafeCell::new(RunQueue::new());
 
-/// RIOT's power management hook
+// RIOT's power management hook
 extern "C" {
     fn pm_set_lowest();
 }
