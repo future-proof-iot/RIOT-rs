@@ -17,7 +17,6 @@
 #![feature(naked_functions)]
 #![feature(fn_traits)]
 #![feature(inline_const)] // for THREAD_MSG_CHANNELS initialization
-#![feature(const_fn_trait_bound)]
 #![feature(asm_sym)]
 // clist / memoffset
 #![feature(const_ptr_offset_from)]

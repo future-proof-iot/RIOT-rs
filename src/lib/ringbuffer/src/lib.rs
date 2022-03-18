@@ -1,5 +1,4 @@
 #![cfg_attr(not(test), no_std)]
-#![feature(const_fn_trait_bound)]
 #![feature(const_mut_refs)]
 
 //! Typed FIFO ringbuffer supporting single element put/get/peek
