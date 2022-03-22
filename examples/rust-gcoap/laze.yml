@@ -7,10 +7,11 @@ app:
         USEMODULE:
           # Basic networking, and gcoap
           - gcoap
-            #- netdev_default
+          - netdev_default
           - auto_init_gnrc_netif
-          - gnrc_ipv6_default
+          - gnrc_ipv6_router_default
           - gnrc_icmpv6_echo
+          - gnrc_icmpv6_error
           - rust-gcoap-vfs
 
           - ztimer
@@ -18,12 +19,14 @@ app:
           - ztimer_msec
           - ztimer_sec
           - ztimer_periph_rtt
-          - usbus_cdc_ecm
+          - nimble_autoconn_ipsp
+            #- usbus_cdc_ecm
 
           - vfs
           - constfs
         CFLAGS:
           - -DCONFIG_GNRC_IPV6_NIB_SLAAC=1
+          - -DGCOAP_STACK_SIZE='(THREAD_STACKSIZE_DEFAULT+DEBUG_EXTRA_STACKSIZE+sizeof(coap_pkt_t)+1024)'
 
         # This is passed to the RIOT bild system, registering the containing
         # folder as "external module directory".
