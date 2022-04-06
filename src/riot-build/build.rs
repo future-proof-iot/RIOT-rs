@@ -144,6 +144,13 @@ fn main() {
         String::from_utf8_lossy(build_output.stderr.as_slice())
     );
 
+    if !build_output.status.success() {
+        eprintln!("");
+        eprintln!("... RIOT compilation failed!");
+        eprintln!("");
+        std::process::exit(1);
+    }
+
     // fetch archive created by RIOT build system
     let archive = riot_bindir.join(&board).join(format!("{}.a", app_name));
     eprintln!("archive: {}", archive.to_string_lossy());
