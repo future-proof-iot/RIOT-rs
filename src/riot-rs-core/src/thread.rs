@@ -1008,7 +1008,7 @@ pub mod c {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn msg_send(msg: &'static mut msg_t, target_pid: Pid) -> i32 {
+    pub unsafe extern "C" fn msg_send(msg: &mut msg_t, target_pid: Pid) -> i32 {
         // TODO: handle nonexisting Pid
         msg.sender_pid = Thread::current_pid();
         if msg.sender_pid == target_pid {
@@ -1021,13 +1021,13 @@ pub mod c {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn msg_receive(msg: &'static mut msg_t) {
+    pub unsafe extern "C" fn msg_receive(msg: &mut msg_t) {
         let channel = get_channel_for_pid(Thread::current_pid());
         *msg = channel.recv();
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn msg_try_receive(msg: &'static mut msg_t) -> bool {
+    pub unsafe extern "C" fn msg_try_receive(msg: &mut msg_t) -> bool {
         let channel = get_channel_for_pid(Thread::current_pid());
         match channel.try_recv() {
             Ok(res) => {
@@ -1040,8 +1040,8 @@ pub mod c {
 
     #[no_mangle]
     pub unsafe extern "C" fn msg_send_receive(
-        msg: &'static mut msg_t,
-        reply: &'static mut msg_t,
+        msg: &mut msg_t,
+        reply: &mut msg_t,
         target_pid: Pid,
     ) -> bool {
         msg.sender_pid = Thread::current_pid();
@@ -1055,7 +1055,7 @@ pub mod c {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn msg_reply(msg: &'static mut msg_t, reply: &'static mut msg_t) -> i32 {
+    pub unsafe extern "C" fn msg_reply(msg: &mut msg_t, reply: &mut msg_t) -> i32 {
         cortex_m::interrupt::free(|_| {
             let target = Thread::get_mut(msg.sender_pid);
             if let ThreadState::ChannelReplyBlocked(ptr) = target.state {
@@ -1070,7 +1070,7 @@ pub mod c {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn msg_try_send(msg: &'static mut msg_t, target_pid: Pid) -> bool {
+    pub unsafe extern "C" fn msg_try_send(msg: &mut msg_t, target_pid: Pid) -> bool {
         msg.sender_pid = Thread::current_pid();
         let channel = get_channel_for_pid(target_pid);
         match channel.try_send(*msg) {
@@ -1089,7 +1089,7 @@ pub mod c {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn msg_send_to_self(msg: &'static mut msg_t) -> i32 {
+    pub unsafe extern "C" fn msg_send_to_self(msg: &mut msg_t) -> i32 {
         if msg_try_send(msg, thread_getpid()) {
             1
         } else {
