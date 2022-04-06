@@ -1,6 +1,7 @@
 //! Data-carrying mutex
 //!
-//! This roughly mimicks [std::sync::Mutex].
+//! This roughly mimicks [std::sync::Mutex]. Aims for compatibility with
+//! [riot-wrappers::mutex::Mutex].
 
 use core::ops::{Deref, DerefMut};
 // For correctness considerations, all uses of UnsafeCell can be ignored here; the only reason why
@@ -44,6 +45,10 @@ impl<T> Mutex<T> {
             true => Some(MutexGuard { mutex: &self }),
             _ => None,
         }
+    }
+
+    pub fn try_leak(&'static self) -> Option<&'static mut T> {
+        unimplemented!();
     }
 }
 
