@@ -967,8 +967,8 @@ pub mod c {
     #[repr(C)]
     #[derive(Copy, Clone)]
     pub union msg_content_t {
-        value: u32,
-        ptr: usize,
+        pub value: u32,
+        pub ptr: usize,
     }
 
     impl core::fmt::Debug for msg_content_t {
@@ -981,9 +981,19 @@ pub mod c {
     #[repr(C)]
     #[derive(Copy, Clone, Debug)]
     pub struct msg_t {
-        sender_pid: Pid,
-        _type: u16,
-        content: msg_content_t,
+        pub sender_pid: Pid,
+        pub type_: u16,
+        pub content: msg_content_t,
+    }
+
+    impl Default for msg_t {
+        fn default() -> Self {
+            msg_t {
+                sender_pid: Pid::default(),
+                type_: 0u16,
+                content: msg_content_t { value: 0 },
+            }
+        }
     }
 
     use crate::channel::BufferedChannel;
