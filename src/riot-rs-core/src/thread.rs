@@ -1040,16 +1040,28 @@ pub mod c {
 
     #[no_mangle]
     pub unsafe extern "C" fn msg_send_receive(
-        msg: &mut msg_t,
-        reply: &mut msg_t,
+        msg: *mut msg_t,
+        reply: *mut msg_t,
         target_pid: Pid,
     ) -> bool {
+        // C might hand over the same pointer as msg and reply....
+        let reply_is_msg = msg == reply;
+
+        let mut msg = &mut *msg;
         msg.sender_pid = Thread::current_pid();
         if msg.sender_pid == target_pid {
             return false;
         }
+
         let target = get_channel_for_pid(target_pid);
-        *reply = target.send_reply(*msg, target_pid);
+        let actual_reply = target.send_reply(*msg, target_pid);
+
+        if reply_is_msg {
+            *msg = actual_reply;
+        } else {
+            let reply = &mut *reply;
+            *reply = actual_reply;
+        }
 
         true
     }
