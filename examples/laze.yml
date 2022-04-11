@@ -1,5 +1,6 @@
 subdirs:
   - bottles
   - hello-world
+  - minimal
   - riot-app
   - rust-gcoap

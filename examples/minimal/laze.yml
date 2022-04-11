@@ -1,0 +1,9 @@
+app:
+  - name: minimal
+    depends:
+      - ?release
+    env:
+      global:
+        CFLAGS:
+          - -DTHREAD_STACKSIZE_MAIN=256
+          - -DLOG_LEVEL=LOG_NONE
