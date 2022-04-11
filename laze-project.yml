@@ -25,6 +25,7 @@ context:
       # "CARGO_ENV" and "RIOT_ENV" are used for that.
       CARGO_ENV:
         - >-
+          BUILDING_RIOT_RS=1
           OPENOCD_ARGS="${OPENOCD_ARGS}"
           SCRIPTS=${relroot}/${SCRIPTS}
           CARGO_BUILD_TARGET=${RUSTC_TARGET}
