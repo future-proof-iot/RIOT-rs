@@ -42,3 +42,5 @@ riot-wrappers = { git = "https://gitlab.com/kaspar030/riot-wrappers", branch = "
 riot-build = { path = "src/riot-build" }
 riot-rs-core = { path = "src/riot-rs-core" }
 riot-rs-runqueue = { git = "https://github.com/future-proof-iot/riot-rs-runqueue", branch = "main" }
+
+nrf52840-hal = { git = "https://github.com/kaspar030/nrf-hal", branch = "nrf52840_use_ldmemory" }
