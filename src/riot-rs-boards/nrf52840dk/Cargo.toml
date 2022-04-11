@@ -12,5 +12,5 @@ cortex-m = "0.7"
 
 riot-rs-rt = { path = "../../riot-rs-rt" }
 
-nrf52840-hal = "0.14.*"
+nrf52840-hal = "0.15.*"
 nrf52 = { path = "../nrf52" }
