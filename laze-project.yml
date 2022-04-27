@@ -29,7 +29,7 @@ contexts:
           OPENOCD_ARGS="${OPENOCD_ARGS}"
           SCRIPTS=${relroot}/${SCRIPTS}
           CARGO_BUILD_TARGET=${RUSTC_TARGET}
-          ${CARGO_TARGET_PREFIX}_RUNNER=${relroot}/${CARGO_RUNNER}
+          ${CARGO_TARGET_PREFIX}_RUNNER=${CARGO_RUNNER}
           ${CARGO_TARGET_PREFIX}_RUSTFLAGS="${RUSTFLAGS}"
           CARGO_TARGET_DIR=${relroot}/${build-dir}/bin/${builder}/${app}/cargo
       RIOT_ENV:
@@ -65,13 +65,18 @@ contexts:
         pool: console
         always: true
         cmd: >-
-          cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
+          cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} ${TASK} --${PROFILE} ${FEATURES}
           && cp ${relroot}/${build-dir}/bin/${builder}/${app}/cargo/${RUSTC_TARGET}/${PROFILE}/${riot_binary} ${relroot}/${out}
 
     tasks:
       cargo:
         cmd:
           - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo
+        build: false
+
+      cargo-test:
+        cmd:
+          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo test --${PROFILE} --features=riot-rs-boards/${builder} --manifest-path ${app}/Cargo.toml
         build: false
 
       debug:
@@ -159,6 +164,13 @@ contexts:
       RUSTC_TARGET: thumbv7em-none-eabi
       CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7EM_NONE_EABI
       NEWLIB_ARCH: thumb/v7e-m/nofp
+
+  - name: thumbv7m-none-eabi
+    parent: cortex-m
+    env:
+      RUSTC_TARGET: thumbv7m-none-eabi
+      CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7M_NONE_EABI
+      NEWLIB_ARCH: thumb/v7-m/nofp
 
   - name: thumbv7em-none-eabihf
     parent: cortex-m
@@ -318,6 +330,9 @@ modules:
         USEMODULE:
           - libc
 
+  - name: testable
+    context: lm3s6965evb
+
 builders:
   # host builder (for housekeeping tasks)
   - name: host
@@ -389,14 +404,19 @@ builders:
     disables:
       - periph_rtt
 
-  # missing riot support
-  # - name: lm3s6965evb
-  #   parent: thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
-  #   env:
-  #     CARGO_RUNNER:
-  #       - '"qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"'
-  #     OPENOCD_ARGS:
-  #       - "-f board/nordic_nrf52_dk.cfg"
+  - name: lm3s6965evb
+    parent: thumbv7m-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+    disables:
+      - riot_support
+    env:
+      QEMU_MACHINE: lm3s6965evb -cpu cortex-m3
+      CARGO_RUNNER:
+        - '"qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"'
+    tasks:
+      qemu:
+        build: true
+        cmd:
+          - ${QEMU_SYSTEM_ARM} ${out}
 
 apps:
   # define a dummy host application so the host tasks work
@@ -405,3 +425,4 @@ apps:
 
 subdirs:
   - examples
+  - src
