@@ -19,7 +19,7 @@ pub struct RingBufferIndex {
     mask: u8,
 }
 
-pub const fn next_smaller_power_of_two(val: u8) -> u8 {
+const fn next_smaller_power_of_two(val: u8) -> u8 {
     if val.is_power_of_two() {
         val
     } else {
