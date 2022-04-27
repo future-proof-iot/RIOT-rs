@@ -1,4 +1,4 @@
-app:
+apps:
   - name: minimal
     depends:
       - ?release

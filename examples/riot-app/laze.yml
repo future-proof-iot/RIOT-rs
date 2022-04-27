@@ -1,4 +1,4 @@
-app:
+apps:
   - name: riot-app
     selects:
       - ?release

@@ -1,4 +1,4 @@
-app:
+apps:
   - name: rust-gcoap
     selects:
       - ?release

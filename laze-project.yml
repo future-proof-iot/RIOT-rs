@@ -1,4 +1,4 @@
-context:
+contexts:
   # base context that all other contexts inherit from
   - name: default
     env:
@@ -9,7 +9,7 @@ context:
 
   # base context for all RIOT-rs applications
   - name: riot-rs
-    select:
+    selects:
       - ?newlib
 
     env:
@@ -59,7 +59,7 @@ context:
         start: --features=
         joiner: ","
 
-    rule:
+    rules:
       - name: LINK
         description: CARGO ${out}
         pool: console
@@ -198,7 +198,7 @@ context:
         cmd:
           - probe-rs-cli download ${out} --chip ${PROBE_RS_CHIP}
 
-module:
+modules:
   - name: release
     selects:
       - release-arch
@@ -318,7 +318,7 @@ module:
         USEMODULE:
           - libc
 
-builder:
+builders:
   # host builder (for housekeeping tasks)
   - name: host
     rule:
@@ -386,7 +386,7 @@ builder:
         cmd:
           - ${QEMU_SYSTEM_ARM} ${out}
 
-    disable_module:
+    disables:
       - periph_rtt
 
   # missing riot support
@@ -398,7 +398,7 @@ builder:
   #     OPENOCD_ARGS:
   #       - "-f board/nordic_nrf52_dk.cfg"
 
-app:
+apps:
   # define a dummy host application so the host tasks work
   - name: host
     context: host
