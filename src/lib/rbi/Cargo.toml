@@ -1,11 +1,11 @@
 [package]
 name = "rbi"
-version = "0.1.0"
+version = "0.1.1"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2018"
 
 license = "MIT OR Apache-2.0"
-keywords = ["api"]
+keywords = ["api", "no_std"]
 homepage = "https://github.com/future-proof-iot/RIOT-rs"
 
 description = "A FIFO index queue that can be used for implementing a ring buffer."

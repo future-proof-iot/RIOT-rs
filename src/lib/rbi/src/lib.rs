@@ -45,12 +45,12 @@ impl RingBufferIndex {
         self.writes - self.reads
     }
 
-    /// Returns "true" if no element is available for `get()`
+    /// Returns `true` if no element is available for `get()`
     pub fn is_empty(&self) -> bool {
         self.writes.wrapping_sub(self.reads) == 0
     }
 
-    /// Returns "true" if no element can be `put()`
+    /// Returns `true` if no element can be `put()`
     pub fn is_full(&self) -> bool {
         // sadly the first check is necessary to not break
         // for zero-sized indexes
@@ -77,7 +77,7 @@ impl RingBufferIndex {
         }
     }
 
-    /// marks the next available index "used" (if any) and returns it
+    /// Marks the next available index "used" (if any) and returns it.
     pub fn put(&mut self) -> Option<u8> {
         if !self.is_full() {
             let writes = self.writes;
@@ -88,7 +88,7 @@ impl RingBufferIndex {
         }
     }
 
-    /// returns the total capacity of indexes that this instance keeps track of
+    /// Returns the total capacity of indexes that this instance keeps track of.
     pub fn capacity(&self) -> usize {
         if self.mask > 0 {
             self.mask as usize + 1
