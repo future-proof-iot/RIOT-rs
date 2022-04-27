@@ -98,13 +98,12 @@ impl Lock {
     ///
     /// Note: _Not allowed to be called from ISR context!_
     pub(crate) fn fix_cancelled_acquire(&self, cs: &CriticalSection) -> bool {
-        let list_entry = Thread::current().list_entry;
+        let list_entry = &Thread::current().list_entry;
         if list_entry.is_linked() {
             let state = &mut self.get_state_mut(cs);
             if let LockState::Locked(list) = state {
                 // if this thread was removed, the lock acquire was cancelled.
-                // in that case, return false.
-                list.remove(Thread::current())
+                list.remove(Thread::current()).is_some()
             } else {
                 // shouldn't happen
                 false

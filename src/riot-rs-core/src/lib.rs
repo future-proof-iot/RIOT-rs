@@ -20,6 +20,7 @@
 #![feature(asm_sym)]
 // clist / memoffset
 #![feature(const_ptr_offset_from)]
+#![feature(const_refs_to_cell)]
 // ringbuffer
 #![feature(const_mut_refs)]
 // for msg_content_t union

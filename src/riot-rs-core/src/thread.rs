@@ -42,7 +42,7 @@ impl<T> UncheckedMut<T> for UnsafeCell<T> {
 }
 
 /// Main struct for holding thread data
-#[derive(Copy, Clone, Debug)]
+#[derive(Debug)]
 pub struct Thread {
     sp: usize,
     high_regs: [usize; 8],
@@ -102,6 +102,16 @@ pub enum FlagWaitMode {
 static mut RUNQUEUE: UnsafeCell<RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF>> =
     UnsafeCell::new(RunQueue::new());
 
+/// global thread list
+static mut THREADS: [Thread; THREADS_NUMOF] = [const { Thread::default() }; THREADS_NUMOF];
+
+/// global pointing to currently active thread
+static CURRENT_THREAD: AtomicUsize = AtomicUsize::new(0);
+
+/// global number of currently used (non-invalid) threads
+#[no_mangle]
+pub static THREADS_IN_USE: AtomicUsize = AtomicUsize::new(0);
+
 // RIOT's power management hook
 extern "C" {
     fn pm_set_lowest();
@@ -139,30 +149,6 @@ pub unsafe fn sched(old_sp: usize) {
     // write to registers manually, as ABI would return the values via stack
     asm!("", in("r0") current.high_regs.as_ptr(), in("r1") next.high_regs.as_ptr(), in("r2")next.sp);
 }
-
-/// global thread list
-static mut THREADS: [Thread; THREADS_NUMOF] = [Thread {
-    sp: 0,
-    state: ThreadState::Invalid,
-    list_entry: Link::new(),
-    high_regs: [0; 8],
-    prio: 0,
-    pid: 0,
-    flags: 0,
-    #[cfg(feature = "thread_info")]
-    name: None,
-    #[cfg(feature = "thread_info")]
-    stack_size: 0,
-    #[cfg(feature = "thread_info")]
-    stack_bottom: 0,
-}; THREADS_NUMOF];
-
-/// global pointing to currently active thread
-static CURRENT_THREAD: AtomicUsize = AtomicUsize::new(0);
-
-/// global number of currently used (non-invalid) threads
-#[no_mangle]
-pub static THREADS_IN_USE: AtomicUsize = AtomicUsize::new(0);
 
 /// thread cleanup function
 ///
@@ -307,6 +293,26 @@ unsafe extern "C" fn PendSV() {
 }
 
 impl Thread {
+    /// create a default Thread object
+    ///
+    pub const fn default() -> Thread {
+        Thread {
+            sp: 0,
+            state: ThreadState::Invalid,
+            list_entry: Link::new(),
+            high_regs: [0; 8],
+            prio: 0,
+            pid: 0,
+            flags: 0,
+            #[cfg(feature = "thread_info")]
+            name: None,
+            #[cfg(feature = "thread_info")]
+            stack_size: 0,
+            #[cfg(feature = "thread_info")]
+            stack_bottom: 0,
+        }
+    }
+
     /// Create a new thread
     pub fn create(
         stack: &mut [u8],
