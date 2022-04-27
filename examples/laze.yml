@@ -4,3 +4,4 @@ subdirs:
   - minimal
   - riot-app
   - rust-gcoap
+  - riot-wrappers-mutex

@@ -1,0 +1,13 @@
+[package]
+name = "riot-wrappers-mutex"
+version = "0.1.0"
+authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
+edition = "2021"
+
+[dependencies]
+riot-rs = { path = "../../src/riot-rs" }
+riot-rs-boards = { path = "../../src/riot-rs-boards" }
+
+riot-wrappers = { version = "^0.7", default-features = false, features = [
+  "with_riot_rs",
+] }
