@@ -8,6 +8,7 @@
 
 use riot_rs as _;
 
+use riot_wrappers::cstr::cstr;
 use riot_wrappers::{gcoap, gnrc, stdio::println, thread, ztimer};
 
 use coap_handler_implementations::{HandlerBuilder, ReportingHandlerBuilder};
