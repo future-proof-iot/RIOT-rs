@@ -36,7 +36,7 @@ cortex-m = { git = "https://github.com/kaspar030/cortex-m" }
 cortex-m-rt = { git = "https://github.com/kaspar030/cortex-m" }
 cortex-m-semihosting = { git = "https://github.com/kaspar030/cortex-m" }
 # these have some patches to support riot.rs
-riot-sys = { git = "https://gitlab.com/kaspar030/riot-sys", branch = "add_riotrs_support" }
+riot-sys = { git = "https://gitlab.com/kaspar030/riot-sys", branch = "update_riot_rs_support" }
 riot-wrappers = { git = "https://gitlab.com/kaspar030/riot-wrappers", branch = "add_riotrs_support" }
 # these are listed so deps doesn't pull from crates.io
 riot-build = { path = "src/riot-build" }
