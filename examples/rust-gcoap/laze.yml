@@ -22,6 +22,11 @@ apps:
           - nimble_autoconn_ipsp
             #- usbus_cdc_ecm
 
+          - suit
+          - suit_transport_coap
+          - suit_storage_flashwrite
+          - progress_bar
+
           - vfs
           - constfs
         CFLAGS:

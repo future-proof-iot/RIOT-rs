@@ -17,20 +17,33 @@ use coap_handler_implementations::{HandlerBuilder, ReportingHandlerBuilder};
 fn riot_main() {
     extern "C" {
         fn do_vfs_init();
+        fn suit_coap_run();
     }
 
     unsafe { do_vfs_init() };
+    unsafe { suit_coap_run() };
 
     let handler = coap_message_demos::full_application_tree(None)
         .below(&["ps"], riot_coap_handler_demos::ps::ps_tree())
         .below(&["vfs"], riot_coap_handler_demos::vfs::vfs("/const"))
-        .with_wkc();
+        .below(&["suit/trigger"], riot_wrappers::suit::coap::TriggerHandler);
+
     let mut handler = riot_wrappers::coap_handler::GcoapHandler(handler);
 
     let mut listener = gcoap::SingleHandlerListener::new_catch_all(&mut handler);
 
+    let handler_suit = riot_wrappers::suit::coap::TriggerHandler {};
+    let mut handler_suit = riot_wrappers::coap_handler::GcoapHandler(handler_suit);
+
+    let mut listener_suit = gcoap::SingleHandlerListener::new(
+        cstr!("/suit/trigger"),
+        riot_sys::COAP_POST,
+        &mut handler_suit,
+    );
+
     gcoap::scope(|greg| {
         greg.register(&mut listener);
+        greg.register(&mut listener_suit);
 
         println!(
             "CoAP server ready; waiting for interfaces to settle before reporting addresses..."
