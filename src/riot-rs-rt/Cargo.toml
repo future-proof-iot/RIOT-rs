@@ -5,9 +5,9 @@ authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2018"
 
 [dependencies]
-cortex-m = { version = "0.7", features = [ "inline-asm" ] }
+cortex-m = { version = "0.7" }
 cortex-m-rt = "0.7"
-cortex-m-semihosting = "0.4.1"
+cortex-m-semihosting = "0.5.0"
 
 [features]
 silent-panic = []

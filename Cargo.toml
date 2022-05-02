@@ -31,16 +31,17 @@ lto = false
 opt-level = "s"
 
 [patch.crates-io]
-# these three are forks to get a version that's current and allows "no-semihosting"
-cortex-m = { git = "https://github.com/kaspar030/cortex-m" }
-cortex-m-rt = { git = "https://github.com/kaspar030/cortex-m" }
-cortex-m-semihosting = { git = "https://github.com/kaspar030/cortex-m" }
+# "cortex-m" fork for providing ld-memory, isr stack at ram start and XFA support
+cortex-m = { git = "https://github.com/kaspar030/cortex-m", branch = "riot-rs" }
+cortex-m-rt = { git = "https://github.com/kaspar030/cortex-m", branch = "riot-rs" }
+cortex-m-semihosting = { git = "https://github.com/kaspar030/cortex-m", branch = "riot-rs" }
 # these have some patches to support riot.rs
 riot-sys = { git = "https://gitlab.com/kaspar030/riot-sys", branch = "update_riot_rs_support" }
 riot-wrappers = { git = "https://gitlab.com/kaspar030/riot-wrappers", branch = "add_riotrs_support" }
 # these are listed so deps doesn't pull from crates.io
 riot-build = { path = "src/riot-build" }
 riot-rs-core = { path = "src/riot-rs-core" }
+# runqueue is split out. the repo also provides a version implemented in hackspec.
 riot-rs-runqueue = { git = "https://github.com/future-proof-iot/riot-rs-runqueue", branch = "main" }
 
 nrf52840-hal = { git = "https://github.com/kaspar030/nrf-hal", branch = "nrf52840_use_ldmemory" }

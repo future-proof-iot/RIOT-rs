@@ -7,7 +7,7 @@ edition = "2018"
 links = "riot-rs-core"
 
 [dependencies]
-cortex-m = { version = "0.7", features = [ "inline-asm" ] }
+cortex-m = { version = "0.7" }
 cortex-m-rt = "0.7"
 
 bitflags = "1.2.*"
@@ -23,7 +23,7 @@ atomic-polyfill = "0.1.6"
 
 # select one one of these to get a suitable println for debugging
 riot-rs-rt = { optional = true, path = "../riot-rs-rt" }
-cortex-m-semihosting = { optional = true, version = "0.4.1" }
+cortex-m-semihosting = { optional = true, version = "0.5.0" }
 cstr_core = { version = "0.2.5", default-features = false }
 
 [features]
