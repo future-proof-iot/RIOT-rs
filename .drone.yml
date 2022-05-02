@@ -10,13 +10,13 @@ steps:
   - whoami
   - set
   - cargo install laze
-  - cargo install just
   - laze task install-toolchain
   - laze task install-c2rust
   - laze task clone-riot
-  - just test
+  - laze -C src/riot-rs-rt task -b lm3s6965evb cargo-test
+  - laze -C src/riot-rs-core task -b lm3s6965evb cargo-test
 ---
 kind: signature
-hmac: 23912ded728fa9d2203dc9d1bfc01b867de051fa3834cee29f3106503612114b
+hmac: 4038fde6b745c83a8d0574657d356154217b86af40e41283b403ae41ac6196e2
 
 ...
