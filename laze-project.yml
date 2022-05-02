@@ -336,7 +336,7 @@ modules:
 builders:
   # host builder (for housekeeping tasks)
   - name: host
-    rule:
+    rules:
       # currently, laze requires a LINK rule for every context/builder
       # that gets an application configured.
       # so, provide a dummy one
