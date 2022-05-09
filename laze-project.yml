@@ -356,10 +356,8 @@ builders:
         cmd:
           - echo "Installing riot-sys compatible version of c2rust."
           - 'echo "WARNING: This uses *a lot* of memory!"'
-          - rustup install nightly-2019-12-05
-          - rustup component add --toolchain nightly-2019-12-05 rustfmt rustc-dev
-          - git clone https://github.com/kaspar030/c2rust -b for-riot ${build-dir}/c2rust
-          - cargo +nightly-2019-12-05 install --path ${build-dir}/c2rust/c2rust --locked
+          - cargo install --git https://github.com/immunant/c2rust c2rust
+
       clone-riot:
         build: false
         cmd:
