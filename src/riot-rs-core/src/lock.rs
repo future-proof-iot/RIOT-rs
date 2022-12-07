@@ -103,7 +103,7 @@ impl Lock {
             let state = &mut self.get_state_mut(cs);
             if let LockState::Locked(list) = state {
                 // if this thread was removed, the lock acquire was cancelled.
-                list.remove(Thread::current()).is_some()
+                list.remove(Thread::current())
             } else {
                 // shouldn't happen
                 false
