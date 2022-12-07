@@ -2,6 +2,10 @@
 
 use cfg_if::cfg_if;
 
+pub mod dummy {
+    pub fn init() {}
+}
+
 cfg_if! {
     if #[cfg(feature = "nrf52dk")] {
         pub use nrf52dk as board;
@@ -17,6 +21,8 @@ cfg_if! {
         pub use nucleo_f401re as board;
     } else if #[cfg(feature = "lm3s6965evb")] {
         pub use lm3s6965evb as board;
+    } else {
+        pub use dummy as board;
     }
 }
 
