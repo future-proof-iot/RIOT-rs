@@ -23,9 +23,6 @@
 #![feature(const_refs_to_cell)]
 // ringbuffer
 #![feature(const_mut_refs)]
-// for msg_content_t union
-// error[E0658]: unions with non-`Copy` fields other than `ManuallyDrop<T>` are unstable
-#![feature(untagged_unions)]
 // testing
 #![feature(custom_test_frameworks)]
 #![test_runner(riot_rs_rt::testing::test_runner)]

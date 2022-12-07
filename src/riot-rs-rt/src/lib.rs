@@ -9,9 +9,6 @@
 #![feature(fn_traits)]
 // clist / memoffset
 #![feature(const_ptr_offset_from)]
-// for msg_content_t union
-// error[E0658]: unions with non-`Copy` fields other than `ManuallyDrop<T>` are unstable
-#![feature(untagged_unions)]
 // testing
 #![feature(custom_test_frameworks)]
 #![test_runner(crate::testing::test_runner)]
