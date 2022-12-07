@@ -3,8 +3,10 @@ use core::arch::asm;
 use core::cell::UnsafeCell;
 use core::ptr::write_volatile;
 
-use cortex_m::interrupt::{self, CriticalSection};
-use cortex_m::peripheral::SCB;
+use cortex_m::{
+    interrupt::{self, CriticalSection},
+    peripheral::SCB,
+};
 
 use bitflags::bitflags;
 use cstr_core::c_char;
