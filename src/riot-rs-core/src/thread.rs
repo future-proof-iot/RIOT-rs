@@ -536,8 +536,8 @@ impl Thread {
             self.flags |= mask;
             if match self.state {
                 ThreadState::FlagBlocked(mode) => match mode {
-                    FlagWaitMode::Any(bits) => (self.flags & bits != 0),
-                    FlagWaitMode::All(bits) => (self.flags & bits == bits),
+                    FlagWaitMode::Any(bits) => self.flags & bits != 0,
+                    FlagWaitMode::All(bits) => self.flags & bits == bits,
                 },
                 _ => false,
             } {

@@ -67,8 +67,8 @@ impl EventGroup {
             for waiter in waiters.iter_mut() {
                 waiter.state |= mask;
                 if match waiter.mode {
-                    SubscribeMode::Any(bits) => (waiter.state & bits != 0),
-                    SubscribeMode::All(bits) => (waiter.state & bits == bits),
+                    SubscribeMode::Any(bits) => waiter.state & bits != 0,
+                    SubscribeMode::All(bits) => waiter.state & bits == bits,
                     SubscribeMode::None => false,
                 } {
                     waiter.lock.release();
