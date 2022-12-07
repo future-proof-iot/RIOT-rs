@@ -7,8 +7,6 @@
 // features
 #![feature(naked_functions)]
 #![feature(fn_traits)]
-// clist / memoffset
-#![feature(const_ptr_offset_from)]
 // testing
 #![feature(custom_test_frameworks)]
 #![test_runner(crate::testing::test_runner)]

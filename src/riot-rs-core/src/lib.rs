@@ -19,7 +19,6 @@
 #![feature(inline_const)] // for THREAD_MSG_CHANNELS initialization
 #![feature(asm_sym)]
 // clist / memoffset
-#![feature(const_ptr_offset_from)]
 #![feature(const_refs_to_cell)]
 // ringbuffer
 #![feature(const_mut_refs)]
