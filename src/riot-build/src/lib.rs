@@ -17,7 +17,7 @@ fn riot_rs_rt_startup() {
     extern "C" {
         pub fn cpu_init();
         pub fn board_init();
-        pub fn __libc_init_array();
+        pub fn libc_init();
         pub fn kernel_init();
     }
 
@@ -28,7 +28,7 @@ fn riot_rs_rt_startup() {
     unsafe {
         cpu_init();
         board_init();
-        __libc_init_array();
+        libc_init();
         kernel_init();
     }
 }
