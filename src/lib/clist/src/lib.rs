@@ -24,8 +24,6 @@
 
 #![cfg_attr(not(test), no_std)]
 #![allow(incomplete_features)]
-// features needed by our use of memoffset
-#![feature(const_ptr_offset_from)]
 
 extern crate memoffset;
 pub use memoffset::offset_of;
