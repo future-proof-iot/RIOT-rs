@@ -3,7 +3,7 @@ contexts:
   - name: default
     env:
       RIOTBASE_IN_TREE: target/RIOT
-      RIOTBASE: $$(realpath -m ${relroot}/${RIOTBASE_IN_TREE})
+      RIOTBASE: ${root}/${RIOTBASE_IN_TREE}
       RIOT_URL: "https://github.com/kaspar030/RIOT -b riot.rs"
       CFLAGS_OPT: -Os
 
@@ -16,9 +16,10 @@ contexts:
       bindir: "${build-dir}/bin/${builder}/${app}"
       RUSTFLAGS:
         - "-Clink-arg=-Tlink.x"
+        - "-Ctarget-cpu=${RUSTC_TARGET_CPU}"
       FEATURES:
         - riot-rs-boards/${BOARD}
-      SCRIPTS: scripts
+      SCRIPTS: ${relroot}/scripts
       # laze doesn't know the concept of "export" as make does, so each variable
       # that needs to be passed via environment needs to be listed in that rule
       # or task's command list.
@@ -27,7 +28,7 @@ contexts:
         - >-
           BUILDING_RIOT_RS=1
           OPENOCD_ARGS="${OPENOCD_ARGS}"
-          SCRIPTS=${relroot}/${SCRIPTS}
+          SCRIPTS=${SCRIPTS}
           CARGO_BUILD_TARGET=${RUSTC_TARGET}
           ${CARGO_TARGET_PREFIX}_RUNNER=${CARGO_RUNNER}
           ${CARGO_TARGET_PREFIX}_RUSTFLAGS="${RUSTFLAGS}"
@@ -65,7 +66,7 @@ contexts:
         pool: console
         always: true
         cmd: >-
-          cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} ${TASK} --${PROFILE} ${FEATURES}
+          cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
           && cp ${relroot}/${build-dir}/bin/${builder}/${app}/cargo/${RUSTC_TARGET}/${PROFILE}/${riot_binary} ${relroot}/${out}
 
     tasks:
@@ -81,7 +82,7 @@ contexts:
 
       debug:
         cmd:
-          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
+          - cd examples/${app} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
         build: false
         ignore_ctrl_c: true
 
@@ -93,7 +94,12 @@ contexts:
 
       bloat:
         cmd:
-          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} bloat --${PROFILE} ${FEATURES}
+          - cd examples/${app} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} bloat --${PROFILE} ${FEATURES}
+        build: false
+
+      tree:
+        cmd:
+          - cd examples/${app} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} tree ${FEATURES}
         build: false
 
       flash:
@@ -146,6 +152,10 @@ contexts:
         cmd:
           - llvm-size ${out}
 
+      objdump:
+        cmd:
+          - rust-objdump -S ${out}
+
   - name: cortex-m
     parent: riot-rs
     env:
@@ -162,6 +172,7 @@ contexts:
     parent: cortex-m
     env:
       RUSTC_TARGET: thumbv7em-none-eabi
+      RUSTC_TARGET_CPU: cortex-m4
       CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7EM_NONE_EABI
       NEWLIB_ARCH: thumb/v7e-m/nofp
 
@@ -209,6 +220,11 @@ contexts:
       flash-rs:
         cmd:
           - probe-rs-cli download ${out} --chip ${PROBE_RS_CHIP}
+          - probe-rs-cli reset --chip ${PROBE_RS_CHIP}
+
+      debug-rs:
+        cmd:
+          - probe-rs-cli debug --chip ${PROBE_RS_CHIP} --exe ${out}
 
 modules:
   - name: release
@@ -246,6 +262,20 @@ modules:
           - -Cembed-bitcode=yes
           - -Clto=fat
           - -Ccodegen-units=1
+
+  - name: inline225
+    context: riot-rs
+    env:
+      global:
+        RUSTFLAGS:
+          - -Cllvm-args=-inline-threshold -Cllvm-args=225
+
+  - name: build_std
+    context: riot-rs
+    env:
+      global:
+        CARGO_ARGS:
+          - -Zbuild-std
 
   - name: lto-riot
     context: riot-rs
@@ -298,7 +328,7 @@ modules:
     env:
       global:
         RUSTFLAGS:
-          - "-Clinker-plugin-lto -Clinker=clang -Clink-arg=-fuse-ld=lld -Clink-arg=--target=${RUSTC_TARGET}"
+          - "-Clinker-plugin-lto -Clinker=clang -Clink-arg=-fuse-ld=lld -Clink-arg=--target=${RUSTC_TARGET} -Clink-arg=-v"
 
   - name: riotboot
     context: nrf52840
@@ -354,9 +384,9 @@ builders:
       install-c2rust:
         build: false
         cmd:
-          - echo "Installing riot-sys compatible version of c2rust."
+          - echo "Installing c2rust..."
           - 'echo "WARNING: This uses *a lot* of memory!"'
-          - cargo install --git https://github.com/immunant/c2rust c2rust
+          - cargo install c2rust
 
       clone-riot:
         build: false
@@ -383,7 +413,7 @@ builders:
     parent: microbit-base
     env:
       CARGO_RUNNER:
-        - ${SCRIPTS}/debug-openocd.sh
+        - ${relroot}/${SCRIPTS}/debug-openocd.sh
       OPENOCD_ARGS:
         - "-f board/nordic_nrf52_dk.cfg"
 
