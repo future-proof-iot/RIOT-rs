@@ -3,7 +3,7 @@ name = "riot-rs-runqueue"
 version = "0.1.2"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2018"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+description = "RIOT-rs runqueue implementation"
+license = "Apache-2.0 / MIT"
 
 [dependencies]
