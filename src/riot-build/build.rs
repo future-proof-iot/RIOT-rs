@@ -48,7 +48,7 @@ fn main() {
         let mut riot_extra_makefiles = vec![format!("{}/Makefile.riotbuild-rs", &crate_dir)];
 
         // if the riot_rs_core feature was set, configure the riot build accordingly
-        if let Some(_) = env::var_os("CARGO_FEATURE_RIOT_RS_CORE") {
+        if env::var_os("CARGO_FEATURE_RIOT_RS_CORE").is_some() {
             let riot_rs_core_makefile = env::var_os("DEP_RIOT_RS_CORE_MAKEFILE").unwrap();
             riot_extra_makefiles.push(format!("{}", riot_rs_core_makefile.to_string_lossy()));
         }
@@ -58,7 +58,7 @@ fn main() {
             riot_extra_makefiles.join(" ").into(),
         );
 
-        let app_name = get_riot_var(&*riot_builddir.to_string_lossy(), "APPLICATION");
+        let app_name = get_riot_var(&riot_builddir.to_string_lossy(), "APPLICATION");
         // call out to RIOT build system
         let build_output = Command::new("sh")
             .arg("-c")
@@ -104,7 +104,7 @@ fn main() {
             );
         }
         // if the riot_rs_core feature was set, configure the riot build accordingly
-        if let Some(_) = env::var_os("CARGO_FEATURE_RIOT_RS_CORE") {
+        if env::var_os("CARGO_FEATURE_RIOT_RS_CORE").is_some() {
             let riot_rs_core_makefile = env::var_os("DEP_RIOT_RS_CORE_MAKEFILE").unwrap();
 
             makefile_content += &format!("include {}\n", riot_rs_core_makefile.to_string_lossy());
@@ -114,7 +114,7 @@ fn main() {
 
         // finalize and write Makefile
         let makefile_content = makefile_content;
-        write(riot_builddir.join("Makefile"), &makefile_content)
+        write(riot_builddir.join("Makefile"), makefile_content)
             .expect("Couldn't write RIOT makefile!");
 
         // call out to RIOT build system
@@ -147,19 +147,17 @@ fn main() {
     );
 
     if !build_output.status.success() {
-        eprintln!("");
-        eprintln!("... RIOT compilation failed!");
-        eprintln!("");
+        eprintln!("\n... RIOT compilation failed!\n");
         std::process::exit(1);
     }
 
     // fetch archive created by RIOT build system
-    let archive = riot_bindir.join(&board).join(format!("{}.a", app_name));
+    let archive = riot_bindir.join(&board).join(format!("{app_name}.a"));
     eprintln!("archive: {}", archive.to_string_lossy());
     copy(archive, Path::new(&out_dir).join("libriot.a")).unwrap();
 
     // instruct cargo to link RIOT archive
-    println!("cargo:rustc-link-search=native={}", out_dir);
+    println!("cargo:rustc-link-search=native={out_dir}");
     println!("cargo:rustc-link-lib=static=riot");
 
     #[cfg(feature = "newlib")]
@@ -219,8 +217,7 @@ fn get_riot_var(riot_builddir: &str, var: &str) -> String {
     let output = Command::new("sh")
         .arg("-c")
         .arg(format!(
-            "make --no-print-directory -C {} TOOLCHAIN=llvm info-debug-variable-{}",
-            riot_builddir, var
+            "make --no-print-directory -C {riot_builddir} TOOLCHAIN=llvm info-debug-variable-{var}"
         ))
         .output()
         .unwrap()
