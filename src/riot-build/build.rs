@@ -11,6 +11,8 @@ fn main() {
     let riotbase = env::var("RIOTBASE").expect("Error getting RIOTBASE env variable");
     let board = env::var("BOARD").expect("Error getting BOARD env variable");
 
+    let riotbase = std::fs::canonicalize(riotbase).unwrap();
+
     let riot_app_mode = env::var("CARGO_FEATURE_RIOT_APP").is_ok();
     let mut riot_make_env = HashMap::<OsString, OsString>::new();
 
@@ -88,7 +90,7 @@ fn main() {
              include {crate_dir}/Makefile.riotbuild-rs\n",
             app_name = &app_name,
             board = &board,
-            riotbase = &riotbase,
+            riotbase = &riotbase.display(),
             crate_dir = &crate_dir
         );
 
@@ -108,7 +110,7 @@ fn main() {
             makefile_content += &format!("include {}\n", riot_rs_core_makefile.to_string_lossy());
         }
         // include base RIOT Makefile, must be last in `makefile_content`.
-        makefile_content += &format!("include {}/Makefile.include\n", riotbase);
+        makefile_content += &format!("include {}/Makefile.include\n", riotbase.display());
 
         // finalize and write Makefile
         let makefile_content = makefile_content;
