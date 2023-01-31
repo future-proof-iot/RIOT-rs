@@ -6,6 +6,7 @@ edition = "2021"
 publish = false
 
 [dependencies]
+riot-rs = { path = "../../src/riot-rs" }
 riot-rs-rt = { path = "../../src/riot-rs-rt" }
 riot-rs-core = { path = "../../src/riot-rs-core" }
 riot-build = { path = "../../src/riot-build", features = ["riot-rs-core"]}
