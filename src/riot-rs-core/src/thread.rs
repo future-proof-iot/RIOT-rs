@@ -1250,8 +1250,8 @@ pub mod c {
     }
 
     #[no_mangle]
-    pub unsafe extern "C" fn thread_get_stackstart(thread: &Thread) -> *const c_void {
-        thread.stack_bottom() as *const c_void
+    pub unsafe extern "C" fn thread_get_stackstart(thread: &Thread) -> *mut c_void {
+        thread.stack_bottom() as *mut c_void
     }
 
     #[no_mangle]
