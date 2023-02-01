@@ -15,6 +15,7 @@ fn main() {
 
     let riot_app_mode = env::var("CARGO_FEATURE_RIOT_APP").is_ok();
     let mut riot_make_env = HashMap::<OsString, OsString>::new();
+    riot_make_env.insert("RIOTBASE".into(), riotbase.clone().into_os_string());
 
     // pass Cargo's job server to submake
     if let Ok(var) = env::var("CARGO_MAKEFLAGS") {
@@ -58,7 +59,11 @@ fn main() {
             riot_extra_makefiles.join(" ").into(),
         );
 
-        let app_name = get_riot_var(&riot_builddir.to_string_lossy(), "APPLICATION");
+        let app_name = get_riot_var(
+            &riot_make_env,
+            &riot_builddir.to_string_lossy(),
+            "APPLICATION",
+        );
         // call out to RIOT build system
         let build_output = Command::new("sh")
             .arg("-c")
@@ -213,8 +218,9 @@ fn main() {
     println!("cargo:rerun-if-changed=Makefile.riotbuild-rs");
 }
 
-fn get_riot_var(riot_builddir: &str, var: &str) -> String {
+fn get_riot_var(envs: &HashMap<OsString, OsString>, riot_builddir: &str, var: &str) -> String {
     let output = Command::new("sh")
+        .envs(envs)
         .arg("-c")
         .arg(format!(
             "make --no-print-directory -C {riot_builddir} TOOLCHAIN=llvm info-debug-variable-{var}"
