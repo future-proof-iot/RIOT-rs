@@ -12,9 +12,11 @@ apps:
   - name: riot-appdir
     selects:
       - ?release
-      # set out of tree path using "laze build -b <board> -DAPP_DIR=path/to/app"
     env:
       global:
+        # set out of tree path using "laze build -b <board> -DAPP_DIR=path/to/app"
+        # (this is a default so a `laze b -g` succeeds)
+        APP_DIR: '$$RIOTBASE/tests/fmt_print'
         riot_binary: riot-app
         RIOT_ENV:
           - APP_DIR=${APP_DIR}
