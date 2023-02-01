@@ -2,15 +2,13 @@ contexts:
   # base context that all other contexts inherit from
   - name: default
     env:
-      RIOTBASE_IN_TREE: target/RIOT
-      RIOTBASE: ${root}/${RIOTBASE_IN_TREE}
-      RIOT_URL: "https://github.com/kaspar030/RIOT -b riot.rs"
       CFLAGS_OPT: -Os
 
   # base context for all RIOT-rs applications
   - name: riot-rs
     selects:
       - ?newlib
+      - riot-sources
 
     env:
       bindir: "${build-dir}/bin/${builder}/${app}"
@@ -34,7 +32,7 @@ contexts:
           ${CARGO_TARGET_PREFIX}_RUSTFLAGS="${RUSTFLAGS}"
           CARGO_TARGET_DIR=${relroot}/${build-dir}/bin/${builder}/${app}/cargo
       RIOT_ENV:
-        - RIOTBASE=${RIOTBASE}
+        - RIOTBASE=${relroot}/${RIOTBASE}
         - BOARD=${BOARD}
         - USEMODULE="${USEMODULE}"
         - NEWLIB_ARCH=${NEWLIB_ARCH}
@@ -68,6 +66,9 @@ contexts:
         cmd: >-
           cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
           && cp ${relroot}/${build-dir}/bin/${builder}/${app}/cargo/${RUSTC_TARGET}/${PROFILE}/${riot_binary} ${relroot}/${out}
+
+      - name: GIT_DOWNLOAD
+        cmd: 'D=$$(dirname ${out}); rm -rf $$D && git clone ${url} $$D -n && git -C $$D reset --hard ${commit} && touch ${out}'
 
     tasks:
       cargo:
@@ -227,6 +228,16 @@ contexts:
           - probe-rs-cli debug --chip ${PROBE_RS_CHIP} --exe ${out}
 
 modules:
+  - name: riot-sources
+    download:
+      git:
+        url: https://github.com/kaspar030/RIOT
+        commit: 7f0316676fd0b55665c0b5974ef1401a74731476
+    env:
+      global:
+        RIOTBASE: ${srcdir}
+    is_global_build_dep: true
+
   - name: release
     selects:
       - release-arch
@@ -387,12 +398,6 @@ builders:
           - echo "Installing c2rust..."
           - 'echo "WARNING: This uses *a lot* of memory!"'
           - cargo install c2rust
-
-      clone-riot:
-        build: false
-        cmd:
-          - set -e
-          - test -f ${RIOTBASE}/.cloned || git clone ${RIOT_URL} ${RIOTBASE} && touch ${RIOTBASE}/.cloned
 
   - name: nrf52dk
     parent: nrf52832
