@@ -37,3 +37,7 @@ CFLAGS += -Disr_rng=RNG
 
 # compensate for RIOT allocating thread_t on stack
 CFLAGS += -DTHREAD_STACKSIZE_DEFAULT=972
+
+# somehow the combination of clang, newlib and Rust make result in optimized out
+# memcpy, without this:
+CFLAGS += -fno-builtin-memcpy
