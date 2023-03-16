@@ -233,7 +233,7 @@ modules:
     download:
       git:
         url: https://github.com/kaspar030/RIOT
-        commit: 7f0316676fd0b55665c0b5974ef1401a74731476
+        commit: 50a659dcf26172089e1d614558628960c0a8f3c3
     env:
       global:
         RIOTBASE: ${srcdir}
