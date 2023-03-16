@@ -1,10 +1,8 @@
 #![no_main]
 #![no_std]
 
-use riot_rs_rt::debug::println;
-
-use riot_build as _;
-use riot_rs_rt as _;
+use riot_rs as _;
+use riot_rs::rt::debug::println;
 
 #[no_mangle]
 fn riot_main() {
