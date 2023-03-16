@@ -1,1 +1,0 @@
-export USEMODULE="ztimer ztimer_msec ztimer_periph_rtt"
