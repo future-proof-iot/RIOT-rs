@@ -14,6 +14,7 @@ contexts:
       bindir: "${build-dir}/bin/${builder}/${app}"
       RUSTFLAGS:
         - "-Clink-arg=-Tlink.x"
+        - "-Clink-arg=--no-eh-frame-hdr"
         - "-Ctarget-cpu=${RUSTC_TARGET_CPU}"
       FEATURES:
         - riot-rs-boards/${BOARD}
