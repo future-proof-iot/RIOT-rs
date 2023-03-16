@@ -29,7 +29,7 @@ pub use self::sync::SyncChannel;
 
 /// Channel with (optional) buffer
 pub mod buffered {
-    use cortex_m::interrupt;
+    use critical_section;
     #[cfg(test)]
     use riot_rs_rt::debug::println;
 
@@ -132,11 +132,11 @@ pub mod buffered {
         }
 
         pub fn try_recv(&mut self) -> Result<T, TryRecvError> {
-            interrupt::free(|_| self.try_recv_impl())
+            critical_section::with(|_| self.try_recv_impl())
         }
 
         pub fn recv(&mut self) -> T {
-            interrupt::free(|_| {
+            critical_section::with(|_| {
                 if let Ok(res) = self.try_recv_impl() {
                     res
                 } else {
@@ -196,12 +196,12 @@ pub mod buffered {
         }
 
         pub fn try_send(&mut self, msg: T) -> Result<(), TrySendError> {
-            interrupt::free(|_| self.try_send_impl(msg))
+            critical_section::with(|_| self.try_send_impl(msg))
         }
 
         pub fn send(&mut self, msg: T) {
             let msg_ref: &T = &msg;
-            interrupt::free(|_| {
+            critical_section::with(|_| {
                 if self.try_send_impl(msg).is_err() {
                     match self.state {
                         BufferedChannelState::FullWithTxBlocked(_) => (),
@@ -228,7 +228,7 @@ pub mod buffered {
         pub fn send_reply(&mut self, msg: T, target: crate::thread::Pid) -> T {
             let mut reply = MaybeUninit::<T>::uninit();
             let reply_ptr = reply.as_mut_ptr();
-            interrupt::free(|_| {
+            critical_section::with(|_| {
                 if self.try_send_impl(msg).is_err() {
                     match self.state {
                         BufferedChannelState::FullWithTxBlocked(_) => (),
@@ -272,7 +272,7 @@ pub mod buffered {
         }
 
         pub fn set_backing_array(&mut self, array: Option<&'a mut [T]>) {
-            interrupt::free(|_| {
+            critical_section::with(|_| {
                 if let BufferedChannelState::Idle = self.state {
                     self.rb.set_backing_array(array);
                 } else {
@@ -303,7 +303,6 @@ pub mod buffered {
 
 /// channel with out buffer
 pub mod sync {
-    use cortex_m::interrupt;
     #[cfg(test)]
     use riot_rs_rt::debug::println;
 
@@ -364,11 +363,11 @@ pub mod sync {
         }
 
         pub fn try_recv(&mut self) -> Result<T, TryRecvError> {
-            interrupt::free(|_| self.try_recv_impl())
+            critical_section::with(|_| self.try_recv_impl())
         }
 
         pub fn recv(&mut self) -> T {
-            interrupt::free(|_| {
+            critical_section::with(|_| {
                 if let Ok(res) = self.try_recv_impl() {
                     res
                 } else {
@@ -417,11 +416,11 @@ pub mod sync {
         }
 
         pub fn try_send(&mut self, msg: T) -> Result<(), TrySendError> {
-            interrupt::free(|_| self.try_send_impl(msg))
+            critical_section::with(|_| self.try_send_impl(msg))
         }
 
         pub fn send(&mut self, msg: T) {
-            interrupt::free(|_| {
+            critical_section::with(|_| {
                 if self.try_send_impl(msg).is_err() {
                     match self.state {
                         SyncChannelState::Idle => (),

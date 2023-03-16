@@ -1,13 +1,16 @@
 //! Event Group module
 //!
 //! TODO: currently fixed to u32, make generic.
+//!
+use core::cell::UnsafeCell;
+use critical_section::CriticalSection;
+
 use crate::lock::Lock;
 use clist::Link;
-use core::cell::UnsafeCell;
 
 pub(crate) type SubscriberList = clist::TypedList<Subscriber, 0>;
 
-pub struct EventGroup(cortex_m::interrupt::Mutex<UnsafeCell<EventGroupInner>>);
+pub struct EventGroup(critical_section::Mutex<UnsafeCell<EventGroupInner>>);
 
 pub struct EventGroupInner {
     waiters: SubscriberList,
@@ -34,35 +37,35 @@ pub struct Subscriber {
 impl EventGroup {
     pub const fn new() -> EventGroup {
         EventGroup {
-            0: cortex_m::interrupt::Mutex::new(UnsafeCell::new(EventGroupInner {
+            0: critical_section::Mutex::new(UnsafeCell::new(EventGroupInner {
                 waiters: SubscriberList::new(),
             })),
         }
     }
 
-    fn get_inner_mut(&self, cs: &cortex_m::interrupt::CriticalSection) -> &mut EventGroupInner {
+    fn get_inner_mut(&self, cs: &CriticalSection) -> &mut EventGroupInner {
         unsafe { &mut *self.0.borrow(*cs).get() }
     }
 
     pub fn subscribe(&self, subscriber: &mut Subscriber) {
-        cortex_m::interrupt::free(|cs| {
-            let inner = &mut self.get_inner_mut(cs);
+        critical_section::with(|cs| {
+            let inner = &mut self.get_inner_mut(&cs);
             let waiters = &mut inner.waiters;
             waiters.rpush(subscriber);
         });
     }
 
     pub fn unsubscribe(&self, subscriber: &mut Subscriber) {
-        cortex_m::interrupt::free(|cs| {
-            let inner = &mut self.get_inner_mut(cs);
+        critical_section::with(|cs| {
+            let inner = &mut self.get_inner_mut(&cs);
             let waiters = &mut inner.waiters;
             waiters.remove(subscriber);
         });
     }
 
     pub fn set(&self, mask: u32) {
-        cortex_m::interrupt::free(|cs| {
-            let inner = &mut self.get_inner_mut(cs);
+        critical_section::with(|cs| {
+            let inner = &mut self.get_inner_mut(&cs);
             let waiters = &mut inner.waiters;
             for waiter in waiters.iter_mut() {
                 waiter.state |= mask;
@@ -96,7 +99,7 @@ impl Subscriber {
 
     pub fn wait(&mut self, events: SubscribeMode) -> u32 {
         loop {
-            if let Some(bits) = cortex_m::interrupt::free(|_| match events {
+            if let Some(bits) = critical_section::with(|_| match events {
                 SubscribeMode::Any(bits) => {
                     if self.state & bits != 0 {
                         let result = self.state & bits;
@@ -121,13 +124,13 @@ impl Subscriber {
             }) {
                 return bits;
             }
-            cortex_m::interrupt::free(|_| self.mode = events.clone());
+            critical_section::with(|_| self.mode = events.clone());
             self.lock.acquire();
         }
     }
 
     pub fn clear(&mut self, mask: u32) -> u32 {
-        cortex_m::interrupt::free(|_| {
+        critical_section::with(|_| {
             let cleared = self.state & mask;
             self.state &= !mask;
             cleared

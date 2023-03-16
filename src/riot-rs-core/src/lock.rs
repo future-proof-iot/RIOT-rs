@@ -11,10 +11,10 @@
 
 use crate::thread::{Thread, ThreadList, ThreadState};
 use core::cell::UnsafeCell;
-use cortex_m::interrupt::{self, CriticalSection};
+use critical_section::CriticalSection;
 
 pub struct Lock {
-    state: interrupt::Mutex<UnsafeCell<LockState>>,
+    state: critical_section::Mutex<UnsafeCell<LockState>>,
 }
 
 enum LockState {
@@ -26,14 +26,16 @@ impl Lock {
     /// Create a new, unlocked Lock.
     pub const fn new() -> Lock {
         Lock {
-            state: interrupt::Mutex::new(UnsafeCell::new(LockState::Unlocked)),
+            state: critical_section::Mutex::new(UnsafeCell::new(LockState::Unlocked)),
         }
     }
 
     /// Create a new, locked Lock.
     pub const fn new_locked() -> Lock {
         Lock {
-            state: interrupt::Mutex::new(UnsafeCell::new(LockState::Locked(ThreadList::new()))),
+            state: critical_section::Mutex::new(UnsafeCell::new(LockState::Locked(
+                ThreadList::new(),
+            ))),
         }
     }
 
@@ -43,7 +45,7 @@ impl Lock {
     ///
     /// Note: This method is safe to be called from ISR context.
     pub fn is_locked(&self) -> bool {
-        interrupt::free(|cs| match self.get_state_mut(cs) {
+        critical_section::with(|cs| match self.get_state_mut(&cs) {
             LockState::Unlocked => true,
             _ => false,
         })
@@ -58,8 +60,8 @@ impl Lock {
     ///
     /// Note: _Not allowed to be called from ISR context!_
     pub fn acquire(&self) {
-        interrupt::free(|cs| {
-            let state = &mut self.get_state_mut(cs);
+        critical_section::with(|cs| {
+            let state = &mut self.get_state_mut(&cs);
             if let LockState::Locked(list) = state {
                 Thread::current().wait_on(list, ThreadState::Paused);
             // other thread has popped us off the list and reset our thread state
@@ -76,8 +78,8 @@ impl Lock {
     ///
     /// Note: This method is safe to be called from ISR context.
     pub fn try_acquire(&self) -> bool {
-        return interrupt::free(|cs| {
-            let state = &mut self.get_state_mut(cs);
+        return critical_section::with(|cs| {
+            let state = &mut self.get_state_mut(&cs);
             if let LockState::Unlocked = state {
                 **state = LockState::Locked(ThreadList::new());
                 true
@@ -123,8 +125,8 @@ impl Lock {
     ///
     /// Note: This method is safe to be called from ISR context.
     pub fn release(&self) {
-        interrupt::free(|cs| {
-            let state = &mut self.get_state_mut(cs);
+        critical_section::with(|cs| {
+            let state = &mut self.get_state_mut(&cs);
             if let LockState::Locked(list) = state {
                 if let Some(waiting_thread) = list.lpop() {
                     // Lock was locked, there's a waiting thread.
@@ -142,7 +144,7 @@ impl Lock {
         });
     }
 
-    fn get_state_mut(&self, cs: &interrupt::CriticalSection) -> &mut LockState {
+    fn get_state_mut(&self, cs: &CriticalSection) -> &mut LockState {
         unsafe { &mut *self.state.borrow(*cs).get() }
     }
 }

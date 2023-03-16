@@ -3,10 +3,8 @@ use core::arch::asm;
 use core::cell::UnsafeCell;
 use core::ptr::write_volatile;
 
-use cortex_m::{
-    interrupt::{self, CriticalSection},
-    peripheral::SCB,
-};
+use cortex_m::peripheral::SCB;
+use critical_section::CriticalSection;
 
 use bitflags::bitflags;
 use cstr_core::c_char;
@@ -347,7 +345,9 @@ impl Thread {
                 thread.state = ThreadState::Paused;
             } else {
                 thread.state = ThreadState::Running;
-                interrupt::free(|cs| RUNQUEUE.unchecked_mut(cs).add(unused_pid, thread.prio));
+                critical_section::with(|cs| {
+                    RUNQUEUE.unchecked_mut(&cs).add(unused_pid, thread.prio)
+                });
                 if !flags.contains(CreateFlags::WITHOUT_YIELD) {
                     Thread::yield_higher();
                 }
@@ -392,13 +392,13 @@ impl Thread {
     /// This function handles adding/removing the thread to the Runqueue depending
     /// on its previous or new state.
     pub fn set_state(&mut self, state: ThreadState) {
-        interrupt::free(|cs| {
+        critical_section::with(|cs| {
             let old_state = self.state;
             self.state = state;
             if old_state != ThreadState::Running && state == ThreadState::Running {
-                unsafe { RUNQUEUE.unchecked_mut(cs).add(self.pid, self.prio) };
+                unsafe { RUNQUEUE.unchecked_mut(&cs).add(self.pid, self.prio) };
             } else if old_state == ThreadState::Running && state != ThreadState::Running {
-                unsafe { RUNQUEUE.unchecked_mut(cs).del(self.pid, self.prio) };
+                unsafe { RUNQUEUE.unchecked_mut(&cs).del(self.pid, self.prio) };
             }
         });
     }
@@ -417,7 +417,7 @@ impl Thread {
     pub fn yield_next() {
         let current = Thread::current();
         unsafe {
-            interrupt::free(|cs| RUNQUEUE.unchecked_mut(cs).advance(current.prio));
+            critical_section::with(|cs| RUNQUEUE.unchecked_mut(&cs).advance(current.prio));
             SCB::set_pendsv();
             cortex_m::asm::isb();
         }
@@ -522,8 +522,9 @@ impl Thread {
     ///
     /// Note: this _must only be called once during startup_.
     pub unsafe fn start_threading() -> ! {
-        let next_pid =
-            interrupt::free(|cs| RUNQUEUE.unchecked_mut(cs).get_next().unwrap_unchecked() as Pid);
+        let next_pid = critical_section::with(|cs| {
+            RUNQUEUE.unchecked_mut(&cs).get_next().unwrap_unchecked() as Pid
+        });
         Thread::get(next_pid).jump_to();
         loop {}
     }
@@ -532,7 +533,7 @@ impl Thread {
 impl Thread {
     // thread flags implementation
     pub fn flag_set(&mut self, mask: ThreadFlags) {
-        interrupt::free(|_| {
+        critical_section::with(|_| {
             self.flags |= mask;
             if match self.state {
                 ThreadState::FlagBlocked(mode) => match mode {
@@ -550,7 +551,7 @@ impl Thread {
     pub fn flag_wait_all(mask: ThreadFlags) -> ThreadFlags {
         let thread = Thread::current();
         loop {
-            if let Some(result) = cortex_m::interrupt::free(|_| {
+            if let Some(result) = critical_section::with(|_| {
                 if thread.flags & mask != 0 {
                     let result = thread.flags & mask;
                     thread.flags &= !mask;
@@ -570,7 +571,7 @@ impl Thread {
     pub fn flag_wait_any(mask: ThreadFlags) -> ThreadFlags {
         let thread = Thread::current();
         loop {
-            if let Some(result) = cortex_m::interrupt::free(|_| {
+            if let Some(result) = critical_section::with(|_| {
                 if thread.flags & mask != 0 {
                     let res = thread.flags & mask;
                     thread.flags &= !res;
@@ -590,7 +591,7 @@ impl Thread {
     pub fn flag_wait_one(mask: ThreadFlags) -> ThreadFlags {
         let thread = Thread::current();
         loop {
-            if let Some(result) = cortex_m::interrupt::free(|_| {
+            if let Some(result) = critical_section::with(|_| {
                 if thread.flags & mask != 0 {
                     let mut res = thread.flags & mask;
                     // clear all but least significant bit
@@ -611,7 +612,7 @@ impl Thread {
 
     pub fn flag_clear(mask: ThreadFlags) -> ThreadFlags {
         let thread = Thread::current();
-        cortex_m::interrupt::free(|_| {
+        critical_section::with(|_| {
             let res = thread.flags & mask;
             thread.flags &= !mask;
             res
@@ -701,7 +702,7 @@ impl Thread {
             thread.prio = prio;
 
             thread.state = ThreadState::Running;
-            interrupt::free(|cs| RUNQUEUE.unchecked_mut(cs).add(unused_pid, thread.prio));
+            critical_section::with(|cs| RUNQUEUE.unchecked_mut(&cs).add(unused_pid, thread.prio));
 
             THREADS_IN_USE.fetch_add(1, Ordering::SeqCst);
 
@@ -896,7 +897,7 @@ pub mod c {
 
     #[no_mangle]
     pub extern "C" fn mutex_unlock_and_sleep(mutex: &mut Lock) {
-        cortex_m::interrupt::free(|_| {
+        critical_section::with(|_| {
             mutex.release();
             Thread::sleep();
         });
@@ -927,7 +928,7 @@ pub mod c {
 
     #[no_mangle]
     pub extern "C" fn mutex_lock_cancelable(mutex_cancel: &mutex_cancel_t) -> i32 {
-        let early_cancel = cortex_m::interrupt::free(|_| {
+        let early_cancel = critical_section::with(|_| {
             if AtomicBool::load(&mutex_cancel.cancelled, Ordering::SeqCst) {
                 return 2;
             } else if mutex_cancel.lock.try_acquire() {
@@ -942,10 +943,10 @@ pub mod c {
             2 => -140,
             1 => 0,
             _ => {
-                cortex_m::interrupt::free(|cs| {
+                critical_section::with(|cs| {
                     // if we end up here, the mutex was neither cancelled early,
                     // nor did try_acquire() get it.
-                    if mutex_cancel.lock.fix_cancelled_acquire(cs) {
+                    if mutex_cancel.lock.fix_cancelled_acquire(&cs) {
                         // we were removed from the waiting list.
                         // that means the acquire was cancelled.
                         // return -ECANCELED (-140 in newlib)
@@ -1076,7 +1077,7 @@ pub mod c {
 
     #[no_mangle]
     pub unsafe extern "C" fn msg_reply(msg: &mut msg_t, reply: &mut msg_t) -> i32 {
-        cortex_m::interrupt::free(|_| {
+        critical_section::with(|_| {
             let target = Thread::get_mut(msg.sender_pid);
             if let ThreadState::ChannelReplyBlocked(ptr) = target.state {
                 core::ptr::write_volatile(ptr as *mut msg_t, *reply);
@@ -1154,7 +1155,7 @@ pub mod c {
 
     #[no_mangle]
     pub unsafe extern "C" fn thread_zombify() {
-        cortex_m::interrupt::free(|_| {
+        critical_section::with(|_| {
             let current = Thread::current();
             current.zombify();
         });
@@ -1162,7 +1163,7 @@ pub mod c {
 
     #[no_mangle]
     pub unsafe extern "C" fn thread_kill_zombie(pid: Pid) -> i32 {
-        cortex_m::interrupt::free(|_| {
+        critical_section::with(|_| {
             if Thread::pid_is_valid(pid) {
                 return -1; /* STATUS_NOT_FOUND */
             }
