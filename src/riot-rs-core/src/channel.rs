@@ -487,7 +487,7 @@ pub mod c {
     #[repr(transparent)]
     pub struct mbox_t(BufferedChannel<'static, msg_t>);
 
-    pub const MBOX_T_SIZEOF: usize = 24;
+    pub const MBOX_T_SIZEOF: usize = 20;
     pub const MBOX_T_ALIGNOF: usize = 4;
 
     #[test_case]
