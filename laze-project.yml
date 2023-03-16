@@ -209,6 +209,7 @@ contexts:
         - ${SCRIPTS}/debug-openocd.sh
       OPENOCD_ARGS:
         - "-f board/nordic_nrf52_dk.cfg"
+      PROBE_RS_CHIP: nrf52832_xxAA
 
   - name: nrf52832
     parent: nrf52
