@@ -2,6 +2,7 @@ apps:
   - name: rust-gcoap
     selects:
       - ?release
+      - suit_broken_in_RIOT_wrappers
     env:
       global:
         USEMODULE:

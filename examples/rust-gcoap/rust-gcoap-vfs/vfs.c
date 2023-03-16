@@ -13,6 +13,7 @@
 
 #include <vfs.h>
 #include "fs/constfs.h"
+#include "container.h"
 #include <stdio.h>
 
 #define HELLO_WORLD_CONTENT "Hello World!\n"
