@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-    - master
+    - main
   pull_request:
     branches:
-    - master
+    - main
 
 jobs:
   test:
@@ -41,28 +41,16 @@ jobs:
 
     - name: "installing prerequisites"
       run: |
-        #sudo apt-get install -y ninja-build
+        apt-get install -y ninja-build
         git config --global init.defaultBranch main
         git config --global user.email "ci@riot-labs.de"
         git config --global user.name "CI"
-        cargo binstall laze
-        cargo binstall c2rust
+        cargo binstall -y --no-symlinks laze
+        cargo binstall -y --no-symlinks c2rust
+        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-    - name: "clone RIOT"
-      run: laze b clone-riot
+    - name: "riot-rs-rt unittests"
+      run: laze -C src/riot-rs-rt task -b lm3s6965evb cargo-test
 
-  # image: kaspar030/riot.rs-build:latest
-  # commands:
-  # - whoami
-  # - set
-  # - cargo install laze
-  # - laze task install-toolchain
-  # - laze task install-c2rust
-  # - laze task clone-riot
-  # - laze -C src/riot-rs-rt task -b lm3s6965evb cargo-test
-  # - laze -C src/riot-rs-core task -b lm3s6965evb cargo-test
-# ---
-# kind: signature
-# hmac: 4038fde6b745c83a8d0574657d356154217b86af40e41283b403ae41ac6196e2
-
-# ...
+    - name: "riot-rs-core unittests"
+      run: laze -C src/riot-rs-core task -b lm3s6965evb cargo-test
