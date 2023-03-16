@@ -15,6 +15,7 @@ members = [
 exclude = ["src/lib"]
 
 default-members = ["examples/hello-world"]
+resolver = "2"
 
 [profile.dev]
 incremental = false
@@ -36,14 +37,15 @@ cortex-m = { git = "https://github.com/kaspar030/cortex-m", branch = "riot-rs" }
 cortex-m-rt = { git = "https://github.com/kaspar030/cortex-m", branch = "riot-rs" }
 cortex-m-semihosting = { git = "https://github.com/kaspar030/cortex-m", branch = "riot-rs" }
 # these have some patches to support riot.rs
-riot-sys = { git = "https://gitlab.com/kaspar030/riot-sys", branch = "update_riot_rs_support" }
-riot-wrappers = { git = "https://gitlab.com/kaspar030/riot-wrappers", branch = "add_riotrs_support" }
+riot-sys = { git = "https://github.com/kaspar030/rust-riot-sys", branch = "update_riot_rs_support" }
+riot-wrappers = { git = "https://github.com/kaspar030/rust-riot-wrappers", branch = "add_riotrs_support" }
 # these are listed so deps doesn't pull from crates.io
 riot-build = { path = "src/riot-build" }
 riot-rs-core = { path = "src/riot-rs-core" }
 # runqueue is split out. the repo also provides a version implemented in hackspec.
 riot-rs-runqueue = { git = "https://github.com/future-proof-iot/riot-rs-runqueue", branch = "main" }
 
+# these are patched to work with critical-section, and support ldmemory (boot loader offsets)
 nrf52840-hal = { git = "https://github.com/kaspar030/nrf-hal", branch = "nrf52840_use_ldmemory" }
 nrf52840-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
 nrf52832-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
