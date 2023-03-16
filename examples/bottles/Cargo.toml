@@ -11,6 +11,6 @@ publish = false
 riot-rs = { path = "../../src/riot-rs" }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 
-riot-sys = { version = "0.7.4", features = ["riot-rs" ] }
-riot-wrappers = { version = "0.7.17", default-features = false, features = ["with_riot_rs"] }
+riot-sys = { version = "0.7.9", features = ["riot-rs" ] }
+riot-wrappers = { version = "0.8.1", default-features = false, features = ["with_riot_rs"] }
 embedded-hal = { version = "0.2.7", features = ["unproven"] }
