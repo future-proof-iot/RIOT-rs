@@ -5,7 +5,7 @@ authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2021"
 
 [dependencies]
-cortex-m = { version = "0.7" }
+cortex-m = { version = "0.7", features = ["critical-section-single-core"] }
 cortex-m-rt = "0.7"
 cortex-m-semihosting = "0.5.0"
 
