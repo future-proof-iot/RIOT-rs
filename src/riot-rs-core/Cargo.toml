@@ -20,12 +20,12 @@ ringbuffer = { path = "../lib/ringbuffer" }
 
 riot-rs-runqueue = "0.1.*"
 
-atomic-polyfill = "0.1.6"
+atomic-polyfill = "0.1.11"
 
 # select one one of these to get a suitable println for debugging
 riot-rs-rt = { optional = true, path = "../riot-rs-rt" }
 cortex-m-semihosting = { optional = true, version = "0.5.0" }
-cstr_core = { version = "0.2.5", default-features = false }
+cstr_core = { version = "0.2.6", default-features = false }
 
 [features]
 no-semihosting = [ "cortex-m-semihosting/no-semihosting" ]
