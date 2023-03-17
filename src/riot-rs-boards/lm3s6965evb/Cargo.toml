@@ -7,4 +7,4 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-riot-rs-rt = { path = "../../riot-rs-rt" }
+riot-rs-rt = { path = "../../riot-rs-rt", features = [ "cortex-m-semihosting" ] }
