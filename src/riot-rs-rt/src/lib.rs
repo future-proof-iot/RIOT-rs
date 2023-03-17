@@ -18,11 +18,8 @@ use cortex_m_rt::{entry, exception, ExceptionFrame, __RESET_VECTOR};
 
 use core::panic::PanicInfo;
 
-pub mod debug {
-    pub use cortex_m_semihosting::debug::{exit, EXIT_FAILURE, EXIT_SUCCESS};
-    pub use cortex_m_semihosting::hprint as print;
-    pub use cortex_m_semihosting::hprintln as println;
-}
+pub mod debug;
+pub use debug::*;
 
 // Table 2.5
 // http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0553a/CHDBIBGJ.html
@@ -211,6 +208,7 @@ unsafe fn DefaultHandler(_irqn: i16) {
     loop {}
 }
 
+#[cfg(not(test))]
 extern "C" {
     fn riot_rs_rt_startup();
 }
@@ -229,6 +227,9 @@ fn main() -> ! {
             .vtor
             .write(&__RESET_VECTOR as *const _ as u32 - 4)
     };
+
+    #[cfg(all(feature = "debug-console", feature = "rtt-target"))]
+    rtt_target::rtt_init_print!();
 
     debug::println!("riot_rs_rt::main()");
 
