@@ -74,12 +74,17 @@ contexts:
     tasks:
       cargo:
         cmd:
-          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo
+          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS}
         build: false
+
+      run:
+        build: false
+        cmd:
+          - cd ${appdir} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
 
       cargo-test:
         cmd:
-          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo test --${PROFILE} --features=riot-rs-boards/${builder} --manifest-path ${app}/Cargo.toml
+          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo test --${PROFILE} --features=riot-rs-boards/${builder},riot-rs-rt/debug-console --manifest-path ${app}/Cargo.toml
         build: false
 
       debug:
@@ -217,7 +222,7 @@ contexts:
   - name: nrf52840
     parent: nrf52
     env:
-      PROBE_RS_CHIP: nrf52840
+      PROBE_RS_CHIP: nrf52840_xxAA
 
     tasks:
       flash-rs:
@@ -339,7 +344,7 @@ modules:
     env:
       global:
         RUSTFLAGS:
-          - "-Clinker-plugin-lto -Clinker=clang -Clink-arg=-fuse-ld=lld -Clink-arg=--target=${RUSTC_TARGET} -Clink-arg=-v"
+          - "-Clinker-plugin-lto -Clinker=clang -Clink-arg=-fuse-ld=lld -Clink-arg=--target=${RUSTC_TARGET} -Clink-arg=-v -Clink-arg=-Wl,--no-eh-frame-hdr"
 
   - name: riotboot
     context: nrf52840
@@ -373,6 +378,14 @@ modules:
 
   - name: testable
     context: lm3s6965evb
+
+  - name: probe-run
+    context: nrf52
+    selects:
+      - ?debug-console
+    env:
+      global:
+        CARGO_RUNNER: "'probe-run --chip ${PROBE_RS_CHIP}'"
 
 builders:
   # host builder (for housekeeping tasks)
