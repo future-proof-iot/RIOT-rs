@@ -12,6 +12,6 @@ riot-rs-boards = { path = "../riot-rs-boards" }
 
 [features]
 newlib = [ "riot-build/newlib" ]
-no-semihosting = [ "riot-rs-core/no-semihosting" ]
+debug-console = [ "riot-rs-rt/debug-console" ]
 silent-panic = [ "riot-rs-rt/silent-panic" ]
 thread_info = [ "riot-rs-core/thread_info" ]
