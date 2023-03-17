@@ -28,7 +28,6 @@ cortex-m-semihosting = { optional = true, version = "0.5.0" }
 cstr_core = { version = "0.2.6", default-features = false }
 
 [features]
-no-semihosting = [ "cortex-m-semihosting/no-semihosting" ]
 thread_info = []
 
 [build-dependencies]

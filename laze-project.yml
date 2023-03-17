@@ -248,15 +248,13 @@ modules:
 
   - name: release-arch
     context: cortex-m
-    selects:
-      - ?no-semihosting
 
-  - name: no-semihosting
-    context: cortex-m
+  - name: debug-console
+    context: riot-rs
     env:
       global:
         FEATURES:
-          - riot-rs/no-semihosting
+          - riot-rs/debug-console
 
   - name: silent-panic
     context: riot-rs
