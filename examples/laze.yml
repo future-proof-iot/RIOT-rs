@@ -1,5 +1,6 @@
 subdirs:
   - bottles
+  - core-sizes
   - hello-world
   - minimal
   - riot-app

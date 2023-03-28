@@ -1,0 +1,4 @@
+apps:
+  - name: core-sizes
+    selects:
+      - debug-console
