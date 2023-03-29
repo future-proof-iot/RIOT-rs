@@ -7,25 +7,9 @@ edition = "2021"
 links = "riot-rs-core"
 
 [dependencies]
-cortex-m = { version = "0.7" }
-cortex-m-rt = "0.7"
-critical-section = "1.1"
-
-bitflags = "1.2.*"
-cfg-if = "1.0.0"
+embedded-threads = { path = "/home/kaspar/src/own/rust/embedded-threads" }
+critical-section = "1.0.0"
 ref-cast = "1.0"
-
-clist = { path = "../lib/clist" }
-ringbuffer = { path = "../lib/ringbuffer" }
-
-riot-rs-runqueue = "0.1.*"
-
-atomic-polyfill = "0.1.11"
-
-# select one one of these to get a suitable println for debugging
-riot-rs-rt = { optional = true, path = "../riot-rs-rt" }
-cortex-m-semihosting = { optional = true, version = "0.5.0" }
-cstr_core = { version = "0.2.6", default-features = false }
 
 [features]
 thread_info = []

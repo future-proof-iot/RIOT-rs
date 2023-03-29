@@ -64,8 +64,7 @@ fn main() {
     // to make sure this script is re-run on binding changes,
     // list cbindgen.toml and all .rs that contain c bindings
     println!("cargo:rerun-if-changed=cbindgen.toml");
-    println!("cargo:rerun-if-changed=src/thread.rs");
-    println!("cargo:rerun-if-changed=src/lock.rs");
-    println!("cargo:rerun-if-changed=src/channel.rs");
+    println!("cargo:rerun-if-changed=src/c.rs");
+    println!("cargo:rerun-if-changed=src/lib.rs");
     println!("cargo:rerun-if-changed=build.rs");
 }
