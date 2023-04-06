@@ -7,8 +7,16 @@ pub use ref_cast::RefCast;
 
 use embedded_threads::current_pid;
 
+// So some thread functions in the RIOT API take a pid, others a thread_t pointer.
+// In Rust, we don't like raw pointers. So we encode the pid in a usize disguised as void ptr.
 #[allow(non_camel_case_types)]
 pub type thread_t = c_void;
+
+// this helper converts from &thread_t to ThreadId.
+// Cannot use `From` as we cannot impl it for primitive types.
+pub(crate) fn thread_t2id(ptr: &thread_t) -> ThreadId {
+    ptr as *const thread_t as usize as ThreadId
+}
 
 pub use crate::Lock;
 
