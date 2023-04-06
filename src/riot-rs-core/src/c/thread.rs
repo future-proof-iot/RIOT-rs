@@ -58,7 +58,11 @@ pub unsafe extern "C" fn _thread_create(
 
     let stack = core::slice::from_raw_parts_mut(stack_ptr, stack_size);
 
-    embedded_threads::thread_create_raw(thread_func, arg, stack, priority)
+    let thread_id = embedded_threads::thread_create_raw(thread_func, arg, stack, priority);
+    if flags & THREAD_CREATE_WOUT_YIELD == 0 {
+        embedded_threads::schedule();
+    }
+    thread_id
 }
 
 #[no_mangle]
