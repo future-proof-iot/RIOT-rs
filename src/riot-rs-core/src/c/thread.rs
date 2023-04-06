@@ -87,8 +87,7 @@ pub unsafe extern "C" fn thread_wakeup(pid: ThreadId) {
 
 #[no_mangle]
 pub extern "C" fn thread_yield_higher() {
-    unimplemented!();
-    // Thread::yield_higher();
+    embedded_threads::schedule();
 }
 
 #[no_mangle]
