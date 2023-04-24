@@ -109,9 +109,7 @@ pub extern "C" fn thread_yield() {
 
 #[no_mangle]
 pub extern "C" fn thread_getpid() -> ThreadId {
-    unimplemented!();
-    // Thread::current_pid()
-    0
+    current_pid().unwrap_or(0xff)
 }
 
 #[no_mangle]
