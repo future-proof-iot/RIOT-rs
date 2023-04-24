@@ -122,6 +122,11 @@ pub unsafe extern "C" fn thread_kill_zombie(pid: ThreadId) -> i32 {
     unimplemented!();
 }
 
+#[no_mangle]
+pub unsafe extern "C" fn pid_is_valid(pid: ThreadId) -> bool {
+    u32::from(pid) < THREADS_NUMOF
+}
+
 #[derive(Debug)]
 #[repr(C)]
 pub enum thread_status_t {
