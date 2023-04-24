@@ -153,6 +153,8 @@ impl core::convert::From<ThreadState> for thread_status_t {
             ThreadState::LockBlocked => thread_status_t::MutexBlocked,
             ThreadState::FlagBlocked(WaitMode::Any(_)) => thread_status_t::FlagBlockedAny,
             ThreadState::FlagBlocked(WaitMode::All(_)) => thread_status_t::FlagBlockedAll,
+            ThreadState::ChannelRxBlocked(_) => thread_status_t::ChannelRxBlocked,
+            ThreadState::ChannelTxBlocked(_) => thread_status_t::ChannelTxBlocked,
         }
     }
 }

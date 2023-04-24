@@ -1,4 +1,7 @@
+use embedded_threads::channel::Channel;
+
 pub use super::thread::thread_t;
+pub use super::thread::THREADS_NUMOF;
 pub use crate::ThreadId;
 
 // we need to put both a ptr and a value in here.
@@ -28,6 +31,11 @@ pub struct msg_t {
     pub content: msg_content_t,
 }
 
+const EMPTY_CHANNEL: Channel<msg_t> = Channel::new();
+
+static mut THREAD_CHANNELS: [Channel<msg_t>; THREADS_NUMOF as usize] =
+    [EMPTY_CHANNEL; THREADS_NUMOF as usize];
+
 impl core::default::Default for msg_t {
     fn default() -> Self {
         msg_t {
@@ -40,18 +48,23 @@ impl core::default::Default for msg_t {
 
 #[no_mangle]
 pub unsafe extern "C" fn msg_send(msg: &mut msg_t, target_pid: ThreadId) -> i32 {
-    unimplemented!();
-    0
+    THREAD_CHANNELS[target_pid as usize].send(msg);
+    1
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn msg_receive(msg: &mut msg_t) {
-    unimplemented!();
+    *msg = THREAD_CHANNELS[super::thread::thread_getpid() as usize].recv();
 }
 
 #[no_mangle]
 pub unsafe extern "C" fn msg_try_receive(msg: &mut msg_t) -> bool {
-    unimplemented!();
+    if let Some(msg_) = THREAD_CHANNELS[super::thread::thread_getpid() as usize].try_recv() {
+        *msg = msg_;
+        true
+    } else {
+        false
+    }
 }
 
 #[no_mangle]
@@ -70,7 +83,7 @@ pub unsafe extern "C" fn msg_reply(msg: &mut msg_t, reply: &mut msg_t) -> i32 {
 
 #[no_mangle]
 pub unsafe extern "C" fn msg_try_send(msg: &mut msg_t, target_pid: ThreadId) -> bool {
-    unimplemented!();
+    THREAD_CHANNELS[target_pid as usize].try_send(msg)
 }
 
 #[no_mangle]
