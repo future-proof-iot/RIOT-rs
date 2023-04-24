@@ -134,6 +134,16 @@ mod tests {
         assert_eq!(rb.get(), None);
     }
 
+    #[test]
+    fn size_0() {
+        let mut rb = super::RingBufferIndex::new(0);
+        assert!(rb.is_full());
+        assert!(rb.is_empty());
+        assert_eq!(rb.available(), 0);
+        assert_eq!(rb.get(), None);
+        assert_eq!(rb.put(), None);
+    }
+
     #[cfg(test)]
     fn test_with_size(size: u8, n: usize) {
         let mut rb = super::RingBufferIndex::new(size);
