@@ -6,6 +6,7 @@ mod backend {
     pub use cortex_m_semihosting::debug::{exit, EXIT_FAILURE, EXIT_SUCCESS};
     pub use cortex_m_semihosting::hprint as print;
     pub use cortex_m_semihosting::hprintln as println;
+    pub fn init() {}
 }
 
 #[cfg(all(feature = "debug-console", feature = "rtt-target"))]
@@ -19,6 +20,9 @@ mod backend {
     }
     pub use rtt_target::rprint as print;
     pub use rtt_target::rprintln as println;
+    pub fn init() {
+        rtt_target::rtt_init_print!();
+    }
 }
 
 #[cfg(not(feature = "debug-console"))]
@@ -28,6 +32,7 @@ mod backend {
     pub fn exit(_code: u32) {
         loop {}
     }
+    pub fn init() {}
 
     #[macro_export]
     macro_rules! nop_println {
