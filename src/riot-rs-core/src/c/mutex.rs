@@ -20,6 +20,7 @@ unsafe fn ensure_initialized(mutex: &mut mutex_t) {
 }
 
 /// cbindgen:ignore
+#[allow(non_camel_case_types)]
 pub union mutex_t {
     bytes: [u8; core::mem::size_of::<Lock>()],
     lock: core::mem::ManuallyDrop<Lock>,
