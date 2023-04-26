@@ -1,8 +1,9 @@
 [package]
-name = "lm3s6965evb"
+name = "riot-rs-timers"
 version = "0.1.0"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2021"
+license = "Apache-2.0"
 
 [dependencies]
-riot-rs-rt = { workspace = true, features = [ "cortex-m-semihosting" ] }
+riot-rs = { path = "../riot-rs" }

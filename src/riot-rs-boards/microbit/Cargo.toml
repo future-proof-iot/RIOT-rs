@@ -4,13 +4,11 @@ version = "0.1.0"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2021"
 
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
-
 [dependencies]
-cortex-m-rt = "0.7"
-cortex-m = "0.7"
+cortex-m-rt.workspace = true
+cortex-m.workspace = true
 
-riot-rs-rt = { path = "../../riot-rs-rt" }
+riot-rs-rt.workspace = true
 
-nrf51-hal = { version = "0.14.*", features = ["rt"] }
+nrf51-hal = { workspace = true, features = ["rt"] }
 nrf51 = { path = "../nrf51" }

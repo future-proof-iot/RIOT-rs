@@ -1,13 +1,11 @@
 [package]
 name = "riot-rs-boards"
-version = "0.1.0"
-authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
-edition = "2021"
-
-# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
 
 [dependencies]
-cfg-if = "1.0.0"
+cfg-if.workspace = true
 
 lm3s6965evb = { optional=true, path="lm3s6965evb" }
 nrf52dk = { optional=true, path="nrf52dk" }

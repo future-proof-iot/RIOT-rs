@@ -17,6 +17,23 @@ exclude = ["src/lib"]
 default-members = ["examples/hello-world"]
 resolver = "2"
 
+[workspace.package]
+version = "0.1.0"
+authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
+edition = "2021"
+
+[workspace.dependencies]
+cfg-if = { version = "1.0.0" }
+cortex-m = { version = "0.7", default-features = false }
+cortex-m-rt = { version = "0.7" }
+
+nrf52832-hal = { version = "0.16.*" }
+nrf52840-hal = { version = "0.16.*" }
+nrf51-hal = { version = "0.14.*" }
+
+riot-rs = { path = "src/riot-rs" }
+riot-rs-rt = { path = "src/riot-rs-rt" }
+
 [profile.dev]
 incremental = false
 codegen-units = 1

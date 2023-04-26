@@ -6,7 +6,7 @@ edition = "2021"
 links = "riot-build"
 
 [dependencies]
-cfg-if = "1.0.0"
+cfg-if.workspace = true
 
 riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-core = { optional = true, path = "../riot-rs-core" }

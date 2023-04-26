@@ -1,16 +1,16 @@
 [package]
 name = "nrf52840dk"
-version = "0.1.0"
-authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
-edition = "2021"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-cortex-m-rt = "0.7"
-cortex-m = "0.7"
+cortex-m-rt.workspace = true
+cortex-m.workspace = true
 
-riot-rs-rt = { path = "../../riot-rs-rt" }
+riot-rs-rt.workspace = true
 
-nrf52840-hal = "0.16.*"
+nrf52840-hal.workspace = true
 nrf52 = { path = "../nrf52" }
