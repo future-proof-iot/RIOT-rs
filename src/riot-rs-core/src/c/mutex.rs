@@ -70,16 +70,16 @@ pub struct mutex_cancel_t {
 }
 
 #[no_mangle]
-pub extern "C" fn mutex_cancel_init(mutex: &'static mutex_t) -> mutex_cancel_t {
+pub extern "C" fn mutex_cancel_init(_mutex: &'static mutex_t) -> mutex_cancel_t {
     unimplemented!();
 }
 
 #[no_mangle]
-pub extern "C" fn mutex_cancel(mutex_cancel: &mutex_cancel_t) {
+pub extern "C" fn mutex_cancel(_mutex_cancel: &mutex_cancel_t) {
     unimplemented!();
 }
 
 #[no_mangle]
-pub extern "C" fn mutex_lock_cancelable(mutex_cancel: &mutex_cancel_t) -> i32 {
+pub extern "C" fn mutex_lock_cancelable(_mutex_cancel: &mutex_cancel_t) -> i32 {
     unimplemented!();
 }

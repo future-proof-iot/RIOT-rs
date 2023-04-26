@@ -1,6 +1,6 @@
 use core::ffi::{c_char, c_void};
 use core::unimplemented;
-use critical_section::{self};
+
 
 pub use embedded_threads::{RunqueueId, Thread, ThreadFlags, ThreadId, ThreadState, WaitMode};
 pub use ref_cast::RefCast;
@@ -92,7 +92,7 @@ pub unsafe extern "C" fn thread_get(thread_id: ThreadId) -> *mut thread_t {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn thread_wakeup(pid: ThreadId) {
+pub unsafe extern "C" fn thread_wakeup(_pid: ThreadId) {
     unimplemented!();
     // Thread::wakeup(pid)
 }
@@ -118,7 +118,7 @@ pub unsafe extern "C" fn thread_zombify() {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn thread_kill_zombie(pid: ThreadId) -> i32 {
+pub unsafe extern "C" fn thread_kill_zombie(_pid: ThreadId) -> i32 {
     unimplemented!();
 }
 
@@ -203,19 +203,19 @@ pub unsafe extern "C" fn thread_get_sp(thread: &Thread) -> *const c_void {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn thread_get_stackstart(thread: &Thread) -> *mut c_void {
+pub unsafe extern "C" fn thread_get_stackstart(_thread: &Thread) -> *mut c_void {
     //thread.stack_bottom() as *mut c_void
     core::ptr::null_mut()
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn thread_get_stacksize(thread: &Thread) -> usize {
+pub unsafe extern "C" fn thread_get_stacksize(_thread: &Thread) -> usize {
     //thread.stack_size()
     0
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn thread_get_name(thread: &Thread) -> *const c_char {
+pub unsafe extern "C" fn thread_get_name(_thread: &Thread) -> *const c_char {
     unimplemented!();
 }
 

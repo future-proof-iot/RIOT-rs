@@ -69,15 +69,15 @@ pub unsafe extern "C" fn msg_try_receive(msg: &mut msg_t) -> bool {
 
 #[no_mangle]
 pub unsafe extern "C" fn msg_send_receive(
-    msg: *mut msg_t,
-    reply: *mut msg_t,
-    target_pid: ThreadId,
+    _msg: *mut msg_t,
+    _reply: *mut msg_t,
+    _target_pid: ThreadId,
 ) -> bool {
     unimplemented!();
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn msg_reply(msg: &mut msg_t, reply: &mut msg_t) -> i32 {
+pub unsafe extern "C" fn msg_reply(_msg: &mut msg_t, _reply: &mut msg_t) -> i32 {
     unimplemented!();
 }
 
@@ -87,17 +87,17 @@ pub unsafe extern "C" fn msg_try_send(msg: &mut msg_t, target_pid: ThreadId) -> 
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn msg_init_queue(array: &'static mut msg_t, num: usize) {
+pub unsafe extern "C" fn msg_init_queue(_array: &'static mut msg_t, _num: usize) {
     unimplemented!();
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn msg_send_to_self(msg: &mut msg_t) -> i32 {
+pub unsafe extern "C" fn msg_send_to_self(_msg: &mut msg_t) -> i32 {
     unimplemented!();
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn thread_has_msg_queue(thread: &thread_t) -> bool {
+pub unsafe extern "C" fn thread_has_msg_queue(_thread: &thread_t) -> bool {
     unimplemented!();
 }
 
