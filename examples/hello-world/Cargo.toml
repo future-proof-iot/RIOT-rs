@@ -1,8 +1,8 @@
 [package]
 name = "hello-world"
 version = "0.1.0"
-authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
-edition = "2021"
+authors.workspace = true
+edition.workspace = true
 publish = false
 
 [dependencies]
