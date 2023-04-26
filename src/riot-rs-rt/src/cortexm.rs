@@ -1,8 +1,6 @@
 use cortex_m as _;
 use cortex_m_rt::{entry, exception, ExceptionFrame, __RESET_VECTOR};
 
-use super::debug;
-
 // Table 2.5
 // http://infocenter.arm.com/help/index.jsp?topic=/com.arm.doc.dui0553a/CHDBIBGJ.html
 pub fn ipsr_isr_number_to_str(isr_number: usize) -> &'static str {
@@ -174,6 +172,8 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
 unsafe fn DefaultHandler(_irqn: i16) {
     #[cfg(not(feature = "silent-panic"))]
     {
+        use super::debug;
+
         debug::println!("IRQn = {}", _irqn);
         debug::exit(debug::EXIT_FAILURE);
     }
