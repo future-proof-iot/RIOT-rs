@@ -16,6 +16,7 @@ contexts:
         - "-Clink-arg=-Tlink.x"
         - "-Clink-arg=${LINK_ARG_PREFIX}--no-eh-frame-hdr"
         - "-Ctarget-cpu=${RUSTC_TARGET_CPU}"
+        - --cfg builder=\"${builder}\"
       FEATURES:
         - riot-rs-boards/${BOARD}
       SCRIPTS: ${relroot}/scripts
@@ -72,6 +73,11 @@ contexts:
         cmd: "D=$$(dirname ${out}); rm -rf $$D && git clone ${url} $$D -n && git -C $$D reset --hard ${commit} && touch ${out}"
 
     tasks:
+      exec:
+        build: false
+        cmd:
+          - ""
+
       cargo:
         cmd:
           - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS}
