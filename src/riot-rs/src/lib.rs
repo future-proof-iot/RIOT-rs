@@ -9,5 +9,5 @@
 pub use riot_build as _;
 
 pub use riot_rs_buildinfo as buildinfo;
-pub use riot_rs_core as core;
+pub use riot_rs_core::thread;
 pub use riot_rs_rt as rt;

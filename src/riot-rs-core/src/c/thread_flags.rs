@@ -1,6 +1,6 @@
 pub use super::thread::thread_t;
 use super::thread::thread_t2id;
-pub use embedded_threads::{thread_flags, ThreadFlags};
+pub use crate::thread::{thread_flags, ThreadFlags};
 
 pub const THREAD_FLAG_MSG_WAITING: ThreadFlags = 1 << 15;
 pub const THREAD_FLAG_TIMEOUT: ThreadFlags = 1 << 14;

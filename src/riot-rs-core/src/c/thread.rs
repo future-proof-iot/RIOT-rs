@@ -1,8 +1,7 @@
 use core::ffi::{c_char, c_void};
 use core::unimplemented;
 
-
-pub use embedded_threads::{RunqueueId, Thread, ThreadFlags, ThreadId, ThreadState, WaitMode};
+pub use crate::thread::{RunqueueId, Thread, ThreadFlags, ThreadId, ThreadState, WaitMode};
 pub use ref_cast::RefCast;
 
 use embedded_threads::current_pid;

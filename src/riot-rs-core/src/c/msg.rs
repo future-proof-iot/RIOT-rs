@@ -1,8 +1,8 @@
 use embedded_threads::channel::Channel;
 
-pub use super::thread::thread_t;
-pub use super::thread::THREADS_NUMOF;
-pub use crate::ThreadId;
+pub use crate::c::thread::thread_t;
+pub use crate::thread::ThreadId;
+pub use crate::thread::THREADS_NUMOF;
 
 // we need to put both a ptr and a value in here.
 // but ffi::c_void is not copy. This needs to be Copy to be used

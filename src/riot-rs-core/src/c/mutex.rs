@@ -1,6 +1,4 @@
-pub use crate::Lock;
-pub use crate::ThreadId;
-pub use embedded_threads::thread::Thread;
+pub use crate::thread::{self, lock::Lock, Thread, ThreadId};
 
 // cbindgen cannot export these
 //pub const MUTEX_T_SIZEOF: usize = core::mem::sizeof::<Lock>();
@@ -58,7 +56,7 @@ pub unsafe extern "C" fn mutex_unlock(mutex: &mut mutex_t) {
 pub unsafe extern "C" fn mutex_unlock_and_sleep(mutex: &mut mutex_t) {
     critical_section::with(|_| {
         mutex_unlock(mutex);
-        embedded_threads::thread::sleep();
+        thread::sleep();
     });
 }
 
