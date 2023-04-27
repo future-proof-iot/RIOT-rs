@@ -5,7 +5,7 @@ authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2021"
 
 [dependencies]
-cfg-if.workspace = true
+cfg-if = "1.0.0"
 
 [target.'cfg(all(target_arch = "arm", target_feature = "thumb2"))'.dependencies]
 cortex-m = { workspace = true, features = ["critical-section-single-core"] }
