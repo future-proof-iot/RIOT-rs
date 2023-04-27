@@ -9,6 +9,7 @@ riot-build = { path = "../riot-build", features = [ "riot-rs-core"] }
 riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-core = { path = "../riot-rs-core" }
 riot-rs-boards = { path = "../riot-rs-boards" }
+riot-rs-buildinfo = { path = "../riot-rs-buildinfo" }
 
 [features]
 newlib = [ "riot-build/newlib" ]
