@@ -216,6 +216,7 @@ fn main() {
     println!("cargo:rerun-if-env-changed=CFLAGS_OPT");
     println!("cargo:rerun-if-env-changed=LTO");
     println!("cargo:rerun-if-changed=Makefile.riotbuild-rs");
+    println!("cargo:rerun-if-changed={}", riotbase.to_string_lossy());
 }
 
 fn get_riot_var(envs: &HashMap<OsString, OsString>, riot_builddir: &str, var: &str) -> String {
