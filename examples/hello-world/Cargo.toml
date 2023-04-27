@@ -8,3 +8,4 @@ publish = false
 [dependencies]
 riot-rs = { path = "../../src/riot-rs" }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
+riot-wrappers = { workspace = true, optional = true }
