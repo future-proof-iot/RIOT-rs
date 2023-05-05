@@ -1,4 +1,5 @@
 subdirs:
+  - benchmark
   - bottles
   - core-sizes
   - hello-world

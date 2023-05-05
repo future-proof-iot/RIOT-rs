@@ -26,9 +26,14 @@ cfg_if::cfg_if! {
     else {
         mod arch {
             pub fn init() {}
+            pub fn benchmark(_N: usize, f: Fn) -> Result<usize, ()> {
+                unimplemented!();
+            }
         }
     }
 }
+
+pub use arch::benchmark;
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {

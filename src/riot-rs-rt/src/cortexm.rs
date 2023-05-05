@@ -199,3 +199,34 @@ pub fn init() {
             .write(&__RESET_VECTOR as *const _ as u32 - 4)
     };
 }
+
+pub fn benchmark<F: Fn() -> ()>(N: usize, f: F) -> core::result::Result<usize, ()> {
+    use cortex_m::peripheral::syst::SystClkSource;
+    use cortex_m::Peripherals;
+
+    let mut p = Peripherals::take().unwrap();
+    //
+    p.SCB.clear_sleepdeep();
+
+    //
+    p.SYST.set_clock_source(SystClkSource::Core);
+    p.SYST.set_reload(0x00FFFFFF);
+    p.SYST.clear_current();
+    p.SYST.enable_counter();
+
+    while cortex_m::peripheral::SYST::get_current() == 0 {}
+
+    let before = cortex_m::peripheral::SYST::get_current();
+
+    for _ in 0..N {
+        f();
+    }
+
+    let total = before - cortex_m::peripheral::SYST::get_current();
+
+    if p.SYST.has_wrapped() {
+        Err(())
+    } else {
+        Ok((total * 10) as usize / N)
+    }
+}
