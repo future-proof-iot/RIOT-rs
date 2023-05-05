@@ -14,32 +14,32 @@ where
     T: Copy + Sized,
 {
     index: RingBufferIndex,
-    slice: Option<&'a mut [T]>,
+    slice: Option<&'a mut [MaybeUninit<T>]>,
 }
 
 impl<'a, T> RingBuffer<'a, T>
 where
     T: Copy + Sized,
 {
-    pub const fn new(backing_array: Option<&mut [MaybeUninit<T>]>) -> RingBuffer<T> {
-        if let Some(backing_array) = backing_array {
-            RingBuffer {
-                index: RingBufferIndex::new(backing_array.len() as u8),
-                // this is basically MaybeUninit::slice_assume_init_mut().
-                // Cannot use that as it is not const.
-                slice: Some(unsafe { &mut *(backing_array as *mut [MaybeUninit<T>] as *mut [T]) }),
-            }
-        } else {
-            RingBuffer {
-                index: RingBufferIndex::new(0),
-                slice: None,
-            }
+    pub const fn new() -> RingBuffer<'a, T> {
+        RingBuffer {
+            index: RingBufferIndex::new(0),
+            slice: None,
+        }
+    }
+
+    pub const fn new_with(backing_array: &mut [MaybeUninit<T>]) -> RingBuffer<T> {
+        RingBuffer {
+            index: RingBufferIndex::new(backing_array.len() as u8),
+            // this is basically MaybeUninit::slice_assume_init_mut().
+            // Cannot use that as it is not const.
+            slice: Some(backing_array),
         }
     }
 
     pub fn put(&mut self, element: T) -> bool {
         if let Some(pos) = self.index.put() {
-            self.slice.as_mut().unwrap()[pos as usize] = element;
+            self.slice.as_mut().unwrap()[pos as usize].write(element);
             true
         } else {
             false
@@ -50,7 +50,7 @@ where
         if let Some(pos) = self.index.get() {
             // safety: this only returns elements that have been
             // stored with put()
-            Some(self.slice.as_ref().unwrap()[pos as usize])
+            Some(self.get_pos(pos as usize))
         } else {
             None
         }
@@ -60,10 +60,16 @@ where
         if let Some(pos) = self.index.peek() {
             // safety: this only returns elements that have been
             // stored with put()
-            Some(self.slice.as_ref().unwrap()[pos as usize])
+            Some(self.get_pos(pos as usize))
         } else {
             None
         }
+    }
+
+    fn get_pos(&self, pos: usize) -> T {
+        // This is safe because we only get what has been put in, and that
+        // was initialized.
+        unsafe { self.slice.as_ref().unwrap()[pos].assume_init() }
     }
 
     pub fn available(&self) -> usize {
@@ -82,7 +88,7 @@ where
         self.index.is_empty()
     }
 
-    pub fn set_backing_array(&mut self, array: Option<&'a mut [T]>) {
+    pub fn set_backing_array(&mut self, array: Option<&'a mut [MaybeUninit<T>]>) {
         let len = if let Some(array) = &array {
             array.len()
         } else {
