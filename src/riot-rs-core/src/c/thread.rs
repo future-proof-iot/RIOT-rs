@@ -1,4 +1,4 @@
-use core::ffi::{c_char, c_void};
+use core::ffi::{c_char, c_int, c_void};
 use core::unimplemented;
 
 pub use crate::thread::{RunqueueId, Thread, ThreadFlags, ThreadId, ThreadState, WaitMode};
@@ -91,9 +91,11 @@ pub unsafe extern "C" fn thread_get(thread_id: ThreadId) -> *mut thread_t {
 }
 
 #[no_mangle]
-pub unsafe extern "C" fn thread_wakeup(_pid: ThreadId) {
-    unimplemented!();
-    // Thread::wakeup(pid)
+pub unsafe extern "C" fn thread_wakeup(thread_id: ThreadId) -> c_int {
+    match embedded_threads::wakeup(thread_id) {
+        true => 1,
+        false => 0xff,
+    }
 }
 
 #[no_mangle]

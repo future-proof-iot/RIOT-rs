@@ -11,6 +11,8 @@ embedded-threads = { path = "/home/kaspar/src/own/rust/embedded-threads" }
 critical-section = "1.0.0"
 ref-cast = "1.0"
 
+ringbuffer = { path = "../lib/ringbuffer" }
+
 [features]
 thread_info = []
 
