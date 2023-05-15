@@ -1,8 +1,8 @@
 # How to add a board
 
-This assumes the board is already supported by RIOT (C).
-Currently, each board needs special support in RIOT-rs, as not RIOT's bringup and
-linking is uses, but Rust stuff.
+This assumes the board is already supported by RIOT(-c).
+Currently, each board needs special support in RIOT-rs, as not RIOT(-c)'s
+bringup and linking code is used, but RIOT-rs Rust code.
 
 ## nrf528xx based
 
