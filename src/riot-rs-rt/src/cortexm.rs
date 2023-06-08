@@ -200,7 +200,7 @@ pub fn init() {
     };
 }
 
-pub fn benchmark<F: Fn() -> ()>(N: usize, f: F) -> core::result::Result<usize, ()> {
+pub fn benchmark<F: Fn() -> ()>(iterations: usize, f: F) -> core::result::Result<usize, ()> {
     use cortex_m::peripheral::syst::SystClkSource;
     use cortex_m::Peripherals;
 
@@ -218,7 +218,7 @@ pub fn benchmark<F: Fn() -> ()>(N: usize, f: F) -> core::result::Result<usize, (
 
     let before = cortex_m::peripheral::SYST::get_current();
 
-    for _ in 0..N {
+    for _ in 0..iterations {
         f();
     }
 
@@ -227,6 +227,6 @@ pub fn benchmark<F: Fn() -> ()>(N: usize, f: F) -> core::result::Result<usize, (
     if p.SYST.has_wrapped() {
         Err(())
     } else {
-        Ok((total * 10) as usize / N)
+        Ok((total * 10) as usize / iterations)
     }
 }
