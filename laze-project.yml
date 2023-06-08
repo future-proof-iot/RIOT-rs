@@ -178,6 +178,8 @@ contexts:
     parent: riot-rs
     env:
       OBJCOPY: arm-none-eabi-objcopy
+      RUSTFLAGS:
+        - --cfg context=\"cortex-m\"
 
   - name: thumbv6m-none-eabi
     parent: cortex-m
