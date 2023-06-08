@@ -27,12 +27,14 @@ cfg-if = { version = "1.0.0" }
 cortex-m = { version = "0.7", default-features = false }
 cortex-m-rt = { version = "0.7" }
 
-nrf52832-hal = { version = "0.16.*" }
+nrf52832-hal = { version = "0.16.*", default-features = false }
 nrf52840-hal = { version = "0.16.*" }
 nrf51-hal = { version = "0.14.*" }
 
 riot-rs = { path = "src/riot-rs" }
 riot-rs-rt = { path = "src/riot-rs-rt" }
+
+riot-wrappers = { version = "^0.8", default-features = false, features = [ "with_riot_rs" ] }
 
 [profile.dev]
 incremental = false
@@ -57,6 +59,7 @@ cortex-m-semihosting = { git = "https://github.com/kaspar030/cortex-m", branch =
 riot-sys = { git = "https://github.com/kaspar030/rust-riot-sys", branch = "update_riot_rs_support" }
 riot-wrappers = { git = "https://github.com/kaspar030/rust-riot-wrappers", branch = "add_riotrs_support" }
 # these are listed so deps doesn't pull from crates.io
+# (there are dummy crates so riot-wrappers / riot-sys compile while riot-rs has not published any crates)
 riot-build = { path = "src/riot-build" }
 riot-rs-core = { path = "src/riot-rs-core" }
 # runqueue is split out. the repo also provides a version implemented in hackspec.
