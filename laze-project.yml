@@ -169,6 +169,11 @@ contexts:
         cmd:
           - rust-objdump -S ${out}
 
+      riot-test:
+        build: false
+        cmd:
+          - ${RIOT_ENV} RIOTBASE=$(realpath ${RIOTBASE}) make -C$(realpath ${RIOTBASE}/${RIOT_APP}) test
+
   - name: cortex-m
     parent: riot-rs
     env:
