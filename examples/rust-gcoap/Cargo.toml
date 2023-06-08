@@ -10,10 +10,9 @@ publish = false
 riot-rs = { path = "../../src/riot-rs" }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 
-riot-wrappers = { version = "^0.8", default-features = false, features = [
+riot-wrappers = { workspace = true, features = [
   "with_coap_message",
   "with_coap_handler",
-  "with_riot_rs",
 ] }
 
 riot-sys = "^0.7"

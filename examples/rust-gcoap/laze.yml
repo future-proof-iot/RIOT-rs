@@ -2,7 +2,6 @@ apps:
   - name: rust-gcoap
     selects:
       - ?release
-      - suit_broken_in_RIOT_wrappers
     env:
       global:
         USEMODULE:
@@ -20,12 +19,12 @@ apps:
           - ztimer_msec
           - ztimer_sec
           - ztimer_periph_rtt
-          - nimble_autoconn_ipsp
-            #- usbus_cdc_ecm
+            #- nimble_autoconn_ipsp
+          - usbus_cdc_ecm
 
-          - suit
-          - suit_transport_coap
-          - suit_storage_flashwrite
+          # - suit
+          # - suit_transport_coap
+          # - suit_storage_flashwrite
           - progress_bar
 
           - vfs
