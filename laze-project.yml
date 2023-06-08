@@ -76,7 +76,7 @@ contexts:
       exec:
         build: false
         cmd:
-          - ""
+          - ${RIOT_ENV} ${CARGO_ENV}
 
       cargo:
         cmd:
