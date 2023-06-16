@@ -1,0 +1,28 @@
+[package]
+name = "riot-rs-embassy"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+# always
+embassy-sync = { version = "0.2.0" }
+riot-rs-core = { path = "../riot-rs-core" }
+riot-rs-rt = { path = "../riot-rs-rt", features = [ "embassy" ] }
+
+# time
+embassy-time = { version = "0.1.0", optional = true }
+critical-section = "1.1.1"
+
+# cortexm
+[dependencies.embassy-executor]
+version = "0.2.0"
+features = ["arch-cortex-m", "executor-interrupt", "nightly"]
+
+# nrf
+[dependencies.embassy-nrf]
+version = "0.1.0"
+features = ["nrf52832", "time-driver-rtc1", "time"]
+#optional = true
+
+[features]
+time = ["embassy-time", "embassy-executor/integrated-timers"]
