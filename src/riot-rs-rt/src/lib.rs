@@ -50,6 +50,11 @@ extern "C" {
     fn riot_rs_rt_startup();
 }
 
+#[cfg(feature = "embassy")]
+extern "C" {
+    fn riot_rs_embassy_init();
+}
+
 #[inline]
 fn startup() -> ! {
     arch::init();
@@ -58,6 +63,11 @@ fn startup() -> ! {
     debug::init();
 
     debug::println!("riot_rs_rt::main()");
+
+    #[cfg(feature = "embassy")]
+    unsafe {
+        riot_rs_embassy_init();
+    }
 
     #[cfg(not(test))]
     unsafe {
