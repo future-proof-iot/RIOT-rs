@@ -10,9 +10,11 @@ riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-core = { path = "../riot-rs-core" }
 riot-rs-boards = { path = "../riot-rs-boards" }
 riot-rs-buildinfo = { path = "../riot-rs-buildinfo" }
+riot-rs-embassy = { path = "../riot-rs-embassy", optional = true }
 
 [features]
 newlib = [ "riot-build/newlib" ]
 debug-console = [ "riot-rs-rt/debug-console" ]
 silent-panic = [ "riot-rs-rt/silent-panic" ]
 thread_info = [ "riot-rs-core/thread_info" ]
+embassy = ["riot-rs-embassy", "riot-rs-embassy/time"]
