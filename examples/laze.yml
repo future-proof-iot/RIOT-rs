@@ -2,6 +2,7 @@ subdirs:
   - benchmark
   - bottles
   - core-sizes
+  - embassy
   - hello-world
   - minimal
   - riot-app

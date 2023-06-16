@@ -1,0 +1,13 @@
+[package]
+name = "embassy"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+publish = false
+
+[dependencies]
+riot-rs = { path = "../../src/riot-rs", features = ["embassy"] }
+riot-rs-boards = { path = "../../src/riot-rs-boards" }
+embassy-executor = { default-features = false }
+embassy-time = { version = "0.1.0", default-features = false }
+embassy-sync = { version = "0.2.0", default-features = false }
