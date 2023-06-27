@@ -12,11 +12,11 @@ cortex-m = { workspace = true, features = ["critical-section-single-core"] }
 cortex-m-rt = { workspace = true }
 cortex-m-semihosting = { version = "0.5.0", optional = true }
 rtt-target = { version = "0.4.0", optional = true }
+linkme.workspace = true
 
 [features]
 debug-console = []
 silent-panic = []
-embassy = []
 
 [dev-dependencies]
 riot-rs-boards = { path = "../riot-rs-boards" }

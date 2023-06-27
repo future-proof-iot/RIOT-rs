@@ -5,9 +5,10 @@ edition = "2021"
 
 [dependencies]
 # always
+linkme.workspace = true
 embassy-sync = { version = "0.2.0" }
 riot-rs-core = { path = "../riot-rs-core" }
-riot-rs-rt = { path = "../riot-rs-rt", features = [ "embassy" ] }
+riot-rs-rt = { path = "../riot-rs-rt" }
 
 # time
 embassy-time = { version = "0.1.0", optional = true }

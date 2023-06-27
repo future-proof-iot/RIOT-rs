@@ -7,6 +7,8 @@
 // features
 #![feature(naked_functions)]
 #![feature(fn_traits)]
+// linkme
+#![feature(used_with_arg)]
 // testing
 #![feature(custom_test_frameworks)]
 #![test_runner(crate::testing::test_runner)]
@@ -55,6 +57,11 @@ extern "C" {
     fn riot_rs_embassy_init();
 }
 
+use linkme::distributed_slice;
+
+#[distributed_slice]
+pub static INIT_FUNCS: [fn()] = [..];
+
 #[inline]
 fn startup() -> ! {
     arch::init();
@@ -64,9 +71,8 @@ fn startup() -> ! {
 
     debug::println!("riot_rs_rt::main()");
 
-    #[cfg(feature = "embassy")]
-    unsafe {
-        riot_rs_embassy_init();
+    for f in INIT_FUNCS {
+        f();
     }
 
     #[cfg(not(test))]
