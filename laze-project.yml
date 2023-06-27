@@ -13,6 +13,7 @@ contexts:
     env:
       bindir: "${build-dir}/bin/${builder}/${app}"
       RUSTFLAGS:
+        - "-Clink-arg=-Tlinkme.x"
         - "-Clink-arg=-Tlink.x"
         - "-Clink-arg=${LINK_ARG_PREFIX}--no-eh-frame-hdr"
         - "-Ctarget-cpu=${RUSTC_TARGET_CPU}"
