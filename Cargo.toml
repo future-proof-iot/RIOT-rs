@@ -34,7 +34,9 @@ nrf51-hal = { version = "0.14.*" }
 riot-rs = { path = "src/riot-rs" }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 
-riot-wrappers = { version = "^0.8", default-features = false, features = [ "with_riot_rs" ] }
+riot-wrappers = { version = "^0.8", default-features = false, features = [
+  "with_riot_rs",
+] }
 
 [profile.dev]
 incremental = false
