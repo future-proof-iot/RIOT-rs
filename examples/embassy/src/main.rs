@@ -17,10 +17,11 @@ async fn async_task() {
     use embassy_time::{Duration, Instant, Timer};
     let mut counter = 0u32;
     loop {
-        println!("async_task()");
         if counter % 2 == 0 {
             println!("async_task() signalling");
             SIGNAL.signal(counter);
+        } else {
+            println!("async_task()");
         }
         Timer::after(Duration::from_ticks(32768 / 10)).await;
         counter += 1;
