@@ -4,7 +4,7 @@ use core::unimplemented;
 pub use crate::thread::{RunqueueId, Thread, ThreadFlags, ThreadId, ThreadState, WaitMode};
 pub use ref_cast::RefCast;
 
-use embedded_threads::current_pid;
+use riot_rs_threads::current_pid;
 
 // So some thread functions in the RIOT API take a pid, others a thread_t pointer.
 // In Rust, we don't like raw pointers. So we encode the pid in a usize disguised as void ptr.
@@ -30,8 +30,8 @@ pub const THREAD_CREATE_WOUT_YIELD: u32 = 1 << 1;
 pub const THREAD_CREATE_STACKTEST: u32 = 1 << 2;
 
 // cbindgen cannot export these
-//pub const SCHED_PRIO_LEVELS: u32 = embedded_threads::SCHED_PRIO_LEVELS;
-//pub const THREADS_NUMOF: u32 = embedded_threads::THREADS_NUMOF;
+//pub const SCHED_PRIO_LEVELS: u32 = riot_rs_threads::SCHED_PRIO_LEVELS;
+//pub const THREADS_NUMOF: u32 = riot_rs_threads::THREADS_NUMOF;
 pub const SCHED_PRIO_LEVELS: u32 = 8;
 pub const THREADS_NUMOF: u32 = 8;
 
@@ -65,9 +65,9 @@ pub unsafe extern "C" fn _thread_create(
 
     let stack = core::slice::from_raw_parts_mut(stack_ptr, stack_size);
 
-    let thread_id = embedded_threads::thread_create_raw(thread_func, arg, stack, priority);
+    let thread_id = riot_rs_threads::thread_create_raw(thread_func, arg, stack, priority);
     if flags & THREAD_CREATE_WOUT_YIELD == 0 {
-        embedded_threads::schedule();
+        riot_rs_threads::schedule();
     }
     thread_id
 }
@@ -83,7 +83,7 @@ pub extern "C" fn thread_get_active() -> *mut thread_t {
 
 #[no_mangle]
 pub unsafe extern "C" fn thread_get(thread_id: ThreadId) -> *mut thread_t {
-    if embedded_threads::is_valid_pid(thread_id) {
+    if riot_rs_threads::is_valid_pid(thread_id) {
         thread_id as usize as *mut thread_t
     } else {
         core::ptr::null_mut()
@@ -92,7 +92,7 @@ pub unsafe extern "C" fn thread_get(thread_id: ThreadId) -> *mut thread_t {
 
 #[no_mangle]
 pub unsafe extern "C" fn thread_wakeup(thread_id: ThreadId) -> c_int {
-    match embedded_threads::wakeup(thread_id) {
+    match riot_rs_threads::wakeup(thread_id) {
         true => 1,
         false => 0xff,
     }
@@ -100,12 +100,12 @@ pub unsafe extern "C" fn thread_wakeup(thread_id: ThreadId) -> c_int {
 
 #[no_mangle]
 pub extern "C" fn thread_yield_higher() {
-    embedded_threads::schedule();
+    riot_rs_threads::schedule();
 }
 
 #[no_mangle]
 pub extern "C" fn thread_yield() {
-    embedded_threads::yield_same();
+    riot_rs_threads::yield_same();
 }
 
 #[no_mangle]
@@ -253,5 +253,5 @@ pub unsafe extern "C" fn thread_isr_stack_usage() -> usize {
 
 #[no_mangle]
 pub unsafe extern "C" fn cpu_switch_context_exit() {
-    embedded_threads::start_threading();
+    riot_rs_threads::start_threading();
 }
