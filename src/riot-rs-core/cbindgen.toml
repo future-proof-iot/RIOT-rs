@@ -8,7 +8,7 @@ includes = ["mutex_t.h", "msg_content.h", "sched_num_threads.h"]
 
 [parse]
 parse_deps = true
-include = ["riot-rs-runqueue", "embedded-threads"]
+include = ["riot-rs-runqueue", "riot-rs-threads"]
 
 # Table of name conversions to apply to item names (lhs becomes rhs)
 [export.rename]

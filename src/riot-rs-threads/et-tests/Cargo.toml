@@ -1,0 +1,22 @@
+[package]
+name = "et-tests"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+# cortex-m specifics
+cortex-m = { version = "0.7.7", features = ["critical-section-single-core"] }
+cortex-m-rt = "0.7.2"
+cortex-m-semihosting = "0.5.0"
+panic-semihosting = { version = "0.6.0", features = ["exit"] }
+
+embedded-threads = { path = ".." }
+
+[profile.release]
+debug=true
+
+[patch.crates-io]
+riot-rs-runqueue = { git = "https://github.com/future-proof-iot/riot-rs-runqueue", branch = "main" }

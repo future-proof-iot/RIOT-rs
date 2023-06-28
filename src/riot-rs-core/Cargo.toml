@@ -7,7 +7,7 @@ edition = "2021"
 links = "riot-rs-core"
 
 [dependencies]
-embedded-threads = { path = "/home/kaspar/src/own/rust/embedded-threads" }
+riot-rs-threads = { path = "../riot-rs-threads" }
 critical-section = "1.0.0"
 ref-cast = "1.0"
 

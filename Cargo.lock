@@ -694,19 +694,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "156d7a2fdd98ebbf9ae579cbceca3058cff946e13f8e17b90e3511db0508c723"
 
 [[package]]
-name = "embedded-threads"
-version = "0.1.0"
-dependencies = [
- "cfg-if",
- "cortex-m",
- "cortex-m-rt",
- "cortex-m-semihosting",
- "critical-section",
- "panic-semihosting",
- "riot-rs-runqueue",
-]
-
-[[package]]
 name = "errno"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -903,7 +890,6 @@ dependencies = [
 name = "hello-world"
 version = "0.1.0"
 dependencies = [
- "linkme",
  "riot-rs",
  "riot-rs-boards",
  "riot-wrappers",
@@ -1639,11 +1625,11 @@ version = "0.1.0"
 dependencies = [
  "cbindgen",
  "critical-section",
- "embedded-threads",
  "ref-cast",
  "ringbuffer",
  "riot-rs-boards",
  "riot-rs-rt",
+ "riot-rs-threads",
 ]
 
 [[package]]
@@ -1658,6 +1644,13 @@ dependencies = [
  "linkme",
  "riot-rs-core",
  "riot-rs-rt",
+]
+
+[[package]]
+name = "riot-rs-linkme"
+version = "0.1.0"
+dependencies = [
+ "linkme",
 ]
 
 [[package]]
@@ -1677,6 +1670,19 @@ dependencies = [
 name = "riot-rs-runqueue"
 version = "0.1.2"
 source = "git+https://github.com/future-proof-iot/riot-rs-runqueue?branch=main#008225b65fd2efa80cab845b8d13ca88a9bbe88f"
+
+[[package]]
+name = "riot-rs-threads"
+version = "0.1.0"
+dependencies = [
+ "cfg-if",
+ "cortex-m",
+ "cortex-m-rt",
+ "cortex-m-semihosting",
+ "critical-section",
+ "panic-semihosting",
+ "riot-rs-runqueue",
+]
 
 [[package]]
 name = "riot-rs-timers"

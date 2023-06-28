@@ -1,0 +1,19 @@
+[package]
+name = "riot-rs-threads"
+version = "0.1.0"
+edition = "2021"
+license = "Apache-2.0"
+description = "generic embedded scheduler & IPC"
+include = ["src/**/*", "LICENSE", "README.md"]
+
+[dependencies]
+cfg-if = "1.0.0"
+critical-section = "1.0.0"
+riot-rs-runqueue = "0.1.*"
+
+[target.'cfg(all(target_arch = "arm", target_feature = "thumb2"))'.dependencies]
+# cortex-m specifics
+cortex-m = "0.7.7"
+cortex-m-rt = "0.7.3"
+cortex-m-semihosting = "0.5.0"
+panic-semihosting = { version = "0.6.0", features = ["exit"] }
