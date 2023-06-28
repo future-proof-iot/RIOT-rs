@@ -1466,6 +1466,7 @@ dependencies = [
  "nrf52840dk",
  "nrf52dk",
  "nucleo-f401re",
+ "rpi-pico",
 ]
 
 [[package]]
@@ -1597,6 +1598,30 @@ dependencies = [
  "riot-rs",
  "riot-rs-boards",
  "riot-wrappers",
+]
+
+[[package]]
+name = "rp2040"
+version = "0.1.0"
+dependencies = [
+ "rp2040-pac",
+]
+
+[[package]]
+name = "rp2040-pac"
+version = "0.4.0"
+source = "git+https://github.com/kaspar030/rp2040-pac?branch=riot-rs#967c08cd01ceb85c866c7980531943792f9079fc"
+dependencies = [
+ "cortex-m",
+ "critical-section",
+ "vcell",
+]
+
+[[package]]
+name = "rpi-pico"
+version = "0.1.0"
+dependencies = [
+ "rp2040",
 ]
 
 [[package]]
@@ -2080,3 +2105,8 @@ name = "windows_x86_64_msvc"
 version = "0.48.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1a515f5799fe4961cb532f983ce2b23082366b898e52ffbce459c86f67c8378a"
+
+[[patch.unused]]
+name = "nrf51-pac"
+version = "0.12.2"
+source = "git+https://github.com/kaspar030/nrf-pacs?branch=riot-rs#58ec00b7bd1691b2fd6f002705d2ffbe7d3204e0"

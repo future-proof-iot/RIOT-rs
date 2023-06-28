@@ -73,6 +73,7 @@ riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 nrf51-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
 nrf52840-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
 nrf52832-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
+rp2040-pac = { git = "https://github.com/kaspar030/rp2040-pac", branch = "riot-rs" }
 embassy-macros = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
 embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
 embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }

@@ -21,6 +21,8 @@ cfg_if! {
         pub use nucleo_f401re as board;
     } else if #[cfg(feature = "lm3s6965evb")] {
         pub use lm3s6965evb as board;
+    } else if #[cfg(feature = "rpi-pico")] {
+        pub use rpi_pico as board;
     } else {
         pub use dummy as board;
     }
