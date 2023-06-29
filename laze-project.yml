@@ -188,6 +188,8 @@ contexts:
       RUSTC_TARGET: thumbv6m-none-eabi
       CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV6M_NONE_EABI
       NEWLIB_ARCH: thumb/v6-m/nofp
+      RUSTFLAGS:
+        - --cfg armv6m
 
   - name: thumbv7em-none-eabi
     parent: cortex-m
@@ -196,6 +198,8 @@ contexts:
       RUSTC_TARGET_CPU: cortex-m4
       CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7EM_NONE_EABI
       NEWLIB_ARCH: thumb/v7e-m/nofp
+      RUSTFLAGS:
+        - --cfg armv7m
 
   - name: thumbv7m-none-eabi
     parent: cortex-m
@@ -203,6 +207,8 @@ contexts:
       RUSTC_TARGET: thumbv7m-none-eabi
       CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7M_NONE_EABI
       NEWLIB_ARCH: thumb/v7-m/nofp
+      RUSTFLAGS:
+        - --cfg armv7m
 
   - name: thumbv7em-none-eabihf
     parent: cortex-m
@@ -210,6 +216,8 @@ contexts:
       RUSTC_TARGET: thumbv7em-none-eabihf
       CARGO_ENV_TARGET: CARGO_TARGET_THUMBV7EM_NONE_EABIHF
       NEWLIB_ARCH: v7e-m+fp/hard
+      RUSTFLAGS:
+        - --cfg armv7m
 
   - name: microbit-base
     # this is a context, not a builder, to be used as parent by  "microbit" and
