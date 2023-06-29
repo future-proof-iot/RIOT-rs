@@ -21,7 +21,7 @@ pub mod debug;
 pub use debug::*;
 
 cfg_if::cfg_if! {
-    if #[cfg(all(target_arch = "arm", target_feature = "thumb2"))] {
+    if #[cfg(context = "cortex-m")] {
         mod cortexm;
         use cortexm as arch;
     }
