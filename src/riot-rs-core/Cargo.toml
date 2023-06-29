@@ -8,7 +8,7 @@ links = "riot-rs-core"
 
 [dependencies]
 riot-rs-threads = { path = "../riot-rs-threads" }
-critical-section = "1.0.0"
+critical-section.workspace = true
 ref-cast = "1.0"
 
 ringbuffer = { path = "../lib/ringbuffer" }

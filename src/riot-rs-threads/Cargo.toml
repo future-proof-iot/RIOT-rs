@@ -9,7 +9,7 @@ repository.workspace = true
 
 [dependencies]
 cfg-if.workspace = true
-critical-section = { version = "1.0.0" }
+critical-section.workspace = true
 riot-rs-runqueue.workspace = true
 
 [target.'cfg(all(target_arch = "arm", target_feature = "thumb2"))'.dependencies]

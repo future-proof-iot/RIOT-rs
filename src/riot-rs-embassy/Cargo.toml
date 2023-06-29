@@ -12,7 +12,7 @@ riot-rs-rt = { path = "../riot-rs-rt" }
 
 # time
 embassy-time = { version = "0.1.0", optional = true }
-critical-section = "1.1.1"
+critical-section.workspace = true
 
 # cortexm
 [dependencies.embassy-executor]
