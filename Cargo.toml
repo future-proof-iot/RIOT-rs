@@ -66,8 +66,7 @@ riot-wrappers = { git = "https://github.com/kaspar030/rust-riot-wrappers", branc
 # (there are dummy crates so riot-wrappers / riot-sys compile while riot-rs has not published any crates)
 riot-build = { path = "src/riot-build" }
 riot-rs-core = { path = "src/riot-rs-core" }
-# runqueue is split out. the repo also provides a version implemented in hackspec.
-riot-rs-runqueue = { git = "https://github.com/future-proof-iot/riot-rs-runqueue", branch = "main" }
+riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 
 # these are patched to work with critical-section, and support ldmemory (boot loader offsets)
 nrf52840-hal = { git = "https://github.com/kaspar030/nrf-hal", branch = "nrf52840_use_ldmemory" }

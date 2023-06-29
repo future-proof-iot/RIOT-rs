@@ -1670,7 +1670,6 @@ dependencies = [
 [[package]]
 name = "riot-rs-runqueue"
 version = "0.1.2"
-source = "git+https://github.com/future-proof-iot/riot-rs-runqueue?branch=main#008225b65fd2efa80cab845b8d13ca88a9bbe88f"
 
 [[package]]
 name = "riot-rs-threads"
