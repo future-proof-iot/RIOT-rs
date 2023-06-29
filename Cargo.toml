@@ -31,10 +31,6 @@ critical-section = { version = "1.1.1" }
 
 linkme = { version = "0.3.10", features = ["used_linker"] }
 
-nrf52832-hal = { version = "0.16.*", default-features = false }
-nrf52840-hal = { version = "0.16.*" }
-nrf51-hal = { version = "0.14.*" }
-
 riot-rs = { path = "src/riot-rs" }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
@@ -42,6 +38,8 @@ riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 riot-wrappers = { version = "^0.8", default-features = false, features = [
   "with_riot_rs",
 ] }
+
+ld-memory = { version = "0.2.9" }
 
 [profile.dev]
 incremental = false
@@ -71,8 +69,8 @@ riot-build = { path = "src/riot-build" }
 riot-rs-core = { path = "src/riot-rs-core" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 
-# these are patched to work with critical-section, and support ldmemory (boot loader offsets)
-nrf52840-hal = { git = "https://github.com/kaspar030/nrf-hal", branch = "nrf52840_use_ldmemory" }
+# these are patched to work with critical-section
+nrf51-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
 nrf52840-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
 nrf52832-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
 embassy-macros = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }

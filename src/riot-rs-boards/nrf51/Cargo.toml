@@ -8,3 +8,4 @@ edition = "2021"
 
 [dependencies]
 riot-rs-rt = { path = "../../riot-rs-rt" }
+nrf51-pac = { version = "0.12.2", features = ["rt"] }

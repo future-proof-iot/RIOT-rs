@@ -12,5 +12,4 @@ cortex-m.workspace = true
 
 riot-rs-rt.workspace = true
 
-nrf52840-hal.workspace = true
-nrf52 = { path = "../nrf52" }
+nrf52 = { path = "../nrf52", features = [ "nrf52840" ] }

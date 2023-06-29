@@ -12,8 +12,4 @@ cortex-m.workspace = true
 
 riot-rs-rt = { path = "../../riot-rs-rt" }
 
-# nrf52832 uses "xxAA-package" and "xxAB-package" to select the flash/memory
-# size of a specific chip. "xxAB-package" is default, so disable defaults, select
-# the other default "rt" and "xxAA-package".
-nrf52832-hal = { default-features = false, features = [ "rt", "xxAA-package" ], version = "0.14.*" }
-nrf52 = { path = "../nrf52" }
+nrf52 = { path = "../nrf52", features = [ "nrf52832"] }
