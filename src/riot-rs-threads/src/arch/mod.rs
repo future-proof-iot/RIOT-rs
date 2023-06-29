@@ -1,5 +1,5 @@
 cfg_if::cfg_if! {
-    if #[cfg(all(target_arch = "arm", target_feature = "thumb2"))] {
+    if #[cfg(context = "cortex-m")] {
         mod cortex_m;
         pub use self::cortex_m::*;
     }

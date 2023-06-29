@@ -12,7 +12,7 @@ cfg-if.workspace = true
 critical-section.workspace = true
 riot-rs-runqueue.workspace = true
 
-[target.'cfg(all(target_arch = "arm", target_feature = "thumb2"))'.dependencies]
+[target.'cfg(context = "cortex-m")'.dependencies]
 # cortex-m specifics
 cortex-m.workspace = true
 cortex-m-rt.workspace = true

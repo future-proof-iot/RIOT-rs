@@ -47,6 +47,7 @@ pub(crate) fn start_threading(next_sp: usize) {
     }
 }
 
+#[cfg(armv7m)]
 #[naked]
 #[no_mangle]
 #[allow(non_snake_case)]
@@ -61,6 +62,32 @@ unsafe extern "C" fn SVCall() {
     );
 }
 
+#[cfg(armv6m)]
+#[naked]
+#[no_mangle]
+#[allow(non_snake_case)]
+unsafe extern "C" fn SVCall() {
+    asm!(
+        "
+            /* label rules:
+             * - number only
+             * - no combination of *only* [01]
+             * - add f or b for 'next matching forward/backward'
+             * so let's use '99' forward ('99f')
+             */
+            ldr r0, 99f
+            mov LR, r0
+            bx lr
+
+            .align 4
+            99:
+            .word 0xFFFFFFFD
+            ",
+        options(noreturn)
+    );
+}
+
+#[cfg(armv7m)]
 #[naked]
 #[no_mangle]
 #[allow(non_snake_case)]
@@ -88,6 +115,58 @@ unsafe extern "C" fn PendSV() {
             bx LR
             ",
         sched = sym sched,
+        options(noreturn)
+    );
+}
+
+#[cfg(any(armv6m))]
+#[naked]
+#[no_mangle]
+#[allow(non_snake_case)]
+unsafe extern "C" fn PendSV() {
+    asm!(
+        "
+            mrs r0, psp
+            cpsid i
+            bl sched
+            cpsie i
+            cmp r0, #0
+            beq 99f
+
+            //stmia r0!, {{r4-r7}}
+            str r4, [r0, #16]
+            str r5, [r0, #20]
+            str r6, [r0, #24]
+            str r7, [r0, #28]
+
+            mov  r4, r8
+            mov  r5, r9
+            mov  r6, r10
+            mov  r7, r11
+
+            str r4, [r0, #0]
+            str r5, [r0, #4]
+            str r6, [r0, #8]
+            str r7, [r0, #12]
+
+            //
+            ldmia r1!, {{r4-r7}}
+            mov r11, r7
+            mov r10, r6
+            mov r9,  r5
+            mov r8,  r4
+            ldmia r1!, {{r4-r7}}
+
+            msr.n psp, r2
+            99:
+            ldr r0, 999f
+            mov LR, r0
+            bx lr
+
+            .align 4
+            999:
+            .word 0xFFFFFFFD
+            ",
         options(noreturn)
     );
 }
