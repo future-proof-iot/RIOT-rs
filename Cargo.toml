@@ -21,6 +21,7 @@ resolver = "2"
 version = "0.1.0"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2021"
+repository = "https://github.com/future-proof-iot/riot-rs"
 
 [workspace.dependencies]
 cfg-if = { version = "1.0.0" }
@@ -35,6 +36,7 @@ nrf51-hal = { version = "0.14.*" }
 
 riot-rs = { path = "src/riot-rs" }
 riot-rs-rt = { path = "src/riot-rs-rt" }
+riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 
 riot-wrappers = { version = "^0.8", default-features = false, features = [
   "with_riot_rs",
