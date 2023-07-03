@@ -12,7 +12,7 @@ use crate::{cleanup, THREADS};
 /// `func`.
 pub(crate) fn setup_stack(stack: &mut [u8], func: usize, arg: usize) -> usize {
     let stack_start = stack.as_ptr() as usize;
-    let stack_pos = (stack_start + stack.len() - 36) as *mut usize;
+    let stack_pos = ((stack_start + stack.len() - 36) & 0xFFFFFFFC) as *mut usize;
 
     unsafe {
         write_volatile(stack_pos.offset(0), arg); // -> R0
