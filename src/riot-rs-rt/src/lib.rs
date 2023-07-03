@@ -20,6 +20,9 @@ use core::panic::PanicInfo;
 pub mod debug;
 pub use debug::*;
 
+#[cfg(feature = "threading")]
+mod threading;
+
 cfg_if::cfg_if! {
     if #[cfg(context = "cortex-m")] {
         mod cortexm;
@@ -47,16 +50,6 @@ fn panic(_info: &PanicInfo) -> ! {
     loop {}
 }
 
-#[cfg(not(test))]
-extern "C" {
-    fn riot_rs_rt_startup();
-}
-
-#[cfg(feature = "embassy")]
-extern "C" {
-    fn riot_rs_embassy_init();
-}
-
 use linkme::distributed_slice;
 
 #[distributed_slice]
@@ -75,14 +68,14 @@ fn startup() -> ! {
         f();
     }
 
-    #[cfg(not(test))]
-    unsafe {
-        riot_rs_rt_startup();
+    if cfg!(feature = "riot-rs-threads") {
+        // start threading
+        threading::init();
+    } else {
+        #[cfg(test)]
+        test_main();
+        loop {}
     }
-
-    #[cfg(test)]
-    test_main();
-    loop {}
 }
 
 #[test_case]
