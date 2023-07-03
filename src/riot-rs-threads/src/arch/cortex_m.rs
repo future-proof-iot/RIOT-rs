@@ -36,6 +36,8 @@ pub fn schedule() {
 
 #[inline(always)]
 pub(crate) fn start_threading(next_sp: usize) {
+    cortex_m::interrupt::disable();
+    schedule();
     unsafe {
         asm!(
             "
