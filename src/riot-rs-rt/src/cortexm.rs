@@ -198,6 +198,13 @@ pub fn init() {
             .vtor
             .write(&__RESET_VECTOR as *const _ as u32 - 4)
     };
+
+    // make sure PendSV has a low priority
+    unsafe {
+        use cortex_m::peripheral::scb::SystemHandler;
+        let mut p = cortex_m::Peripherals::take().unwrap();
+        p.SCB.set_priority(SystemHandler::PendSV, 255);
+    }
 }
 
 pub fn benchmark<F: Fn() -> ()>(iterations: usize, f: F) -> core::result::Result<usize, ()> {
