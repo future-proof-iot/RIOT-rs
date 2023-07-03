@@ -14,16 +14,18 @@ riot-rs-rt = { path = "../riot-rs-rt" }
 embassy-time = { version = "0.1.0", optional = true }
 critical-section.workspace = true
 
-# cortexm
-[dependencies.embassy-executor]
-version = "0.2.0"
-features = ["arch-cortex-m", "executor-interrupt", "nightly"]
+[target.'cfg(context = "cortex-m")'.dependencies]
+embassy-executor = { version = "0.2.0", features = [
+  "arch-cortex-m",
+  "executor-interrupt",
+  "nightly",
+] }
 
-# nrf
-[dependencies.embassy-nrf]
-version = "0.1.0"
-features = ["nrf52832", "time-driver-rtc1", "time"]
-#optional = true
+[target.'cfg(context = "nrf52")'.dependencies]
+embassy-nrf = { version = "0.1.0", features = ["nrf52832", "time-driver-rtc1", "time", "unstable-pac" ] }
+
+[target.'cfg(context = "rp2040")'.dependencies]
+embassy-rp = { version = "0.1.0", features = ["time-driver" ] }
 
 [features]
 time = ["embassy-time", "embassy-executor/integrated-timers"]

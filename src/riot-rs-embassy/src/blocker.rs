@@ -1,6 +1,5 @@
 use core::future::Future;
 use core::pin::Pin;
-use core::ptr;
 use core::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
 use riot_rs_core::thread::{current_pid, sleep, wakeup, ThreadId};
 
