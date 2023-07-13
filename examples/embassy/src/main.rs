@@ -14,7 +14,7 @@ static SIGNAL: Signal<CriticalSectionRawMutex, u32> = Signal::new();
 
 #[embassy_executor::task]
 async fn async_task() {
-    use embassy_time::{Duration, Instant, Timer};
+    use embassy_time::{Duration, Timer, TICK_HZ};
     let mut counter = 0u32;
     loop {
         if counter % 2 == 0 {
@@ -23,7 +23,7 @@ async fn async_task() {
         } else {
             println!("async_task()");
         }
-        Timer::after(Duration::from_ticks(32768 / 10)).await;
+        Timer::after(Duration::from_ticks(TICK_HZ / 10)).await;
         counter += 1;
     }
 }
@@ -49,5 +49,5 @@ fn riot_main() {
         );
     }
 
-    exit(0);
+    exit(Ok(()));
 }
