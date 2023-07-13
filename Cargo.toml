@@ -77,6 +77,7 @@ nrf52832-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-r
 embassy-macros = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
 embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
 embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
+embassy-rp = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
 embassy-time = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
 embassy-sync = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
 linkme = { path = "/home/kaspar/src/linkme" }
