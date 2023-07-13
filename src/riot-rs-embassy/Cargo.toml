@@ -9,10 +9,13 @@ linkme.workspace = true
 embassy-sync = { version = "0.2.0" }
 riot-rs-core = { path = "../riot-rs-core" }
 riot-rs-rt = { path = "../riot-rs-rt" }
+critical-section.workspace = true
 
 # time
-embassy-time = { version = "0.1.0", optional = true }
-critical-section.workspace = true
+embassy-time = { version = "0.1.2", optional = true, features = [
+  "nightly",
+  "unstable-traits",
+] }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
 embassy-executor = { version = "0.2.0", features = [
@@ -22,10 +25,20 @@ embassy-executor = { version = "0.2.0", features = [
 ] }
 
 [target.'cfg(context = "nrf52")'.dependencies]
-embassy-nrf = { version = "0.1.0", features = ["nrf52832", "time-driver-rtc1", "time", "unstable-pac" ] }
+embassy-nrf = { version = "0.1.0", features = [
+  "nrf52832",
+  "time-driver-rtc1",
+  "time",
+  "unstable-pac",
+] }
 
 [target.'cfg(context = "rp2040")'.dependencies]
-embassy-rp = { version = "0.1.0", features = ["time-driver" ] }
+embassy-rp = { version = "0.1.0", features = [
+  "nightly",
+  "time-driver",
+  "unstable-pac",
+  "unstable-traits",
+] }
 
 [features]
-time = ["embassy-time", "embassy-executor/integrated-timers"]
+time = ["dep:embassy-time", "embassy-executor/integrated-timers"]

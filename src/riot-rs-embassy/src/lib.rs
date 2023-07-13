@@ -32,10 +32,29 @@ unsafe fn SWI_IRQ_1() {
     EXECUTOR.on_interrupt()
 }
 
+// #[cfg(context = "rp2040")]
+// #[embassy_executor::task]
+// async fn embassy_init(p: Peripherals) {
+//     use embassy_rp::uart::{Config, UartTx};
+//     use embassy_time::{Duration, Timer};
+//     let mut uart_tx = UartTx::new(p.UART0, p.PIN_0, p.DMA_CH0, Config::default());
+
+//     loop {
+//         let data = b"hello\n";
+//         uart_tx.write(&data[..]).await.unwrap();
+//         Timer::after(Duration::from_secs(1)).await;
+//     }
+// }
+
 pub(crate) fn init() {
     riot_rs_rt::debug::println!("riot-rs-embassy::init()");
     let _p = embassy_arch::init(Default::default());
+
     EXECUTOR.start(SWI);
+    // #[cfg(context = "rp2040")]
+    // {
+    //     EXECUTOR.spawner().spawn(embassy_init(_p)).unwrap();
+    // }
 }
 
 use linkme::distributed_slice;
