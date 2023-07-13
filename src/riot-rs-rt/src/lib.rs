@@ -68,7 +68,7 @@ fn startup() -> ! {
         f();
     }
 
-    if cfg!(feature = "riot-rs-threads") {
+    if cfg!(feature = "threading") {
         // start threading
         threading::init();
     } else {

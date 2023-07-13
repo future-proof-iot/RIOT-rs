@@ -17,7 +17,7 @@ linkme.workspace = true
 
 [features]
 default = [ "threading" ]
-threading = [ "riot-rs-threads" ]
+threading = [ "dep:riot-rs-threads" ]
 debug-console = []
 silent-panic = []
 

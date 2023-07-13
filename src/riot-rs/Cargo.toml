@@ -6,7 +6,7 @@ edition.workspace = true
 
 [dependencies]
 riot-build = { path = "../riot-build", features = [ "riot-rs-core"], optional = true }
-riot-rs-rt = { path = "../riot-rs-rt" }
+riot-rs-rt = { path = "../riot-rs-rt", features = [ "threading" ] }
 riot-rs-core = { path = "../riot-rs-core" }
 riot-rs-boards = { path = "../riot-rs-boards" }
 riot-rs-buildinfo = { path = "../riot-rs-buildinfo" }
