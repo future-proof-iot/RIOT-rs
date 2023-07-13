@@ -197,7 +197,7 @@ unsafe fn sched(old_sp: usize) {
         cortex_m::interrupt::disable();
     }
 
-    let mut threads = &mut *THREADS.as_ptr(cs);
+    let threads = &mut *THREADS.as_ptr(cs);
     let current_high_regs;
 
     if let Some(current_pid) = threads.current_pid() {
