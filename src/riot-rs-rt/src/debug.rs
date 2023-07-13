@@ -11,9 +11,9 @@ mod backend {
 
 #[cfg(all(feature = "debug-console", feature = "rtt-target"))]
 mod backend {
-    pub const EXIT_SUCCESS: u32 = 0;
-    pub const EXIT_FAILURE: u32 = 1;
-    pub fn exit(_code: u32) {
+    pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
+    pub const EXIT_FAILURE: Result<(), ()> = Err(());
+    pub fn exit(_code: Result<(), ()>) {
         loop {
             cortex_m::asm::bkpt();
         }
@@ -27,9 +27,9 @@ mod backend {
 
 #[cfg(not(feature = "debug-console"))]
 mod backend {
-    pub const EXIT_SUCCESS: u32 = 0;
-    pub const EXIT_FAILURE: u32 = 1;
-    pub fn exit(_code: u32) {
+    pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
+    pub const EXIT_FAILURE: Result<(), ()> = Err(());
+    pub fn exit(_code: Result<(), ()>) {
         loop {}
     }
     pub fn init() {}
