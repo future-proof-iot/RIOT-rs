@@ -17,5 +17,5 @@ fn riot_main() {
         "Hello from riot_main()! Running on a {} board.",
         riot_rs::buildinfo::BOARD
     );
-    exit(0);
+    exit(Ok(()));
 }
