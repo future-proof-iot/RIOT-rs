@@ -192,6 +192,7 @@ unsafe fn sched(old_sp: usize) {
         //pm_set_lowest();
         cortex_m::asm::wfi();
         cortex_m::interrupt::enable();
+        cortex_m::asm::isb();
         // pending interrupts would now get to run their ISRs
         cortex_m::interrupt::disable();
     }
