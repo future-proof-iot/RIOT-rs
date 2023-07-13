@@ -192,7 +192,7 @@ pub fn init() {
     // Here, we're deriving the vector table address from the reset vector,
     // which is always the second entry in the vector table, after the initial
     // ISR stack pointer.
-    // TODO: make cortex_m only
+
     unsafe {
         (*cortex_m::peripheral::SCB::PTR)
             .vtor
@@ -203,7 +203,7 @@ pub fn init() {
     unsafe {
         use cortex_m::peripheral::scb::SystemHandler;
         let mut p = cortex_m::Peripherals::take().unwrap();
-        p.SCB.set_priority(SystemHandler::PendSV, 255);
+        p.SCB.set_priority(SystemHandler::PendSV, 0xFF);
     }
 }
 
