@@ -27,6 +27,7 @@ repository = "https://github.com/future-proof-iot/riot-rs"
 cfg-if = { version = "1.0.0" }
 cortex-m = { version = "0.7", default-features = false }
 cortex-m-rt = { version = "0.7" }
+cortex-m-semihosting = { version = "0.5" }
 critical-section = { version = "1.1.1" }
 
 linkme = { version = "0.3.10", features = ["used_linker"] }

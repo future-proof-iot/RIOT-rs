@@ -16,5 +16,5 @@ riot-rs-runqueue.workspace = true
 # cortex-m specifics
 cortex-m.workspace = true
 cortex-m-rt.workspace = true
-cortex-m-semihosting = "0.5.0"
+cortex-m-semihosting.workspace = true
 panic-semihosting = { version = "0.6.0", features = ["exit"] }

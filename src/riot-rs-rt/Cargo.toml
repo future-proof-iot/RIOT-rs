@@ -8,9 +8,9 @@ edition = "2021"
 cfg-if = "1.0.0"
 
 [target.'cfg(context = "cortex-m")'.dependencies]
-cortex-m = { workspace = true, features = ["critical-section-single-core"] }
+cortex-m = { workspace = true, features = ["critical-section-single-core" ] }
 cortex-m-rt = { workspace = true }
-cortex-m-semihosting = { version = "0.5.0", optional = true }
+cortex-m-semihosting = { workspace = true, optional = true }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 rtt-target = { version = "0.4.0", optional = true }
 linkme.workspace = true
