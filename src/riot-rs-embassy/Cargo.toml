@@ -26,10 +26,19 @@ embassy-executor = { version = "0.2.0", features = [
 
 [target.'cfg(context = "nrf52")'.dependencies]
 embassy-nrf = { version = "0.1.0", features = [
-  "nrf52832",
   "time-driver-rtc1",
   "time",
   "unstable-pac",
+] }
+
+[target.'cfg(context = "nrf52832")'.dependencies]
+embassy-nrf = { version = "0.1.0", features = [
+  "nrf52832",
+] }
+
+[target.'cfg(context = "nrf52840")'.dependencies]
+embassy-nrf = { version = "0.1.0", features = [
+  "nrf52840",
 ] }
 
 [target.'cfg(context = "rp2040")'.dependencies]

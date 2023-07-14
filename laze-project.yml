@@ -243,10 +243,15 @@ contexts:
 
   - name: nrf52832
     parent: nrf52
+    env:
+      RUSTFLAGS:
+        - --cfg context=\"nrf52832\"
 
   - name: nrf52840
     parent: nrf52
     env:
+      RUSTFLAGS:
+        - --cfg context=\"nrf52840\"
       PROBE_RS_CHIP: nrf52840_xxAA
 
     tasks:

@@ -14,8 +14,8 @@ nrf52840-pac = { version = "0.12.2", default-features = false, features = [
 ], optional = true }
 
 [features]
-nrf52832 = ["nrf52832-pac"]
-nrf52840 = ["nrf52840-pac"]
+nrf52832 = ["dep:nrf52832-pac"]
+nrf52840 = ["dep:nrf52840-pac"]
 
 [build-dependencies]
 ld-memory = { workspace = true, features = ["build-rs"] }
