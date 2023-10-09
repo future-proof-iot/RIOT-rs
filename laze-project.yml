@@ -133,8 +133,10 @@ contexts:
             _flash ${out}
 
       flash-riotboot:
+        required_vars:
+          - FLASH_OFFSET
         cmd:
-          - riotboot-genhdr generate ${out} $(date +%s) $((${FLASH_OFFSET} + ${FLASH_SLOT_OFFSET})) ${FLASH_SLOT_OFFSET} - > ${out}.hdr.bin
+          - riotboot-genhdr generate ${out} $$(date +%s) $(${FLASH_OFFSET} + ${FLASH_SLOT_OFFSET}) ${FLASH_SLOT_OFFSET} - > ${out}.hdr.bin
           - ${OBJCOPY} -Obinary ${out} ${out}.bin
           - cat ${out}.hdr.bin ${out}.bin > ${out}.riotboot.bin
           - _flash () { openocd
@@ -174,7 +176,7 @@ contexts:
       riot-test:
         build: false
         cmd:
-          - ${RIOT_ENV} RIOTBASE=$(realpath ${RIOTBASE}) make -C$(realpath ${RIOTBASE}/${RIOT_APP}) test
+          - ${RIOT_ENV} RIOTBASE=$$(realpath ${RIOTBASE}) make -C$$(realpath ${RIOTBASE}/${RIOT_APP}) test
 
   - name: cortex-m
     parent: riot-rs
