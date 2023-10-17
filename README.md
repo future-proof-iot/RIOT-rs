@@ -27,12 +27,9 @@ This currently only supports the Nordic nrf52840dk.
 
 ## Status
 
-This project currently allows to build a RIOT application with an embedded Rust
-based rt+linking. In addition, it provides a Rust rewrite of RIOT's "core" module,
-providing API compatible implementations of RIOT's scheduler, mutexes, thread flags,
-msg and mbox.
-[riot-wrappers](https://gitlab.com/etonomy/riot-wrappers) are integrated for
-developing applications using Rust, though this has not been used / tested much.
+The current iteration of RIOT-rs combines [embassy](https://embassy.dev/) with
+a preemptive scheduler and adds some integration and build system work.
+It's highly experimental, expect frequent changes and breakage.
 
 ## Quickstart
 
@@ -50,31 +47,16 @@ Assuming you have a Nordic nrf52840dk connected, this should get you somewhere:
 
 1. install [laze](https://github.com/kaspar030/laze): `cargo install laze`
 
+1. install [probe-rs](https://github.com/probe-rs/probe-rs): `cargo install probe-rs --features cli`
+   (2023-10-17: if that fails, try from git: `cargo install --git https://github.com/probe-rs/probe-rs --features cli`)
+
 1. clone this repository and cd into it
 
-1. set up RIOT-rs toolchain
+### Run some example
 
-        laze task install-toolchain
-        laze task install-c2rust
-        laze task clone-riot
+1. Compile, flash and the hello-world example using `probe-rs run`
 
-### Flash some example
-
-1. Compile and flash the bottles example
-
-   laze -C examples/bottles task -b nrf52840dk flash
-
-1. in another window, run a terminal program of your choice to watch the
-  nrf52840dk's serial output
-
-## Building RIOT C applications with RIOT-rs
-
-It is possible to build any RIOT application using RIOT-rs and its core
-implementation, using `examples/riot-app`:
-
-    laze -Cexamples/riot-app task -b nrf52840dk -a riot-app -DRIOT_APP=foo/bar flash
-
-See the [riot-app docs](examples/riot-app/README.md) for more information.
+        laze -C examples/hello-world build -b nrf52840dk -s probe-rs-run run
 
 ## More information
 
@@ -94,10 +76,10 @@ RIOT-rs is licensed under either of
 
 at your option.
 
-RIOT-rs links with many components of [RIOT OS](https://github.com/RIOT-OS/RIOT),
-which is licenced under the terms of LGPLv2.1.
+~~RIOT-rs links with many components of [RIOT OS](https://github.com/RIOT-OS/RIOT),
+which is licenced under the terms of LGPLv2.1.~~
 
-Copyright (C) 2020 Freie Universität Berlin, Inria, Kaspar Schleiser
+Copyright (C) 2020-2023 Freie Universität Berlin, Inria, Kaspar Schleiser
 
 ## Contribution
 

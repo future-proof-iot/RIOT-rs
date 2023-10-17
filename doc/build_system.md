@@ -11,10 +11,10 @@ laze commands are applied to the application(s) within the subfolder laze is cal
 For example, when called in `examples/hello-world`, `laze build -b nrf52840dk`
 would build the hello-world example for nrf52840dk.
 
-laze tasks currently have the syntax `laze task -b <board> [other options] <task-name>`.
+laze tasks currently have the syntax `laze build -b <board> [other options] <task-name>`.
 E.g., to flash the bottles example, the command would be (when in `examples/bottles`):
 
-    laze task -b nrf52840dk flash
+    laze build -b nrf52840dk flash
 
 Laze allows enabling/disabling features using "modules", which can be selected
 or disabled using `--select <module>` or `--disable <module>>`.
@@ -23,10 +23,12 @@ Laze also allows to override global variables using e.g., `-DFOO=BAR`.
 
 Note: all tasks and build need to be called with the same set of arguments
 (`--select`, `--disable`, `-D...`).
-A `laze task -DFOO=1 flash` followed by `laze task -DFOO=other debug` might not
+A `laze build -DFOO=1 flash` followed by `laze build -DFOO=other debug` might not
 work.
 
 ## Laze tasks
+
+2023-10-14 Note: this is probably outdated
 
 - `flash` -> compiles (if needed) and flashes an application
 - `flash-riotboot` -> same as flash, but flashes to riotboot slot 0 (first slot)
@@ -50,8 +52,8 @@ This is an non-exhaustive list of modules that can be used.
 E.g., to start a debug session with all semihosting and panic output enabled,
 run
 
-    laze task -b <board> --disable release flash
-    laze task -b <board> --disable release debug
+    laze build -b <board> --disable release flash
+    laze build -b <board> --disable release debug
 
 - `release`: used by default. Selects `no-semihosting` and `silent-panic`
 - `no-semihosting`: turn off RIOT-rs debug output
