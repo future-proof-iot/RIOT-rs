@@ -18,7 +18,7 @@ pub mod thread_flags;
 
 pub use arch::schedule;
 pub use thread::{Thread, ThreadState};
-pub use thread_flags::*;
+pub use thread_flags as flags;
 pub use threadlist::ThreadList;
 
 use ensure_once::EnsureOnce;

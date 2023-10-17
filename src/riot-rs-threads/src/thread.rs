@@ -1,4 +1,4 @@
-pub use crate::{RunqueueId, ThreadFlags, ThreadId};
+pub use crate::{thread_flags::ThreadFlags, RunqueueId, ThreadId};
 
 /// Main struct for holding thread data
 #[derive(Debug)]

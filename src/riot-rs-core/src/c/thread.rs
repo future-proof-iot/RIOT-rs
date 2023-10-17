@@ -1,7 +1,10 @@
 use core::ffi::{c_char, c_int, c_void};
 use core::unimplemented;
 
-pub use crate::thread::{RunqueueId, Thread, ThreadFlags, ThreadId, ThreadState, WaitMode};
+pub use crate::thread::{
+    flags::{ThreadFlags, WaitMode},
+    RunqueueId, Thread, ThreadId, ThreadState,
+};
 pub use ref_cast::RefCast;
 
 use riot_rs_threads::current_pid;
