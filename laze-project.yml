@@ -433,16 +433,9 @@ modules:
   - name: testable
     context: lm3s6965evb
 
-  - name: probe-run
+  - name: probe-rs-run
     selects:
       - ?debug-console
-    env:
-      global:
-        CARGO_RUNNER: "'probe-run --chip ${PROBE_RS_CHIP}'"
-
-  - name: probe-rs
-    #selects:
-    #  - ?debug-console
     env:
       global:
         CARGO_RUNNER: "'probe-rs run --chip ${PROBE_RS_CHIP}'"
