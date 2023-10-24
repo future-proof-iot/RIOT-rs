@@ -6,47 +6,49 @@ edition = "2021"
 [dependencies]
 # always
 linkme.workspace = true
-embassy-sync = { version = "0.2.0" }
+embassy-sync = { workspace = true }
 riot-rs-core = { path = "../riot-rs-core" }
 riot-rs-rt = { path = "../riot-rs-rt" }
 critical-section.workspace = true
 
 # time
-embassy-time = { version = "0.1.2", optional = true, features = [
+embassy-time = { workspace = true, optional = true, features = [
   "nightly",
   "unstable-traits",
 ] }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
-embassy-executor = { version = "0.2.0", features = [
+embassy-executor = { workspace = true, features = [
   "arch-cortex-m",
   "executor-interrupt",
   "nightly",
 ] }
 
 [target.'cfg(context = "nrf52")'.dependencies]
-embassy-nrf = { version = "0.1.0", features = [
+embassy-nrf = { workspace = true, features = [
   "time-driver-rtc1",
   "time",
   "unstable-pac",
+  "rt",
 ] }
 
 [target.'cfg(context = "nrf52832")'.dependencies]
-embassy-nrf = { version = "0.1.0", features = [
+embassy-nrf = { workspace = true, features = [
   "nrf52832",
 ] }
 
 [target.'cfg(context = "nrf52840")'.dependencies]
-embassy-nrf = { version = "0.1.0", features = [
+embassy-nrf = { workspace = true, features = [
   "nrf52840",
 ] }
 
 [target.'cfg(context = "rp2040")'.dependencies]
-embassy-rp = { version = "0.1.0", features = [
+embassy-rp = { workspace = true, features = [
   "nightly",
+  "rt",
   "time-driver",
   "unstable-pac",
-  "unstable-traits",
+#  "unstable-traits",
 ] }
 
 [features]
