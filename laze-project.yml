@@ -449,8 +449,9 @@ builders:
     rules:
       # currently, laze requires a LINK rule for every context/builder
       # that gets an application configured.
-      # so, provide a dummy one
+      # so, provide a dummy one for `host`
       - name: LINK
+        description: "HOST LINK (no-op)"
         cmd: "true"
 
     tasks:
