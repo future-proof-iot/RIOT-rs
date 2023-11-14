@@ -11,11 +11,17 @@ mod backend {
 
 #[cfg(all(feature = "debug-console", feature = "rtt-target"))]
 mod backend {
+    const SYS_EXIT: u32 = 0x18;
     pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
     pub const EXIT_FAILURE: Result<(), ()> = Err(());
-    pub fn exit(_code: Result<(), ()>) {
+    pub fn exit(code: Result<(), ()>) {
+        let semihosting_exit_code = match code {
+            EXIT_FAILURE => 1,
+            EXIT_SUCCESS => 0x20026,
+        };
+
         loop {
-            cortex_m::asm::bkpt();
+            unsafe { cortex_m::asm::semihosting_syscall(SYS_EXIT, semihosting_exit_code) };
         }
     }
     pub use rtt_target::rprint as print;
