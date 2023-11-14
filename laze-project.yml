@@ -3,6 +3,7 @@ contexts:
   - name: default
     env:
       CFLAGS_OPT: -Os
+      bindir: "${build-dir}/bin/${builder}/${app}"
 
   # base context for all RIOT-rs applications
   - name: riot-rs
@@ -11,7 +12,6 @@ contexts:
       - riot-sources
 
     env:
-      bindir: "${build-dir}/bin/${builder}/${app}"
       RUSTFLAGS:
         - "-Clink-arg=--nmagic"
         - "-Clink-arg=-Tlinkme.x"
