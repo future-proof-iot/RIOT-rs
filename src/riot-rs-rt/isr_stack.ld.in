@@ -1,0 +1,14 @@
+SECTIONS
+{
+    .isr_stack (NOLOAD) : ALIGN(8)
+    {
+        _stack_bottom = .;
+        KEEP (*(.isr_stack))
+        . = ALIGN(8);
+        _stack_start = .;
+    } > RAM
+}
+
+INSERT BEFORE .data;
+
+ASSERT(_stack_start != _stack_bottom, "ERROR(riot-rs-rt): isr stack too small");

@@ -183,6 +183,7 @@ contexts:
     env:
       OBJCOPY: arm-none-eabi-objcopy
       RUSTFLAGS:
+        - -Clink-arg=-Tisr_stack.x
         - --cfg context=\"cortex-m\"
 
   - name: thumbv6m-none-eabi
