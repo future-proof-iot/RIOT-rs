@@ -227,6 +227,8 @@ contexts:
     # this is a context, not a builder, to be used as parent by  "microbit" and
     # "microbit-qemu"
     parent: thumbv6m-none-eabi
+    selects:
+      - "microbit disabled due to missing nrf51 support in embassy"
     env:
       # override "${builder}"
       BOARD: microbit
