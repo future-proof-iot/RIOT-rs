@@ -54,7 +54,7 @@ jobs:
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
     - name: "riot-rs compilation test"
-      run: laze build --partition hash:${{ matrix.partition }} --builders nrf52840dk -g
+      run: laze build --partition hash:${{ matrix.partition }} --builders nrf52840dk,rpi-pico -g
 
   CI-success:
       if: ${{ always() }}
