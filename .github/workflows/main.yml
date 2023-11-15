@@ -30,7 +30,7 @@ jobs:
     - name: Install toolchain
       uses: dtolnay/rust-toolchain@nightly
       with:
-        targets: thumbv7m-none-eabi,thumbv7em-none-eabi
+        targets: thumbv6m-none-eabi,thumbv7m-none-eabi,thumbv7em-none-eabi
 
     - name: rust cache
       uses: Swatinem/rust-cache@v2
