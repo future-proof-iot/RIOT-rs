@@ -48,4 +48,4 @@ jobs:
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
     - name: "riot-rs compilation test"
-      run: laze build --builder nrf52840dk -g
+      run: laze build --builders nrf52840dk -g
