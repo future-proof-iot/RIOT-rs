@@ -62,7 +62,7 @@ contexts:
     rules:
       - name: LINK
         description: CARGO ${out}
-        pool: console
+          #pool: console
         always: true
         cmd: >-
           cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} build --${PROFILE} ${FEATURES}

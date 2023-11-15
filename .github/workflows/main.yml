@@ -56,7 +56,7 @@ jobs:
     - name: "riot-rs compilation test"
       run: |
         laze build --partition hash:${{ matrix.partition }} --builders nrf52840dk,rpi-pico -g -G
-        ninja -f build/build-global.ninja -v -d stats
+        ninja -f build/build-global.ninja -v -d stats -j1
 
     - name: "aftermath"
       run: df -sh *
