@@ -9,14 +9,19 @@ on:
     - main
 
 jobs:
-  test:
+  CI:
     runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/kaspar030/riot.rs-build:v0.0.2
 
     env:
       SCCACHE_GHA_ENABLED: "true"
       RUSTC_WRAPPER: "sccache"
-    container:
-      image: ghcr.io/kaspar030/riot.rs-build:v0.0.1
+
+    strategy:
+      fail-fast: false
+      matrix:
+        partition: [ "1/5", "2/5", "3/5", "4/5", "5/5" ]
 
     steps:
     - name: Run sccache-cache
@@ -29,6 +34,8 @@ jobs:
 
     - name: rust cache
       uses: Swatinem/rust-cache@v2
+      with:
+        key: "${{ matrix.partition }}"
 
     - uses: taiki-e/install-action@v2
       with:
@@ -39,7 +46,6 @@ jobs:
 
     - name: "installing prerequisites"
       run: |
-        apt-get install -y ninja-build
         git config --global init.defaultBranch main
         git config --global user.email "ci@riot-labs.de"
         git config --global user.name "CI"
@@ -48,4 +54,18 @@ jobs:
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
     - name: "riot-rs compilation test"
-      run: laze build --builders nrf52840dk -g
+      run: laze build --partition hash:${{ matrix.partition }} --builders nrf52840dk -g
+
+  CI-success:
+      if: ${{ always() }}
+      runs-on: ubuntu-latest
+      name: Final Results
+      needs: [CI]
+      steps:
+        - run: |
+            result="${{ needs.CI.result }}"
+            if [[ $result == "success" || $result == "skipped" ]]; then
+              exit 0
+            else
+              exit 1
+            fi
