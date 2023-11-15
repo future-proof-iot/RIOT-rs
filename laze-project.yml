@@ -66,7 +66,7 @@ contexts:
         always: true
         cmd: >-
           cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
-          && echo FOO && cp ${relroot}/${build-dir}/bin/${builder}/${app}/cargo/${RUSTC_TARGET}/${PROFILE}/${riot_binary} ${relroot}/${out}
+          && echo FOO && cp ${relroot}/${build-dir}/bin/${builder}/${app}/cargo/${RUSTC_TARGET}/${PROFILE}/${riot_binary} ${relroot}/${out} && echo FOODONE
 
       - name: GIT_DOWNLOAD
         cmd: "D=$$(dirname ${out}); rm -rf $$D && git clone ${url} $$D -n && git -C $$D reset --hard ${commit} && touch ${out}"
