@@ -55,8 +55,8 @@ jobs:
 
     - name: "riot-rs compilation test"
       run: |
-        echo RUSTC_WRAPPER=$RUSTC_WRAPPER
-        laze build --partition hash:${{ matrix.partition }} --builders nrf52840dk,rpi-pico -v -g && echo DONE
+        laze build --partition hash:${{ matrix.partition }} --builders nrf52840dk,rpi-pico -g -G
+        ninja -f build/build-global.ninja -v
 
     - name: "aftermath"
       run: df -sh *
