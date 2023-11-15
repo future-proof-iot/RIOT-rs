@@ -55,8 +55,8 @@ jobs:
 
     - name: "riot-rs compilation test"
       run: |
-        echo RUSTC_WRAPPER=${RUSTC_WRAPPER}
-        laze build --partition hash:${{ matrix.partition }} --builders nrf52840dk,rpi-pico -g
+        echo RUSTC_WRAPPER=$RUSTC_WRAPPER
+        laze build --partition hash:${{ matrix.partition }} --builders nrf52840dk,rpi-pico -v -g
         echo DONE
 
   CI-success:
