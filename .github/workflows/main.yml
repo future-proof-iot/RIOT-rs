@@ -56,10 +56,9 @@ jobs:
     - name: "riot-rs compilation test"
       run: |
         laze build --partition hash:${{ matrix.partition }} --builders nrf52840dk,rpi-pico -g -G
-        sudo wget -qO /usr/local/bin/ninja.gz https://github.com/ninja-build/ninja/releases/latest/download/ninja-linux.zip
-        sudo gunzip /usr/local/bin/ninja.gz
-        sudo chmod a+x /usr/local/bin/ninja
-        /usr/local/bin/ninja -f build/build-global.ninja -v -d stats
+        wget -qO ninja.zip https://github.com/ninja-build/ninja/releases/latest/download/ninja-linux.zip
+        unzip ninja.zip
+        ./ninja -f build/build-global.ninja -v -d stats
 
     - name: "aftermath"
       run: du -sh *
