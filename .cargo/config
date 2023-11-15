@@ -1,30 +1,3 @@
-#[target.thumbv7m-none-eabi]
-# uncomment this to make `cargo run` execute programs on QEMU
-#runner = "qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
-#runner = "qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -gdb tcp::3333 -kernel"
-
-#[target.'cfg(all(target_arch = "arm", target_os = "none"))']
-# uncomment ONE of these three option to make `cargo run` start a GDB session
-# which option to pick depends on your system
-#runner = "arm-none-eabi-gdb -q -x openocd.gdb"
-# runner = "gdb-multiarch -q -x openocd.gdb"
-# runner = "gdb -q -x openocd.gdb"
-#runner = "probe-run --chip nRF52840_xxAA"
-
-#rustflags = [
-#  # LLD (shipped with the Rust toolchain) is used as the default linker
-#  "-Clink-arg=-Tlink.x",
-#  "-Clink-arg=-Tlibc.x",
-#  "-Clink-arg=-Tlinkme.x",
-#  #"-C", "linker-plugin-lto",
-#]
-
-#[build]
-# Pick ONE of these compilation targets
-# target = "thumbv6m-none-eabi"    # Cortex-M0 and Cortex-M0+
-#target = "thumbv7m-none-eabi"    # Cortex-M3
-#target = "thumbv7em-none-eabi"   # Cortex-M4 and Cortex-M7 (no FPU)
-#target = "thumbv7em-none-eabihf" # Cortex-M4F and Cortex-M7F (with FPU)
-
+# This is needed for cbindgen to work in no_std cross compiles.
 [unstable]
 features = ['all']
