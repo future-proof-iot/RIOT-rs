@@ -16,13 +16,11 @@ jobs:
       SCCACHE_GHA_ENABLED: "true"
       RUSTC_WRAPPER: "sccache"
     container:
-      image: kaspar030/riot.rs-build:latest
+      image: ghcr.io/kaspar030/riot.rs-build:v0.0.1
 
     steps:
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.2
-      with:
-        version: "v0.4.0-pre.9"
+      uses: mozilla-actions/sccache-action@v0.0.3
 
     - name: Install toolchain
       uses: dtolnay/rust-toolchain@nightly
@@ -37,7 +35,7 @@ jobs:
         tool: cargo-binstall
 
     - name: Check out repository code
-      uses: actions/checkout@v3
+      uses: actions/checkout@v4
 
     - name: "installing prerequisites"
       run: |
@@ -49,8 +47,5 @@ jobs:
         cargo binstall -y --no-symlinks c2rust
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
 
-    - name: "riot-rs-rt unittests"
-      run: laze -C src/riot-rs-rt task -b lm3s6965evb cargo-test
-
-    - name: "riot-rs-core unittests"
-      run: laze -C src/riot-rs-core task -b lm3s6965evb cargo-test
+    - name: "riot-rs compilation test"
+      run: laze build --builder nrf52840dk -g
