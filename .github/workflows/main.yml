@@ -55,6 +55,7 @@ jobs:
 
     - name: "riot-rs compilation test"
       run: |
+        apt-get install -y wget
         laze build --partition hash:${{ matrix.partition }} --builders nrf52840dk,rpi-pico -g -G
         wget -qO ninja.zip https://github.com/ninja-build/ninja/releases/latest/download/ninja-linux.zip
         unzip ninja.zip
