@@ -55,11 +55,10 @@ jobs:
 
     - name: "riot-rs compilation test"
       run: |
-        apt-get install -y wget
-        laze build --partition hash:${{ matrix.partition }} --builders nrf52840dk,rpi-pico -g -G
-        wget -qO ninja.zip https://github.com/ninja-build/ninja/releases/latest/download/ninja-linux.zip
-        unzip ninja.zip
-        ./ninja -f build/build-global.ninja -v -d stats
+        ps auxw
+        sccache --start-server
+        ps auxw
+        laze build --partition hash:${{ matrix.partition }} --builders nrf52840dk,rpi-pico -g
 
     - name: "aftermath"
       run: du -sh *
