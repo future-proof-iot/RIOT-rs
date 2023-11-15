@@ -17,7 +17,7 @@ ringbuffer = { path = "../lib/ringbuffer" }
 thread_info = []
 
 [build-dependencies]
-cbindgen = "0.15.*"
+cbindgen = "0.26.*"
 
 [dev-dependencies]
 riot-rs-rt = { path = "../riot-rs-rt" }

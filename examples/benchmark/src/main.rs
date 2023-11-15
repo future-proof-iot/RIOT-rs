@@ -1,7 +1,7 @@
 #![no_main]
 #![no_std]
 
-use riot_rs::debug::println;
+use riot_rs::rt::debug::println;
 
 #[no_mangle]
 fn riot_main() {

@@ -1,4 +1,5 @@
 apps:
   - name: riot-wrappers-mutex
     selects:
+      - riot-c
       - ?release

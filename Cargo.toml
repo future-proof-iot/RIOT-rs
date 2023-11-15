@@ -25,7 +25,7 @@ repository = "https://github.com/future-proof-iot/riot-rs"
 
 [workspace.dependencies]
 cfg-if = { version = "1.0.0" }
-cortex-m = { version = "0.7", default-features = false }
+cortex-m = { version = "0.7", default-features = false, features = [ "inline-asm" ] }
 cortex-m-rt = { version = "0.7" }
 cortex-m-semihosting = { version = "0.5" }
 critical-section = { version = "1.1.2" }

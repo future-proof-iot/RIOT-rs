@@ -1,6 +1,7 @@
 apps:
   - name: rust-gcoap
     selects:
+      - riot-c
       - ?release
     env:
       global:

@@ -1,6 +1,7 @@
 apps:
   - name: riot-app
     selects:
+      - riot-c
       - ?release
     env:
       global:
@@ -11,6 +12,7 @@ apps:
 
   - name: riot-appdir
     selects:
+      - riot-c
       - ?release
     env:
       global:

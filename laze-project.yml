@@ -7,9 +7,6 @@ contexts:
 
   # base context for all RIOT-rs applications
   - name: riot-rs
-    selects:
-      - ?newlib
-      - riot-sources
 
     env:
       RUSTFLAGS:
@@ -418,6 +415,12 @@ modules:
     context: riot-rs
     selects:
       - riot_libc|newlib
+
+  - name: riot-c
+    selects:
+      - "riot-c-currently-unsupported"
+      - ?newlib
+      - riot-sources
 
   - name: newlib
     context: riot-rs

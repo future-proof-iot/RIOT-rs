@@ -1,8 +1,14 @@
+defaults:
+  apps:
+    context:
+      - riot-rs
+
 subdirs:
   - benchmark
   - bottles
   - core-sizes
   - embassy
+    #  - embassy-gpio
   - hello-world
   - minimal
   - riot-app

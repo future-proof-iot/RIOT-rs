@@ -1,6 +1,7 @@
 apps:
   - name: bottles
     selects:
+      - riot-c
       - release
     env:
       global:
