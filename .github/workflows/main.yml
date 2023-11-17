@@ -21,7 +21,10 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        partition: [ 1..6 ]
+        partition:
+          - "${{ strategy.job-index + 1 }}/${{strategy.job-total}}"
+          - "${{ strategy.job-index + 1 }}/${{strategy.job-total}}"
+          - "${{ strategy.job-index + 1 }}/${{strategy.job-total}}"
 
     steps:
     - name: Run sccache-cache
@@ -35,7 +38,7 @@ jobs:
     - name: rust cache
       uses: Swatinem/rust-cache@v2
       with:
-        key: "${{ strategy.job-index }}/${{ strategy.job-total }}"
+        key: "${{ matrix.partition }}"
 
     - uses: taiki-e/install-action@v2
       with:
@@ -57,7 +60,7 @@ jobs:
       run: |
         sccache --start-server || true # work around https://github.com/ninja-build/ninja/issues/2052
 
-        laze build --partition hash:${{ strategy.job-index }}/${{ strategy.job-total }} --builders nrf52840dk,rpi-pico -g
+        laze build --partition hash:${{ matrix.partition }} --builders nrf52840dk,rpi-pico -g
 
   CI-success:
       if: ${{ always() }}
