@@ -55,7 +55,7 @@ jobs:
 
     - name: "riot-rs compilation test"
       run: |
-        sccache --start-server # work around https://github.com/ninja-build/ninja/issues/2052
+        sccache --start-server || true # work around https://github.com/ninja-build/ninja/issues/2052
 
         laze build --partition hash:${{ matrix.partition }} --builders nrf52840dk,rpi-pico -g
 
