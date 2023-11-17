@@ -8,16 +8,17 @@ edition = "2021"
 cfg-if = "1.0.0"
 
 [target.'cfg(context = "cortex-m")'.dependencies]
-cortex-m = { workspace = true, features = ["critical-section-single-core" ] }
+cortex-m = { workspace = true, features = ["critical-section-single-core"] }
 cortex-m-rt = { workspace = true }
 cortex-m-semihosting = { workspace = true, optional = true }
+portable-atomic = { version = "1.5.1", features = ["critical-section"] }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 rtt-target = { version = "0.4.0", optional = true }
 linkme.workspace = true
 
 [features]
-default = [ "threading" ]
-threading = [ "dep:riot-rs-threads" ]
+default = ["threading"]
+threading = ["dep:riot-rs-threads"]
 debug-console = []
 silent-panic = []
 
