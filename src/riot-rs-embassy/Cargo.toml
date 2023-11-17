@@ -6,16 +6,21 @@ edition = "2021"
 [dependencies]
 # always
 linkme.workspace = true
+static_cell.workspace = true
+critical-section.workspace = true
 embassy-sync = { workspace = true }
 riot-rs-core = { path = "../riot-rs-core" }
 riot-rs-rt = { path = "../riot-rs-rt" }
-critical-section.workspace = true
 
 # time
 embassy-time = { workspace = true, optional = true, features = [
   "nightly",
   "unstable-traits",
 ] }
+
+embassy-usb = { workspace = true, optional = true }
+embassy-net = { workspace = true, optional = true, features = [ "dhcpv4", "medium-ethernet" ] }
+heapless = "0.8.0"
 
 [target.'cfg(context = "cortex-m")'.dependencies]
 embassy-executor = { workspace = true, features = [
@@ -26,6 +31,7 @@ embassy-executor = { workspace = true, features = [
 
 [target.'cfg(context = "nrf52")'.dependencies]
 embassy-nrf = { workspace = true, features = [
+  "nightly",
   "time-driver-rtc1",
   "time",
   "unstable-pac",
@@ -53,3 +59,6 @@ embassy-rp = { workspace = true, features = [
 
 [features]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
+usb = [ "dep:embassy-usb" ]
+net = [ "dep:embassy-net" ]
+usb_ethernet = [ "usb", "net" ]
