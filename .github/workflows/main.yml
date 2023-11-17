@@ -17,7 +17,7 @@ jobs:
     env:
       SCCACHE_GHA_ENABLED: "true"
       RUSTC_WRAPPER: "sccache"
-      PARTITION: "${{ strategy.job-index + 1 }}/${{strategy.job-total}}"
+      PARTITION: "${{ strategy.job-index }}/${{strategy.job-total}}"
 
     name: "CI ($PARTITION)"
 
