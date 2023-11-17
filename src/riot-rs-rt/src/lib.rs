@@ -42,7 +42,7 @@ pub use arch::benchmark;
 
 #[link_section = ".isr_stack"]
 #[used(linker)]
-static ISR_STACK: [u8; 1024] = [0u8; 1024];
+static ISR_STACK: [u8; 8 * 1024] = [0u8; 8 * 1024];
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {
