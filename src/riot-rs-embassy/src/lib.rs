@@ -2,69 +2,79 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use static_cell::make_static;
-
 use embassy_executor::{InterruptExecutor, Spawner};
-
-pub static EXECUTOR: InterruptExecutor = InterruptExecutor::new();
+use embassy_usb::{Builder, UsbDevice};
+use static_cell::make_static;
 
 pub mod blocker;
 
-#[cfg(context = "nrf52")]
-use embassy_nrf as embassy_arch;
-#[cfg(context = "nrf52")]
-use embassy_nrf::{bind_interrupts, interrupt::SWI0_EGU0 as SWI, peripherals, rng, usb};
-
-#[cfg(context = "rp2040")]
-use embassy_rp as embassy_arch;
-#[cfg(context = "rp2040")]
-use embassy_rp::interrupt::SWI_IRQ_1 as SWI;
-
-use embassy_arch::interrupt;
+pub static EXECUTOR: InterruptExecutor = InterruptExecutor::new();
 
 #[cfg(context = "nrf52")]
-#[interrupt]
-unsafe fn SWI0_EGU0() {
-    EXECUTOR.on_interrupt()
+mod nrf52 {
+    pub use embassy_nrf::interrupt;
+    pub use embassy_nrf::interrupt::SWI0_EGU0 as SWI;
+    pub use embassy_nrf::{init, Peripherals};
+
+    use embassy_nrf::{bind_interrupts, peripherals, rng, usb};
+
+    bind_interrupts!(struct Irqs {
+        USBD => usb::InterruptHandler<peripherals::USBD>;
+        POWER_CLOCK => usb::vbus_detect::InterruptHandler;
+        RNG => rng::InterruptHandler<peripherals::RNG>;
+    });
+
+    #[interrupt]
+    unsafe fn SWI0_EGU0() {
+        crate::EXECUTOR.on_interrupt()
+    }
+
+    // nrf52 usb begin
+    use embassy_nrf::usb::{vbus_detect::HardwareVbusDetect, Driver};
+    pub type UsbDriver = Driver<'static, peripherals::USBD, HardwareVbusDetect>;
+    pub fn usb_driver(usbd: peripherals::USBD) -> UsbDriver {
+        Driver::new(usbd, Irqs, HardwareVbusDetect::new(Irqs))
+    }
 }
 
-use embassy_usb::{Builder, UsbDevice};
-
-//
-// nrf52 usb begin
-#[cfg(context = "nrf52")]
-use embassy_nrf::usb::{vbus_detect::HardwareVbusDetect, Driver};
-
-#[cfg(context = "nrf52")]
-bind_interrupts!(struct Irqs {
-    USBD => usb::InterruptHandler<peripherals::USBD>;
-    POWER_CLOCK => usb::vbus_detect::InterruptHandler;
-    RNG => rng::InterruptHandler<peripherals::RNG>;
-});
-
-#[cfg(context = "nrf52")]
-type UsbDriver = Driver<'static, peripherals::USBD, HardwareVbusDetect>;
-
-// nrf52 usb end
-//
 #[cfg(context = "rp2040")]
-use embassy_rp::{
-    bind_interrupts, peripherals,
-    peripherals::USB,
-    usb::{Driver, InterruptHandler},
-};
+mod rp2040 {
+    pub use embassy_rp::interrupt;
+    pub use embassy_rp::interrupt::SWI_IRQ_1 as SWI;
+    pub use embassy_rp::{init, Peripherals};
 
-// rp2040 usb start
-#[cfg(context = "rp2040")]
-bind_interrupts!(struct Irqs {
-    USBCTRL_IRQ => InterruptHandler<USB>;
-});
+    use embassy_rp::{
+        bind_interrupts, peripherals,
+        peripherals::USB,
+        usb::{Driver, InterruptHandler},
+    };
+
+    // rp2040 usb start
+    bind_interrupts!(struct Irqs {
+        USBCTRL_IRQ => InterruptHandler<USB>;
+    });
+
+    pub type UsbDriver = Driver<'static, peripherals::USB>;
+    #[interrupt]
+    unsafe fn SWI_IRQ_1() {
+        crate::EXECUTOR.on_interrupt()
+    }
+    pub fn usb_driver(usb: peripherals::USB) -> UsbDriver {
+        Driver::new(usb, Irqs)
+    }
+}
+
+#[cfg(context = "nrf52")]
+use nrf52 as arch;
 
 #[cfg(context = "rp2040")]
-type UsbDriver = Driver<'static, peripherals::USB>;
+use rp2040 as arch;
+
+use arch::SWI;
 
 //
 // usb common start
+use arch::UsbDriver;
 #[embassy_executor::task]
 async fn usb_task(mut device: UsbDevice<'static, UsbDriver>) -> ! {
     device.run().await
@@ -90,12 +100,6 @@ async fn net_task(stack: &'static Stack<Device<'static, MTU>>) -> ! {
 }
 // usb net end
 //
-
-#[cfg(context = "rp2040")]
-#[interrupt]
-unsafe fn SWI_IRQ_1() {
-    EXECUTOR.on_interrupt()
-}
 
 // #[cfg(context = "rp2040")]
 // #[embassy_executor::task]
@@ -130,7 +134,7 @@ const fn usb_default_config() -> embassy_usb::Config<'static> {
 
 pub(crate) fn init() {
     riot_rs_rt::debug::println!("riot-rs-embassy::init()");
-    let p = embassy_arch::init(Default::default());
+    let p = arch::init(Default::default());
     EXECUTOR.start(SWI);
 
     EXECUTOR.spawner().spawn(init_task(p)).unwrap();
@@ -138,7 +142,7 @@ pub(crate) fn init() {
 }
 
 #[embassy_executor::task]
-async fn init_task(peripherals: embassy_arch::Peripherals) {
+async fn init_task(peripherals: arch::Peripherals) {
     riot_rs_rt::debug::println!("riot-rs-embassy::init_task()");
     #[cfg(all(context = "nrf52", feature = "usb"))]
     {
@@ -151,10 +155,10 @@ async fn init_task(peripherals: embassy_arch::Peripherals) {
     }
 
     #[cfg(context = "nrf52")]
-    let usb_driver = { Driver::new(peripherals.USBD, Irqs, HardwareVbusDetect::new(Irqs)) };
+    let usb_driver = nrf52::usb_driver(peripherals.USBD);
 
     #[cfg(context = "rp2040")]
-    let usb_driver = { Driver::new(peripherals.USB, Irqs) };
+    let usb_driver = rp2040::usb_driver(peripherals.USB);
 
     let usb_config = usb_default_config();
 
@@ -191,7 +195,6 @@ async fn init_task(peripherals: embassy_arch::Peripherals) {
     // let (runner, device) =
     //     class.into_embassy_net_device::<MTU, 4, 4>(make_static!(NetState::new()), our_mac_addr);
     // unwrap!(spawner.spawn(usb_ncm_task(runner)));
-    riot_rs_rt::debug::println!("riot-rs-embassy::init_task() done");
 
     use embassy_usb::class::cdc_ncm::embassy_net::State as NetState;
     let (runner, device) = usb_cdc_ecm
@@ -224,6 +227,8 @@ async fn init_task(peripherals: embassy_arch::Peripherals) {
     ));
 
     spawner.spawn(net_task(stack)).unwrap();
+
+    riot_rs_rt::debug::println!("riot-rs-embassy::init_task() done");
 }
 
 use linkme::distributed_slice;
