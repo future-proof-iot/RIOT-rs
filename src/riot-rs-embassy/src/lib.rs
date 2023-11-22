@@ -3,8 +3,10 @@
 #![feature(used_with_arg)]
 
 use embassy_executor::{InterruptExecutor, Spawner};
-use embassy_usb::{Builder, UsbDevice};
 use static_cell::make_static;
+
+#[cfg(feature = "usb")]
+use embassy_usb::{Builder, UsbDevice};
 
 pub mod blocker;
 
@@ -16,11 +18,13 @@ mod nrf52 {
     pub use embassy_nrf::interrupt::SWI0_EGU0 as SWI;
     pub use embassy_nrf::{init, Peripherals};
 
-    use embassy_nrf::{bind_interrupts, peripherals, rng, usb};
+    #[cfg(feature = "usb")]
+    use embassy_nrf::{bind_interrupts, peripherals, rng, usb as nrf_usb};
 
+    #[cfg(feature = "usb")]
     bind_interrupts!(struct Irqs {
-        USBD => usb::InterruptHandler<peripherals::USBD>;
-        POWER_CLOCK => usb::vbus_detect::InterruptHandler;
+        USBD => nrf_usb::InterruptHandler<peripherals::USBD>;
+        POWER_CLOCK => nrf_usb::vbus_detect::InterruptHandler;
         RNG => rng::InterruptHandler<peripherals::RNG>;
     });
 
@@ -29,11 +33,15 @@ mod nrf52 {
         crate::EXECUTOR.on_interrupt()
     }
 
-    // nrf52 usb begin
-    use embassy_nrf::usb::{vbus_detect::HardwareVbusDetect, Driver};
-    pub type UsbDriver = Driver<'static, peripherals::USBD, HardwareVbusDetect>;
-    pub fn usb_driver(usbd: peripherals::USBD) -> UsbDriver {
-        Driver::new(usbd, Irqs, HardwareVbusDetect::new(Irqs))
+    #[cfg(feature = "usb")]
+    pub mod usb {
+        use embassy_nrf::peripherals;
+        use embassy_nrf::usb::{vbus_detect::HardwareVbusDetect, Driver};
+        pub type UsbDriver = Driver<'static, peripherals::USBD, HardwareVbusDetect>;
+        pub fn driver(usbd: peripherals::USBD) -> UsbDriver {
+            use super::Irqs;
+            Driver::new(usbd, Irqs, HardwareVbusDetect::new(Irqs))
+        }
     }
 }
 
@@ -43,6 +51,7 @@ mod rp2040 {
     pub use embassy_rp::interrupt::SWI_IRQ_1 as SWI;
     pub use embassy_rp::{init, Peripherals};
 
+    #[cfg(feature = "usb")]
     use embassy_rp::{
         bind_interrupts, peripherals,
         peripherals::USB,
@@ -50,17 +59,24 @@ mod rp2040 {
     };
 
     // rp2040 usb start
+    #[cfg(feature = "usb")]
     bind_interrupts!(struct Irqs {
         USBCTRL_IRQ => InterruptHandler<USB>;
     });
 
-    pub type UsbDriver = Driver<'static, peripherals::USB>;
     #[interrupt]
     unsafe fn SWI_IRQ_1() {
         crate::EXECUTOR.on_interrupt()
     }
-    pub fn usb_driver(usb: peripherals::USB) -> UsbDriver {
-        Driver::new(usb, Irqs)
+
+    #[cfg(feature = "usb")]
+    pub mod usb {
+        use embassy_rp::peripherals;
+        use embassy_rp::usb::Driver;
+        pub type UsbDriver = Driver<'static, peripherals::USB>;
+        pub fn driver(usb: peripherals::USB) -> UsbDriver {
+            Driver::new(usb, super::Irqs)
+        }
     }
 }
 
@@ -74,7 +90,10 @@ use arch::SWI;
 
 //
 // usb common start
-use arch::UsbDriver;
+#[cfg(feature = "usb")]
+use arch::usb::UsbDriver;
+
+#[cfg(feature = "usb")]
 #[embassy_executor::task]
 async fn usb_task(mut device: UsbDevice<'static, UsbDriver>) -> ! {
     device.run().await
@@ -82,18 +101,25 @@ async fn usb_task(mut device: UsbDevice<'static, UsbDriver>) -> ! {
 // usb common end
 //
 
+#[cfg(feature = "net")]
 //
 // usb net begin
+#[cfg(feature = "net")]
 const MTU: usize = 1514;
 
+#[cfg(feature = "net")]
 use embassy_net::{Stack, StackResources};
+
+#[cfg(feature = "usb_ethernet")]
 use embassy_usb::class::cdc_ncm::embassy_net::{Device, Runner};
 
+#[cfg(feature = "usb_ethernet")]
 #[embassy_executor::task]
 async fn usb_ncm_task(class: Runner<'static, UsbDriver, MTU>) -> ! {
     class.run().await
 }
 
+#[cfg(feature = "net")]
 #[embassy_executor::task]
 async fn net_task(stack: &'static Stack<Device<'static, MTU>>) -> ! {
     stack.run().await
@@ -101,20 +127,7 @@ async fn net_task(stack: &'static Stack<Device<'static, MTU>>) -> ! {
 // usb net end
 //
 
-// #[cfg(context = "rp2040")]
-// #[embassy_executor::task]
-// async fn embassy_init(p: Peripherals) {
-//     use embassy_rp::uart::{Config, UartTx};
-//     use embassy_time::{Duration, Timer};
-//     let mut uart_tx = UartTx::new(p.UART0, p.PIN_0, p.DMA_CH0, Config::default());
-
-//     loop {
-//         let data = b"hello\n";
-//         uart_tx.write(&data[..]).await.unwrap();
-//         Timer::after(Duration::from_secs(1)).await;
-//     }
-// }
-
+#[cfg(feature = "usb")]
 const fn usb_default_config() -> embassy_usb::Config<'static> {
     // Create embassy-usb Config
     let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
@@ -154,79 +167,96 @@ async fn init_task(peripherals: arch::Peripherals) {
         while clock.events_hfclkstarted.read().bits() != 1 {}
     }
 
-    #[cfg(context = "nrf52")]
-    let usb_driver = nrf52::usb_driver(peripherals.USBD);
+    #[cfg(feature = "usb")]
+    let mut usb_builder = {
+        let usb_config = usb_default_config();
 
-    #[cfg(context = "rp2040")]
-    let usb_driver = rp2040::usb_driver(peripherals.USB);
+        #[cfg(context = "nrf52")]
+        let usb_driver = nrf52::usb::driver(peripherals.USBD);
 
-    let usb_config = usb_default_config();
+        #[cfg(context = "rp2040")]
+        let usb_driver = rp2040::usb::driver(peripherals.USB);
 
-    // Create embassy-usb DeviceBuilder using the driver and config.
-    let mut builder = Builder::new(
-        usb_driver,
-        usb_config,
-        &mut make_static!([0; 256])[..],
-        &mut make_static!([0; 256])[..],
-        &mut make_static!([0; 256])[..],
-        &mut make_static!([0; 128])[..],
-        &mut make_static!([0; 128])[..],
-    );
+        // Create embassy-usb DeviceBuilder using the driver and config.
+        let builder = Builder::new(
+            usb_driver,
+            usb_config,
+            &mut make_static!([0; 256])[..],
+            &mut make_static!([0; 256])[..],
+            &mut make_static!([0; 256])[..],
+            &mut make_static!([0; 128])[..],
+            &mut make_static!([0; 128])[..],
+        );
+
+        builder
+    };
 
     // Our MAC addr.
+    #[cfg(feature = "usb_ethernet")]
     let our_mac_addr = [0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC];
-    // Host's MAC addr. This is the MAC the host "thinks" its USB-to-ethernet adapter has.
-    let host_mac_addr = [0x88, 0x88, 0x88, 0x88, 0x88, 0x88];
 
+    #[cfg(feature = "usb_ethernet")]
     let usb_cdc_ecm = {
+        // Host's MAC addr. This is the MAC the host "thinks" its USB-to-ethernet adapter has.
+        let host_mac_addr = [0x88, 0x88, 0x88, 0x88, 0x88, 0x88];
+
         use embassy_usb::class::cdc_ncm::{CdcNcmClass, State};
 
         // Create classes on the builder.
-        CdcNcmClass::new(&mut builder, make_static!(State::new()), host_mac_addr, 64)
+        CdcNcmClass::new(
+            &mut usb_builder,
+            make_static!(State::new()),
+            host_mac_addr,
+            64,
+        )
     };
 
     let spawner = Spawner::for_current_executor().await;
 
-    // Build the builder.
-    let usb = builder.build();
-
+    #[cfg(feature = "usb")]
+    let usb = { usb_builder.build() };
+    #[cfg(feature = "usb")]
     spawner.spawn(usb_task(usb)).unwrap();
 
-    // let (runner, device) =
-    //     class.into_embassy_net_device::<MTU, 4, 4>(make_static!(NetState::new()), our_mac_addr);
-    // unwrap!(spawner.spawn(usb_ncm_task(runner)));
+    #[cfg(feature = "usb_ethernet")]
+    let device = {
+        use embassy_usb::class::cdc_ncm::embassy_net::State as NetState;
+        let (runner, device) = usb_cdc_ecm
+            .into_embassy_net_device::<MTU, 4, 4>(make_static!(NetState::new()), our_mac_addr);
 
-    use embassy_usb::class::cdc_ncm::embassy_net::State as NetState;
-    let (runner, device) = usb_cdc_ecm
-        .into_embassy_net_device::<MTU, 4, 4>(make_static!(NetState::new()), our_mac_addr);
+        spawner.spawn(usb_ncm_task(runner)).unwrap();
 
-    spawner.spawn(usb_ncm_task(runner)).unwrap();
+        device
+    };
 
-    // network stack
-    //let config = embassy_net::Config::dhcpv4(Default::default());
-    use embassy_net::{Ipv4Address, Ipv4Cidr};
-    let config = embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
-        address: Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
-        dns_servers: heapless::Vec::new(),
-        gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
-    });
+    #[cfg(feature = "net")]
+    {
+        // network stack
+        //let config = embassy_net::Config::dhcpv4(Default::default());
+        use embassy_net::{Ipv4Address, Ipv4Cidr};
+        let config = embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
+            address: Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
+            dns_servers: heapless::Vec::new(),
+            gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
+        });
 
-    // Generate random seed
-    // let mut rng = Rng::new(p.RNG, Irqs);
-    // let mut seed = [0; 8];
-    // rng.blocking_fill_bytes(&mut seed);
-    // let seed = u64::from_le_bytes(seed);
-    let seed = 1234u64;
+        // Generate random seed
+        // let mut rng = Rng::new(p.RNG, Irqs);
+        // let mut seed = [0; 8];
+        // rng.blocking_fill_bytes(&mut seed);
+        // let seed = u64::from_le_bytes(seed);
+        let seed = 1234u64;
 
-    // Init network stack
-    let stack = &*make_static!(Stack::new(
-        device,
-        config,
-        make_static!(StackResources::<2>::new()),
-        seed
-    ));
+        // Init network stack
+        let stack = &*make_static!(Stack::new(
+            device,
+            config,
+            make_static!(StackResources::<2>::new()),
+            seed
+        ));
 
-    spawner.spawn(net_task(stack)).unwrap();
+        spawner.spawn(net_task(stack)).unwrap();
+    }
 
     riot_rs_rt::debug::println!("riot-rs-embassy::init_task() done");
 }
