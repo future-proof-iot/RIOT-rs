@@ -119,7 +119,7 @@ async fn usb_ncm_task(class: Runner<'static, UsbDriver, MTU>) -> ! {
     class.run().await
 }
 
-#[cfg(feature = "net")]
+#[cfg(feature = "usb_ethernet")]
 #[embassy_executor::task]
 async fn net_task(stack: &'static Stack<Device<'static, MTU>>) -> ! {
     stack.run().await
@@ -229,7 +229,7 @@ async fn init_task(peripherals: arch::Peripherals) {
         device
     };
 
-    #[cfg(feature = "net")]
+    #[cfg(feature = "usb_ethernet")]
     {
         // network stack
         //let config = embassy_net::Config::dhcpv4(Default::default());
