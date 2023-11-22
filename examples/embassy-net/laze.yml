@@ -1,0 +1,4 @@
+apps:
+  - name: embassy-net
+    selects:
+      - ?release
