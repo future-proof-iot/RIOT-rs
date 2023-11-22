@@ -717,6 +717,17 @@ dependencies = [
 
 [[package]]
 name = "embassy-net"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embassy-sync 0.3.0",
+ "embassy-time",
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
+name = "embassy-net"
 version = "0.2.1"
 source = "git+https://github.com/embassy-rs/embassy#006260feddf4d362a99260a38d86dffddab39d2e"
 dependencies = [
@@ -2100,7 +2111,7 @@ version = "0.1.0"
 dependencies = [
  "critical-section",
  "embassy-executor",
- "embassy-net",
+ "embassy-net 0.2.1",
  "embassy-nrf",
  "embassy-rp",
  "embassy-sync 0.3.0",
