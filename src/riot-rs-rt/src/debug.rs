@@ -43,6 +43,7 @@ mod backend {
     #[macro_export]
     macro_rules! nop_println {
         ($($arg:tt)*) => {{
+            let _ = ($($arg)*);
             // Do nothing
         }};
     }
@@ -50,6 +51,7 @@ mod backend {
     #[macro_export]
     macro_rules! nop_print {
         ($($arg:tt)*) => {{
+            let _ = ($($arg)*);
             // Do nothing
         }};
     }
