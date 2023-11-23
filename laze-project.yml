@@ -100,7 +100,7 @@ contexts:
 
       gdb:
         cmd:
-          - arm-none-eabi-gdb -ex "target extended-remote localhost:1234" ${out}
+          - arm-none-eabi-gdb -ex "target extended-remote localhost:1337" ${out}
         build: false
         ignore_ctrl_c: true
 
@@ -264,7 +264,7 @@ contexts:
 
       debug-rs:
         cmd:
-          - probe-rs debug --chip ${PROBE_RS_CHIP} --exe ${out}
+          - probe-rs gdb --chip ${PROBE_RS_CHIP}
 
   - name: rp2040
     parent: thumbv6m-none-eabi
