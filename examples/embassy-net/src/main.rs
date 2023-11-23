@@ -29,6 +29,7 @@ async fn async_task() {
 
 #[no_mangle]
 fn riot_main() {
+    use embassy_time::Instant;
     println!(
         "Hello from riot_main()! Running on a {} board.",
         riot_rs::buildinfo::BOARD
