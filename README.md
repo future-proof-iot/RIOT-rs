@@ -15,7 +15,7 @@ in Rust, check out [riot-wrappers](https://gitlab.com/etonomy/riot-wrappers).
 
 ## Supported hardware
 
-This currently only supports the Nordic nrf52840dk.
+This currently only supports the Nordic nrf52840dk and the Raspberry Pi Pico.
 
 ## Goals
 
