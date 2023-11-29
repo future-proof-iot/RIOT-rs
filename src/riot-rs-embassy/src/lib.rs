@@ -2,15 +2,27 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
+use linkme::distributed_slice;
+
 use embassy_executor::{InterruptExecutor, Spawner};
-use static_cell::make_static;
 
 #[cfg(feature = "usb")]
 use embassy_usb::{Builder, UsbDevice};
 
 pub mod blocker;
 
+pub type Task = fn(Spawner, TaskArgs);
+
+#[derive(Copy, Clone)]
+pub struct TaskArgs {
+    #[cfg(feature = "net")]
+    pub stack: &'static Stack<Device<'static, MTU>>,
+}
+
 pub static EXECUTOR: InterruptExecutor = InterruptExecutor::new();
+
+#[distributed_slice]
+pub static EMBASSY_TASKS: [Task] = [..];
 
 #[cfg(context = "nrf52")]
 mod nrf52 {
@@ -52,11 +64,7 @@ mod rp2040 {
     pub use embassy_rp::{init, Peripherals};
 
     #[cfg(feature = "usb")]
-    use embassy_rp::{
-        bind_interrupts, peripherals,
-        peripherals::USB,
-        usb::{Driver, InterruptHandler},
-    };
+    use embassy_rp::{bind_interrupts, peripherals::USB, usb::InterruptHandler};
 
     // rp2040 usb start
     #[cfg(feature = "usb")]
@@ -145,18 +153,22 @@ const fn usb_default_config() -> embassy_usb::Config<'static> {
     config
 }
 
+#[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
     riot_rs_rt::debug::println!("riot-rs-embassy::init()");
     let p = arch::init(Default::default());
     EXECUTOR.start(SWI);
-
     EXECUTOR.spawner().spawn(init_task(p)).unwrap();
     riot_rs_rt::debug::println!("riot-rs-embassy::init() done");
 }
 
 #[embassy_executor::task]
 async fn init_task(peripherals: arch::Peripherals) {
+    #[cfg(any(feature = "net", feature = "usb"))]
+    use static_cell::make_static;
+
     riot_rs_rt::debug::println!("riot-rs-embassy::init_task()");
+
     #[cfg(all(context = "nrf52", feature = "usb"))]
     {
         // nrf52840
@@ -230,7 +242,7 @@ async fn init_task(peripherals: arch::Peripherals) {
     };
 
     #[cfg(feature = "usb_ethernet")]
-    {
+    let stack = {
         // network stack
         //let config = embassy_net::Config::dhcpv4(Default::default());
         use embassy_net::{Ipv4Address, Ipv4Cidr};
@@ -256,13 +268,21 @@ async fn init_task(peripherals: arch::Peripherals) {
         ));
 
         spawner.spawn(net_task(stack)).unwrap();
+
+        stack
+    };
+
+    let args = TaskArgs {
+        #[cfg(feature = "net")]
+        stack,
+    };
+
+    for task in EMBASSY_TASKS {
+        task(spawner, args);
     }
+
+    // mark used
+    let _ = peripherals;
 
     riot_rs_rt::debug::println!("riot-rs-embassy::init_task() done");
 }
-
-use linkme::distributed_slice;
-use riot_rs_rt::INIT_FUNCS;
-
-#[distributed_slice(INIT_FUNCS)]
-static RIOT_RS_EMBASSY_INIT: fn() = init;
