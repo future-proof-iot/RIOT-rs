@@ -30,7 +30,7 @@ cortex-m-rt = { version = "0.7" }
 cortex-m-semihosting = { version = "0.5" }
 critical-section = { version = "1.1.2" }
 
-embassy-executor = { version = "0.3.2", default-features = false }
+embassy-executor = { version = "0.3.3", default-features = false }
 embassy-net = { version = "0.2.1", default-features = false }
 embassy-nrf = { version = "0.1.0", default-features = false }
 embassy-rp = { version = "0.1.0", default-features = false }
