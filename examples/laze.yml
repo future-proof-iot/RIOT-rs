@@ -9,6 +9,7 @@ subdirs:
   - core-sizes
   - embassy
   - embassy-net-tcp
+  - embassy-net-udp
     #  - embassy-gpio
   - hello-world
   - minimal
