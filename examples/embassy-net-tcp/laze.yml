@@ -1,4 +1,4 @@
 apps:
-  - name: embassy-net
+  - name: embassy-net-tcp
     selects:
       - ?release

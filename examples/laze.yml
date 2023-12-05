@@ -8,7 +8,7 @@ subdirs:
   - bottles
   - core-sizes
   - embassy
-  - embassy-net
+  - embassy-net-tcp
     #  - embassy-gpio
   - hello-world
   - minimal

@@ -764,6 +764,19 @@ dependencies = [
 ]
 
 [[package]]
+name = "embassy-net-tcp"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embassy-net",
+ "embassy-time",
+ "embedded-io-async",
+ "linkme",
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
 name = "embassy-nrf"
 version = "0.1.0"
 source = "git+https://github.com/embassy-rs/embassy#e0727fe1f6bd1b8c9c356f33991b522956251ba1"
