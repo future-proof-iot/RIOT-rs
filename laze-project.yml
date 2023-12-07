@@ -510,6 +510,9 @@ builders:
     disables:
       - periph_rtt
 
+  - name: microbit-v2
+    parent: nrf52840
+
   - name: lm3s6965evb
     parent: thumbv7m-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
     disables:
