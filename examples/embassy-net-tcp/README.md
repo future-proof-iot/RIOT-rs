@@ -12,4 +12,4 @@ In this folder, run
     laze build -b nrf52840dk run
 
 With the device USB cable connected, a USB ethernet device should pop up.
-RIOT-rs will reply to ping requests on 10.0.42.61.
+RIOT-rs will reply to ping requests on 10.42.0.61.
