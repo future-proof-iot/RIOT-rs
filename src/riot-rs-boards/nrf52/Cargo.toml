@@ -17,5 +17,9 @@ nrf52840-pac = { version = "0.12.2", default-features = false, features = [
 nrf52832 = ["dep:nrf52832-pac"]
 nrf52840 = ["dep:nrf52840-pac"]
 
+riotboot-partitioning-16k-2slots = []
+riotboot-slot-0 = []
+riotboot-slot-1 = []
+
 [build-dependencies]
 ld-memory = { workspace = true, features = ["build-rs"] }

@@ -513,6 +513,15 @@ builders:
   - name: microbit-v2
     parent: nrf52840
 
+  - name: particle-xenon-base
+    parent: nrf52840
+
+  - name: particle-xenon-fulldevice
+    parent: particle-xenon-base
+
+  - name: particle-xenon-riotboot-dfu-slot0
+    parent: particle-xenon-base
+
   - name: lm3s6965evb
     parent: thumbv7m-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
     disables:

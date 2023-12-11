@@ -16,3 +16,8 @@ microbit = { optional=true, path="microbit" }
 microbit-v2 = { optional=true, path="microbit-v2" }
 dwm1001 = { optional=true, path="dwm1001" }
 rpi-pico = { optional=true, path="rpi-pico" }
+particle-xenon = { optional=true, path="particle-xenon" }
+
+[features]
+particle-xenon-fulldevice = [ "particle-xenon/fulldevice" ]
+particle-xenon-riotboot-dfu-slot0 = [ "particle-xenon/riotboot-dfu-slot0" ]
