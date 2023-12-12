@@ -21,6 +21,7 @@ embassy-time = { workspace = true, optional = true, features = [
 embassy-usb = { workspace = true, optional = true }
 embassy-net = { workspace = true, optional = true, features = [ "dhcpv4", "medium-ethernet" ] }
 heapless = "0.8.0"
+usbd-hid = { version = "0.6.0", optional = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
 embassy-executor = { workspace = true, features = [
@@ -36,6 +37,7 @@ embassy-nrf = { workspace = true, features = [
   "time",
   "unstable-pac",
   "rt",
+  "gpiote",
 ] }
 
 [target.'cfg(context = "nrf52832")'.dependencies]
@@ -62,3 +64,4 @@ time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
 usb = [ "dep:embassy-usb" ]
 net = [ "dep:embassy-net" ]
 usb_ethernet = [ "usb", "net" ]
+usb_hid = ["usb", "dep:usbd-hid"]

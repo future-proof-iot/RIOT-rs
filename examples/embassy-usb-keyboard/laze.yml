@@ -1,0 +1,4 @@
+apps:
+  - name: embassy-usb-keyboard
+    selects:
+      - ?release

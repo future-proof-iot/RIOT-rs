@@ -2,21 +2,36 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
+#[cfg(all(feature = "usb_ethernet", feature = "usb_hid"))]
+compile_error!("feature \"usb_ethernet\" and feature \"usb_hid\" cannot be enabled at the same time");
+
+use core::cell::Cell;
+
 use linkme::distributed_slice;
 
+use static_cell::make_static;
 use embassy_executor::{InterruptExecutor, Spawner};
 
 #[cfg(feature = "usb")]
 use embassy_usb::{Builder, UsbDevice};
 
+#[cfg(feature = "usb_hid")]
+use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex as EmbassyMutex};
+
 pub mod blocker;
 
 pub type Task = fn(Spawner, TaskArgs);
 
+#[allow(non_snake_case)]
 #[derive(Copy, Clone)]
 pub struct TaskArgs {
     #[cfg(feature = "net")]
     pub stack: &'static Stack<Device<'static, MTU>>,
+    #[cfg(feature = "usb_hid")]
+    pub hid_writer:
+        &'static EmbassyMutex<CriticalSectionRawMutex, hid::HidWriter<'static, UsbDriver, 8>>,
+    #[cfg(context = "nrf52")]
+    pub P0_11: &'static Cell<Option<embassy_nrf::peripherals::P0_11>>,
 }
 
 pub static EXECUTOR: InterruptExecutor = InterruptExecutor::new();
@@ -135,8 +150,26 @@ async fn net_task(stack: &'static Stack<Device<'static, MTU>>) -> ! {
 // usb net end
 //
 
-#[cfg(feature = "usb")]
-const fn usb_default_config() -> embassy_usb::Config<'static> {
+//
+// USB HID begin
+#[cfg(feature = "usb_hid")]
+use embassy_usb::class::hid;
+#[cfg(feature = "usb_hid")]
+pub use usbd_hid;
+
+#[cfg(feature = "usb_hid")]
+#[embassy_executor::task]
+async fn hid_task(
+    hid_reader: hid::HidReader<'static, UsbDriver, 1>,
+    request_handler: &'static MyRequestHandler,
+) -> ! {
+    hid_reader.run(false, request_handler).await
+}
+// USB HID end
+//
+
+#[cfg(feature = "usb_ethernet")]
+const fn usb_ethernet_config() -> embassy_usb::Config<'static> {
     // Create embassy-usb Config
     let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
     config.manufacturer = Some("Embassy");
@@ -153,6 +186,18 @@ const fn usb_default_config() -> embassy_usb::Config<'static> {
     config
 }
 
+#[cfg(feature = "usb_hid")]
+const fn usb_hid_config() -> embassy_usb::Config<'static> {
+    // Create embassy-usb Config
+    let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
+    config.manufacturer = Some("Embassy");
+    config.product = Some("USB HID keyboard example");
+    config.serial_number = Some("12345678");
+    config.max_power = 100;
+    config.max_packet_size_0 = 64;
+    config
+}
+
 #[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
     riot_rs_rt::debug::println!("riot-rs-embassy::init()");
@@ -164,9 +209,6 @@ pub(crate) fn init() {
 
 #[embassy_executor::task]
 async fn init_task(peripherals: arch::Peripherals) {
-    #[cfg(any(feature = "net", feature = "usb"))]
-    use static_cell::make_static;
-
     riot_rs_rt::debug::println!("riot-rs-embassy::init_task()");
 
     #[cfg(all(context = "nrf52", feature = "usb"))]
@@ -181,7 +223,10 @@ async fn init_task(peripherals: arch::Peripherals) {
 
     #[cfg(feature = "usb")]
     let mut usb_builder = {
-        let usb_config = usb_default_config();
+        #[cfg(feature = "usb_ethernet")]
+        let usb_config = usb_ethernet_config();
+        #[cfg(feature = "usb_hid")]
+        let usb_config = usb_hid_config();
 
         #[cfg(context = "nrf52")]
         let usb_driver = nrf52::usb::driver(peripherals.USBD);
@@ -224,6 +269,28 @@ async fn init_task(peripherals: arch::Peripherals) {
     };
 
     let spawner = Spawner::for_current_executor().await;
+
+    #[cfg(feature = "usb_hid")]
+    let hid_writer = {
+        let request_handler = make_static!(MyRequestHandler {});
+        let config = embassy_usb::class::hid::Config {
+            report_descriptor: <usbd_hid::descriptor::KeyboardReport as usbd_hid::descriptor::SerializedDescriptor>::desc(),
+            request_handler: Some(request_handler),
+            poll_ms: 60,
+            max_packet_size: 64,
+        };
+        // FIXME: use a proper USB HID configuration for the USB Builder
+        let hid_rw = hid::HidReaderWriter::<_, 1, 8>::new(
+            &mut usb_builder,
+            make_static!(hid::State::new()),
+            config,
+        );
+        let (hid_reader, hid_writer) = hid_rw.split();
+        spawner
+            .spawn(hid_task(hid_reader, request_handler))
+            .unwrap();
+        make_static!(EmbassyMutex::new(hid_writer))
+    };
 
     #[cfg(feature = "usb")]
     let usb = { usb_builder.build() };
@@ -275,6 +342,10 @@ async fn init_task(peripherals: arch::Peripherals) {
     let args = TaskArgs {
         #[cfg(feature = "net")]
         stack,
+        #[cfg(feature = "usb_hid")]
+        hid_writer,
+        #[cfg(context = "nrf52")]
+        P0_11: make_static!(Cell::new(Some(peripherals.P0_11))),
     };
 
     for task in EMBASSY_TASKS {
@@ -285,4 +356,29 @@ async fn init_task(peripherals: arch::Peripherals) {
     let _ = peripherals;
 
     riot_rs_rt::debug::println!("riot-rs-embassy::init_task() done");
+}
+
+#[cfg(feature = "usb_hid")]
+struct MyRequestHandler;
+
+#[cfg(feature = "usb_hid")]
+impl hid::RequestHandler for MyRequestHandler {
+    fn get_report(&self, id: hid::ReportId, _buf: &mut [u8]) -> Option<usize> {
+        riot_rs_rt::debug::println!("Get report for {:?}", id);
+        None
+    }
+
+    fn set_report(&self, id: hid::ReportId, data: &[u8]) -> embassy_usb::control::OutResponse {
+        riot_rs_rt::debug::println!("Set report for {:?}: {:?}", id, data);
+        embassy_usb::control::OutResponse::Accepted
+    }
+
+    fn set_idle_ms(&self, id: Option<hid::ReportId>, dur: u32) {
+        riot_rs_rt::debug::println!("Set idle rate for {:?} to {:?}", id, dur);
+    }
+
+    fn get_idle_ms(&self, id: Option<hid::ReportId>) -> Option<u32> {
+        riot_rs_rt::debug::println!("Get idle rate for {:?}", id);
+        None
+    }
 }

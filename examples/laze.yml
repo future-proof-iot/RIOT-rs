@@ -10,6 +10,7 @@ subdirs:
   - embassy
   - embassy-net-tcp
   - embassy-net-udp
+  - embassy-usb-keyboard
     #  - embassy-gpio
   - hello-world
   - minimal

@@ -212,9 +212,9 @@ checksum = "374d28ec25809ee0e23827c2ab573d729e293f281dfe393500e7ad618baa61c6"
 
 [[package]]
 name = "byteorder"
-version = "1.5.0"
+version = "1.4.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1fd0f2584146f6f2ef48085050886acf353beff7305ebd1ae69500e27c67f64b"
+checksum = "14c189c53d098945499cdfa7ecc63567cf3886b3332b312a5b4585d8d3a6a610"
 
 [[package]]
 name = "c2rust-asm-casts"
@@ -684,17 +684,6 @@ version = "0.1.1"
 source = "git+https://github.com/embassy-rs/embassy#e0727fe1f6bd1b8c9c356f33991b522956251ba1"
 
 [[package]]
-name = "embassy-gpio"
-version = "0.1.0"
-dependencies = [
- "embassy-executor",
- "embassy-sync 0.3.0",
- "embassy-time",
- "riot-rs",
- "riot-rs-boards",
-]
-
-[[package]]
 name = "embassy-hal-internal"
 version = "0.1.0"
 source = "git+https://github.com/embassy-rs/embassy#e0727fe1f6bd1b8c9c356f33991b522956251ba1"
@@ -713,19 +702,6 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.39",
-]
-
-[[package]]
-name = "embassy-net"
-version = "0.1.0"
-dependencies = [
- "embassy-executor",
- "embassy-net 0.2.1",
- "embassy-time",
- "embedded-io-async",
- "linkme",
- "riot-rs",
- "riot-rs-boards",
 ]
 
 [[package]]
@@ -783,7 +759,6 @@ dependencies = [
  "embassy-executor",
  "embassy-net",
  "embassy-time",
- "embedded-io-async",
  "linkme",
  "riot-rs",
  "riot-rs-boards",
@@ -904,12 +879,27 @@ dependencies = [
  "embassy-sync 0.4.0",
  "embassy-usb-driver",
  "heapless 0.8.0",
+ "ssmarshal",
+ "usbd-hid",
 ]
 
 [[package]]
 name = "embassy-usb-driver"
 version = "0.1.0"
 source = "git+https://github.com/embassy-rs/embassy#e0727fe1f6bd1b8c9c356f33991b522956251ba1"
+
+[[package]]
+name = "embassy-usb-keyboard"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embassy-nrf",
+ "embassy-time",
+ "embassy-usb",
+ "linkme",
+ "riot-rs",
+ "riot-rs-boards",
+]
 
 [[package]]
 name = "embedded-dma"
@@ -1019,6 +1009,12 @@ checksum = "c533630cf40e9caa44bd91aadc88a75d75a4c3a12b4cfde353cbed41daa1e1f1"
 dependencies = [
  "log",
 ]
+
+[[package]]
+name = "encode_unicode"
+version = "0.3.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a357d28ed41a50f9c765dbfe56cbc04a64e53e5fc58ba79fbc34c10ef3df831f"
 
 [[package]]
 name = "equivalent"
@@ -2158,7 +2154,7 @@ version = "0.1.0"
 dependencies = [
  "critical-section",
  "embassy-executor",
- "embassy-net 0.2.1",
+ "embassy-net",
  "embassy-nrf",
  "embassy-rp",
  "embassy-sync 0.3.0",
@@ -2169,13 +2165,7 @@ dependencies = [
  "riot-rs-core",
  "riot-rs-rt",
  "static_cell",
-]
-
-[[package]]
-name = "riot-rs-linkme"
-version = "0.1.0"
-dependencies = [
- "linkme",
+ "usbd-hid",
 ]
 
 [[package]]
@@ -2505,6 +2495,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "ssmarshal"
+version = "1.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f3e6ad23b128192ed337dfa4f1b8099ced0c2bf30d61e551b65fda5916dbb850"
+dependencies = [
+ "encode_unicode",
+ "serde",
+]
+
+[[package]]
 name = "stable_deref_trait"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2716,6 +2716,47 @@ name = "unicode-xid"
 version = "0.2.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f962df74c8c05a667b5ee8bcf162993134c104e96440b663c8daa176dc772d8c"
+
+[[package]]
+name = "usb-device"
+version = "0.2.9"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1f6cc3adc849b5292b4075fc0d5fdcf2f24866e88e336dd27a8943090a520508"
+
+[[package]]
+name = "usbd-hid"
+version = "0.6.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "975bd411f4a939986751ea09992a24fa47c4d25c6ed108d04b4c2999a4fd0132"
+dependencies = [
+ "serde",
+ "ssmarshal",
+ "usb-device",
+ "usbd-hid-macros",
+]
+
+[[package]]
+name = "usbd-hid-descriptors"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dcbee8c6735e90894fba04770bc41e11fd3c5256018856e15dc4dd1e6c8a3dd1"
+dependencies = [
+ "bitfield",
+]
+
+[[package]]
+name = "usbd-hid-macros"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "261079a9ada015fa1acac7cc73c98559f3a92585e15f508034beccf6a2ab75a2"
+dependencies = [
+ "byteorder",
+ "proc-macro2",
+ "quote",
+ "serde",
+ "syn 1.0.109",
+ "usbd-hid-descriptors",
+]
 
 [[package]]
 name = "vcell"
