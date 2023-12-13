@@ -13,6 +13,8 @@ cfg_if! {
         pub use nrf52840_mdk as board;
     } else if #[cfg(feature = "microbit")] {
         pub use microbit as board;
+    } else if #[cfg(feature = "microbit-v2")] {
+        pub use microbit_v2 as board;
     } else if #[cfg(feature = "nucleo-f401re")] {
         pub use nucleo_f401re as board;
     } else if #[cfg(feature = "lm3s6965evb")] {
