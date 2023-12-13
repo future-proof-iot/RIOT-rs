@@ -717,19 +717,6 @@ dependencies = [
 
 [[package]]
 name = "embassy-net"
-version = "0.1.0"
-dependencies = [
- "embassy-executor",
- "embassy-net 0.2.1",
- "embassy-time",
- "embedded-io-async",
- "linkme",
- "riot-rs",
- "riot-rs-boards",
-]
-
-[[package]]
-name = "embassy-net"
 version = "0.2.1"
 source = "git+https://github.com/embassy-rs/embassy#e0727fe1f6bd1b8c9c356f33991b522956251ba1"
 dependencies = [
@@ -1504,6 +1491,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "microbit-v2"
+version = "0.1.0"
+dependencies = [
+ "cortex-m",
+ "cortex-m-rt",
+ "nrf52",
+ "riot-rs-rt",
+]
+
+[[package]]
 name = "minicbor"
 version = "0.19.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2121,6 +2118,7 @@ dependencies = [
  "dwm1001",
  "lm3s6965evb",
  "microbit",
+ "microbit-v2",
  "nrf52840-mdk",
  "nrf52840dk",
  "nrf52dk",
@@ -2158,7 +2156,7 @@ version = "0.1.0"
 dependencies = [
  "critical-section",
  "embassy-executor",
- "embassy-net 0.2.1",
+ "embassy-net",
  "embassy-nrf",
  "embassy-rp",
  "embassy-sync 0.3.0",
