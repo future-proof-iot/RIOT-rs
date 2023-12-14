@@ -1,4 +1,5 @@
 #![no_std]
+#![feature(used_with_arg)]
 
 use cfg_if::cfg_if;
 
@@ -26,6 +27,10 @@ cfg_if! {
     }
 }
 
-pub fn init() {
+use linkme::distributed_slice;
+use riot_rs_rt::INIT_FUNCS;
+
+#[distributed_slice(INIT_FUNCS)]
+fn init() {
     board::init();
 }
