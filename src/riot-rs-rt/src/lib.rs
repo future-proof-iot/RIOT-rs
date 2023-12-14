@@ -66,7 +66,7 @@ fn startup() -> ! {
     #[cfg(feature = "debug-console")]
     debug::init();
 
-    debug::println!("riot_rs_rt::main()");
+    debug::println!("riot_rs_rt::startup()");
 
     for f in INIT_FUNCS {
         f();
