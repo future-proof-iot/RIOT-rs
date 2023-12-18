@@ -13,10 +13,7 @@ riot-rs-core = { path = "../riot-rs-core" }
 riot-rs-rt = { path = "../riot-rs-rt" }
 
 # time
-embassy-time = { workspace = true, optional = true, features = [
-  "nightly",
-  "unstable-traits",
-] }
+embassy-time = { workspace = true, optional = true }
 
 embassy-usb = { workspace = true, optional = true }
 embassy-net = { workspace = true, optional = true, features = [ "dhcpv4", "medium-ethernet" ] }
@@ -31,7 +28,6 @@ embassy-executor = { workspace = true, features = [
 
 [target.'cfg(context = "nrf52")'.dependencies]
 embassy-nrf = { workspace = true, features = [
-  "nightly",
   "time-driver-rtc1",
   "time",
   "unstable-pac",
@@ -50,7 +46,6 @@ embassy-nrf = { workspace = true, features = [
 
 [target.'cfg(context = "rp2040")'.dependencies]
 embassy-rp = { workspace = true, features = [
-  "nightly",
   "rt",
   "time-driver",
   "unstable-pac",

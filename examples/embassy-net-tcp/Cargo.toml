@@ -11,5 +11,5 @@ riot-rs-boards = { path = "../../src/riot-rs-boards" }
 embassy-executor = { workspace = true, default-features = false }
 embassy-time = { workspace = true, default-features = false }
 linkme.workspace = true
-embassy-net = { workspace = true, features = ["tcp", "nightly"] }
-embedded-io-async = "0.6.0"
+embassy-net = { workspace = true, features = ["tcp" ] }
+embedded-io-async = "0.6.1"
