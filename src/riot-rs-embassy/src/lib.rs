@@ -15,7 +15,7 @@ pub type Task = fn(Spawner, TaskArgs);
 
 #[derive(Copy, Clone)]
 pub struct TaskArgs {
-    #[cfg(feature = "net")]
+    #[cfg(feature = "usb_ethernet")]
     pub stack: &'static Stack<Device<'static, ETHERNET_MTU>>,
 }
 
@@ -109,7 +109,6 @@ async fn usb_task(mut device: UsbDevice<'static, UsbDriver>) -> ! {
 // usb common end
 //
 
-#[cfg(feature = "net")]
 //
 // net begin
 const ETHERNET_MTU: usize = 1514;
@@ -167,7 +166,7 @@ pub(crate) fn init() {
 
 #[embassy_executor::task]
 async fn init_task(peripherals: arch::Peripherals) {
-    #[cfg(any(feature = "net", feature = "usb"))]
+    #[cfg(feature = "usb")]
     use static_cell::make_static;
 
     riot_rs_rt::debug::println!("riot-rs-embassy::init_task()");
@@ -229,9 +228,10 @@ async fn init_task(peripherals: arch::Peripherals) {
     let spawner = Spawner::for_current_executor().await;
 
     #[cfg(feature = "usb")]
-    let usb = { usb_builder.build() };
-    #[cfg(feature = "usb")]
-    spawner.spawn(usb_task(usb)).unwrap();
+    {
+        let usb = usb_builder.build();
+        spawner.spawn(usb_task(usb)).unwrap();
+    }
 
     #[cfg(feature = "usb_ethernet")]
     let device = {
@@ -278,7 +278,7 @@ async fn init_task(peripherals: arch::Peripherals) {
     };
 
     let args = TaskArgs {
-        #[cfg(feature = "net")]
+        #[cfg(feature = "usb_ethernet")]
         stack,
     };
 
