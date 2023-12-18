@@ -16,7 +16,7 @@ pub type Task = fn(Spawner, TaskArgs);
 #[derive(Copy, Clone)]
 pub struct TaskArgs {
     #[cfg(feature = "net")]
-    pub stack: &'static Stack<Device<'static, MTU>>,
+    pub stack: &'static Stack<Device<'static, ETHERNET_MTU>>,
 }
 
 pub static EXECUTOR: InterruptExecutor = InterruptExecutor::new();
@@ -111,25 +111,28 @@ async fn usb_task(mut device: UsbDevice<'static, UsbDriver>) -> ! {
 
 #[cfg(feature = "net")]
 //
-// usb net begin
-#[cfg(feature = "net")]
-const MTU: usize = 1514;
+// net begin
+const ETHERNET_MTU: usize = 1514;
 
 #[cfg(feature = "net")]
 use embassy_net::{Stack, StackResources};
+// net end
+//
 
+//
+// usb net begin
 #[cfg(feature = "usb_ethernet")]
 use embassy_usb::class::cdc_ncm::embassy_net::{Device, Runner};
 
 #[cfg(feature = "usb_ethernet")]
 #[embassy_executor::task]
-async fn usb_ncm_task(class: Runner<'static, UsbDriver, MTU>) -> ! {
+async fn usb_ncm_task(class: Runner<'static, UsbDriver, ETHERNET_MTU>) -> ! {
     class.run().await
 }
 
 #[cfg(feature = "usb_ethernet")]
 #[embassy_executor::task]
-async fn net_task(stack: &'static Stack<Device<'static, MTU>>) -> ! {
+async fn net_task(stack: &'static Stack<Device<'static, ETHERNET_MTU>>) -> ! {
     stack.run().await
 }
 // usb net end
@@ -233,8 +236,10 @@ async fn init_task(peripherals: arch::Peripherals) {
     #[cfg(feature = "usb_ethernet")]
     let device = {
         use embassy_usb::class::cdc_ncm::embassy_net::State as NetState;
-        let (runner, device) = usb_cdc_ecm
-            .into_embassy_net_device::<MTU, 4, 4>(make_static!(NetState::new()), our_mac_addr);
+        let (runner, device) = usb_cdc_ecm.into_embassy_net_device::<ETHERNET_MTU, 4, 4>(
+            make_static!(NetState::new()),
+            our_mac_addr,
+        );
 
         spawner.spawn(usb_ncm_task(runner)).unwrap();
 
