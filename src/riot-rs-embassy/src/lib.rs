@@ -155,6 +155,26 @@ const fn usb_default_config() -> embassy_usb::Config<'static> {
     config
 }
 
+#[cfg(feature = "net")]
+fn network_config() -> embassy_net::Config {
+    #[cfg(not(feature = "override_network_config"))]
+    {
+        use embassy_net::{Ipv4Address, Ipv4Cidr};
+        embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
+            address: Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
+            dns_servers: heapless::Vec::new(),
+            gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
+        })
+    }
+    #[cfg(feature = "override_network_config")]
+    {
+        extern "Rust" {
+            fn riot_rs_network_config() -> embassy_net::Config;
+        }
+        unsafe { riot_rs_network_config() }
+    }
+}
+
 #[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
     riot_rs_rt::debug::println!("riot-rs-embassy::init()");
@@ -249,13 +269,7 @@ async fn init_task(peripherals: arch::Peripherals) {
     #[cfg(feature = "usb_ethernet")]
     let stack = {
         // network stack
-        //let config = embassy_net::Config::dhcpv4(Default::default());
-        use embassy_net::{Ipv4Address, Ipv4Cidr};
-        let config = embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
-            address: Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
-            dns_servers: heapless::Vec::new(),
-            gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
-        });
+        let config = network_config();
 
         // Generate random seed
         // let mut rng = Rng::new(p.RNG, Irqs);
