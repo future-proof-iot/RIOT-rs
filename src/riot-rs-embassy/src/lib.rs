@@ -93,21 +93,31 @@ async fn net_task(stack: &'static Stack<Device<'static, ETHERNET_MTU>>) -> ! {
 //
 
 #[cfg(feature = "usb")]
-const fn usb_default_config() -> embassy_usb::Config<'static> {
-    // Create embassy-usb Config
-    let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
-    config.manufacturer = Some("Embassy");
-    config.product = Some("USB-Ethernet example");
-    config.serial_number = Some("12345678");
-    config.max_power = 100;
-    config.max_packet_size_0 = 64;
+fn usb_config() -> embassy_usb::Config<'static> {
+    #[cfg(not(feature = "override_usb_config"))]
+    {
+        // Create embassy-usb Config
+        let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
+        config.manufacturer = Some("Embassy");
+        config.product = Some("USB-Ethernet example");
+        config.serial_number = Some("12345678");
+        config.max_power = 100;
+        config.max_packet_size_0 = 64;
 
-    // Required for Windows support.
-    config.composite_with_iads = true;
-    config.device_class = 0xEF;
-    config.device_sub_class = 0x02;
-    config.device_protocol = 0x01;
-    config
+        // Required for Windows support.
+        config.composite_with_iads = true;
+        config.device_class = 0xEF;
+        config.device_sub_class = 0x02;
+        config.device_protocol = 0x01;
+        config
+    }
+    #[cfg(feature = "override_usb_config")]
+    {
+        extern "Rust" {
+            fn riot_rs_usb_config() -> embassy_usb::Config<'static>;
+        }
+        unsafe { riot_rs_usb_config() }
+    }
 }
 
 #[cfg(feature = "net")]
@@ -162,7 +172,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "usb")]
     let mut usb_builder = {
-        let usb_config = usb_default_config();
+        let usb_config = usb_config();
 
         #[cfg(context = "nrf52")]
         let usb_driver = arch::usb::driver(peripherals.USBD.take().unwrap());
