@@ -1,3 +1,14 @@
+//! This module provides an opinionated integration of `embassy`.
+//!
+//! To provide a custom USB configuration, enable the feature
+//! `riot_rs_embassy/override_usb_config`, then add this to your code:
+//! ```rust
+//! #[no_mangle]
+//! pub fn riot_rs_usb_config() -> embassy_usb::Config<'static> {
+//!     /// create config here
+//! }
+//! ```
+
 #![no_std]
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
