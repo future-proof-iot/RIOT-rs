@@ -60,3 +60,4 @@ usb_ethernet = [ "usb", "net" ]
 
 threading = ["dep:riot-rs-core"]
 override_network_config = []
+override_usb_config = []
