@@ -38,7 +38,7 @@ embassy-sync = { version = "0.5.0", default-features = false }
 embassy-time = { version = "0.2", default-features = false }
 embassy-usb = { version = "0.1.0", default-features = false }
 
-linkme = { version = "0.3.19", features = ["used_linker"] }
+linkme = { version = "0.3.21", features = ["used_linker"] }
 
 riot-rs = { path = "src/riot-rs" }
 riot-rs-rt = { path = "src/riot-rs-rt" }
