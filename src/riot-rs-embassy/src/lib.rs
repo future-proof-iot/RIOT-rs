@@ -2,6 +2,8 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
+pub mod assign_resources;
+
 use linkme::distributed_slice;
 
 use embassy_executor::{InterruptExecutor, Spawner};
