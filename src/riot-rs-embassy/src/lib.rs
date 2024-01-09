@@ -6,7 +6,7 @@ pub mod assign_resources;
 
 use core::cell::OnceCell;
 
-use linkme::distributed_slice;
+pub use linkme::distributed_slice;
 
 use embassy_executor::{InterruptExecutor, Spawner};
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
@@ -376,12 +376,10 @@ impl From<AssigningResourcesError> for ApplicationInitError {
 
 /// Sets the [`Application::initialize()`] function implemented on the provided type to be run at
 /// startup.
-///
-/// Requires to have the [linkme] crate in scope.
 #[macro_export]
 macro_rules! riot_initialize {
     ($prog_type:ident) => {
-        #[linkme::distributed_slice($crate::EMBASSY_TASKS)]
+        #[$crate::distributed_slice($crate::EMBASSY_TASKS)]
         fn __init_application(
             peripherals: &mut $crate::arch::OptionalPeripherals,
             init_args: $crate::InitializationArgs,
