@@ -1,0 +1,13 @@
+[package]
+name = "application"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+publish = false
+
+[dependencies]
+riot-rs = { path = "../../src/riot-rs" }
+riot-rs-boards = { path = "../../src/riot-rs-boards" }
+embassy-executor = { workspace = true, default-features = false }
+embassy-time = { workspace = true, default-features = false }
+linkme.workspace = true
