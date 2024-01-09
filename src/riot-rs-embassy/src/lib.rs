@@ -4,21 +4,36 @@
 
 pub mod assign_resources;
 
+use core::cell::OnceCell;
+
 use linkme::distributed_slice;
 
 use embassy_executor::{InterruptExecutor, Spawner};
+use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
+
+use crate::assign_resources::AssigningResourcesError;
 
 #[cfg(feature = "usb")]
 use embassy_usb::{Builder, UsbDevice};
 
 pub mod blocker;
 
-pub type Task = fn(Spawner, TaskArgs);
+pub type Task = fn(
+    &mut arch::OptionalPeripherals,
+    InitializationArgs,
+) -> Result<&dyn Application, ApplicationInitError>;
+
+// Allows us to pass extra initialization arguments in the future
+#[derive(Copy, Clone)]
+#[non_exhaustive]
+pub struct InitializationArgs {
+    pub peripherals: &'static Mutex<CriticalSectionRawMutex, arch::OptionalPeripherals>,
+}
 
 #[derive(Copy, Clone)]
-pub struct TaskArgs {
+pub struct Drivers {
     #[cfg(feature = "usb_ethernet")]
-    pub stack: &'static Stack<Device<'static, ETHERNET_MTU>>,
+    pub stack: &'static OnceCell<&'static Stack<Device<'static, ETHERNET_MTU>>>,
 }
 
 pub static EXECUTOR: InterruptExecutor = InterruptExecutor::new();
@@ -30,7 +45,7 @@ pub static EMBASSY_TASKS: [Task] = [..];
 mod nrf52 {
     pub use embassy_nrf::interrupt;
     pub use embassy_nrf::interrupt::SWI0_EGU0 as SWI;
-    pub use embassy_nrf::{init, Peripherals};
+    pub use embassy_nrf::{init, OptionalPeripherals};
 
     #[cfg(feature = "usb")]
     use embassy_nrf::{bind_interrupts, peripherals, rng, usb as nrf_usb};
@@ -63,7 +78,7 @@ mod nrf52 {
 mod rp2040 {
     pub use embassy_rp::interrupt;
     pub use embassy_rp::interrupt::SWI_IRQ_1 as SWI;
-    pub use embassy_rp::{init, Peripherals};
+    pub use embassy_rp::{init, OptionalPeripherals, Peripherals};
 
     #[cfg(feature = "usb")]
     use embassy_rp::{bind_interrupts, peripherals::USB, usb::InterruptHandler};
@@ -180,18 +195,22 @@ fn network_config() -> embassy_net::Config {
 #[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
     riot_rs_rt::debug::println!("riot-rs-embassy::init()");
-    let p = arch::init(Default::default());
+    let p = arch::OptionalPeripherals::from(arch::init(Default::default()));
     EXECUTOR.start(SWI);
     EXECUTOR.spawner().spawn(init_task(p)).unwrap();
     riot_rs_rt::debug::println!("riot-rs-embassy::init() done");
 }
 
 #[embassy_executor::task]
-async fn init_task(peripherals: arch::Peripherals) {
-    #[cfg(feature = "usb")]
+async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     use static_cell::make_static;
 
     riot_rs_rt::debug::println!("riot-rs-embassy::init_task()");
+
+    let drivers = Drivers {
+        #[cfg(feature = "usb_ethernet")]
+        stack: make_static!(OnceCell::new()),
+    };
 
     #[cfg(all(context = "nrf52", feature = "usb"))]
     {
@@ -208,10 +227,10 @@ async fn init_task(peripherals: arch::Peripherals) {
         let usb_config = usb_default_config();
 
         #[cfg(context = "nrf52")]
-        let usb_driver = nrf52::usb::driver(peripherals.USBD);
+        let usb_driver = nrf52::usb::driver(peripherals.USBD.take().unwrap());
 
         #[cfg(context = "rp2040")]
-        let usb_driver = rp2040::usb::driver(peripherals.USB);
+        let usb_driver = rp2040::usb::driver(peripherals.USB.take().unwrap());
 
         // Create embassy-usb DeviceBuilder using the driver and config.
         let builder = Builder::new(
@@ -269,7 +288,7 @@ async fn init_task(peripherals: arch::Peripherals) {
     };
 
     #[cfg(feature = "usb_ethernet")]
-    let stack = {
+    {
         // network stack
         let config = network_config();
 
@@ -290,20 +309,84 @@ async fn init_task(peripherals: arch::Peripherals) {
 
         spawner.spawn(net_task(stack)).unwrap();
 
-        stack
-    };
+        // Do nothing if a stack is already initialized, as this should not happen anyway
+        // TODO: should we panic instead?
+        let _ = drivers.stack.set(stack);
+    }
 
-    let args = TaskArgs {
-        #[cfg(feature = "usb_ethernet")]
-        stack,
+    let init_args = InitializationArgs {
+        peripherals: make_static!(Mutex::new(peripherals)),
     };
 
     for task in EMBASSY_TASKS {
-        task(spawner, args);
+        // TODO: should all tasks be initialized before starting the first one?
+        match task(&mut *init_args.peripherals.lock().await, init_args) {
+            Ok(initialized_application) => initialized_application.start(spawner, drivers),
+            Err(err) => panic!("Error while initializing an application: {err:?}"),
+        }
     }
 
     // mark used
     let _ = peripherals;
 
     riot_rs_rt::debug::println!("riot-rs-embassy::init_task() done");
+}
+
+/// Defines an application.
+///
+/// Allows to separate its fallible initialization from its infallible running phase.
+pub trait Application {
+    /// Applications must implement this to obtain the peripherals they require.
+    ///
+    /// This function is only run once at startup and instantiates the application.
+    /// No guarantee is provided regarding the order in which different applications are
+    /// initialized.
+    /// The [`assign_resources!`] macro can be leveraged to extract the required peripherals.
+    fn initialize(
+        peripherals: &mut arch::OptionalPeripherals,
+        init_args: InitializationArgs,
+    ) -> Result<&dyn Application, ApplicationInitError>
+    where
+        Self: Sized;
+
+    /// After an application has been initialized, this method is called by the system to start the
+    /// application.
+    ///
+    /// This function must not block but may spawn [Embassy tasks](embassy_executor::task) using
+    /// the provided [`Spawner`](embassy_executor::Spawner).
+    /// In addition, it is provided with the drivers initialized by the system.
+    fn start(&self, spawner: embassy_executor::Spawner, drivers: Drivers);
+}
+
+/// Represents errors that can happen during application initialization.
+#[derive(Debug)]
+pub enum ApplicationInitError {
+    /// The application could not obtain a peripheral, most likely it was already used by another
+    /// application or by the system itself.
+    CannotObtainPeripheral,
+}
+
+impl From<AssigningResourcesError> for ApplicationInitError {
+    fn from(err: AssigningResourcesError) -> Self {
+        match err {
+            AssigningResourcesError::ObtainingPeripheral => Self::CannotObtainPeripheral,
+        }
+    }
+}
+
+/// Sets the [`Application::initialize()`] function implemented on the provided type to be run at
+/// startup.
+///
+/// Requires to have the [linkme] crate in scope.
+#[macro_export]
+macro_rules! riot_initialize {
+    ($prog_type:ident) => {
+        #[linkme::distributed_slice($crate::EMBASSY_TASKS)]
+        fn __init_application(
+            peripherals: &mut embassy_nrf::OptionalPeripherals, // FIXME: this should not depend on embassy_nrf directly
+            init_args: $crate::InitializationArgs,
+        ) -> Result<&dyn $crate::Application, $crate::ApplicationInitError> {
+            <$prog_type as Application>::initialize(peripherals, init_args)
+        }
+    };
 }
