@@ -3,17 +3,16 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs as _;
+use riot_rs::embassy::{arch, Application, ApplicationInitError, Drivers, InitializationArgs};
 
-use riot_rs::embassy::TaskArgs;
 use riot_rs::rt::debug::println;
 
 use embedded_io_async::Write;
 
 #[embassy_executor::task]
-async fn tcp_echo(args: TaskArgs) {
+async fn tcp_echo(drivers: Drivers) {
     use embassy_net::tcp::TcpSocket;
-    let stack = args.stack;
+    let stack = drivers.stack.get().unwrap();
 
     let mut rx_buffer = [0; 4096];
     let mut tx_buffer = [0; 4096];
@@ -57,13 +56,22 @@ async fn tcp_echo(args: TaskArgs) {
     }
 }
 
-use linkme::distributed_slice;
-use riot_rs::embassy::EMBASSY_TASKS;
+struct TcpEcho {}
 
-#[distributed_slice(EMBASSY_TASKS)]
-fn __start_tcp_echo(spawner: embassy_executor::Spawner, t: TaskArgs) {
-    spawner.spawn(tcp_echo(t)).unwrap();
+impl Application for TcpEcho {
+    fn initialize(
+        _peripherals: &mut arch::OptionalPeripherals,
+        _init_args: InitializationArgs,
+    ) -> Result<&dyn Application, ApplicationInitError> {
+        Ok(&Self {})
+    }
+
+    fn start(&self, spawner: embassy_executor::Spawner, drivers: Drivers) {
+        spawner.spawn(tcp_echo(drivers)).unwrap();
+    }
 }
+
+riot_rs::embassy::riot_initialize!(TcpEcho);
 
 #[no_mangle]
 fn riot_main() {
