@@ -42,7 +42,7 @@ pub static EXECUTOR: InterruptExecutor = InterruptExecutor::new();
 pub static EMBASSY_TASKS: [Task] = [..];
 
 #[cfg(context = "nrf52")]
-mod nrf52 {
+pub mod nrf52 {
     pub use embassy_nrf::interrupt;
     pub use embassy_nrf::interrupt::SWI0_EGU0 as SWI;
     pub use embassy_nrf::{init, OptionalPeripherals};
@@ -75,7 +75,7 @@ mod nrf52 {
 }
 
 #[cfg(context = "rp2040")]
-mod rp2040 {
+pub mod rp2040 {
     pub use embassy_rp::interrupt;
     pub use embassy_rp::interrupt::SWI_IRQ_1 as SWI;
     pub use embassy_rp::{init, OptionalPeripherals, Peripherals};
@@ -106,10 +106,10 @@ mod rp2040 {
 }
 
 #[cfg(context = "nrf52")]
-use nrf52 as arch;
+pub use nrf52 as arch;
 
 #[cfg(context = "rp2040")]
-use rp2040 as arch;
+pub use rp2040 as arch;
 
 use arch::SWI;
 
@@ -383,7 +383,7 @@ macro_rules! riot_initialize {
     ($prog_type:ident) => {
         #[linkme::distributed_slice($crate::EMBASSY_TASKS)]
         fn __init_application(
-            peripherals: &mut embassy_nrf::OptionalPeripherals, // FIXME: this should not depend on embassy_nrf directly
+            peripherals: &mut $crate::arch::OptionalPeripherals,
             init_args: $crate::InitializationArgs,
         ) -> Result<&dyn $crate::Application, $crate::ApplicationInitError> {
             <$prog_type as Application>::initialize(peripherals, init_args)
