@@ -3,15 +3,14 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs as _;
+use riot_rs::embassy::{arch, Application, ApplicationInitError, Drivers, InitializationArgs};
 
-use riot_rs::embassy::TaskArgs;
 use riot_rs::rt::debug::println;
 
 #[embassy_executor::task]
-async fn udp_echo(args: TaskArgs) {
-    use embassy_net::udp::{UdpSocket, PacketMetadata};
-    let stack = args.stack;
+async fn udp_echo(drivers: Drivers) {
+    use embassy_net::udp::{PacketMetadata, UdpSocket};
+    let stack = drivers.stack.get().unwrap();
 
     let mut rx_meta = [PacketMetadata::EMPTY; 16];
     let mut rx_buffer = [0; 4096];
@@ -20,7 +19,13 @@ async fn udp_echo(args: TaskArgs) {
     let mut buf = [0; 4096];
 
     loop {
-        let mut socket = UdpSocket::new(stack, &mut rx_meta, &mut rx_buffer, &mut tx_meta, &mut tx_buffer);
+        let mut socket = UdpSocket::new(
+            stack,
+            &mut rx_meta,
+            &mut rx_buffer,
+            &mut tx_meta,
+            &mut tx_buffer,
+        );
 
         println!("Listening on UDP:1234...");
         if let Err(e) = socket.bind(1234) {
@@ -56,13 +61,22 @@ async fn udp_echo(args: TaskArgs) {
     }
 }
 
-use linkme::distributed_slice;
-use riot_rs::embassy::EMBASSY_TASKS;
+struct UdpEcho {}
 
-#[distributed_slice(EMBASSY_TASKS)]
-fn __start_udp_echo(spawner: embassy_executor::Spawner, t: TaskArgs) {
-    spawner.spawn(udp_echo(t)).unwrap();
+impl Application for UdpEcho {
+    fn initialize(
+        _peripherals: &mut arch::OptionalPeripherals,
+        _init_args: InitializationArgs,
+    ) -> Result<&dyn Application, ApplicationInitError> {
+        Ok(&Self {})
+    }
+
+    fn start(&self, spawner: embassy_executor::Spawner, drivers: Drivers) {
+        spawner.spawn(udp_echo(drivers)).unwrap();
+    }
 }
+
+riot_rs::embassy::riot_initialize!(UdpEcho);
 
 #[no_mangle]
 fn riot_main() {
