@@ -31,7 +31,7 @@ cortex-m-semihosting = { version = "0.5" }
 critical-section = { version = "1.1.2" }
 
 embassy-executor = { version = "0.4", default-features = false }
-embassy-net = { version = "0.2.1", default-features = false }
+embassy-net = { version = "0.3.0", default-features = false }
 embassy-nrf = { version = "0.1.0", default-features = false }
 embassy-rp = { version = "0.1.0", default-features = false }
 embassy-sync = { version = "0.5.0", default-features = false }
@@ -79,11 +79,11 @@ riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 nrf51-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
 nrf52840-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
 nrf52832-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
-embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
-embassy-executor-macros = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs"}
-embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
-embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
-embassy-rp = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
-embassy-time = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
-embassy-sync = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
-embassy-usb = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs" }
+embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-090124" }
+embassy-executor-macros = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-090124"}
+embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-090124" }
+embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-090124" }
+embassy-rp = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-090124" }
+embassy-time = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-090124" }
+embassy-sync = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-090124" }
+embassy-usb = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-090124" }
