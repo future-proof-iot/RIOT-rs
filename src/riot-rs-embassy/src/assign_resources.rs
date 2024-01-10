@@ -2,6 +2,8 @@
 /// [`assign_resources`](https://docs.rs/assign-resources/latest/assign_resources/macro.assign_resources.html),
 /// this macro allows to extract the specified peripherals from `OptionalPeripherals` for use in an
 /// application.
+/// This implementation takes an extra first parameter, which is an identifier used to name the
+/// resulting struct.
 ///
 /// It makes sense to use this macro multiple times, coupled with conditional compilation (using
 /// the [`cfg`
