@@ -4,6 +4,10 @@
 
 pub mod assign_resources;
 
+#[cfg_attr(context = "nrf52", path = "arch/nrf52.rs")]
+#[cfg_attr(context = "rp2040", path = "arch/rp2040.rs")]
+pub mod arch;
+
 use core::cell::OnceCell;
 
 pub use linkme::distributed_slice;
@@ -40,76 +44,6 @@ pub static EXECUTOR: InterruptExecutor = InterruptExecutor::new();
 
 #[distributed_slice]
 pub static EMBASSY_TASKS: [Task] = [..];
-
-#[cfg(context = "nrf52")]
-pub mod nrf52 {
-    pub use embassy_nrf::interrupt;
-    pub use embassy_nrf::interrupt::SWI0_EGU0 as SWI;
-    pub use embassy_nrf::{init, OptionalPeripherals};
-
-    #[cfg(feature = "usb")]
-    use embassy_nrf::{bind_interrupts, peripherals, rng, usb as nrf_usb};
-
-    #[cfg(feature = "usb")]
-    bind_interrupts!(struct Irqs {
-        USBD => nrf_usb::InterruptHandler<peripherals::USBD>;
-        POWER_CLOCK => nrf_usb::vbus_detect::InterruptHandler;
-        RNG => rng::InterruptHandler<peripherals::RNG>;
-    });
-
-    #[interrupt]
-    unsafe fn SWI0_EGU0() {
-        crate::EXECUTOR.on_interrupt()
-    }
-
-    #[cfg(feature = "usb")]
-    pub mod usb {
-        use embassy_nrf::peripherals;
-        use embassy_nrf::usb::{vbus_detect::HardwareVbusDetect, Driver};
-        pub type UsbDriver = Driver<'static, peripherals::USBD, HardwareVbusDetect>;
-        pub fn driver(usbd: peripherals::USBD) -> UsbDriver {
-            use super::Irqs;
-            Driver::new(usbd, Irqs, HardwareVbusDetect::new(Irqs))
-        }
-    }
-}
-
-#[cfg(context = "rp2040")]
-pub mod rp2040 {
-    pub use embassy_rp::interrupt;
-    pub use embassy_rp::interrupt::SWI_IRQ_1 as SWI;
-    pub use embassy_rp::{init, OptionalPeripherals, Peripherals};
-
-    #[cfg(feature = "usb")]
-    use embassy_rp::{bind_interrupts, peripherals::USB, usb::InterruptHandler};
-
-    // rp2040 usb start
-    #[cfg(feature = "usb")]
-    bind_interrupts!(struct Irqs {
-        USBCTRL_IRQ => InterruptHandler<USB>;
-    });
-
-    #[interrupt]
-    unsafe fn SWI_IRQ_1() {
-        crate::EXECUTOR.on_interrupt()
-    }
-
-    #[cfg(feature = "usb")]
-    pub mod usb {
-        use embassy_rp::peripherals;
-        use embassy_rp::usb::Driver;
-        pub type UsbDriver = Driver<'static, peripherals::USB>;
-        pub fn driver(usb: peripherals::USB) -> UsbDriver {
-            Driver::new(usb, super::Irqs)
-        }
-    }
-}
-
-#[cfg(context = "nrf52")]
-pub use nrf52 as arch;
-
-#[cfg(context = "rp2040")]
-pub use rp2040 as arch;
 
 use arch::SWI;
 
@@ -227,10 +161,10 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         let usb_config = usb_default_config();
 
         #[cfg(context = "nrf52")]
-        let usb_driver = nrf52::usb::driver(peripherals.USBD.take().unwrap());
+        let usb_driver = arch::usb::driver(peripherals.USBD.take().unwrap());
 
         #[cfg(context = "rp2040")]
-        let usb_driver = rp2040::usb::driver(peripherals.USB.take().unwrap());
+        let usb_driver = arch::usb::driver(peripherals.USB.take().unwrap());
 
         // Create embassy-usb DeviceBuilder using the driver and config.
         let builder = Builder::new(
