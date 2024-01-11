@@ -27,8 +27,3 @@ impl Application for MyApplication {
 }
 
 riot_rs::embassy::riot_initialize!(MyApplication);
-
-#[no_mangle]
-fn riot_main() {
-    riot_rs::rt::debug::exit(Ok(()))
-}

@@ -584,6 +584,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "data-encoding"
+version = "2.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "7e962a19be5cfc3f3bf6dd8f61eb50107f356ad6270fbb3ed41476571db78be5"
+
+[[package]]
 name = "debug-helper"
 version = "0.3.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -725,6 +731,25 @@ dependencies = [
  "cortex-m",
  "critical-section",
  "num-traits",
+]
+
+[[package]]
+name = "embassy-http-server"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embassy-net",
+ "embassy-nrf",
+ "embassy-sync",
+ "embassy-time",
+ "embedded-io-async",
+ "httparse",
+ "linkme",
+ "picoserve",
+ "riot-rs",
+ "riot-rs-boards",
+ "serde",
+ "static_cell",
 ]
 
 [[package]]
@@ -1269,6 +1294,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0bfb9eb618601c89945a70e254898da93b13be0388091d42117462b265bb3fad"
 dependencies = [
  "hash32 0.3.1",
+ "serde",
  "stable_deref_trait",
 ]
 
@@ -1316,6 +1342,12 @@ checksum = "e3d1354bf6b7235cb4a0576c2619fd4ed18183f689b12b006a0ee7329eeff9a5"
 dependencies = [
  "windows-sys 0.52.0",
 ]
+
+[[package]]
+name = "httparse"
+version = "1.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d897f394bad6a705d5f4104762e116a75639e470d80901eed05a860a95cb1904"
 
 [[package]]
 name = "ident_case"
@@ -1417,6 +1449,12 @@ name = "ld-memory"
 version = "0.2.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "16187c4751af0c33941a689f3e922132b165729cfaa73f592fe5cce7393e9f0c"
+
+[[package]]
+name = "lhash"
+version = "1.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "744a4c881f502e98c2241d2e5f50040ac73b30194d64452bb6260393b53f0dc9"
 
 [[package]]
 name = "libc"
@@ -1891,6 +1929,22 @@ dependencies = [
 ]
 
 [[package]]
+name = "picoserve"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ab20855a694e13dddfd360685e5bc78fb28cef2581237e6c83f91c79a59aa6da"
+dependencies = [
+ "data-encoding",
+ "embedded-io-async",
+ "futures-util",
+ "heapless 0.8.0",
+ "lhash",
+ "log",
+ "ryu",
+ "serde",
+]
+
+[[package]]
 name = "pin-project-lite"
 version = "0.2.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2137,9 +2191,9 @@ dependencies = [
  "riot-build",
  "riot-rs-boards",
  "riot-rs-buildinfo",
- "riot-rs-core",
  "riot-rs-embassy",
  "riot-rs-rt",
+ "riot-rs-threads",
 ]
 
 [[package]]
