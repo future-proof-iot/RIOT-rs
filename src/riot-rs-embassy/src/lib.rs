@@ -20,6 +20,7 @@ use crate::define_peripherals::DefinePeripheralsError;
 #[cfg(feature = "usb")]
 use embassy_usb::{Builder, UsbDevice};
 
+#[cfg(feature = "threading")]
 pub mod blocker;
 
 pub type Task = fn(

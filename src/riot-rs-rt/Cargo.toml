@@ -17,7 +17,7 @@ rtt-target = { version = "0.4.0", optional = true }
 linkme.workspace = true
 
 [features]
-default = ["threading"]
+#default = ["threading"]
 threading = ["dep:riot-rs-threads"]
 debug-console = []
 silent-panic = []

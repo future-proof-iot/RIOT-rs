@@ -72,10 +72,14 @@ fn startup() -> ! {
         f();
     }
 
-    if cfg!(feature = "threading") {
+    #[cfg(feature = "threading")]
+    {
         // start threading
         threading::init();
-    } else {
+    }
+
+    #[cfg(not(feature = "threading"))]
+    {
         #[cfg(test)]
         test_main();
         loop {}

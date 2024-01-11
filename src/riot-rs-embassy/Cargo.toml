@@ -9,7 +9,7 @@ linkme.workspace = true
 static_cell.workspace = true
 critical-section.workspace = true
 embassy-sync = { workspace = true }
-riot-rs-core = { path = "../riot-rs-core" }
+riot-rs-core = { path = "../riot-rs-core", optional = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
 
 # time
@@ -58,4 +58,5 @@ usb = [ "dep:embassy-usb" ]
 net = [ "dep:embassy-net" ]
 usb_ethernet = [ "usb", "net" ]
 
+threading = ["dep:riot-rs-core"]
 override_network_config = []
