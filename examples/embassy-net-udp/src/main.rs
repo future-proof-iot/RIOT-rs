@@ -77,13 +77,3 @@ impl Application for UdpEcho {
 }
 
 riot_rs::embassy::riot_initialize!(UdpEcho);
-
-#[no_mangle]
-fn riot_main() {
-    println!(
-        "Hello from riot_main()! Running on a {} board.",
-        riot_rs::buildinfo::BOARD
-    );
-
-    loop {}
-}

@@ -6,6 +6,6 @@ edition.workspace = true
 publish = false
 
 [dependencies]
-riot-rs = { path = "../../src/riot-rs" }
+riot-rs = { path = "../../src/riot-rs", features = [ "threading" ] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 riot-wrappers = { workspace = true, optional = true }

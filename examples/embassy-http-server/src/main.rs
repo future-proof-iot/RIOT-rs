@@ -163,13 +163,3 @@ impl Application for WebServer {
 }
 
 riot_rs::embassy::riot_initialize!(WebServer);
-
-#[no_mangle]
-fn riot_main() {
-    println!(
-        "Hello from riot_main()! Running on a {} board.",
-        riot_rs::buildinfo::BOARD
-    );
-
-    loop {}
-}
