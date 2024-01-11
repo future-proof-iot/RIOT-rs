@@ -12,4 +12,6 @@ In this folder, run
     laze build -b nrf52840dk run
 
 With the device USB cable connected, a USB ethernet device should pop up.
-RIOT-rs will serve web pages at http://10.42.0.61/
+RIOT-rs will serve an example HTML homepage at `http://10.42.0.61/` and will
+expose a JSON endpoint at `http://10.42.0.61/buttons` reporting on the state of
+connect push buttons.
