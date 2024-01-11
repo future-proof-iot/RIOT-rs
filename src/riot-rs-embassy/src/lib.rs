@@ -40,6 +40,9 @@ pub struct Drivers {
     pub stack: &'static OnceCell<&'static Stack<Device<'static, ETHERNET_MTU>>>,
 }
 
+#[cfg(feature = "usb_ethernet")]
+pub type UsbEthernetStack = Stack<Device<'static, ETHERNET_MTU>>;
+
 pub static EXECUTOR: InterruptExecutor = InterruptExecutor::new();
 
 #[distributed_slice]
