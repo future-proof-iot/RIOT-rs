@@ -17,7 +17,6 @@ version = "0.1.0"
 dependencies = [
  "embassy-executor",
  "embassy-time",
- "linkme",
  "riot-rs",
  "riot-rs-boards",
 ]
@@ -744,7 +743,6 @@ dependencies = [
  "embassy-time",
  "embedded-io-async",
  "httparse",
- "linkme",
  "picoserve",
  "riot-rs",
  "riot-rs-boards",
@@ -796,7 +794,6 @@ dependencies = [
  "embassy-net",
  "embassy-time",
  "embedded-io-async",
- "linkme",
  "riot-rs",
  "riot-rs-boards",
 ]
@@ -809,7 +806,6 @@ dependencies = [
  "embassy-net",
  "embassy-time",
  "embedded-io-async",
- "linkme",
  "riot-rs",
  "riot-rs-boards",
 ]
