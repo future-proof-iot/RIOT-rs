@@ -10,7 +10,7 @@ pub mod arch;
 
 use core::cell::OnceCell;
 
-pub use linkme::distributed_slice;
+pub use linkme::{self, distributed_slice};
 
 use embassy_executor::{InterruptExecutor, Spawner};
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
@@ -318,6 +318,7 @@ impl From<DefinePeripheralsError> for ApplicationInitError {
 macro_rules! riot_initialize {
     ($prog_type:ident) => {
         #[$crate::distributed_slice($crate::EMBASSY_TASKS)]
+        #[linkme(crate = $crate::linkme)]
         fn __init_application(
             peripherals: &mut $crate::arch::OptionalPeripherals,
             init_args: $crate::InitializationArgs,
