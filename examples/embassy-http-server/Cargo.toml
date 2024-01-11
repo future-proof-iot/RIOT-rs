@@ -12,7 +12,6 @@ embassy-executor = { workspace = true, default-features = false }
 embassy-nrf = { workspace = true }
 embassy-sync = { workspace = true }
 embassy-time = { workspace = true, default-features = false }
-linkme.workspace = true
 embassy-net = { workspace = true, features = ["tcp"] }
 embedded-io-async = "0.6.0"
 httparse = { version = "1.8.0", default-features = false }
