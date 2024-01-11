@@ -3,20 +3,22 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
+mod pins;
+mod routes;
+
 use riot_rs as _;
 
 use riot_rs::embassy::{
-    arch, Application, ApplicationInitError, Drivers, InitializationArgs, UsbEthernetStack,
+    arch::OptionalPeripherals, Application, ApplicationInitError, Drivers, InitializationArgs,
+    UsbEthernetStack,
 };
 use riot_rs::rt::debug::println;
 
 use embassy_net::tcp::TcpSocket;
+use embassy_nrf::gpio::{AnyPin, Input, Pin, Pull};
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 use embassy_time::Duration;
-use picoserve::{
-    response::{DebugValue, IntoResponse},
-    routing::{get, parse_path_segment},
-};
+use picoserve::routing::get;
 use static_cell::make_static;
 
 struct EmbassyTimer;
@@ -34,7 +36,25 @@ impl picoserve::Timer for EmbassyTimer {
     }
 }
 
-struct AppState {}
+struct AppState {
+    buttons: ButtonInputs,
+}
+
+#[derive(Copy, Clone)]
+struct ButtonInputs(&'static Mutex<CriticalSectionRawMutex, Buttons>);
+
+struct Buttons {
+    button1: Input<'static, AnyPin>,
+    button2: Input<'static, AnyPin>,
+    button3: Input<'static, AnyPin>,
+    button4: Input<'static, AnyPin>,
+}
+
+impl picoserve::extract::FromRef<AppState> for ButtonInputs {
+    fn from_ref(state: &AppState) -> Self {
+        state.buttons
+    }
+}
 
 type AppRouter = impl picoserve::routing::PathRouter<AppState>;
 
@@ -91,44 +111,54 @@ async fn web_task(
     }
 }
 
-async fn index() -> impl IntoResponse {
-    picoserve::response::File::html(include_str!("../static/index.html"))
+struct WebServer {
+    button_inputs: ButtonInputs,
 }
-
-#[embassy_executor::task]
-async fn serve(spawner: embassy_executor::Spawner, stack: &'static UsbEthernetStack) {
-    fn make_app() -> picoserve::Router<AppRouter, AppState> {
-        picoserve::Router::new().route("/", get(index))
-    }
-
-    let app = make_static!(make_app());
-
-    let config = make_static!(picoserve::Config {
-        start_read_request_timeout: Some(Duration::from_secs(5)),
-        read_request_timeout: Some(Duration::from_secs(1)),
-        write_timeout: Some(Duration::from_secs(1)),
-    });
-
-    for id in 0..WEB_TASK_POOL_SIZE {
-        spawner
-            .spawn(web_task(id, &stack, app, config, AppState {}))
-            .unwrap();
-    }
-}
-
-struct WebServer {}
 
 impl Application for WebServer {
     fn initialize(
-        _peripherals: &mut arch::OptionalPeripherals,
+        peripherals: &mut OptionalPeripherals,
         _init_args: InitializationArgs,
     ) -> Result<&dyn Application, ApplicationInitError> {
-        Ok(&Self {})
+        let our_peripherals = pins::OurPeripherals::take_from(peripherals)?;
+
+        let buttons = Buttons {
+            button1: Input::new(our_peripherals.buttons.btn1.degrade(), Pull::Up),
+            button2: Input::new(our_peripherals.buttons.btn2.degrade(), Pull::Up),
+            button3: Input::new(our_peripherals.buttons.btn3.degrade(), Pull::Up),
+            button4: Input::new(our_peripherals.buttons.btn4.degrade(), Pull::Up),
+        };
+
+        let button_inputs = ButtonInputs(make_static!(Mutex::new(buttons)));
+
+        Ok(make_static!(Self { button_inputs }))
     }
 
     fn start(&self, spawner: embassy_executor::Spawner, drivers: Drivers) {
         let stack = drivers.stack.get().unwrap();
-        spawner.spawn(serve(spawner, stack)).unwrap();
+
+        fn make_app() -> picoserve::Router<AppRouter, AppState> {
+            picoserve::Router::new()
+                .route("/", get(routes::index))
+                .route("/buttons", get(routes::buttons))
+        }
+
+        let app = make_static!(make_app());
+
+        let config = make_static!(picoserve::Config {
+            start_read_request_timeout: Some(Duration::from_secs(5)),
+            read_request_timeout: Some(Duration::from_secs(1)),
+            write_timeout: Some(Duration::from_secs(1)),
+        });
+
+        for id in 0..WEB_TASK_POOL_SIZE {
+            let app_state = AppState {
+                buttons: self.button_inputs,
+            };
+            spawner
+                .spawn(web_task(id, stack, app, config, app_state))
+                .unwrap();
+        }
     }
 }
 
