@@ -2,7 +2,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-pub mod assign_resources;
+pub mod define_peripherals;
 
 #[cfg_attr(context = "nrf52", path = "arch/nrf52.rs")]
 #[cfg_attr(context = "rp2040", path = "arch/rp2040.rs")]
@@ -15,7 +15,7 @@ pub use linkme::distributed_slice;
 use embassy_executor::{InterruptExecutor, Spawner};
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 
-use crate::assign_resources::AssigningResourcesError;
+use crate::define_peripherals::DefinePeripheralsError;
 
 #[cfg(feature = "usb")]
 use embassy_usb::{Builder, UsbDevice};
@@ -295,15 +295,15 @@ pub trait Application {
 /// Represents errors that can happen during application initialization.
 #[derive(Debug)]
 pub enum ApplicationInitError {
-    /// The application could not obtain a peripheral, most likely it was already used by another
-    /// application or by the system itself.
-    CannotObtainPeripheral,
+    /// The application could not obtain a peripheral, most likely because it was already used by
+    /// another application or by the system itself.
+    CannotTakePeripheral,
 }
 
-impl From<AssigningResourcesError> for ApplicationInitError {
-    fn from(err: AssigningResourcesError) -> Self {
+impl From<DefinePeripheralsError> for ApplicationInitError {
+    fn from(err: DefinePeripheralsError) -> Self {
         match err {
-            AssigningResourcesError::ObtainingPeripheral => Self::CannotObtainPeripheral,
+            DefinePeripheralsError::TakingPeripheral => Self::CannotTakePeripheral,
         }
     }
 }
