@@ -1,0 +1,4 @@
+apps:
+  - name: embassy-http-server
+    selects:
+      - ?release
