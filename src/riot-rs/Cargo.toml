@@ -6,8 +6,8 @@ edition.workspace = true
 
 [dependencies]
 riot-build = { path = "../riot-build", features = [ "riot-rs-core"], optional = true }
-riot-rs-rt = { path = "../riot-rs-rt", features = [ "threading" ] }
-riot-rs-core = { path = "../riot-rs-core" }
+riot-rs-rt = { path = "../riot-rs-rt" }
+riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-boards = { path = "../riot-rs-boards" }
 riot-rs-buildinfo = { path = "../riot-rs-buildinfo" }
 riot-rs-embassy = { path = "../riot-rs-embassy" }
@@ -16,7 +16,7 @@ riot-rs-embassy = { path = "../riot-rs-embassy" }
 newlib = [ "riot-build", "riot-build/newlib" ]
 debug-console = [ "riot-rs-rt/debug-console" ]
 silent-panic = [ "riot-rs-rt/silent-panic" ]
-thread_info = [ "riot-rs-core/thread_info" ]
+threading = ["dep:riot-rs-threads", "riot-rs-rt/threading", "riot-rs-embassy/threading" ]
 time = [ "riot-rs-embassy/time" ]
 usb = [ "riot-rs-embassy/usb" ]
 net = [ "riot-rs-embassy/net" ]
