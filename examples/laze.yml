@@ -10,6 +10,7 @@ subdirs:
   - embassy-http-server
   - embassy-net-tcp
   - embassy-net-udp
+  - embassy-usb-keyboard
   - hello-world
   - minimal
   - threading
