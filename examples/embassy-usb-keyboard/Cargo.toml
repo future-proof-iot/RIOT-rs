@@ -1,0 +1,17 @@
+[package]
+name = "embassy-usb-keyboard"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+publish = false
+
+[dependencies]
+riot-rs = { path = "../../src/riot-rs", features = ["time", "usb"] }
+riot-rs-boards = { path = "../../src/riot-rs-boards" }
+embassy-executor = { workspace = true, default-features = false }
+embassy-nrf = { workspace = true, default-features = false }
+embassy-sync = { workspace = true }
+embassy-usb = { workspace = true, features = ["usbd-hid"] }
+embassy-time = { workspace = true, default-features = false }
+static_cell = { workspace = true }
+usbd-hid = { version = "0.6.1"}
