@@ -1,0 +1,5 @@
+apps:
+  - name: embassy-usb-keyboard
+    context: nrf52840dk
+    selects:
+      - ?release

@@ -2,6 +2,11 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
+#[cfg(all(feature = "usb_ethernet", feature = "usb_hid"))]
+compile_error!(
+    "feature \"usb_ethernet\" and feature \"usb_hid\" cannot be enabled at the same time"
+);
+
 pub mod define_peripherals;
 
 #[cfg_attr(context = "nrf52", path = "arch/nrf52.rs")]
@@ -39,10 +44,23 @@ pub struct InitializationArgs {
 pub struct Drivers {
     #[cfg(feature = "usb_ethernet")]
     pub stack: &'static OnceCell<&'static Stack<Device<'static, ETHERNET_MTU>>>,
+    #[cfg(feature = "usb_hid")]
+    pub usb_hid: &'static OnceCell<UsbHid>,
 }
 
 #[cfg(feature = "usb_ethernet")]
 pub type UsbEthernetStack = Stack<Device<'static, ETHERNET_MTU>>;
+
+#[cfg(feature = "usb_hid")]
+pub struct UsbHid {
+    pub reader: &'static Mutex<CriticalSectionRawMutex, UsbHidReader>,
+    pub writer: &'static Mutex<CriticalSectionRawMutex, UsbHidWriter>,
+}
+
+#[cfg(feature = "usb_hid")]
+pub type UsbHidReader = hid::HidReader<'static, UsbDriver, 1>;
+#[cfg(feature = "usb_hid")]
+pub type UsbHidWriter = hid::HidWriter<'static, UsbDriver, 8>;
 
 pub static EXECUTOR: InterruptExecutor = InterruptExecutor::new();
 
@@ -91,6 +109,13 @@ async fn net_task(stack: &'static Stack<Device<'static, ETHERNET_MTU>>) -> ! {
 }
 // usb net end
 //
+
+//
+// USB HID begin
+#[cfg(feature = "usb_hid")]
+use embassy_usb::class::hid;
+#[cfg(feature = "usb_hid")]
+pub use usbd_hid;
 
 #[cfg(feature = "usb")]
 const fn usb_default_config() -> embassy_usb::Config<'static> {
@@ -148,6 +173,8 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     let drivers = Drivers {
         #[cfg(feature = "usb_ethernet")]
         stack: make_static!(OnceCell::new()),
+        #[cfg(feature = "usb_hid")]
+        usb_hid: make_static!(OnceCell::new()),
     };
 
     #[cfg(all(context = "nrf52", feature = "usb"))]
@@ -205,6 +232,29 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     };
 
     let spawner = Spawner::for_current_executor().await;
+
+    #[cfg(feature = "usb_hid")]
+    {
+        let config = embassy_usb::class::hid::Config {
+            report_descriptor: <usbd_hid::descriptor::KeyboardReport as usbd_hid::descriptor::SerializedDescriptor>::desc(),
+            request_handler: None,
+            poll_ms: 60,
+            max_packet_size: 64,
+        };
+        // FIXME: use a proper USB HID configuration for the USB Builder
+        let hid_rw =
+            hid::HidReaderWriter::new(&mut usb_builder, make_static!(hid::State::new()), config);
+        let (hid_reader, hid_writer) = hid_rw.split();
+
+        let usb_hid = UsbHid {
+            reader: make_static!(Mutex::new(hid_reader)),
+            writer: make_static!(Mutex::new(hid_writer)),
+        };
+
+        // Do nothing if an HID writer is already initialized, as this should not happen anyway
+        // TODO: should we panic instead?
+        let _ = drivers.usb_hid.set(usb_hid);
+    };
 
     #[cfg(feature = "usb")]
     {
