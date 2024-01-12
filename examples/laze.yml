@@ -12,6 +12,7 @@ subdirs:
   - embassy-net-tcp
   - embassy-net-udp
     #  - embassy-gpio
+  - embassy-usb-keyboard
   - hello-world
   - minimal
   - riot-app
