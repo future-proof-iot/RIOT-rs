@@ -14,6 +14,7 @@
 #![feature(used_with_arg)]
 
 pub mod define_peripherals;
+mod env_utils;
 
 #[cfg_attr(context = "nrf52", path = "arch/nrf52.rs")]
 #[cfg_attr(context = "rp2040", path = "arch/rp2040.rs")]
