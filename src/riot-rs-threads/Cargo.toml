@@ -10,6 +10,7 @@ repository.workspace = true
 [dependencies]
 cfg-if.workspace = true
 critical-section.workspace = true
+linkme = { workspace = true }
 riot-rs-runqueue.workspace = true
 
 [target.'cfg(context = "cortex-m")'.dependencies]
