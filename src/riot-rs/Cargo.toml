@@ -5,12 +5,15 @@ authors.workspace = true
 edition.workspace = true
 
 [dependencies]
+linkme = { workspace = true }
 riot-build = { path = "../riot-build", features = [ "riot-rs-core"], optional = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-boards = { path = "../riot-rs-boards" }
 riot-rs-buildinfo = { path = "../riot-rs-buildinfo" }
 riot-rs-embassy = { path = "../riot-rs-embassy" }
+riot-rs-macros = { path = "../riot-rs-macros" }
+static_cell = { workspace = true }
 
 [features]
 newlib = [ "riot-build", "riot-build/newlib" ]

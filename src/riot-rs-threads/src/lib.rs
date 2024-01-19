@@ -1,6 +1,7 @@
 #![cfg_attr(not(test), no_std)]
 #![feature(inline_const)]
 #![feature(naked_functions)]
+#![feature(used_with_arg)]
 
 use critical_section::CriticalSection;
 
@@ -30,6 +31,11 @@ pub const SCHED_PRIO_LEVELS: usize = 12;
 pub const THREADS_NUMOF: usize = 16;
 
 pub(crate) static THREADS: EnsureOnce<Threads> = EnsureOnce::new(Threads::new());
+
+pub type ThreadFn = fn();
+
+#[linkme::distributed_slice]
+pub static THREAD_FNS: [ThreadFn] = [..];
 
 /// Struct holding all scheduler state
 pub struct Threads {

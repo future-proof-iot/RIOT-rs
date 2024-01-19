@@ -76,8 +76,10 @@ fn startup() -> ! {
 
     #[cfg(feature = "threading")]
     {
-        // start threading
-        threading::init();
+        // SAFETY: this function must not be called more than once
+        unsafe {
+            threading::start();
+        }
     }
 
     #[cfg(not(feature = "threading"))]
