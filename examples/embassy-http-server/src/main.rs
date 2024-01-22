@@ -120,13 +120,13 @@ impl Application for WebServer {
         peripherals: &mut OptionalPeripherals,
         _init_args: InitializationArgs,
     ) -> Result<&dyn Application, ApplicationInitError> {
-        let our_peripherals = pins::OurPeripherals::take_from(peripherals)?;
+        let buttons = pins::Buttons::take_from(peripherals)?;
 
         let buttons = Buttons {
-            button1: Input::new(our_peripherals.buttons.btn1.degrade(), Pull::Up),
-            button2: Input::new(our_peripherals.buttons.btn2.degrade(), Pull::Up),
-            button3: Input::new(our_peripherals.buttons.btn3.degrade(), Pull::Up),
-            button4: Input::new(our_peripherals.buttons.btn4.degrade(), Pull::Up),
+            button1: Input::new(buttons.btn1.degrade(), Pull::Up),
+            button2: Input::new(buttons.btn2.degrade(), Pull::Up),
+            button3: Input::new(buttons.btn3.degrade(), Pull::Up),
+            button4: Input::new(buttons.btn4.degrade(), Pull::Up),
         };
 
         let button_inputs = ButtonInputs(make_static!(Mutex::new(buttons)));

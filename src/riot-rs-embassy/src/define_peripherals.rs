@@ -1,8 +1,8 @@
 /// This macro allows to extract the specified peripherals from `OptionalPeripherals` for use in an
 /// application.
 ///
-/// It generates a struct named after the first parameter, which provides a `take_from()` method
-/// for extracting the specified peripherals from `OptionalPeripherals`.
+/// The generated struct provides a `take_from()` method for extracting the specified peripherals
+/// from `OptionalPeripherals`.
 ///
 /// The `define_peripherals!` macro expects a `peripherals` module to be in scope, where the
 /// peripheral types should come from.
@@ -16,34 +16,23 @@
 // under MIT license
 #[macro_export]
 macro_rules! define_peripherals {
-    {
-        $peripherals: ident,
-        $(
-            $(#[$outer:meta])*
-            $group_name:ident : $group_struct:ident {
-                $(
-                    $(#[$inner:meta])*
-                    $peripheral_name:ident : $peripheral_field:ident $(=$peripheral_alias:ident)?),*
-                $(,)?
-            }
+    (
+        $(#[$outer:meta])*
+        $peripherals:ident {
+            $(
+                $(#[$inner:meta])*
+                $peripheral_name:ident : $peripheral_field:ident $(=$peripheral_alias:ident)?),*
             $(,)?
-        )+
-    } => {
-        #[allow(dead_code,non_snake_case,missing_docs)]
-        pub struct $peripherals {
-            $(pub $group_name : $group_struct),*
         }
-        $(
-            #[allow(dead_code,non_snake_case)]
-            $(#[$outer])*
-            pub struct $group_struct {
-                $(
-                    $(#[$inner])*
-                    pub $peripheral_name: peripherals::$peripheral_field
-                ),*
-            }
-        )+
-
+    ) => {
+        #[allow(dead_code,non_snake_case,missing_docs)]
+        $(#[$outer])*
+        pub struct $peripherals {
+            $(
+                $(#[$inner])*
+                pub $peripheral_name: peripherals::$peripheral_field
+            ),*
+        }
 
         $($($(
             #[allow(missing_docs)]
@@ -55,12 +44,10 @@ macro_rules! define_peripherals {
                 opt_peripherals: &mut $crate::arch::OptionalPeripherals
             ) -> Result<Self, $crate::define_peripherals::DefinePeripheralsError> {
                 Ok(Self {
-                    $($group_name: $group_struct {
-                        $($peripheral_name: opt_peripherals.$peripheral_field
-                            .take()
-                            .ok_or($crate::define_peripherals::DefinePeripheralsError::TakingPeripheral)?
-                        ),*
-                    }),*
+                    $($peripheral_name: opt_peripherals.$peripheral_field
+                        .take()
+                        .ok_or($crate::define_peripherals::DefinePeripheralsError::TakingPeripheral)?
+                    ),*
                 })
             }
         }
