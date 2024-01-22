@@ -532,6 +532,11 @@ builders:
     env:
       BOARD: rpi-pico
 
+  - name: rpi-pico-w
+    parent: rpi-pico
+    env:
+      BOARD: rpi-pico-w
+
 apps:
   # define a dummy host application so the host tasks work
   - name: host

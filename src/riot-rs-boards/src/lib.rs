@@ -22,6 +22,9 @@ cfg_if! {
         pub use lm3s6965evb as board;
     } else if #[cfg(feature = "rpi-pico")] {
         pub use rpi_pico as board;
+    } else if #[cfg(feature = "rpi-pico-w")] {
+        // sharing rpi-pico
+        pub use rpi_pico as board;
     } else {
         compile_error!("no board feature selected");
     }
