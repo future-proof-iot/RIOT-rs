@@ -19,3 +19,6 @@ microbit = { optional=true, path="microbit" }
 microbit-v2 = { optional=true, path="microbit-v2" }
 dwm1001 = { optional=true, path="dwm1001" }
 rpi-pico = { optional=true, path="rpi-pico" }
+
+[features]
+rpi-pico-w = [ "rpi-pico/rpi-pico-w" ]

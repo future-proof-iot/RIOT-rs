@@ -8,3 +8,6 @@ edition = "2021"
 [dependencies]
 riot-rs-rt.workspace = true
 rp2040 = { path = "../../riot-rs-chips/rp2040" }
+
+[features]
+rpi-pico-w = []
