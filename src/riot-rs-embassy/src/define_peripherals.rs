@@ -34,10 +34,10 @@ macro_rules! define_peripherals {
             ),*
         }
 
-        $($($(
-            #[allow(missing_docs)]
+        $($(
+            #[allow(missing_docs, non_camel_case_types)]
             pub type $peripheral_alias = peripherals::$peripheral_field;
-        )?)*)*
+        )?)*
 
         impl $peripherals {
             pub fn take_from(
