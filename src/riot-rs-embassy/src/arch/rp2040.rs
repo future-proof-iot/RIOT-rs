@@ -1,6 +1,6 @@
 pub use embassy_rp::interrupt;
 pub use embassy_rp::interrupt::SWI_IRQ_1 as SWI;
-pub use embassy_rp::{init, OptionalPeripherals, Peripherals};
+pub use embassy_rp::{config::Config, peripherals, OptionalPeripherals, Peripherals};
 
 #[cfg(feature = "usb")]
 use embassy_rp::{bind_interrupts, peripherals::USB, usb::InterruptHandler};
@@ -24,4 +24,12 @@ pub mod usb {
     pub fn driver(usb: peripherals::USB) -> UsbDriver {
         Driver::new(usb, super::Irqs)
     }
+}
+
+pub fn init(config: Config) -> Peripherals {
+    // SWI & DMA priority need to match. DMA is hard-coded to P3 by upstream.
+    use embassy_rp::interrupt::{InterruptExt, Priority};
+    SWI.set_priority(Priority::P3);
+
+    embassy_rp::init(config)
 }
