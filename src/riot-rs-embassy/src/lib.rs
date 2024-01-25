@@ -17,6 +17,10 @@ pub mod define_peripherals;
 
 #[cfg_attr(context = "nrf52", path = "arch/nrf52.rs")]
 #[cfg_attr(context = "rp2040", path = "arch/rp2040.rs")]
+#[cfg_attr(
+    not(any(context = "nrf52", context = "rp2040")),
+    path = "arch/dummy.rs"
+)]
 pub mod arch;
 
 use core::cell::OnceCell;
@@ -25,7 +29,7 @@ use core::cell::OnceCell;
 pub use linkme::{self, distributed_slice};
 pub use static_cell::make_static;
 
-use embassy_executor::{InterruptExecutor, Spawner};
+use embassy_executor::Spawner;
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 
 use crate::define_peripherals::DefinePeripheralsError;
@@ -57,12 +61,10 @@ pub struct Drivers {
     pub stack: &'static OnceCell<&'static NetworkStack>,
 }
 
-pub static EXECUTOR: InterruptExecutor = InterruptExecutor::new();
+pub static EXECUTOR: arch::Executor = arch::Executor::new();
 
 #[distributed_slice]
 pub static EMBASSY_TASKS: [Task] = [..];
-
-use arch::SWI;
 
 //
 // usb common start
@@ -187,8 +189,7 @@ fn network_config() -> embassy_net::Config {
 pub(crate) fn init() {
     riot_rs_rt::debug::println!("riot-rs-embassy::init()");
     let p = arch::OptionalPeripherals::from(arch::init(Default::default()));
-
-    EXECUTOR.start(SWI);
+    EXECUTOR.start(arch::SWI);
     EXECUTOR.spawner().spawn(init_task(p)).unwrap();
 
     riot_rs_rt::debug::println!("riot-rs-embassy::init() done");

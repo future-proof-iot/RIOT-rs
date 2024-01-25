@@ -1,3 +1,4 @@
+pub(crate) use embassy_executor::InterruptExecutor as Executor;
 pub use embassy_rp::interrupt;
 pub use embassy_rp::interrupt::SWI_IRQ_1 as SWI;
 pub use embassy_rp::{config::Config, peripherals, OptionalPeripherals, Peripherals};

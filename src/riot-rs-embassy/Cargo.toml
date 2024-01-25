@@ -8,6 +8,7 @@ edition = "2021"
 linkme.workspace = true
 static_cell.workspace = true
 critical-section.workspace = true
+embassy-executor = { workspace = true, features = ["nightly"] }
 embassy-sync = { workspace = true }
 riot-rs-core = { path = "../riot-rs-core", optional = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
@@ -29,7 +30,6 @@ cyw43-pio = { version = "0.1.0", features = ["overclock"], optional = true }
 embassy-executor = { workspace = true, features = [
   "arch-cortex-m",
   "executor-interrupt",
-  "nightly",
 ] }
 
 [target.'cfg(context = "nrf52")'.dependencies]
