@@ -2,3 +2,4 @@ apps:
   - name: embassy-net-tcp
     selects:
       - ?release
+      - network
