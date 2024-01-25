@@ -1,0 +1,10 @@
+[package]
+name = "riot-rs-utils"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+
+[dependencies]
+# env utils
+konst = { workspace = true, features = ["parsing"] }
+const_panic = { workspace = true }
