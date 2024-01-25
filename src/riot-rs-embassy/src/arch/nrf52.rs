@@ -1,3 +1,4 @@
+pub(crate) use embassy_executor::InterruptExecutor as Executor;
 pub use embassy_nrf::interrupt;
 pub use embassy_nrf::interrupt::SWI0_EGU0 as SWI;
 pub use embassy_nrf::{init, OptionalPeripherals};
