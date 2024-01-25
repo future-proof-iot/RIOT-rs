@@ -48,14 +48,14 @@ pub struct InitializationArgs {
     pub peripherals: &'static Mutex<CriticalSectionRawMutex, arch::OptionalPeripherals>,
 }
 
+#[cfg(any(feature = "usb_ethernet", feature = "wifi_cyw43"))]
+pub type NetworkStack = Stack<NetworkDevice>;
+
 #[derive(Copy, Clone)]
 pub struct Drivers {
-    #[cfg(feature = "usb_ethernet")]
-    pub stack: &'static OnceCell<&'static Stack<Device<'static, ETHERNET_MTU>>>,
+    #[cfg(any(feature = "usb_ethernet", feature = "wifi_cyw43"))]
+    pub stack: &'static OnceCell<&'static NetworkStack>,
 }
-
-#[cfg(feature = "usb_ethernet")]
-pub type UsbEthernetStack = Stack<Device<'static, ETHERNET_MTU>>;
 
 pub static EXECUTOR: InterruptExecutor = InterruptExecutor::new();
 
@@ -79,7 +79,8 @@ async fn usb_task(mut device: UsbDevice<'static, UsbDriver>) -> ! {
 
 //
 // net begin
-const ETHERNET_MTU: usize = 1514;
+#[cfg(feature = "net")]
+const STACK_RESOURCES: usize = riot_rs_utils::usize_from_env_or!("CONFIG_STACK_RESOURCES", 4);
 
 #[cfg(feature = "net")]
 use embassy_net::{Stack, StackResources};
@@ -89,21 +90,55 @@ use embassy_net::{Stack, StackResources};
 //
 // usb net begin
 #[cfg(feature = "usb_ethernet")]
+const ETHERNET_MTU: usize = 1514;
+
+#[cfg(feature = "usb_ethernet")]
 use embassy_usb::class::cdc_ncm::embassy_net::{Device, Runner};
+
+#[cfg(feature = "usb_ethernet")]
+pub type NetworkDevice = Device<'static, ETHERNET_MTU>;
 
 #[cfg(feature = "usb_ethernet")]
 #[embassy_executor::task]
 async fn usb_ncm_task(class: Runner<'static, UsbDriver, ETHERNET_MTU>) -> ! {
     class.run().await
 }
-
-#[cfg(feature = "usb_ethernet")]
-#[embassy_executor::task]
-async fn net_task(stack: &'static Stack<Device<'static, ETHERNET_MTU>>) -> ! {
-    stack.run().await
-}
 // usb net end
 //
+
+//
+// cyw43 begin
+#[cfg(feature = "wifi_cyw43")]
+pub type NetworkDevice = cyw43::NetDriver<'static>;
+#[cfg(feature = "wifi_cyw43")]
+mod cyw43;
+
+#[cfg(feature = "wifi_cyw43")]
+mod wifi {
+    use riot_rs_utils::str_from_env_or;
+    const WIFI_NETWORK: &str = str_from_env_or!("CONFIG_WIFI_NETWORK", "test_network");
+    const WIFI_PASSWORD: &str = str_from_env_or!("CONFIG_WIFI_PASSWORD", "test_password");
+
+    pub async fn join(mut control: cyw43::Control<'static>) {
+        loop {
+            //control.join_open(WIFI_NETWORK).await;
+            match control.join_wpa2(WIFI_NETWORK, WIFI_PASSWORD).await {
+                Ok(_) => break,
+                Err(err) => {
+                    riot_rs_rt::debug::println!("join failed with status={}", err.status);
+                }
+            }
+        }
+    }
+}
+// cyw43 end
+//
+
+#[cfg(any(feature = "usb_ethernet", feature = "wifi_cyw43"))]
+#[embassy_executor::task]
+async fn net_task(stack: &'static Stack<NetworkDevice>) -> ! {
+    stack.run().await
+}
 
 #[cfg(feature = "usb")]
 fn usb_config() -> embassy_usb::Config<'static> {
@@ -137,12 +172,13 @@ fn usb_config() -> embassy_usb::Config<'static> {
 fn network_config() -> embassy_net::Config {
     #[cfg(not(feature = "override_network_config"))]
     {
-        use embassy_net::{Ipv4Address, Ipv4Cidr};
-        embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
-            address: Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
-            dns_servers: heapless::Vec::new(),
-            gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
-        })
+        //use embassy_net::{Ipv4Address, Ipv4Cidr};
+        // embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
+        //     address: Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
+        //     dns_servers: heapless::Vec::new(),
+        //     gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
+        // })
+        embassy_net::Config::dhcpv4(Default::default())
     }
     #[cfg(feature = "override_network_config")]
     {
@@ -157,18 +193,19 @@ fn network_config() -> embassy_net::Config {
 pub(crate) fn init() {
     riot_rs_rt::debug::println!("riot-rs-embassy::init()");
     let p = arch::OptionalPeripherals::from(arch::init(Default::default()));
+
     EXECUTOR.start(SWI);
     EXECUTOR.spawner().spawn(init_task(p)).unwrap();
+
     riot_rs_rt::debug::println!("riot-rs-embassy::init() done");
 }
 
 #[embassy_executor::task]
 async fn init_task(mut peripherals: arch::OptionalPeripherals) {
-    use riot_rs_rt::debug::println;
     riot_rs_rt::debug::println!("riot-rs-embassy::init_task()");
 
     let drivers = Drivers {
-        #[cfg(feature = "usb_ethernet")]
+        #[cfg(any(feature = "usb_ethernet", feature = "wifi_cyw43"))]
         stack: make_static!(OnceCell::new()),
     };
 
@@ -247,7 +284,13 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         device
     };
 
-    #[cfg(feature = "usb_ethernet")]
+    #[cfg(feature = "wifi_cyw43")]
+    let (device, control) = {
+        let (net_device, control) = cyw43::device(&mut peripherals, &spawner).await;
+        (net_device, control)
+    };
+
+    #[cfg(any(feature = "usb_ethernet", feature = "wifi_cyw43"))]
     {
         // network stack
         let config = network_config();
@@ -263,7 +306,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         let stack = &*make_static!(Stack::new(
             device,
             config,
-            make_static!(StackResources::<2>::new()),
+            make_static!(StackResources::<STACK_RESOURCES>::new()),
             seed
         ));
 
@@ -273,6 +316,11 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         // TODO: should we panic instead?
         let _ = drivers.stack.set(stack);
     }
+
+    #[cfg(feature = "wifi_cyw43")]
+    {
+        wifi::join(control).await;
+    };
 
     let init_args = InitializationArgs {
         peripherals: make_static!(Mutex::new(peripherals)),

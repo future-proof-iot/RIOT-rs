@@ -10,7 +10,7 @@ use riot_rs as _;
 
 use riot_rs::embassy::{
     arch::OptionalPeripherals, Application, ApplicationInitError, Drivers, InitializationArgs,
-    UsbEthernetStack,
+    NetworkStack,
 };
 use riot_rs::rt::debug::println;
 
@@ -63,7 +63,7 @@ const WEB_TASK_POOL_SIZE: usize = 2;
 #[embassy_executor::task(pool_size = WEB_TASK_POOL_SIZE)]
 async fn web_task(
     id: usize,
-    stack: &'static UsbEthernetStack,
+    stack: &'static NetworkStack,
     app: &'static picoserve::Router<AppRouter, AppState>,
     config: &'static picoserve::Config<Duration>,
     state: AppState,
