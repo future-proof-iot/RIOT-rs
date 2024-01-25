@@ -40,9 +40,11 @@ cfg_if::cfg_if! {
 
 pub use arch::benchmark;
 
+const ISR_STACKSIZE: usize = riot_rs_utils::usize_from_env_or!("CONFIG_ISR_STACKSIZE", 8192);
+
 #[link_section = ".isr_stack"]
 #[used(linker)]
-static ISR_STACK: [u8; 8 * 1024] = [0u8; 8 * 1024];
+static ISR_STACK: [u8; ISR_STACKSIZE] = [0u8; ISR_STACKSIZE];
 
 #[panic_handler]
 fn panic(_info: &PanicInfo) -> ! {

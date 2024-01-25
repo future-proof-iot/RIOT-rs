@@ -6,6 +6,7 @@ edition = "2021"
 
 [dependencies]
 cfg-if = "1.0.0"
+riot-rs-utils = { path = "../riot-rs-utils" }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
 cortex-m = { workspace = true, features = ["critical-section-single-core"] }
