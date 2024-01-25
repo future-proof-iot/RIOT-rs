@@ -11,13 +11,19 @@ critical-section.workspace = true
 embassy-sync = { workspace = true }
 riot-rs-core = { path = "../riot-rs-core", optional = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
+riot-rs-utils = { path = "../riot-rs-utils" }
 
 # time
 embassy-time = { workspace = true, optional = true }
 
 embassy-usb = { workspace = true, optional = true }
 embassy-net = { workspace = true, optional = true, features = [ "dhcpv4", "medium-ethernet" ] }
+embassy-net-driver-channel = { workspace = true, optional = true }
 heapless = "0.8.0"
+
+# rpi-pico-w cyw43
+cyw43 = { version = "0.1.0", features = ["firmware-logs"], optional = true }
+cyw43-pio = { version = "0.1.0", features = ["overclock"], optional = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
 embassy-executor = { workspace = true, features = [
@@ -57,6 +63,8 @@ time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
 usb = [ "dep:embassy-usb" ]
 net = [ "dep:embassy-net" ]
 usb_ethernet = [ "usb", "net" ]
+
+wifi_cyw43 = [ "dep:cyw43", "dep:cyw43-pio", "dep:embassy-net-driver-channel", "net" ]
 
 threading = ["dep:riot-rs-core"]
 override_network_config = []

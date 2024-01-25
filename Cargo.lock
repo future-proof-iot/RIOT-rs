@@ -554,6 +554,35 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b365fabc795046672053e29c954733ec3b05e4be654ab130fe8f1f94d7051f35"
 
 [[package]]
+name = "cyw43"
+version = "0.1.0"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-230124#b8426e1919e066d819ebc0ac16be50c3a04504cc"
+dependencies = [
+ "cortex-m",
+ "cortex-m-rt",
+ "embassy-futures",
+ "embassy-net-driver-channel",
+ "embassy-sync",
+ "embassy-time",
+ "embedded-hal 1.0.0",
+ "futures",
+ "heapless 0.8.0",
+ "num_enum",
+]
+
+[[package]]
+name = "cyw43-pio"
+version = "0.1.0"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-230124#b8426e1919e066d819ebc0ac16be50c3a04504cc"
+dependencies = [
+ "cyw43",
+ "embassy-rp",
+ "fixed",
+ "pio",
+ "pio-proc",
+]
+
+[[package]]
 name = "darling"
 version = "0.20.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2272,8 +2301,11 @@ name = "riot-rs-embassy"
 version = "0.1.0"
 dependencies = [
  "critical-section",
+ "cyw43",
+ "cyw43-pio",
  "embassy-executor",
  "embassy-net",
+ "embassy-net-driver-channel",
  "embassy-nrf",
  "embassy-rp",
  "embassy-sync",
@@ -2283,6 +2315,7 @@ dependencies = [
  "linkme",
  "riot-rs-core",
  "riot-rs-rt",
+ "riot-rs-utils",
  "static_cell",
 ]
 
