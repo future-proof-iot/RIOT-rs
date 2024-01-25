@@ -54,6 +54,7 @@ macro_rules! define_peripherals {
     }
 }
 
+#[derive(Debug)]
 pub enum DefinePeripheralsError {
     TakingPeripheral,
 }
