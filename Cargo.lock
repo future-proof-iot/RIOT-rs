@@ -2271,7 +2271,6 @@ dependencies = [
 name = "riot-rs-embassy"
 version = "0.1.0"
 dependencies = [
- "const_panic",
  "critical-section",
  "embassy-executor",
  "embassy-net",
@@ -2281,7 +2280,6 @@ dependencies = [
  "embassy-time",
  "embassy-usb",
  "heapless 0.8.0",
- "konst",
  "linkme",
  "riot-rs-core",
  "riot-rs-rt",
@@ -2300,6 +2298,7 @@ dependencies = [
  "portable-atomic",
  "riot-rs-boards",
  "riot-rs-threads",
+ "riot-rs-utils",
  "rtt-target",
 ]
 
@@ -2325,6 +2324,14 @@ name = "riot-rs-timers"
 version = "0.1.0"
 dependencies = [
  "riot-rs",
+]
+
+[[package]]
+name = "riot-rs-utils"
+version = "0.1.0"
+dependencies = [
+ "const_panic",
+ "konst",
 ]
 
 [[package]]
