@@ -27,3 +27,14 @@ macro_rules! define_env_with_default_macro {
 }
 
 define_env_with_default_macro!(usize_from_env_or, parse_usize, "a usize");
+
+#[macro_export]
+macro_rules! str_from_env_or {
+    ($env_var:literal, $default:expr) => {
+        if let Some(str_value) = option_env!($env_var) {
+            str_value
+        } else {
+            $default
+        }
+    };
+}
