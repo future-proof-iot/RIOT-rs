@@ -6,7 +6,7 @@ use picoserve::{
 use crate::ButtonInputs;
 
 pub async fn buttons(State(ButtonInputs(button_inputs)): State<ButtonInputs>) -> impl IntoResponse {
-    let mut buttons = button_inputs.lock().await;
+    let buttons = button_inputs.lock().await;
 
     Json(JsonButtons {
         button1: buttons.button1.is_low(),
