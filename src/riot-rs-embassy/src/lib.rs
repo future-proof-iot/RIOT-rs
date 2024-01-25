@@ -22,7 +22,9 @@ pub mod arch;
 
 use core::cell::OnceCell;
 
+// re-exports
 pub use linkme::{self, distributed_slice};
+pub use static_cell::make_static;
 
 use embassy_executor::{InterruptExecutor, Spawner};
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
@@ -163,8 +165,7 @@ pub(crate) fn init() {
 
 #[embassy_executor::task]
 async fn init_task(mut peripherals: arch::OptionalPeripherals) {
-    use static_cell::make_static;
-
+    use riot_rs_rt::debug::println;
     riot_rs_rt::debug::println!("riot-rs-embassy::init_task()");
 
     let drivers = Drivers {
