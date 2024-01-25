@@ -15,7 +15,7 @@ use riot_rs::embassy::{
 use riot_rs::rt::debug::println;
 
 use embassy_net::tcp::TcpSocket;
-use embassy_nrf::gpio::{AnyPin, Input, Pin, Pull};
+use embassy_nrf::gpio::{Input, Pin, Pull};
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 use embassy_time::Duration;
 use picoserve::routing::get;
@@ -44,10 +44,10 @@ struct AppState {
 struct ButtonInputs(&'static Mutex<CriticalSectionRawMutex, Buttons>);
 
 struct Buttons {
-    button1: Input<'static, AnyPin>,
-    button2: Input<'static, AnyPin>,
-    button3: Input<'static, AnyPin>,
-    button4: Input<'static, AnyPin>,
+    button1: Input<'static>,
+    button2: Input<'static>,
+    button3: Input<'static>,
+    button4: Input<'static>,
 }
 
 impl picoserve::extract::FromRef<AppState> for ButtonInputs {
