@@ -446,6 +446,36 @@ modules:
       global:
         CARGO_RUNNER: "'probe-rs run --chip ${PROBE_RS_CHIP}'"
 
+  - name: network
+    selects:
+      - network_device
+
+  - name: wifi_cyw43
+    context:
+      - rpi-pico-w
+    provides_unique:
+      - network_device
+    env:
+      global:
+        FEATURES:
+          - riot-rs/wifi_cyw43
+
+  - name: usb_ethernet
+    provides_unique:
+      - network_device
+    selects:
+      - usb_device_port
+    env:
+      global:
+        FEATURES:
+          - riot-rs/usb_ethernet
+
+  - name: usb_device_port
+    context:
+      - nrf52840dk
+      - rpi-pico
+      - rpi-pico-w
+
 builders:
   # host builder (for housekeeping tasks)
   - name: host
