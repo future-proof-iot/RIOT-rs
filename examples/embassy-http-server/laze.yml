@@ -1,6 +1,5 @@
 apps:
   - name: embassy-http-server
-    context: nrf52840dk
     selects:
       - ?release
       - network
