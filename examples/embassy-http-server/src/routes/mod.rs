@@ -1,5 +1,9 @@
-pub mod buttons;
 pub mod index;
 
-pub use buttons::buttons;
+#[cfg(feature = "button-readings")]
+pub mod buttons;
+
 pub use index::index;
+
+#[cfg(feature = "button-readings")]
+pub use buttons::buttons;

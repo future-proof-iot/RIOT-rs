@@ -15,11 +15,13 @@ use riot_rs::embassy::{
 use riot_rs::rt::debug::println;
 
 use embassy_net::tcp::TcpSocket;
-use embassy_nrf::gpio::{Input, Pin, Pull};
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 use embassy_time::Duration;
 use picoserve::routing::get;
 use static_cell::make_static;
+
+#[cfg(feature = "button-readings")]
+use embassy_nrf::gpio::{Input, Pin, Pull};
 
 struct EmbassyTimer;
 
@@ -37,12 +39,15 @@ impl picoserve::Timer for EmbassyTimer {
 }
 
 struct AppState {
+    #[cfg(feature = "button-readings")]
     buttons: ButtonInputs,
 }
 
+#[cfg(feature = "button-readings")]
 #[derive(Copy, Clone)]
 struct ButtonInputs(&'static Mutex<CriticalSectionRawMutex, Buttons>);
 
+#[cfg(feature = "button-readings")]
 struct Buttons {
     button1: Input<'static>,
     button2: Input<'static>,
@@ -50,6 +55,7 @@ struct Buttons {
     button4: Input<'static>,
 }
 
+#[cfg(feature = "button-readings")]
 impl picoserve::extract::FromRef<AppState> for ButtonInputs {
     fn from_ref(state: &AppState) -> Self {
         state.buttons
@@ -112,6 +118,7 @@ async fn web_task(
 }
 
 struct WebServer {
+    #[cfg(feature = "button-readings")]
     button_inputs: ButtonInputs,
 }
 
@@ -120,27 +127,34 @@ impl Application for WebServer {
         peripherals: &mut OptionalPeripherals,
         _init_args: InitializationArgs,
     ) -> Result<&dyn Application, ApplicationInitError> {
-        let buttons = pins::Buttons::take_from(peripherals)?;
+        #[cfg(feature = "button-readings")]
+        let button_inputs = {
+            let buttons = pins::Buttons::take_from(peripherals)?;
 
-        let buttons = Buttons {
-            button1: Input::new(buttons.btn1.degrade(), Pull::Up),
-            button2: Input::new(buttons.btn2.degrade(), Pull::Up),
-            button3: Input::new(buttons.btn3.degrade(), Pull::Up),
-            button4: Input::new(buttons.btn4.degrade(), Pull::Up),
+            let buttons = Buttons {
+                button1: Input::new(buttons.btn1.degrade(), Pull::Up),
+                button2: Input::new(buttons.btn2.degrade(), Pull::Up),
+                button3: Input::new(buttons.btn3.degrade(), Pull::Up),
+                button4: Input::new(buttons.btn4.degrade(), Pull::Up),
+            };
+
+            ButtonInputs(make_static!(Mutex::new(buttons)))
         };
 
-        let button_inputs = ButtonInputs(make_static!(Mutex::new(buttons)));
-
-        Ok(make_static!(Self { button_inputs }))
+        Ok(make_static!(Self {
+            #[cfg(feature = "button-readings")]
+            button_inputs,
+        }))
     }
 
     fn start(&self, spawner: embassy_executor::Spawner, drivers: Drivers) {
         let stack = drivers.stack.get().unwrap();
 
         fn make_app() -> picoserve::Router<AppRouter, AppState> {
-            picoserve::Router::new()
-                .route("/", get(routes::index))
-                .route("/buttons", get(routes::buttons))
+            let router = picoserve::Router::new().route("/", get(routes::index));
+            #[cfg(feature = "button-readings")]
+            let router = router.route("/buttons", get(routes::buttons));
+            router
         }
 
         let app = make_static!(make_app());
@@ -153,6 +167,7 @@ impl Application for WebServer {
 
         for id in 0..WEB_TASK_POOL_SIZE {
             let app_state = AppState {
+                #[cfg(feature = "button-readings")]
                 buttons: self.button_inputs,
             };
             spawner
