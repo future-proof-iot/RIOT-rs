@@ -767,6 +767,7 @@ dependencies = [
  "embassy-sync",
  "embassy-time",
  "embedded-io-async",
+ "heapless 0.8.0",
  "httparse",
  "picoserve",
  "riot-rs",
