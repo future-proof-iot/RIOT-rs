@@ -3,3 +3,13 @@ apps:
     selects:
       - ?release
       - network
+      - ?button-readings
+
+modules:
+  - name: button-readings
+    context:
+      - nrf52840dk
+    env:
+      global:
+        FEATURES:
+          - button-readings
