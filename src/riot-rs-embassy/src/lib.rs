@@ -170,17 +170,11 @@ fn usb_config() -> embassy_usb::Config<'static> {
 
 #[cfg(feature = "net")]
 fn network_config() -> embassy_net::Config {
-    #[cfg(not(feature = "override_network_config"))]
+    #[cfg(not(feature = "override-network-config"))]
     {
-        //use embassy_net::{Ipv4Address, Ipv4Cidr};
-        // embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
-        //     address: Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
-        //     dns_servers: heapless::Vec::new(),
-        //     gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
-        // })
         embassy_net::Config::dhcpv4(Default::default())
     }
-    #[cfg(feature = "override_network_config")]
+    #[cfg(feature = "override-network-config")]
     {
         extern "Rust" {
             fn riot_rs_network_config() -> embassy_net::Config;

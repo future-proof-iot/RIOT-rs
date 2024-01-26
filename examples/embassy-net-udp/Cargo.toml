@@ -6,9 +6,10 @@ edition.workspace = true
 publish = false
 
 [dependencies]
-riot-rs = { path = "../../src/riot-rs", features = [ "time" ] }
+riot-rs = { path = "../../src/riot-rs", features = ["time", "override-network-config"] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 embassy-executor = { workspace = true, default-features = false }
 embassy-time = { workspace = true, default-features = false }
 embassy-net = { workspace = true, features = ["udp"] }
 embedded-io-async = "0.6.1"
+heapless = { workspace = true }

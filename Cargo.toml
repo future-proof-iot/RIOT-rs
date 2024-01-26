@@ -49,6 +49,7 @@ riot-wrappers = { version = "^0.8", default-features = false, features = [
   "with_riot_rs",
 ] }
 
+heapless = { version = "0.8.0", default-features = false }
 static_cell = { version = "2.0.0", features = [ "nightly" ] }
 ld-memory = { version = "0.2.9" }
 konst = { version = "0.3.8", default_features = false }

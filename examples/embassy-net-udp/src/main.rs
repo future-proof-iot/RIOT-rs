@@ -77,3 +77,14 @@ impl Application for UdpEcho {
 }
 
 riot_rs::embassy::riot_initialize!(UdpEcho);
+
+#[no_mangle]
+fn riot_rs_network_config() -> embassy_net::Config {
+    use embassy_net::Ipv4Address;
+
+    embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
+        address: embassy_net::Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
+        dns_servers: heapless::Vec::new(),
+        gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
+    })
+}
