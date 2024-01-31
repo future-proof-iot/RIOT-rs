@@ -1,21 +1,16 @@
 #![no_main]
 #![no_std]
+#![feature(type_alias_impl_trait)]
+#![feature(used_with_arg)]
 
-use riot_rs as _;
+use riot_rs::rt::debug::{exit, println};
 
-#[cfg(not(feature = "riot-wrappers"))]
-use riot_rs::rt::debug::println;
-
-#[cfg(feature = "riot-wrappers")]
-use riot_wrappers::println;
-
-use riot_rs::rt::debug::exit;
-
-#[no_mangle]
-fn riot_main() {
+#[riot_rs::thread]
+fn main() {
     println!(
-        "Hello from riot_main()! Running on a {} board.",
-        riot_rs::buildinfo::BOARD
+        "Hello from main()! Running on a {} board.",
+        riot_rs::buildinfo::BOARD,
     );
+
     exit(Ok(()));
 }

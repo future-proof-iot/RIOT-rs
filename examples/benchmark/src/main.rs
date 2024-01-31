@@ -1,10 +1,12 @@
 #![no_main]
 #![no_std]
+#![feature(type_alias_impl_trait)]
+#![feature(used_with_arg)]
 
 use riot_rs::rt::debug::println;
 
-#[no_mangle]
-fn riot_main() {
+#[riot_rs::thread]
+fn main() {
     match riot_rs::rt::benchmark(10000, || {
         //
     }) {

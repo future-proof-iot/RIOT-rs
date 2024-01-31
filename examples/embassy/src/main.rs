@@ -1,8 +1,7 @@
 #![no_main]
 #![no_std]
 #![feature(type_alias_impl_trait)]
-
-use riot_rs as _;
+#![feature(used_with_arg)]
 
 use riot_rs::rt::debug::exit;
 use riot_rs::rt::debug::println;
@@ -28,13 +27,13 @@ async fn async_task() {
     }
 }
 
-#[no_mangle]
-fn riot_main() {
+#[riot_rs::thread]
+fn main() {
     use embassy_time::Instant;
 
     println!(
-        "Hello from riot_main()! Running on a {} board.",
-        riot_rs::buildinfo::BOARD
+        "Hello from main()! Running on a {} board.",
+        riot_rs::buildinfo::BOARD,
     );
 
     let spawner = EXECUTOR.spawner();
@@ -45,7 +44,7 @@ fn riot_main() {
         println!(
             "now={}ms threadtest() val={}",
             Instant::now().as_millis(),
-            val
+            val,
         );
     }
 

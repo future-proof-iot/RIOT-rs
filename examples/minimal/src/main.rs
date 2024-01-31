@@ -1,7 +1,7 @@
 #![no_main]
 #![no_std]
+#![feature(type_alias_impl_trait)]
+#![feature(used_with_arg)]
 
-use riot_rs as _;
-
-#[no_mangle]
-fn riot_main() {}
+#[riot_rs::thread]
+fn main() {}
