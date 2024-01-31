@@ -11,8 +11,3 @@ cortex-m.workspace = true
 riot-rs-rt.workspace = true
 
 nrf52 = { path = "../nrf52", features = [ "nrf52840" ] }
-
-[features]
-riotboot-dfu-slot0 = [ "nrf52/riotboot-partitioning-16k-2slots", "nrf52/riotboot-slot-0" ]
-# FIXME: To combat implicit additivity it'd be nice to either conflict here or pull in a fulldevice feature on nrf52.
-fulldevice = []

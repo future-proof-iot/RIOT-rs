@@ -132,6 +132,7 @@ contexts:
       flash-riotboot:
         required_vars:
           - FLASH_OFFSET
+          - FLASH_SLOT_OFFSET
         cmd:
           - riotboot-genhdr generate ${out} $$(date +%s) $(${FLASH_OFFSET} + ${FLASH_SLOT_OFFSET}) ${FLASH_SLOT_OFFSET} - > ${out}.hdr.bin
           - ${OBJCOPY} -Obinary ${out} ${out}.bin
@@ -513,14 +514,29 @@ builders:
   - name: microbit-v2
     parent: nrf52840
 
-  - name: particle-xenon-base
+  - name: particle-xenon
     parent: nrf52840
 
-  - name: particle-xenon-fulldevice
-    parent: particle-xenon-base
-
   - name: particle-xenon-riotboot-dfu-slot0
-    parent: particle-xenon-base
+    parent: particle-xenon
+    env:
+      # bootloader size
+      FLASH_OFFSET: "0x4000"
+      # size of image header
+      FLASH_SLOT_OFFSET: "0x400"
+      CARGO_ENV:
+        - NRF52_FLASH_OFFSET=${FLASH_OFFSET}
+        - NRF52_FLASH_SLOT_OFFSET=${FLASH_SLOT_OFFSET}
+
+  - name: particle-xenon-riotboot-dfu-slot1
+    parent: particle-xenon
+    env:
+      FLASH_OFFSET: "0x4000"
+      FLASH_SLOT_OFFSET: "0x400"
+      CARGO_ENV:
+        - NRF52_FLASH_OFFSET=${FLASH_OFFSET}
+        - NRF52_FLASH_SLOT_OFFSET=${FLASH_SLOT_OFFSET}
+        - NRF52_FLASH_SLOT="1"
 
   - name: lm3s6965evb
     parent: thumbv7m-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet

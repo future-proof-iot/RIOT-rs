@@ -19,5 +19,5 @@ rpi-pico = { optional=true, path="rpi-pico" }
 particle-xenon = { optional=true, path="particle-xenon" }
 
 [features]
-particle-xenon-fulldevice = [ "particle-xenon/fulldevice" ]
-particle-xenon-riotboot-dfu-slot0 = [ "particle-xenon/riotboot-dfu-slot0" ]
+particle-xenon-riotboot-dfu-slot0 = [ "particle-xenon" ]
+particle-xenon-riotboot-dfu-slot1 = [ "particle-xenon" ]
