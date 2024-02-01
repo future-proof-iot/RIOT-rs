@@ -240,12 +240,12 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     // Our MAC addr.
     #[cfg(feature = "usb_ethernet")]
-    let our_mac_addr = [0xCC, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC];
+    let our_mac_addr = [0xCA, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC];
 
     #[cfg(feature = "usb_ethernet")]
     let usb_cdc_ecm = {
         // Host's MAC addr. This is the MAC the host "thinks" its USB-to-ethernet adapter has.
-        let host_mac_addr = [0x88, 0x88, 0x88, 0x88, 0x88, 0x88];
+        let host_mac_addr = [0x8A, 0x88, 0x88, 0x88, 0x88, 0x88];
 
         use embassy_usb::class::cdc_ncm::{CdcNcmClass, State};
 
