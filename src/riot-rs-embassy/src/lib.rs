@@ -31,7 +31,6 @@ pub use linkme::{self, distributed_slice};
 pub use static_cell::make_static;
 
 use embassy_executor::Spawner;
-use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 
 use crate::define_peripherals::DefinePeripheralsError;
 
@@ -40,17 +39,7 @@ pub use crate::application::*;
 #[cfg(feature = "threading")]
 pub mod blocker;
 
-pub type Task = fn(
-    &mut arch::OptionalPeripherals,
-    InitializationArgs,
-) -> Result<&dyn Application, ApplicationInitError>;
-
-// Allows us to pass extra initialization arguments in the future
-#[derive(Copy, Clone)]
-#[non_exhaustive]
-pub struct InitializationArgs {
-    pub peripherals: &'static Mutex<CriticalSectionRawMutex, arch::OptionalPeripherals>,
-}
+pub type Task = fn() -> &'static dyn Application;
 
 #[cfg(feature = "usb")]
 pub type UsbBuilder = embassy_usb::Builder<'static, UsbDriver>;
@@ -316,15 +305,9 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         wifi::join(control).await;
     };
 
-    let init_args = InitializationArgs {
-        peripherals: make_static!(Mutex::new(peripherals)),
-    };
-
     for task in EMBASSY_TASKS {
-        // TODO: should all tasks be initialized before starting the first one?
-        match task(&mut *init_args.peripherals.lock().await, init_args) {
-            Ok(initialized_application) => initialized_application.start(spawner, drivers),
-            Err(err) => panic!("Error while initializing an application: {err:?}"),
+        if let Err(err) = task().start(&mut peripherals, spawner, drivers) {
+            panic!("Error while initializing an application: {err:?}")
         }
     }
 

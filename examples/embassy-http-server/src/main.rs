@@ -9,8 +9,7 @@ mod routes;
 use riot_rs as _;
 
 use riot_rs::embassy::{
-    arch::OptionalPeripherals, Application, ApplicationInitError, Drivers, InitializationArgs,
-    NetworkStack,
+    arch, Application, ApplicationError, Drivers, NetworkStack, OptionalPeripherals,
 };
 use riot_rs::rt::debug::println;
 
@@ -87,18 +86,21 @@ async fn web_task(
     }
 }
 
-struct WebServer {
-    #[cfg(feature = "button-readings")]
-    button_inputs: ButtonInputs,
-}
+struct WebServer;
 
 impl Application for WebServer {
-    fn initialize(
-        peripherals: &mut OptionalPeripherals,
-        _init_args: InitializationArgs,
-    ) -> Result<&dyn Application, ApplicationInitError> {
+    fn init() -> &'static dyn Application {
+        &Self {}
+    }
+
+    fn start(
+        &self,
+        peripherals: &mut arch::OptionalPeripherals,
+        spawner: embassy_executor::Spawner,
+        drivers: Drivers,
+    ) -> Result<(), ApplicationError> {
         #[cfg(feature = "button-readings")]
-        let button_inputs = {
+        let buttons = {
             let buttons = pins::Buttons::take_from(peripherals)?;
 
             let buttons = Buttons {
@@ -111,13 +113,6 @@ impl Application for WebServer {
             ButtonInputs(make_static!(Mutex::new(buttons)))
         };
 
-        Ok(make_static!(Self {
-            #[cfg(feature = "button-readings")]
-            button_inputs,
-        }))
-    }
-
-    fn start(&self, spawner: embassy_executor::Spawner, drivers: Drivers) {
         let stack = drivers.stack.get().unwrap();
 
         fn make_app() -> picoserve::Router<AppRouter, AppState> {
@@ -138,12 +133,14 @@ impl Application for WebServer {
         for id in 0..WEB_TASK_POOL_SIZE {
             let app_state = AppState {
                 #[cfg(feature = "button-readings")]
-                buttons: self.button_inputs,
+                buttons,
             };
             spawner
                 .spawn(web_task(id, stack, app, config, app_state))
                 .unwrap();
         }
+
+        Ok(())
     }
 }
 

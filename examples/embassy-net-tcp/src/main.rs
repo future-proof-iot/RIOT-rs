@@ -3,7 +3,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::embassy::{arch, Application, ApplicationInitError, Drivers, InitializationArgs};
+use riot_rs::embassy::{arch, Application, ApplicationError, Drivers};
 
 use riot_rs::rt::debug::println;
 
@@ -56,18 +56,22 @@ async fn tcp_echo(drivers: Drivers) {
     }
 }
 
-struct TcpEcho {}
+struct TcpEcho;
 
 impl Application for TcpEcho {
-    fn initialize(
-        _peripherals: &mut arch::OptionalPeripherals,
-        _init_args: InitializationArgs,
-    ) -> Result<&dyn Application, ApplicationInitError> {
-        Ok(&Self {})
+    fn init() -> &'static dyn Application {
+        &Self {}
     }
 
-    fn start(&self, spawner: embassy_executor::Spawner, drivers: Drivers) {
+    fn start(
+        &self,
+        _peripherals: &mut arch::OptionalPeripherals,
+        spawner: embassy_executor::Spawner,
+        drivers: Drivers,
+    ) -> Result<(), ApplicationError> {
         spawner.spawn(tcp_echo(drivers)).unwrap();
+
+        Ok(())
     }
 }
 

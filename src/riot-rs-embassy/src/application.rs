@@ -1,40 +1,46 @@
-use crate::{arch, DefinePeripheralsError, Drivers, InitializationArgs};
+use crate::{arch, DefinePeripheralsError, Drivers};
 
 /// Defines an application.
 ///
 /// Allows to separate its fallible initialization from its infallible running phase.
 pub trait Application {
-    /// Applications must implement this to obtain the peripherals they require.
+    /// Creates the trait object so that we can then call methods on it.
     ///
-    /// This function is only run once at startup and instantiates the application.
-    /// No guarantee is provided regarding the order in which different applications are
-    /// initialized.
-    /// The [`assign_resources!`] macro can be leveraged to extract the required peripherals.
-    fn initialize(
-        peripherals: &mut arch::OptionalPeripherals,
-        init_args: InitializationArgs,
-    ) -> Result<&dyn Application, ApplicationInitError>
+    /// # Note
+    ///
+    /// This function must be callable multiple times.
+    fn init() -> &'static dyn Application
     where
         Self: Sized;
 
-    /// After an application has been initialized, this method is called by the system to start the
-    /// application.
+    /// This method is run once at startup and is intended to start the application.
+    /// It must not block but may spawn [Embassy tasks](embassy_executor::task) using the provided
+    /// [`Spawner`](embassy_executor::Spawner).
+    /// The [`define_peripherals!`](crate::define_peripherals!) macro can be leveraged to extract
+    /// the required peripherals.
+    /// In addition, this method is provided with the drivers initialized by the system, which
+    /// can be configured using the hook methods on this trait.
     ///
-    /// This function must not block but may spawn [Embassy tasks](embassy_executor::task) using
-    /// the provided [`Spawner`](embassy_executor::Spawner).
-    /// In addition, it is provided with the drivers initialized by the system.
-    fn start(&self, spawner: embassy_executor::Spawner, drivers: Drivers);
+    /// # Note
+    ///
+    /// No guarantee is provided regarding the order in which different applications are started.
+    fn start(
+        &self,
+        peripherals: &mut arch::OptionalPeripherals,
+        spawner: embassy_executor::Spawner,
+        drivers: Drivers,
+    ) -> Result<(), ApplicationError>;
 }
 
 /// Represents errors that can happen during application initialization.
 #[derive(Debug)]
-pub enum ApplicationInitError {
+pub enum ApplicationError {
     /// The application could not obtain a peripheral, most likely because it was already used by
     /// another application or by the system itself.
     CannotTakePeripheral,
 }
 
-impl From<DefinePeripheralsError> for ApplicationInitError {
+impl From<DefinePeripheralsError> for ApplicationError {
     fn from(err: DefinePeripheralsError) -> Self {
         match err {
             DefinePeripheralsError::TakingPeripheral => Self::CannotTakePeripheral,
@@ -42,18 +48,15 @@ impl From<DefinePeripheralsError> for ApplicationInitError {
     }
 }
 
-/// Sets the [`Application::initialize()`] function implemented on the provided type to be run at
+/// Sets the [`Application::init()`] function implemented on the provided type to be run at
 /// startup.
 #[macro_export]
 macro_rules! riot_initialize {
     ($prog_type:ident) => {
         #[$crate::distributed_slice($crate::EMBASSY_TASKS)]
         #[linkme(crate = $crate::linkme)]
-        fn __init_application(
-            peripherals: &mut $crate::arch::OptionalPeripherals,
-            init_args: $crate::InitializationArgs,
-        ) -> Result<&dyn $crate::Application, $crate::ApplicationInitError> {
-            <$prog_type as Application>::initialize(peripherals, init_args)
+        fn __init_application() -> &'static dyn $crate::Application {
+            <$prog_type as Application>::init()
         }
     };
 }
