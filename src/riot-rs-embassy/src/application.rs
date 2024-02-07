@@ -1,5 +1,8 @@
 use crate::{arch, DefinePeripheralsError, Drivers};
 
+#[cfg(feature = "usb")]
+use crate::UsbBuilder;
+
 /// Defines an application.
 ///
 /// Allows to separate its fallible initialization from its infallible running phase.
@@ -12,6 +15,12 @@ pub trait Application {
     fn init() -> &'static dyn Application
     where
         Self: Sized;
+
+    /// Allows to mutate the [USB builder](UsbBuilder) to configure USB on the device.
+    #[cfg(feature = "usb")]
+    fn usb_builder_hook(&self, _usb_builder: &mut UsbBuilder) -> Result<(), UsbBuilderHookError> {
+        Ok(())
+    }
 
     /// This method is run once at startup and is intended to start the application.
     /// It must not block but may spawn [Embassy tasks](embassy_executor::task) using the provided
@@ -47,6 +56,11 @@ impl From<DefinePeripheralsError> for ApplicationError {
         }
     }
 }
+
+/// Represents an error happening within the USB builder hook.
+#[cfg(feature = "usb")]
+#[derive(Debug)]
+pub struct UsbBuilderHookError;
 
 /// Sets the [`Application::init()`] function implemented on the provided type to be run at
 /// startup.
