@@ -524,6 +524,7 @@ dependencies = [
  "embassy-sync 0.5.0",
  "embassy-time",
  "embedded-io-async",
+ "fixed",
  "heapless 0.8.0",
  "httparse",
  "picoserve",

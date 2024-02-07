@@ -11,6 +11,7 @@ embassy-net = { workspace = true, features = ["tcp"] }
 embassy-sync = { workspace = true }
 embassy-time = { workspace = true, default-features = false }
 embedded-io-async = "0.6.0"
+fixed = "1.24.0"
 heapless = { workspace = true }
 httparse = { version = "1.8.0", default-features = false }
 picoserve = { version = "0.8.0", default-features = false, features = ["embassy"] }
@@ -23,3 +24,4 @@ embassy-nrf = { workspace = true, optional = true }
 
 [features]
 button-readings = ["dep:embassy-nrf"]
+internal-temp = ["riot-rs/internal-temp"]

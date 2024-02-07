@@ -8,7 +8,7 @@ mod routes;
 
 use riot_rs as _;
 
-use riot_rs::embassy::network;
+use riot_rs::embassy::{arch, network};
 use riot_rs::rt::debug::println;
 
 use embassy_net::tcp::TcpSocket;
@@ -23,6 +23,8 @@ use embassy_nrf::gpio::{Input, Pin, Pull};
 struct AppState {
     #[cfg(feature = "button-readings")]
     buttons: ButtonInputs,
+    #[cfg(context = "nrf52840")]
+    temp: TempInput,
 }
 
 #[cfg(feature = "button-readings")]
@@ -41,6 +43,17 @@ struct Buttons {
 impl picoserve::extract::FromRef<AppState> for ButtonInputs {
     fn from_ref(state: &AppState) -> Self {
         state.buttons
+    }
+}
+
+#[cfg(context = "nrf52840")]
+#[derive(Copy, Clone)]
+struct TempInput(&'static Mutex<CriticalSectionRawMutex, embassy_nrf::temp::Temp<'static>>);
+
+#[cfg(context = "nrf52840")]
+impl picoserve::extract::FromRef<AppState> for TempInput {
+    fn from_ref(state: &AppState) -> Self {
+        state.temp
     }
 }
 
@@ -89,7 +102,7 @@ async fn web_task(
 use riot_rs::embassy::{arch::OptionalPeripherals, Spawner};
 #[riot_rs::embassy::distributed_slice(riot_rs::embassy::EMBASSY_TASKS)]
 #[linkme(crate = riot_rs::embassy::linkme)]
-fn web_server_init(spawner: &Spawner, peripherals: &mut OptionalPeripherals) {
+fn web_server_init(spawner: &Spawner, peripherals: &mut arch::OptionalPeripherals) {
     #[cfg(feature = "button-readings")]
     let button_inputs = {
         let buttons = pins::Buttons::take_from(peripherals).unwrap();
@@ -104,10 +117,18 @@ fn web_server_init(spawner: &Spawner, peripherals: &mut OptionalPeripherals) {
         ButtonInputs(make_static!(Mutex::new(buttons)))
     };
 
+    #[cfg(context = "nrf52840")]
+    let temp = {
+        let temp = arch::internal_temp::sensor(peripherals.TEMP.take().unwrap());
+        TempInput(make_static!(Mutex::new(temp)))
+    };
+
     fn make_app() -> picoserve::Router<AppRouter, AppState> {
         let router = picoserve::Router::new().route("/", get(routes::index));
         #[cfg(feature = "button-readings")]
         let router = router.route("/buttons", get(routes::buttons));
+        #[cfg(context = "nrf52840")]
+        let router = router.route("/api/temp", get(routes::temp));
         router
     }
 
@@ -123,6 +144,8 @@ fn web_server_init(spawner: &Spawner, peripherals: &mut OptionalPeripherals) {
         let app_state = AppState {
             #[cfg(feature = "button-readings")]
             buttons: button_inputs,
+            #[cfg(context = "nrf52840")]
+            temp,
         };
         spawner.spawn(web_task(id, app, config, app_state)).unwrap();
     }
