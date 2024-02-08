@@ -21,8 +21,13 @@ unsafe fn SWI_IRQ_1() {
 pub mod usb {
     use embassy_rp::peripherals;
     use embassy_rp::usb::Driver;
+
+    use crate::arch;
+
     pub type UsbDriver = Driver<'static, peripherals::USB>;
-    pub fn driver(usb: peripherals::USB) -> UsbDriver {
+
+    pub fn driver(peripherals: &mut arch::OptionalPeripherals) -> UsbDriver {
+        let usb = peripherals.USB.take().unwrap();
         Driver::new(usb, super::Irqs)
     }
 }

@@ -218,11 +218,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     let mut usb_builder = {
         let usb_config = usb_config();
 
-        #[cfg(context = "nrf52")]
-        let usb_driver = arch::usb::driver(peripherals.USBD.take().unwrap());
-
-        #[cfg(context = "rp2040")]
-        let usb_driver = arch::usb::driver(peripherals.USB.take().unwrap());
+        let usb_driver = arch::usb::driver(&mut peripherals);
 
         // Create embassy-usb DeviceBuilder using the driver and config.
         let builder = Builder::new(
