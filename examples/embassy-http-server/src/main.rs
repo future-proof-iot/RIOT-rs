@@ -23,21 +23,6 @@ use static_cell::make_static;
 #[cfg(feature = "button-readings")]
 use embassy_nrf::gpio::{Input, Pin, Pull};
 
-struct EmbassyTimer;
-
-impl picoserve::Timer for EmbassyTimer {
-    type Duration = embassy_time::Duration;
-    type TimeoutError = embassy_time::TimeoutError;
-
-    async fn run_with_timeout<F: core::future::Future>(
-        &mut self,
-        duration: Self::Duration,
-        future: F,
-    ) -> Result<F::Output, Self::TimeoutError> {
-        embassy_time::with_timeout(duration, future).await
-    }
-}
-
 struct AppState {
     #[cfg(feature = "button-readings")]
     buttons: ButtonInputs,
@@ -86,30 +71,15 @@ async fn web_task(
             continue;
         }
 
-        println!(
-            "{}: Received connection from {:?}",
-            id,
-            socket.remote_endpoint()
-        );
+        let remote_endpoint = socket.remote_endpoint();
 
-        let (socket_rx, socket_tx) = socket.split();
+        println!("{}: Received connection from {:?}", id, remote_endpoint);
 
-        match picoserve::serve_with_state(
-            app,
-            EmbassyTimer,
-            config,
-            &mut [0; 2048],
-            socket_rx,
-            socket_tx,
-            &state,
-        )
-        .await
-        {
+        match picoserve::serve_with_state(app, config, &mut [0; 2048], socket, &state).await {
             Ok(handled_requests_count) => {
                 println!(
                     "{} requests handled from {:?}",
-                    handled_requests_count,
-                    socket.remote_endpoint()
+                    handled_requests_count, remote_endpoint,
                 );
             }
             Err(err) => println!("{:?}", err),
@@ -159,11 +129,11 @@ impl Application for WebServer {
 
         let app = make_static!(make_app());
 
-        let config = make_static!(picoserve::Config {
-            start_read_request_timeout: Some(Duration::from_secs(5)),
-            read_request_timeout: Some(Duration::from_secs(1)),
-            write_timeout: Some(Duration::from_secs(1)),
-        });
+        let config = make_static!(picoserve::Config::new(picoserve::Timeouts {
+            start_read_request: Some(Duration::from_secs(5)),
+            read_request: Some(Duration::from_secs(1)),
+            write: Some(Duration::from_secs(1)),
+        }));
 
         for id in 0..WEB_TASK_POOL_SIZE {
             let app_state = AppState {

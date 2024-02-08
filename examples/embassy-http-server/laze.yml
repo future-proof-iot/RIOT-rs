@@ -1,5 +1,9 @@
 apps:
   - name: embassy-http-server
+    env:
+      global:
+        CARGO_ENV:
+          - CONFIG_ISR_STACKSIZE=16384
     selects:
       - ?release
       - network
