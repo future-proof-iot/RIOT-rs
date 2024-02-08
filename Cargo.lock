@@ -427,6 +427,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "const-sha1"
+version = "0.3.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0d8a42181e0652c2997ae4d217f25b63c5337a52fd2279736e97b832fa0a3cff"
+
+[[package]]
 name = "const_panic"
 version = "0.2.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1991,11 +1997,14 @@ dependencies = [
 
 [[package]]
 name = "picoserve"
-version = "0.3.0"
+version = "0.8.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ab20855a694e13dddfd360685e5bc78fb28cef2581237e6c83f91c79a59aa6da"
+checksum = "912e6e8713f815d30bb77fa052cc8036a2b6429dc436969311fad47705fe0f2a"
 dependencies = [
+ "const-sha1",
  "data-encoding",
+ "embassy-net",
+ "embassy-time",
  "embedded-io-async",
  "futures-util",
  "heapless 0.8.0",
@@ -2235,7 +2244,7 @@ dependencies = [
  "coap-message",
  "coap-numbers",
  "embedded-graphics",
- "embedded-hal 0.2.7",
+ "embedded-hal 1.0.0",
  "heapless 0.7.17",
  "minicbor",
  "riot-sys",
