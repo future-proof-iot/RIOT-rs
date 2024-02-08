@@ -38,3 +38,16 @@ pub fn init(config: Config) -> OptionalPeripherals {
     let peripherals = embassy_nrf::init(config);
     OptionalPeripherals::from(peripherals)
 }
+
+#[cfg(feature = "internal-temp")]
+pub mod internal_temp {
+    use embassy_nrf::{peripherals, temp};
+
+    embassy_nrf::bind_interrupts!(struct TempIrqs {
+        TEMP => embassy_nrf::temp::InterruptHandler;
+    });
+
+    pub fn sensor(temp: peripherals::TEMP) -> temp::Temp<'static> {
+        temp::Temp::new(temp, TempIrqs)
+    }
+}
