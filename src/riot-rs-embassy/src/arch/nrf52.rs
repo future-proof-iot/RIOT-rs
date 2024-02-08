@@ -22,9 +22,15 @@ unsafe fn SWI0_EGU0() {
 pub mod usb {
     use embassy_nrf::peripherals;
     use embassy_nrf::usb::{vbus_detect::HardwareVbusDetect, Driver};
+
+    use crate::arch;
+
     pub type UsbDriver = Driver<'static, peripherals::USBD, HardwareVbusDetect>;
-    pub fn driver(usbd: peripherals::USBD) -> UsbDriver {
+
+    pub fn driver(peripherals: &mut arch::OptionalPeripherals) -> UsbDriver {
         use super::Irqs;
+
+        let usbd = peripherals.USBD.take().unwrap();
         Driver::new(usbd, Irqs, HardwareVbusDetect::new(Irqs))
     }
 }
