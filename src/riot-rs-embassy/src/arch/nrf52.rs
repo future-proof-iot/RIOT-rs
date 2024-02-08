@@ -1,10 +1,10 @@
 pub(crate) use embassy_executor::InterruptExecutor as Executor;
-pub use embassy_nrf::interrupt;
 pub use embassy_nrf::interrupt::SWI0_EGU0 as SWI;
 pub use embassy_nrf::{init, OptionalPeripherals};
+pub use embassy_nrf::{interrupt, peripherals};
 
 #[cfg(feature = "usb")]
-use embassy_nrf::{bind_interrupts, peripherals, rng, usb as nrf_usb};
+use embassy_nrf::{bind_interrupts, rng, usb as nrf_usb};
 
 #[cfg(feature = "usb")]
 bind_interrupts!(struct Irqs {
@@ -20,8 +20,10 @@ unsafe fn SWI0_EGU0() {
 
 #[cfg(feature = "usb")]
 pub mod usb {
-    use embassy_nrf::peripherals;
-    use embassy_nrf::usb::{vbus_detect::HardwareVbusDetect, Driver};
+    use embassy_nrf::{
+        peripherals,
+        usb::{vbus_detect::HardwareVbusDetect, Driver},
+    };
 
     use crate::arch;
 
