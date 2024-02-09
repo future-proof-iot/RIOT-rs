@@ -42,7 +42,7 @@ impl RingBufferIndex {
 
     /// Returns the number of slots available for `get()`
     pub fn available(&self) -> u8 {
-        self.writes - self.reads
+        self.writes.wrapping_sub(self.reads)
     }
 
     /// Returns `true` if no element is available for `get()`
@@ -152,6 +152,7 @@ mod tests {
                 rb.put(),
                 Some(i as u8 % super::next_smaller_power_of_two(size))
             );
+            assert_eq!(rb.available(), 1);
             assert_eq!(
                 rb.get(),
                 Some(i as u8 % super::next_smaller_power_of_two(size))
