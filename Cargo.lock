@@ -820,6 +820,7 @@ dependencies = [
  "embassy-net",
  "embassy-time",
  "embedded-io-async",
+ "heapless 0.8.0",
  "riot-rs",
  "riot-rs-boards",
 ]
@@ -832,6 +833,7 @@ dependencies = [
  "embassy-net",
  "embassy-time",
  "embedded-io-async",
+ "heapless 0.8.0",
  "riot-rs",
  "riot-rs-boards",
 ]
