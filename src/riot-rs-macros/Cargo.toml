@@ -10,9 +10,19 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
+enum-iterator = "1.5.0"
 proc-macro-crate = "3.1.0"
 quote = "1.0.35"
 syn = { version = "2.0.47", features = ["full"] }
+
+[dev-dependencies]
+heapless = { workspace = true }
+riot-rs = { workspace = true, features = [
+  "no-boards",
+  "usb-ethernet",
+  "override-network-config",
+] }
+trybuild = "1.0.89"
 
 [lib]
 proc-macro = true

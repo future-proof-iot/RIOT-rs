@@ -135,3 +135,20 @@ mod buttons {
         }
     }
 }
+
+#[riot_rs::config(usb)]
+fn usb_config() -> riot_rs::embassy::embassy_usb::Config<'static> {
+    let mut config = riot_rs::embassy::embassy_usb::Config::new(0xc0de, 0xcafe);
+    config.manufacturer = Some("Embassy");
+    config.product = Some("HID keyboard example");
+    config.serial_number = Some("12345678");
+    config.max_power = 100;
+    config.max_packet_size_0 = 64;
+
+    // Required for Windows support.
+    config.composite_with_iads = true;
+    config.device_class = 0xEF;
+    config.device_sub_class = 0x02;
+    config.device_protocol = 0x01;
+    config
+}

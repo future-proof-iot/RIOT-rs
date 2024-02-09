@@ -450,17 +450,21 @@ modules:
     provides_unique:
       - network_device
     selects:
-      - usb_device_port
+      - hw/usb-device-port
     env:
       global:
         FEATURES:
           - riot-rs/usb-ethernet
 
-  - name: usb_device_port
+  - name: hw/usb-device-port
     context:
       - nrf52840dk
       - rpi-pico
       - rpi-pico-w
+    env:
+      global:
+        RUSTFLAGS:
+          - --cfg capability=\"hw/usb-device-port\"
 
   - name: wifi-esp
     context:
