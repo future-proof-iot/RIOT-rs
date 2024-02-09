@@ -1,11 +1,4 @@
-//! To provide a custom USB configuration, enable the feature
-//! `riot_rs_embassy/override-usb-config`, then add this to your code:
-//! ```rust
-//! #[no_mangle]
-//! pub fn riot_rs_usb_config() -> embassy_usb::Config<'static> {
-//!     /// create config here
-//! }
-//! ```
+//! To provide a custom USB configuration, use the `riot_rs::config` attribute macro.
 
 pub use crate::arch::usb::UsbDriver;
 

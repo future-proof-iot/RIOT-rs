@@ -32,6 +32,12 @@ pub use static_cell::make_static;
 
 pub use embassy_executor::Spawner;
 
+// Crates used in driver configuration functions
+#[cfg(feature = "net")]
+pub use embassy_net;
+#[cfg(feature = "usb")]
+pub use embassy_usb;
+
 #[cfg(feature = "usb-ethernet")]
 use usb::ethernet::NetworkDevice;
 

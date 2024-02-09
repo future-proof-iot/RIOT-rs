@@ -67,8 +67,8 @@ fn __init_udp_echo(spawner: &Spawner, _peripherals: &mut OptionalPeripherals) {
     spawner.spawn(udp_echo()).unwrap();
 }
 
-#[no_mangle]
-fn riot_rs_network_config() -> embassy_net::Config {
+#[riot_rs::config(network)]
+fn network_config() -> embassy_net::Config {
     use embassy_net::Ipv4Address;
 
     embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {

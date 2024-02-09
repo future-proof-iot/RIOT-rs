@@ -125,8 +125,8 @@ fn web_server_init(spawner: &Spawner, peripherals: &mut OptionalPeripherals) {
     }
 }
 
-#[no_mangle]
-fn riot_rs_network_config() -> embassy_net::Config {
+#[riot_rs::config(network)]
+fn network_config() -> embassy_net::Config {
     use embassy_net::Ipv4Address;
 
     embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
@@ -134,4 +134,22 @@ fn riot_rs_network_config() -> embassy_net::Config {
         dns_servers: heapless::Vec::new(),
         gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
     })
+}
+
+#[cfg(capability = "hw/usb-device-port")]
+#[riot_rs::config(usb)]
+fn usb_config() -> riot_rs::embassy::embassy_usb::Config<'static> {
+    let mut config = riot_rs::embassy::embassy_usb::Config::new(0xc0de, 0xcafe);
+    config.manufacturer = Some("Embassy");
+    config.product = Some("HTTP-over-USB-Ethernet example");
+    config.serial_number = Some("12345678");
+    config.max_power = 100;
+    config.max_packet_size_0 = 64;
+
+    // Required for Windows support.
+    config.composite_with_iads = true;
+    config.device_class = 0xEF;
+    config.device_sub_class = 0x02;
+    config.device_protocol = 0x01;
+    config
 }

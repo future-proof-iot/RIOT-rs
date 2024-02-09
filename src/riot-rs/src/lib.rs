@@ -9,8 +9,11 @@ pub use riot_rs_debug as debug;
 pub use riot_rs_embassy::{self as embassy, define_peripherals};
 pub use riot_rs_rt as rt;
 
+// Attribute macros
+pub use riot_rs_macros::config;
 #[cfg(feature = "threading")]
 pub use riot_rs_macros::thread;
+
 #[cfg(feature = "threading")]
 pub use riot_rs_threads as thread;
 

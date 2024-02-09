@@ -1,3 +1,5 @@
+//! To provide a custom network configuration, use the `riot_rs::config` attribute macro.
+
 use core::cell::OnceCell;
 
 use embassy_executor::Spawner;
