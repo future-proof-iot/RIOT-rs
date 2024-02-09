@@ -68,4 +68,4 @@ wifi_cyw43 = [ "dep:cyw43", "dep:cyw43-pio", "dep:embassy-net-driver-channel", "
 
 threading = ["dep:riot-rs-core"]
 override-network-config = []
-override_usb_config = []
+override-usb-config = []

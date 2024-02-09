@@ -1,7 +1,7 @@
 //! This module provides an opinionated integration of `embassy`.
 //!
 //! To provide a custom USB configuration, enable the feature
-//! `riot_rs_embassy/override_usb_config`, then add this to your code:
+//! `riot_rs_embassy/override-usb-config`, then add this to your code:
 //! ```rust
 //! #[no_mangle]
 //! pub fn riot_rs_usb_config() -> embassy_usb::Config<'static> {
@@ -144,7 +144,7 @@ async fn net_task(stack: &'static Stack<NetworkDevice>) -> ! {
 
 #[cfg(feature = "usb")]
 fn usb_config() -> embassy_usb::Config<'static> {
-    #[cfg(not(feature = "override_usb_config"))]
+    #[cfg(not(feature = "override-usb-config"))]
     {
         // Create embassy-usb Config
         let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
@@ -161,7 +161,7 @@ fn usb_config() -> embassy_usb::Config<'static> {
         config.device_protocol = 0x01;
         config
     }
-    #[cfg(feature = "override_usb_config")]
+    #[cfg(feature = "override-usb-config")]
     {
         extern "Rust" {
             fn riot_rs_usb_config() -> embassy_usb::Config<'static>;
