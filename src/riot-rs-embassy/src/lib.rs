@@ -34,9 +34,6 @@ use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 
 use crate::define_peripherals::DefinePeripheralsError;
 
-#[cfg(feature = "usb")]
-use embassy_usb::{Builder, UsbDevice};
-
 #[cfg(feature = "threading")]
 pub mod blocker;
 
@@ -51,6 +48,9 @@ pub type Task = fn(
 pub struct InitializationArgs {
     pub peripherals: &'static Mutex<CriticalSectionRawMutex, arch::OptionalPeripherals>,
 }
+
+#[cfg(feature = "usb")]
+pub type UsbBuilder = embassy_usb::Builder<'static, UsbDriver>;
 
 #[cfg(any(feature = "usb_ethernet", feature = "wifi_cyw43"))]
 pub type NetworkStack = Stack<NetworkDevice>;
@@ -73,7 +73,7 @@ use arch::usb::UsbDriver;
 
 #[cfg(feature = "usb")]
 #[embassy_executor::task]
-async fn usb_task(mut device: UsbDevice<'static, UsbDriver>) -> ! {
+async fn usb_task(mut device: embassy_usb::UsbDevice<'static, UsbDriver>) -> ! {
     device.run().await
 }
 // usb common end
@@ -221,7 +221,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         let usb_driver = arch::usb::driver(&mut peripherals);
 
         // Create embassy-usb DeviceBuilder using the driver and config.
-        let builder = Builder::new(
+        let builder = UsbBuilder::new(
             usb_driver,
             usb_config,
             &mut make_static!([0; 256])[..],
