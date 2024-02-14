@@ -8,9 +8,7 @@ mod routes;
 
 use riot_rs as _;
 
-use riot_rs::embassy::{
-    arch, Application, ApplicationError, Drivers, NetworkStack, OptionalPeripherals,
-};
+use riot_rs::embassy::{arch, Application, ApplicationError, Drivers, NetworkStack};
 use riot_rs::rt::debug::println;
 
 use embassy_net::tcp::TcpSocket;
