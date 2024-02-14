@@ -52,12 +52,12 @@ pub struct InitializationArgs {
 #[cfg(feature = "usb")]
 pub type UsbBuilder = embassy_usb::Builder<'static, UsbDriver>;
 
-#[cfg(any(feature = "usb_ethernet", feature = "wifi_cyw43"))]
+#[cfg(feature = "net")]
 pub type NetworkStack = Stack<NetworkDevice>;
 
 #[derive(Copy, Clone)]
 pub struct Drivers {
-    #[cfg(any(feature = "usb_ethernet", feature = "wifi_cyw43"))]
+    #[cfg(feature = "net")]
     pub stack: &'static OnceCell<&'static NetworkStack>,
 }
 
@@ -136,7 +136,7 @@ mod wifi {
 // cyw43 end
 //
 
-#[cfg(any(feature = "usb_ethernet", feature = "wifi_cyw43"))]
+#[cfg(feature = "net")]
 #[embassy_executor::task]
 async fn net_task(stack: &'static Stack<NetworkDevice>) -> ! {
     stack.run().await
@@ -200,7 +200,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     riot_rs_rt::debug::println!("riot-rs-embassy::init_task()");
 
     let drivers = Drivers {
-        #[cfg(any(feature = "usb_ethernet", feature = "wifi_cyw43"))]
+        #[cfg(feature = "net")]
         stack: make_static!(OnceCell::new()),
     };
 
@@ -281,7 +281,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         (net_device, control)
     };
 
-    #[cfg(any(feature = "usb_ethernet", feature = "wifi_cyw43"))]
+    #[cfg(feature = "net")]
     {
         // network stack
         let config = network_config();
