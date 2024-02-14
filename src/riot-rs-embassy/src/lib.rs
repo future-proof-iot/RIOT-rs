@@ -34,6 +34,9 @@ use crate::define_peripherals::DefinePeripheralsError;
 #[cfg(feature = "usb")]
 use usb::ethernet::NetworkDevice;
 
+#[cfg(feature = "net")]
+pub use network::NetworkStack;
+
 #[cfg(feature = "threading")]
 pub mod blocker;
 
@@ -49,9 +52,6 @@ pub struct InitializationArgs {
     pub peripherals: &'static Mutex<CriticalSectionRawMutex, arch::OptionalPeripherals>,
 }
 
-#[cfg(feature = "net")]
-pub type NetworkStack = Stack<NetworkDevice>;
-
 #[derive(Copy, Clone)]
 pub struct Drivers {
     #[cfg(feature = "net")]
@@ -62,16 +62,6 @@ pub static EXECUTOR: arch::Executor = arch::Executor::new();
 
 #[distributed_slice]
 pub static EMBASSY_TASKS: [Task] = [..];
-
-//
-// net begin
-#[cfg(feature = "net")]
-const STACK_RESOURCES: usize = riot_rs_utils::usize_from_env_or!("CONFIG_STACK_RESOURCES", 4);
-
-#[cfg(feature = "net")]
-use embassy_net::{Stack, StackResources};
-// net end
-//
 
 //
 // cyw43 begin
@@ -100,27 +90,6 @@ mod wifi {
 }
 // cyw43 end
 //
-
-#[cfg(feature = "net")]
-#[embassy_executor::task]
-async fn net_task(stack: &'static Stack<NetworkDevice>) -> ! {
-    stack.run().await
-}
-
-#[cfg(feature = "net")]
-fn network_config() -> embassy_net::Config {
-    #[cfg(not(feature = "override-network-config"))]
-    {
-        embassy_net::Config::dhcpv4(Default::default())
-    }
-    #[cfg(feature = "override-network-config")]
-    {
-        extern "Rust" {
-            fn riot_rs_network_config() -> embassy_net::Config;
-        }
-        unsafe { riot_rs_network_config() }
-    }
-}
 
 #[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
@@ -221,8 +190,12 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "net")]
     {
-        // network stack
-        let config = network_config();
+        use embassy_net::{Stack, StackResources};
+
+        const STACK_RESOURCES: usize =
+            riot_rs_utils::usize_from_env_or!("CONFIG_STACK_RESOURCES", 4);
+
+        let config = network::config();
 
         // Generate random seed
         // let mut rng = Rng::new(p.RNG, Irqs);
@@ -239,7 +212,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
             seed
         ));
 
-        spawner.spawn(net_task(stack)).unwrap();
+        spawner.spawn(network::net_task(stack)).unwrap();
 
         // Do nothing if a stack is already initialized, as this should not happen anyway
         // TODO: should we panic instead?
