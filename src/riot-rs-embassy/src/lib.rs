@@ -20,6 +20,9 @@ mod usb;
 #[cfg(feature = "net")]
 mod network;
 
+#[cfg(feature = "wifi_cyw43")]
+mod wifi;
+
 use core::cell::OnceCell;
 
 // re-exports
@@ -33,6 +36,9 @@ use crate::define_peripherals::DefinePeripheralsError;
 
 #[cfg(feature = "usb")]
 use usb::ethernet::NetworkDevice;
+
+#[cfg(feature = "wifi_cyw43")]
+use wifi::cyw43::NetworkDevice;
 
 #[cfg(feature = "net")]
 pub use network::NetworkStack;
@@ -62,34 +68,6 @@ pub static EXECUTOR: arch::Executor = arch::Executor::new();
 
 #[distributed_slice]
 pub static EMBASSY_TASKS: [Task] = [..];
-
-//
-// cyw43 begin
-#[cfg(feature = "wifi_cyw43")]
-pub type NetworkDevice = cyw43::NetDriver<'static>;
-#[cfg(feature = "wifi_cyw43")]
-mod cyw43;
-
-#[cfg(feature = "wifi_cyw43")]
-mod wifi {
-    use riot_rs_utils::str_from_env_or;
-    const WIFI_NETWORK: &str = str_from_env_or!("CONFIG_WIFI_NETWORK", "test_network");
-    const WIFI_PASSWORD: &str = str_from_env_or!("CONFIG_WIFI_PASSWORD", "test_password");
-
-    pub async fn join(mut control: cyw43::Control<'static>) {
-        loop {
-            //control.join_open(WIFI_NETWORK).await;
-            match control.join_wpa2(WIFI_NETWORK, WIFI_PASSWORD).await {
-                Ok(_) => break,
-                Err(err) => {
-                    riot_rs_rt::debug::println!("join failed with status={}", err.status);
-                }
-            }
-        }
-    }
-}
-// cyw43 end
-//
 
 #[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
@@ -184,7 +162,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "wifi_cyw43")]
     let (device, control) = {
-        let (net_device, control) = cyw43::device(&mut peripherals, &spawner).await;
+        let (net_device, control) = wifi::cyw43::device(&mut peripherals, &spawner).await;
         (net_device, control)
     };
 
@@ -221,7 +199,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "wifi_cyw43")]
     {
-        wifi::join(control).await;
+        wifi::cyw43::join(control).await;
     };
 
     let init_args = InitializationArgs {

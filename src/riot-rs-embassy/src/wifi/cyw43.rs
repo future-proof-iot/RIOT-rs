@@ -1,43 +1,48 @@
-pub use cyw43::NetDriver;
+#[cfg_attr(builder = "rpi-pico-w", path = "cyw43/rpi-pico-w.rs")]
+mod rpi_pico_w;
 
 use cyw43::{Control, Runner};
-use cyw43_pio::PioSpi;
-use embassy_rp::bind_interrupts;
-use embassy_rp::gpio::{Level, Output};
-use embassy_rp::pio::{InterruptHandler, Pio};
+use embassy_rp::{
+    gpio::{Level, Output},
+    pio::Pio,
+};
 
-use crate::{arch::peripherals, arch::OptionalPeripherals, define_peripherals, make_static};
+use riot_rs_utils::str_from_env_or;
 
-// board specifics start
-define_peripherals!(Cyw43Periphs {
-    pwr: PIN_23,
-    cs: PIN_25,
-    pio: PIO0 = CYW43_PIO,
-    dma: DMA_CH0 = CYW43_DMA_CH,
-    dio: PIN_24,
-    clk: PIN_29,
-});
+use crate::{arch::OptionalPeripherals, make_static};
 
-bind_interrupts!(struct Irqs {
-    PIO0_IRQ_0 => InterruptHandler<CYW43_PIO>;
-});
+use self::rpi_pico_w::{Cyw43Periphs, CywSpi, Irqs};
 
-type CywSpi = PioSpi<'static, CYW43_PIO, 0, CYW43_DMA_CH>;
-// board specifics end
+const WIFI_NETWORK: &str = str_from_env_or!("CONFIG_WIFI_NETWORK", "test_network");
+const WIFI_PASSWORD: &str = str_from_env_or!("CONFIG_WIFI_PASSWORD", "test_password");
+
+pub type NetworkDevice = cyw43::NetDriver<'static>;
+
+pub async fn join(mut control: cyw43::Control<'static>) {
+    loop {
+        //control.join_open(WIFI_NETWORK).await;
+        match control.join_wpa2(WIFI_NETWORK, WIFI_PASSWORD).await {
+            Ok(_) => break,
+            Err(err) => {
+                riot_rs_rt::debug::println!("join failed with status={}", err.status);
+            }
+        }
+    }
+}
 
 #[embassy_executor::task]
 async fn wifi_cyw43_task(runner: Runner<'static, Output<'static>, CywSpi>) -> ! {
     runner.run().await
 }
 
-pub(crate) async fn device<'a, 'b: 'a>(
+pub async fn device<'a, 'b: 'a>(
     p: &'a mut OptionalPeripherals,
     spawner: &crate::Spawner,
 ) -> (embassy_net_driver_channel::Device<'b, 1514>, Control<'b>) {
     let p = Cyw43Periphs::take_from(p).unwrap();
 
-    let fw = include_bytes!("../firmware/cyw43/43439A0.bin");
-    let clm = include_bytes!("../firmware/cyw43/43439A0_clm.bin");
+    let fw = include_bytes!("../../firmware/cyw43/43439A0.bin");
+    let clm = include_bytes!("../../firmware/cyw43/43439A0_clm.bin");
 
     // To make flashing faster for development, you may want to flash the firmwares independently
     // at hardcoded addresses, instead of baking them into the program with `include_bytes!`:
@@ -49,7 +54,7 @@ pub(crate) async fn device<'a, 'b: 'a>(
     let pwr = Output::new(p.pwr, Level::Low);
     let cs = Output::new(p.cs, Level::High);
     let mut pio = Pio::new(p.pio, Irqs);
-    let spi = PioSpi::new(&mut pio.common, pio.sm0, pio.irq0, cs, p.dio, p.clk, p.dma);
+    let spi = CywSpi::new(&mut pio.common, pio.sm0, pio.irq0, cs, p.dio, p.clk, p.dma);
 
     let state = make_static!(cyw43::State::new());
     let (net_device, mut control, runner) = cyw43::new(state, pwr, spi, fw).await;
