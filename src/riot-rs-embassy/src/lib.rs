@@ -44,6 +44,7 @@ pub use network::NetworkStack;
 
 #[cfg(feature = "threading")]
 pub mod blocker;
+pub mod sendcell;
 
 pub type Task =
     fn(&mut arch::OptionalPeripherals) -> Result<&dyn Application, ApplicationInitError>;
