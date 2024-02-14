@@ -86,14 +86,6 @@ nrf52840-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-r
 nrf52832-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
 
 # riot-rs embassy fork
-embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-230124" }
-embassy-executor-macros = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-230124"}
-embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-230124" }
-embassy-net-driver-channel = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-230124" }
-embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-230124" }
-embassy-rp = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-230124" }
-embassy-time = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-230124" }
-embassy-sync = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-230124" }
-embassy-usb = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-230124" }
-cyw43 = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-230124" }
-cyw43-pio = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-230124" }
+embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-140224" }
+embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-140224" }
+embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-140224" }
