@@ -1,13 +1,4 @@
 //! This module provides an opinionated integration of `embassy`.
-//!
-//! To provide a custom USB configuration, enable the feature
-//! `riot_rs_embassy/override-usb-config`, then add this to your code:
-//! ```rust
-//! #[no_mangle]
-//! pub fn riot_rs_usb_config() -> embassy_usb::Config<'static> {
-//!     /// create config here
-//! }
-//! ```
 
 #![no_std]
 #![feature(type_alias_impl_trait)]
@@ -23,6 +14,12 @@ pub mod define_peripherals;
 )]
 pub mod arch;
 
+#[cfg(feature = "usb")]
+mod usb;
+
+#[cfg(feature = "net")]
+mod network;
+
 use core::cell::OnceCell;
 
 // re-exports
@@ -33,6 +30,9 @@ use embassy_executor::Spawner;
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 
 use crate::define_peripherals::DefinePeripheralsError;
+
+#[cfg(feature = "usb")]
+use usb::ethernet::NetworkDevice;
 
 #[cfg(feature = "threading")]
 pub mod blocker;
@@ -49,9 +49,6 @@ pub struct InitializationArgs {
     pub peripherals: &'static Mutex<CriticalSectionRawMutex, arch::OptionalPeripherals>,
 }
 
-#[cfg(feature = "usb")]
-pub type UsbBuilder = embassy_usb::Builder<'static, UsbDriver>;
-
 #[cfg(feature = "net")]
 pub type NetworkStack = Stack<NetworkDevice>;
 
@@ -67,19 +64,6 @@ pub static EXECUTOR: arch::Executor = arch::Executor::new();
 pub static EMBASSY_TASKS: [Task] = [..];
 
 //
-// usb common start
-#[cfg(feature = "usb")]
-use arch::usb::UsbDriver;
-
-#[cfg(feature = "usb")]
-#[embassy_executor::task]
-async fn usb_task(mut device: embassy_usb::UsbDevice<'static, UsbDriver>) -> ! {
-    device.run().await
-}
-// usb common end
-//
-
-//
 // net begin
 #[cfg(feature = "net")]
 const STACK_RESOURCES: usize = riot_rs_utils::usize_from_env_or!("CONFIG_STACK_RESOURCES", 4);
@@ -87,25 +71,6 @@ const STACK_RESOURCES: usize = riot_rs_utils::usize_from_env_or!("CONFIG_STACK_R
 #[cfg(feature = "net")]
 use embassy_net::{Stack, StackResources};
 // net end
-//
-
-//
-// usb net begin
-#[cfg(feature = "usb_ethernet")]
-const ETHERNET_MTU: usize = 1514;
-
-#[cfg(feature = "usb_ethernet")]
-use embassy_usb::class::cdc_ncm::embassy_net::{Device, Runner};
-
-#[cfg(feature = "usb_ethernet")]
-pub type NetworkDevice = Device<'static, ETHERNET_MTU>;
-
-#[cfg(feature = "usb_ethernet")]
-#[embassy_executor::task]
-async fn usb_ncm_task(class: Runner<'static, UsbDriver, ETHERNET_MTU>) -> ! {
-    class.run().await
-}
-// usb net end
 //
 
 //
@@ -140,34 +105,6 @@ mod wifi {
 #[embassy_executor::task]
 async fn net_task(stack: &'static Stack<NetworkDevice>) -> ! {
     stack.run().await
-}
-
-#[cfg(feature = "usb")]
-fn usb_config() -> embassy_usb::Config<'static> {
-    #[cfg(not(feature = "override-usb-config"))]
-    {
-        // Create embassy-usb Config
-        let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
-        config.manufacturer = Some("Embassy");
-        config.product = Some("USB-Ethernet example");
-        config.serial_number = Some("12345678");
-        config.max_power = 100;
-        config.max_packet_size_0 = 64;
-
-        // Required for Windows support.
-        config.composite_with_iads = true;
-        config.device_class = 0xEF;
-        config.device_sub_class = 0x02;
-        config.device_protocol = 0x01;
-        config
-    }
-    #[cfg(feature = "override-usb-config")]
-    {
-        extern "Rust" {
-            fn riot_rs_usb_config() -> embassy_usb::Config<'static>;
-        }
-        unsafe { riot_rs_usb_config() }
-    }
 }
 
 #[cfg(feature = "net")]
@@ -216,12 +153,12 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "usb")]
     let mut usb_builder = {
-        let usb_config = usb_config();
+        let usb_config = usb::config();
 
         let usb_driver = arch::usb::driver(&mut peripherals);
 
         // Create embassy-usb DeviceBuilder using the driver and config.
-        let builder = UsbBuilder::new(
+        let builder = usb::UsbBuilder::new(
             usb_driver,
             usb_config,
             &mut make_static!([0; 256])[..],
@@ -259,18 +196,19 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     #[cfg(feature = "usb")]
     {
         let usb = usb_builder.build();
-        spawner.spawn(usb_task(usb)).unwrap();
+        spawner.spawn(usb::usb_task(usb)).unwrap();
     }
 
     #[cfg(feature = "usb_ethernet")]
     let device = {
         use embassy_usb::class::cdc_ncm::embassy_net::State as NetState;
-        let (runner, device) = usb_cdc_ecm.into_embassy_net_device::<ETHERNET_MTU, 4, 4>(
-            make_static!(NetState::new()),
-            our_mac_addr,
-        );
+        let (runner, device) = usb_cdc_ecm
+            .into_embassy_net_device::<{ network::ETHERNET_MTU }, 4, 4>(
+                make_static!(NetState::new()),
+                our_mac_addr,
+            );
 
-        spawner.spawn(usb_ncm_task(runner)).unwrap();
+        spawner.spawn(usb::ethernet::usb_ncm_task(runner)).unwrap();
 
         device
     };
