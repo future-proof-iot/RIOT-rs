@@ -103,38 +103,25 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         builder
     };
 
-    // Our MAC addr.
     #[cfg(feature = "usb_ethernet")]
-    let our_mac_addr = [0xCA, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC];
+    let device = {
+        use embassy_usb::class::cdc_ncm::{
+            embassy_net::State as NetState, CdcNcmClass, State as CdcNcmState,
+        };
 
-    #[cfg(feature = "usb_ethernet")]
-    let usb_cdc_ecm = {
         // Host's MAC addr. This is the MAC the host "thinks" its USB-to-ethernet adapter has.
         let host_mac_addr = [0x8A, 0x88, 0x88, 0x88, 0x88, 0x88];
 
-        use embassy_usb::class::cdc_ncm::{CdcNcmClass, State};
-
         // Create classes on the builder.
-        CdcNcmClass::new(
+        let usb_cdc_ecm = CdcNcmClass::new(
             &mut usb_builder,
-            make_static!(State::new()),
+            make_static!(CdcNcmState::new()),
             host_mac_addr,
             64,
-        )
-    };
+        );
 
-    #[cfg(feature = "usb")]
-    {
-        for hook in usb::USB_BUILDER_HOOKS {
-            hook.lend(&mut usb_builder).await;
-        }
-        let usb = usb_builder.build();
-        spawner.spawn(usb::usb_task(usb)).unwrap();
-    }
+        let our_mac_addr = [0xCA, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC];
 
-    #[cfg(feature = "usb_ethernet")]
-    let device = {
-        use embassy_usb::class::cdc_ncm::embassy_net::State as NetState;
         let (runner, device) = usb_cdc_ecm
             .into_embassy_net_device::<{ network::ETHERNET_MTU }, 4, 4>(
                 make_static!(NetState::new()),
@@ -145,6 +132,15 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
         device
     };
+
+    #[cfg(feature = "usb")]
+    {
+        for hook in usb::USB_BUILDER_HOOKS {
+            hook.lend(&mut usb_builder).await;
+        }
+        let usb = usb_builder.build();
+        spawner.spawn(usb::usb_task(usb)).unwrap();
+    }
 
     #[cfg(feature = "wifi_cyw43")]
     let (device, control) = {
