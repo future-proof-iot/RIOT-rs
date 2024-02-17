@@ -27,7 +27,6 @@ pub mod arch;
 pub use linkme::{self, distributed_slice};
 pub use static_cell::make_static;
 
-use crate::define_peripherals::DefinePeripheralsError;
 pub use embassy_executor::Spawner;
 
 #[cfg(feature = "threading")]
@@ -67,13 +66,17 @@ pub static EMBASSY_TASKS: [Task] = [..];
 //
 // usb common start
 #[cfg(feature = "usb")]
-use arch::usb::UsbDriver;
+pub use arch::usb::UsbDriver;
 
 #[cfg(feature = "usb")]
 #[embassy_executor::task]
 async fn usb_task(mut device: embassy_usb::UsbDevice<'static, UsbDriver>) -> ! {
     device.run().await
 }
+
+#[cfg(feature = "usb")]
+#[distributed_slice]
+pub static USB_BUILDER_HOOKS: [&delegate::Delegate<UsbBuilder>] = [..];
 // usb common end
 //
 
@@ -232,6 +235,11 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
         builder
     };
+
+    #[cfg(feature = "usb")]
+    for hook in USB_BUILDER_HOOKS {
+        hook.lend(&mut usb_builder).await;
+    }
 
     // Our MAC addr.
     #[cfg(feature = "usb_ethernet")]
