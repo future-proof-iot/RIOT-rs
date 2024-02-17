@@ -3,16 +3,16 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::embassy::{arch, Application, ApplicationInitError, Drivers};
+use riot_rs::embassy::{arch, network, Application, ApplicationInitError, Drivers};
 
 use riot_rs::rt::debug::println;
 
 use embedded_io_async::Write;
 
 #[embassy_executor::task]
-async fn tcp_echo(drivers: Drivers) {
+async fn tcp_echo(_drivers: Drivers) {
     use embassy_net::tcp::TcpSocket;
-    let stack = drivers.stack.get().unwrap();
+    let stack = network::network_stack().await.unwrap();
 
     let mut rx_buffer = [0; 4096];
     let mut tx_buffer = [0; 4096];
