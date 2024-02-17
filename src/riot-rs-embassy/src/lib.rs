@@ -207,6 +207,12 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         while clock.events_hfclkstarted.read().bits() != 1 {}
     }
 
+    let spawner = Spawner::for_current_executor().await;
+
+    for task in EMBASSY_TASKS {
+        task(&spawner, &mut peripherals);
+    }
+
     #[cfg(feature = "usb")]
     let mut usb_builder = {
         let usb_config = usb_config();
@@ -246,8 +252,6 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
             64,
         )
     };
-
-    let spawner = Spawner::for_current_executor().await;
 
     #[cfg(feature = "usb")]
     {
@@ -308,10 +312,6 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     {
         wifi::join(control).await;
     };
-
-    for task in EMBASSY_TASKS {
-        task(&spawner, &mut peripherals);
-    }
 
     // mark used
     let _ = peripherals;
