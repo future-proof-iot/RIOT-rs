@@ -1,4 +1,0 @@
-apps:
-  - name: application
-    selects:
-      - ?release
