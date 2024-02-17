@@ -23,9 +23,6 @@ pub mod define_peripherals;
 )]
 pub mod arch;
 
-#[cfg(feature = "net")]
-use core::cell::OnceCell;
-
 // re-exports
 pub use linkme::{self, distributed_slice};
 pub use static_cell::make_static;
@@ -44,7 +41,23 @@ pub type Task =
 pub type UsbBuilder = embassy_usb::Builder<'static, UsbDriver>;
 
 #[cfg(feature = "net")]
+use {
+    self::sendcell::SendCell, core::cell::OnceCell,
+    embassy_sync::blocking_mutex::CriticalSectionMutex,
+};
+
+#[cfg(feature = "net")]
 pub type NetworkStack = Stack<NetworkDevice>;
+
+#[cfg(feature = "net")]
+pub static STACK: CriticalSectionMutex<OnceCell<sendcell::SendCell<&'static NetworkStack>>> =
+    CriticalSectionMutex::new(OnceCell::new());
+
+#[cfg(feature = "net")]
+pub async fn network_stack() -> Option<&'static NetworkStack> {
+    let spawner = Spawner::for_current_executor().await;
+    STACK.lock(|cell| cell.get().map(|x| *x.get(&spawner).unwrap()))
+}
 
 #[derive(Copy, Clone)]
 pub struct Drivers {
@@ -294,9 +307,12 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
         spawner.spawn(net_task(stack)).unwrap();
 
-        // Do nothing if a stack is already initialized, as this should not happen anyway
-        // TODO: should we panic instead?
-        let _ = drivers.stack.set(stack);
+        if STACK
+            .lock(|c| c.set(SendCell::new(stack, &spawner)))
+            .is_err()
+        {
+            unreachable!();
+        }
     }
 
     #[cfg(feature = "wifi_cyw43")]
