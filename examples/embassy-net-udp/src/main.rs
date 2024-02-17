@@ -3,14 +3,14 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::embassy::{arch, Application, ApplicationInitError, Drivers};
+use riot_rs::embassy::{arch, network, Application, ApplicationInitError, Drivers};
 
 use riot_rs::rt::debug::println;
 
 #[embassy_executor::task]
-async fn udp_echo(drivers: Drivers) {
+async fn udp_echo(_drivers: Drivers) {
     use embassy_net::udp::{PacketMetadata, UdpSocket};
-    let stack = drivers.stack.get().unwrap();
+    let stack = network::network_stack().await.unwrap();
 
     let mut rx_meta = [PacketMetadata::EMPTY; 16];
     let mut rx_buffer = [0; 4096];
