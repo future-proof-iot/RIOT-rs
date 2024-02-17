@@ -4,7 +4,6 @@ defaults:
       - riot-rs
 
 subdirs:
-  - application
   - benchmark
   - bottles
   - core-sizes

@@ -3,7 +3,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::embassy::{arch, network_stack, Application, ApplicationInitError};
+use riot_rs::embassy::network_stack;
 
 use riot_rs::rt::debug::println;
 
@@ -56,21 +56,13 @@ async fn tcp_echo() {
     }
 }
 
-struct TcpEcho {}
-
-impl Application for TcpEcho {
-    fn initialize(
-        _peripherals: &mut arch::OptionalPeripherals,
-    ) -> Result<&dyn Application, ApplicationInitError> {
-        Ok(&Self {})
-    }
-
-    fn start(&self, spawner: embassy_executor::Spawner) {
-        spawner.spawn(tcp_echo()).unwrap();
-    }
+// TODO: macro up this
+use riot_rs::embassy::{arch::OptionalPeripherals, Spawner};
+#[riot_rs::embassy::distributed_slice(riot_rs::embassy::EMBASSY_TASKS)]
+#[linkme(crate = riot_rs::embassy::linkme)]
+fn __init_tcp_echo(spawner: &Spawner, _peripherals: &mut OptionalPeripherals) {
+    spawner.spawn(tcp_echo()).unwrap();
 }
-
-riot_rs::embassy::riot_initialize!(TcpEcho);
 
 #[no_mangle]
 fn riot_rs_network_config() -> embassy_net::Config {
