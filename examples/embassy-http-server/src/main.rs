@@ -9,7 +9,7 @@ mod routes;
 use riot_rs as _;
 
 use riot_rs::embassy::{
-    arch::OptionalPeripherals, Application, ApplicationInitError, Drivers, NetworkStack,
+    arch::OptionalPeripherals, network_stack, Application, ApplicationInitError, Drivers,
 };
 use riot_rs::rt::debug::println;
 
@@ -53,11 +53,12 @@ const WEB_TASK_POOL_SIZE: usize = 2;
 #[embassy_executor::task(pool_size = WEB_TASK_POOL_SIZE)]
 async fn web_task(
     id: usize,
-    stack: &'static NetworkStack,
     app: &'static picoserve::Router<AppRouter, AppState>,
     config: &'static picoserve::Config<Duration>,
     state: AppState,
 ) -> ! {
+    let stack = network_stack().await.unwrap();
+
     let mut rx_buffer = [0; 1024];
     let mut tx_buffer = [0; 1024];
 
@@ -115,9 +116,7 @@ impl Application for WebServer {
         }))
     }
 
-    fn start(&self, spawner: embassy_executor::Spawner, drivers: Drivers) {
-        let stack = drivers.stack.get().unwrap();
-
+    fn start(&self, spawner: embassy_executor::Spawner, _drivers: Drivers) {
         fn make_app() -> picoserve::Router<AppRouter, AppState> {
             let router = picoserve::Router::new().route("/", get(routes::index));
             #[cfg(feature = "button-readings")]
@@ -138,9 +137,7 @@ impl Application for WebServer {
                 #[cfg(feature = "button-readings")]
                 buttons: self.button_inputs,
             };
-            spawner
-                .spawn(web_task(id, stack, app, config, app_state))
-                .unwrap();
+            spawner.spawn(web_task(id, app, config, app_state)).unwrap();
         }
     }
 }
