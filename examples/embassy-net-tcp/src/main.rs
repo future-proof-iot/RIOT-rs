@@ -3,14 +3,14 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::embassy::{arch, network_stack, Application, ApplicationInitError, Drivers};
+use riot_rs::embassy::{arch, network_stack, Application, ApplicationInitError};
 
 use riot_rs::rt::debug::println;
 
 use embedded_io_async::Write;
 
 #[embassy_executor::task]
-async fn tcp_echo(_drivers: Drivers) {
+async fn tcp_echo() {
     use embassy_net::tcp::TcpSocket;
     let stack = network_stack().await.unwrap();
 
@@ -65,8 +65,8 @@ impl Application for TcpEcho {
         Ok(&Self {})
     }
 
-    fn start(&self, spawner: embassy_executor::Spawner, drivers: Drivers) {
-        spawner.spawn(tcp_echo(drivers)).unwrap();
+    fn start(&self, spawner: embassy_executor::Spawner) {
+        spawner.spawn(tcp_echo()).unwrap();
     }
 }
 
