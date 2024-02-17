@@ -59,12 +59,6 @@ pub async fn network_stack() -> Option<&'static NetworkStack> {
     STACK.lock(|cell| cell.get().map(|x| *x.get(&spawner).unwrap()))
 }
 
-#[derive(Copy, Clone)]
-pub struct Drivers {
-    #[cfg(feature = "net")]
-    pub stack: &'static OnceCell<&'static NetworkStack>,
-}
-
 pub static EXECUTOR: arch::Executor = arch::Executor::new();
 
 #[distributed_slice]
@@ -203,11 +197,6 @@ pub(crate) fn init() {
 async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     riot_rs_rt::debug::println!("riot-rs-embassy::init_task()");
 
-    let drivers = Drivers {
-        #[cfg(feature = "net")]
-        stack: make_static!(OnceCell::new()),
-    };
-
     #[cfg(all(context = "nrf52", feature = "usb"))]
     {
         // nrf52840
@@ -323,7 +312,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     for task in EMBASSY_TASKS {
         // TODO: should all tasks be initialized before starting the first one?
         match task(&mut peripherals) {
-            Ok(initialized_application) => initialized_application.start(spawner, drivers),
+            Ok(initialized_application) => initialized_application.start(spawner),
             Err(err) => panic!("Error while initializing an application: {err:?}"),
         }
     }
@@ -355,8 +344,7 @@ pub trait Application {
     ///
     /// This function must not block but may spawn [Embassy tasks](embassy_executor::task) using
     /// the provided [`Spawner`](embassy_executor::Spawner).
-    /// In addition, it is provided with the drivers initialized by the system.
-    fn start(&self, spawner: embassy_executor::Spawner, drivers: Drivers);
+    fn start(&self, spawner: embassy_executor::Spawner);
 }
 
 /// Represents errors that can happen during application initialization.
