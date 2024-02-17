@@ -43,6 +43,7 @@ pub use network::NetworkStack;
 
 #[cfg(feature = "threading")]
 pub mod blocker;
+pub mod delegate;
 pub mod sendcell;
 
 pub type Task = fn(&Spawner, &mut arch::OptionalPeripherals);
