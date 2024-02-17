@@ -23,16 +23,15 @@ mod network;
 #[cfg(feature = "wifi_cyw43")]
 mod wifi;
 
+#[cfg(feature = "net")]
 use core::cell::OnceCell;
 
 // re-exports
 pub use linkme::{self, distributed_slice};
 pub use static_cell::make_static;
 
-use embassy_executor::Spawner;
-use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
-
 use crate::define_peripherals::DefinePeripheralsError;
+use embassy_executor::Spawner;
 
 #[cfg(feature = "usb")]
 use usb::ethernet::NetworkDevice;
@@ -46,17 +45,8 @@ pub use network::NetworkStack;
 #[cfg(feature = "threading")]
 pub mod blocker;
 
-pub type Task = fn(
-    &mut arch::OptionalPeripherals,
-    InitializationArgs,
-) -> Result<&dyn Application, ApplicationInitError>;
-
-// Allows us to pass extra initialization arguments in the future
-#[derive(Copy, Clone)]
-#[non_exhaustive]
-pub struct InitializationArgs {
-    pub peripherals: &'static Mutex<CriticalSectionRawMutex, arch::OptionalPeripherals>,
-}
+pub type Task =
+    fn(&mut arch::OptionalPeripherals) -> Result<&dyn Application, ApplicationInitError>;
 
 #[derive(Copy, Clone)]
 pub struct Drivers {
@@ -202,13 +192,9 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         wifi::cyw43::join(control).await;
     };
 
-    let init_args = InitializationArgs {
-        peripherals: make_static!(Mutex::new(peripherals)),
-    };
-
     for task in EMBASSY_TASKS {
         // TODO: should all tasks be initialized before starting the first one?
-        match task(&mut *init_args.peripherals.lock().await, init_args) {
+        match task(&mut peripherals) {
             Ok(initialized_application) => initialized_application.start(spawner, drivers),
             Err(err) => panic!("Error while initializing an application: {err:?}"),
         }
@@ -232,7 +218,6 @@ pub trait Application {
     /// The [`assign_resources!`] macro can be leveraged to extract the required peripherals.
     fn initialize(
         peripherals: &mut arch::OptionalPeripherals,
-        init_args: InitializationArgs,
     ) -> Result<&dyn Application, ApplicationInitError>
     where
         Self: Sized;
@@ -271,9 +256,8 @@ macro_rules! riot_initialize {
         #[linkme(crate = $crate::linkme)]
         fn __init_application(
             peripherals: &mut $crate::arch::OptionalPeripherals,
-            init_args: $crate::InitializationArgs,
         ) -> Result<&dyn $crate::Application, $crate::ApplicationInitError> {
-            <$prog_type as Application>::initialize(peripherals, init_args)
+            <$prog_type as Application>::initialize(peripherals)
         }
     };
 }
