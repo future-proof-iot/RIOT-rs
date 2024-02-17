@@ -3,7 +3,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::embassy::{arch, Application, ApplicationInitError, Drivers, InitializationArgs};
+use riot_rs::embassy::{arch, Application, ApplicationInitError, Drivers};
 
 use riot_rs::rt::debug::println;
 
@@ -14,7 +14,6 @@ struct MyApplication {
 impl Application for MyApplication {
     fn initialize(
         _peripherals: &mut arch::OptionalPeripherals,
-        _init_args: InitializationArgs,
     ) -> Result<&dyn Application, ApplicationInitError> {
         println!("MyApplication::initialize()");
         Ok(&Self { state: 0 })

@@ -9,8 +9,7 @@ mod routes;
 use riot_rs as _;
 
 use riot_rs::embassy::{
-    arch::OptionalPeripherals, Application, ApplicationInitError, Drivers, InitializationArgs,
-    NetworkStack,
+    arch::OptionalPeripherals, Application, ApplicationInitError, Drivers, NetworkStack,
 };
 use riot_rs::rt::debug::println;
 
@@ -95,7 +94,6 @@ struct WebServer {
 impl Application for WebServer {
     fn initialize(
         peripherals: &mut OptionalPeripherals,
-        _init_args: InitializationArgs,
     ) -> Result<&dyn Application, ApplicationInitError> {
         #[cfg(feature = "button-readings")]
         let button_inputs = {
