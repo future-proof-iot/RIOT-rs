@@ -18,7 +18,7 @@ pub mod arch;
 mod usb;
 
 #[cfg(feature = "net")]
-mod network;
+pub mod network;
 
 #[cfg(feature = "wifi_cyw43")]
 mod wifi;
@@ -159,6 +159,8 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "net")]
     {
+        use crate::network::STACK;
+        use crate::sendcell::SendCell;
         use embassy_net::{Stack, StackResources};
 
         const STACK_RESOURCES: usize =
@@ -183,9 +185,12 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
         spawner.spawn(network::net_task(stack)).unwrap();
 
-        // Do nothing if a stack is already initialized, as this should not happen anyway
-        // TODO: should we panic instead?
-        let _ = drivers.stack.set(stack);
+        if STACK
+            .lock(|c| c.set(SendCell::new(stack, &spawner)))
+            .is_err()
+        {
+            unreachable!();
+        }
     }
 
     #[cfg(feature = "wifi_cyw43")]

@@ -1,5 +1,9 @@
-use embassy_net::Stack;
+use core::cell::OnceCell;
 
+use embassy_net::Stack;
+use embassy_sync::blocking_mutex::CriticalSectionMutex;
+
+use crate::sendcell::SendCell;
 use crate::NetworkDevice;
 
 #[allow(dead_code)]
@@ -7,12 +11,20 @@ pub const ETHERNET_MTU: usize = 1514;
 
 pub type NetworkStack = Stack<NetworkDevice>;
 
+pub(crate) static STACK: CriticalSectionMutex<OnceCell<SendCell<&'static NetworkStack>>> =
+    CriticalSectionMutex::new(OnceCell::new());
+
+pub async fn network_stack() -> Option<&'static NetworkStack> {
+    let spawner = crate::Spawner::for_current_executor().await;
+    STACK.lock(|cell| cell.get().map(|x| *x.get(&spawner).unwrap()))
+}
+
 #[embassy_executor::task]
-pub async fn net_task(stack: &'static Stack<NetworkDevice>) -> ! {
+pub(crate) async fn net_task(stack: &'static Stack<NetworkDevice>) -> ! {
     stack.run().await
 }
 
-pub fn config() -> embassy_net::Config {
+pub(crate) fn config() -> embassy_net::Config {
     #[cfg(not(feature = "override-network-config"))]
     {
         embassy_net::Config::dhcpv4(Default::default())
