@@ -8,9 +8,7 @@ mod routes;
 
 use riot_rs as _;
 
-use riot_rs::embassy::{
-    arch::OptionalPeripherals, network, Application, ApplicationInitError, Drivers,
-};
+use riot_rs::embassy::{arch::OptionalPeripherals, network, Application, ApplicationInitError};
 use riot_rs::rt::debug::println;
 
 use embassy_net::tcp::TcpSocket;
@@ -116,7 +114,7 @@ impl Application for WebServer {
         }))
     }
 
-    fn start(&self, spawner: embassy_executor::Spawner, _drivers: Drivers) {
+    fn start(&self, spawner: embassy_executor::Spawner) {
         fn make_app() -> picoserve::Router<AppRouter, AppState> {
             let router = picoserve::Router::new().route("/", get(routes::index));
             #[cfg(feature = "button-readings")]
