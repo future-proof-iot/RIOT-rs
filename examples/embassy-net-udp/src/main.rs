@@ -3,12 +3,12 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::embassy::{arch, network, Application, ApplicationInitError, Drivers};
+use riot_rs::embassy::{arch, network, Application, ApplicationInitError};
 
 use riot_rs::rt::debug::println;
 
 #[embassy_executor::task]
-async fn udp_echo(_drivers: Drivers) {
+async fn udp_echo() {
     use embassy_net::udp::{PacketMetadata, UdpSocket};
     let stack = network::network_stack().await.unwrap();
 
@@ -70,8 +70,8 @@ impl Application for UdpEcho {
         Ok(&Self {})
     }
 
-    fn start(&self, spawner: embassy_executor::Spawner, drivers: Drivers) {
-        spawner.spawn(udp_echo(drivers)).unwrap();
+    fn start(&self, spawner: embassy_executor::Spawner) {
+        spawner.spawn(udp_echo()).unwrap();
     }
 }
 

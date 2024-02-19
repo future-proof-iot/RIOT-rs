@@ -3,7 +3,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::embassy::{arch, Application, ApplicationInitError, Drivers};
+use riot_rs::embassy::{arch, Application, ApplicationInitError};
 
 use riot_rs::rt::debug::println;
 
@@ -19,7 +19,7 @@ impl Application for MyApplication {
         Ok(&Self { state: 0 })
     }
 
-    fn start(&self, _spawner: embassy_executor::Spawner, _drivers: Drivers) {
+    fn start(&self, _spawner: embassy_executor::Spawner) {
         println!("MyApplication::start()");
         // ...
     }
