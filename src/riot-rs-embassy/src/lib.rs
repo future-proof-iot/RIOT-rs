@@ -15,7 +15,7 @@ pub mod define_peripherals;
 pub mod arch;
 
 #[cfg(feature = "usb")]
-mod usb;
+pub mod usb;
 
 #[cfg(feature = "net")]
 pub mod network;
@@ -32,7 +32,7 @@ pub use static_cell::make_static;
 
 pub use embassy_executor::Spawner;
 
-#[cfg(feature = "usb")]
+#[cfg(feature = "usb_ethernet")]
 use usb::ethernet::NetworkDevice;
 
 #[cfg(feature = "wifi_cyw43")]
