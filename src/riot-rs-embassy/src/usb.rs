@@ -7,7 +7,7 @@
 //! }
 //! ```
 
-use crate::arch::usb::UsbDriver;
+pub use crate::arch::usb::UsbDriver;
 
 pub type UsbBuilder = embassy_usb::Builder<'static, UsbDriver>;
 
@@ -15,12 +15,12 @@ pub type UsbBuilder = embassy_usb::Builder<'static, UsbDriver>;
 pub static USB_BUILDER_HOOKS: [&crate::delegate::Delegate<UsbBuilder>] = [..];
 
 #[embassy_executor::task]
-pub async fn usb_task(mut device: embassy_usb::UsbDevice<'static, UsbDriver>) -> ! {
+pub(crate) async fn usb_task(mut device: embassy_usb::UsbDevice<'static, UsbDriver>) -> ! {
     device.run().await
 }
 
 #[cfg(feature = "usb_ethernet")]
-pub mod ethernet {
+pub(crate) mod ethernet {
     use embassy_usb::class::cdc_ncm::embassy_net::{Device, Runner};
 
     use crate::{arch::usb::UsbDriver, network::ETHERNET_MTU};
@@ -33,7 +33,7 @@ pub mod ethernet {
     }
 }
 
-pub fn config() -> embassy_usb::Config<'static> {
+pub(crate) fn config() -> embassy_usb::Config<'static> {
     #[cfg(not(feature = "override-usb-config"))]
     {
         // Create embassy-usb Config

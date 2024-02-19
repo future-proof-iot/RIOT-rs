@@ -15,7 +15,7 @@ pub mod define_peripherals;
 pub mod arch;
 
 #[cfg(feature = "usb")]
-mod usb;
+pub mod usb;
 
 #[cfg(feature = "net")]
 pub mod network;
