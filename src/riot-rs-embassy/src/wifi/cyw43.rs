@@ -9,9 +9,8 @@ use embassy_rp::{
 
 use riot_rs_utils::str_from_env_or;
 
+use self::rpi_pico_w::{Cyw43Periphs, CywSpi, Irqs, CYW43_PWR};
 use crate::{arch::OptionalPeripherals, make_static};
-
-use self::rpi_pico_w::{Cyw43Periphs, CywSpi, Irqs};
 
 const WIFI_NETWORK: &str = str_from_env_or!("CONFIG_WIFI_NETWORK", "test_network");
 const WIFI_PASSWORD: &str = str_from_env_or!("CONFIG_WIFI_PASSWORD", "test_password");
@@ -31,7 +30,7 @@ pub async fn join(mut control: cyw43::Control<'static>) {
 }
 
 #[embassy_executor::task]
-async fn wifi_cyw43_task(runner: Runner<'static, Output<'static>, CywSpi>) -> ! {
+async fn wifi_cyw43_task(runner: Runner<'static, Output<'static, CYW43_PWR>, CywSpi>) -> ! {
     runner.run().await
 }
 
