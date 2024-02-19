@@ -11,6 +11,9 @@ use crate::arch::usb::UsbDriver;
 
 pub type UsbBuilder = embassy_usb::Builder<'static, UsbDriver>;
 
+#[linkme::distributed_slice]
+pub static USB_BUILDER_HOOKS: [&crate::delegate::Delegate<UsbBuilder>] = [..];
+
 #[embassy_executor::task]
 pub async fn usb_task(mut device: embassy_usb::UsbDevice<'static, UsbDriver>) -> ! {
     device.run().await

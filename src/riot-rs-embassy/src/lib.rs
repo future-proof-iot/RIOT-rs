@@ -125,6 +125,9 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "usb")]
     {
+        for hook in usb::USB_BUILDER_HOOKS {
+            hook.lend(&mut usb_builder).await;
+        }
         let usb = usb_builder.build();
         spawner.spawn(usb::usb_task(usb)).unwrap();
     }
