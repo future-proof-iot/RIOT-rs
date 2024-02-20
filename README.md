@@ -31,7 +31,6 @@ The following list of hardware is currently supported
 
 The current iteration of RIOT-rs combines [embassy](https://embassy.dev/) with
 a preemptive scheduler and adds some integration and build system work.
-It's highly experimental, expect frequent changes and breakage.
 
 ## Quickstart
 
