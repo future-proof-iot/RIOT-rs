@@ -13,10 +13,6 @@ Cortex-M). It combines the awesome Rust embedded ecosystem with RIOT OS.
 If you're looking for a more production ready way of writing RIOT applications
 in Rust, check out [riot-wrappers](https://gitlab.com/etonomy/riot-wrappers).
 
-## Supported hardware
-
-This currently only supports the Nordic nrf52840dk and the Raspberry Pi Pico.
-
 ## Goals
 
 - improve RIOT OS using the merits of Rust.
@@ -24,6 +20,12 @@ This currently only supports the Nordic nrf52840dk and the Raspberry Pi Pico.
 - provide a nice Rust API, framework and collection of crates suitable for
   embedded development
 - rewrite parts of RIOT in Rust to improve robustness and maintainability
+
+## Supported hardware
+
+The following list of hardware is currently supported
+ - [Nordic nRF52840 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF52840-DK)
+ - [Raspberry Pi Pico](https://www.raspberrypi.com/products/raspberry-pi-pico/)
 
 ## Status
 
