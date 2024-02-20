@@ -65,12 +65,19 @@ example](https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/hello-wo
 
 ## More information
 
-Please look [here](doc/build_system.md) for more usage information.
+Please look [at the build system documentation](doc/build_system) for more usage
+information.
 
 ## Minimum Supported Rust Version (MSRV)
 
 RIOT-rs makes heavy use of Rust unstable features. For the time being, it is
 recommended to use a current nightly.
+
+## Coding Conventions
+
+Please see the chapter on
+[coding conventions](https://future-proof-iot.github.io/RIOT-rs/dev/coding-conventions.html)
+in the documentation.
 
 ## Copyright & License
 
