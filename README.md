@@ -7,7 +7,8 @@
 
 This is an experimental project to provide a nice base OS for embedded
 development on low-end IoT devices (with some kilobytes of RAM/flash, think
-Cortex-M). It combines the awesome Rust embedded ecosystem with RIOT.
+Cortex-M). It combines the awesome Rust embedded ecosystem with
+[RIOT](https://github.com/RIOT-OS/RIOT).
 
 **This is highly experimental. Expect heavy changes and breakage!**
 
