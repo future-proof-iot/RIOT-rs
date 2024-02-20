@@ -6,7 +6,6 @@ edition.workspace = true
 
 [dependencies]
 linkme = { workspace = true }
-riot-build = { path = "../riot-build", features = [ "riot-rs-core"], optional = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-boards = { path = "../riot-rs-boards" }
@@ -16,7 +15,6 @@ riot-rs-macros = { path = "../riot-rs-macros" }
 static_cell = { workspace = true }
 
 [features]
-newlib = [ "riot-build", "riot-build/newlib" ]
 debug-console = [ "riot-rs-rt/debug-console" ]
 silent-panic = [ "riot-rs-rt/silent-panic" ]
 threading = ["dep:riot-rs-threads", "riot-rs-rt/threading", "riot-rs-embassy/threading" ]
