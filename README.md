@@ -34,13 +34,15 @@ a preemptive scheduler and adds some integration and build system work.
 
 ## Quickstart
 
-Assuming you have a Nordic nrf52840dk connected, this should get you somewhere:
+Assuming you have a Nordic nrf52840dk connected, the following guidelines
+provides instructions for flashing and running the [`hello-world`
+example](https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/hello-world):
 
 ### Prerequisites
 
-1.install needed system dependencies. On Ubuntu, this should be sufficient:
+1.install needed system dependencies. On Ubuntu, the following is sufficient:
 
-        apt-get install build-essential curl git python3 pkg-config \
+        apt install build-essential curl git python3 pkg-config \
                    libssl-dev llvm-dev cmake libclang-dev gcc-arm-none-eabi \
                    clang libnewlib-nano-arm-none-eabi unzip lld ninja-build
 
@@ -55,7 +57,7 @@ Assuming you have a Nordic nrf52840dk connected, this should get you somewhere:
 
 1. install rust targets: `laze build install-toolchain`
 
-### Run some example
+### Run the example
 
 1. Compile, flash and the hello-world example using `probe-rs run`
 
