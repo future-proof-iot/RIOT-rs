@@ -2,7 +2,6 @@ contexts:
   # base context that all other contexts inherit from
   - name: default
     env:
-      CFLAGS_OPT: -Os
       bindir: "${build-dir}/bin/${builder}/${app}"
 
   # base context for all RIOT-rs applications
@@ -22,28 +21,17 @@ contexts:
       # laze doesn't know the concept of "export" as make does, so each variable
       # that needs to be passed via environment needs to be listed in that rule
       # or task's command list.
-      # "CARGO_ENV" and "RIOT_ENV" are used for that.
+      # "CARGO_ENV" is used for that.
       CARGO_ENV:
         - >-
-          BUILDING_RIOT_RS=1
           OPENOCD_ARGS="${OPENOCD_ARGS}"
           SCRIPTS=${SCRIPTS}
           CARGO_BUILD_TARGET=${RUSTC_TARGET}
           ${CARGO_TARGET_PREFIX}_RUNNER=${CARGO_RUNNER}
           ${CARGO_TARGET_PREFIX}_RUSTFLAGS="${RUSTFLAGS}"
           CARGO_TARGET_DIR=${relroot}/${build-dir}/bin/${builder}/${app}/cargo
-      RIOT_ENV:
-        - RIOTBASE=${relroot}/${RIOTBASE}
-        - BOARD=${BOARD}
-        - USEMODULE="${USEMODULE}"
-        - NEWLIB_ARCH=${NEWLIB_ARCH}
-        - CFLAGS="${CFLAGS}"
-        - CFLAGS_OPT="${CFLAGS_OPT}"
-        - EXTERNAL_MODULE_DIRS="${EXTERNAL_MODULE_DIRS}"
       BOARD: ${builder}
       PROFILE: release
-      BAUDRATE: "115200"
-      PORT: /dev/ttyACM0
       riot_binary: ${app}
       QEMU_SYSTEM_ARM: >-
         qemu-system-arm
@@ -65,7 +53,7 @@ contexts:
         pool: console
         always: true
         cmd: >-
-          cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
+          cd ${relpath} && ${CARGO_ENV} cargo ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
           && cp ${relroot}/${build-dir}/bin/${builder}/${app}/cargo/${RUSTC_TARGET}/${PROFILE}/${riot_binary} ${relroot}/${out}
 
       - name: GIT_DOWNLOAD
@@ -75,26 +63,26 @@ contexts:
       exec:
         build: false
         cmd:
-          - ${RIOT_ENV} ${CARGO_ENV}
+          - ${CARGO_ENV}
 
       cargo:
         cmd:
-          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS}
+          - cd ${relpath} && ${CARGO_ENV} cargo ${CARGO_ARGS}
         build: false
 
       run:
         build: false
         cmd:
-          - cd ${appdir} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
+          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
 
       cargo-test:
         cmd:
-          - cd ${relpath} && ${RIOT_ENV} ${CARGO_ENV} cargo test --${PROFILE} --features=riot-rs-boards/${builder},riot-rs-rt/debug-console --manifest-path ${app}/Cargo.toml
+          - cd ${relpath} && ${CARGO_ENV} cargo test --${PROFILE} --features=riot-rs-boards/${builder},riot-rs-rt/debug-console --manifest-path ${app}/Cargo.toml
         build: false
 
       debug:
         cmd:
-          - cd examples/${app} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
+          - cd examples/${app} && ${CARGO_ENV} cargo ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
         build: false
         ignore_ctrl_c: true
 
@@ -106,12 +94,12 @@ contexts:
 
       bloat:
         cmd:
-          - cd examples/${app} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} bloat --${PROFILE} ${FEATURES}
+          - cd examples/${app} && ${CARGO_ENV} cargo ${CARGO_ARGS} bloat --${PROFILE} ${FEATURES}
         build: false
 
       tree:
         cmd:
-          - cd examples/${app} && ${RIOT_ENV} ${CARGO_ENV} cargo ${CARGO_ARGS} tree ${FEATURES}
+          - cd examples/${app} && ${CARGO_ENV} cargo ${CARGO_ARGS} tree ${FEATURES}
         build: false
 
       flash:
@@ -157,10 +145,6 @@ contexts:
             -c 'targets'
             -c 'reset'
             -c 'shutdown'
-      term:
-        build: false
-        cmd:
-          - picocom -b ${BAUDRATE} --imap lfcrlf ${PORT}
 
       size:
         cmd:
@@ -169,11 +153,6 @@ contexts:
       objdump:
         cmd:
           - rust-objdump -S ${out}
-
-      riot-test:
-        build: false
-        cmd:
-          - ${RIOT_ENV} RIOTBASE=$$(realpath ${RIOTBASE}) make -C$$(realpath ${RIOTBASE}/${RIOT_APP}) test
 
   - name: cortex-m
     parent: riot-rs
@@ -188,7 +167,6 @@ contexts:
     env:
       RUSTC_TARGET: thumbv6m-none-eabi
       CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV6M_NONE_EABI
-      NEWLIB_ARCH: thumb/v6-m/nofp
       RUSTFLAGS:
         - --cfg armv6m
 
@@ -197,7 +175,6 @@ contexts:
     env:
       RUSTC_TARGET: thumbv7em-none-eabi
       CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7EM_NONE_EABI
-      NEWLIB_ARCH: thumb/v7e-m/nofp
       RUSTFLAGS:
         - "-Ctarget-cpu=cortex-m4"
         - --cfg armv7m
@@ -207,7 +184,6 @@ contexts:
     env:
       RUSTC_TARGET: thumbv7m-none-eabi
       CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7M_NONE_EABI
-      NEWLIB_ARCH: thumb/v7-m/nofp
       RUSTFLAGS:
         - --cfg armv7m
 
@@ -216,7 +192,6 @@ contexts:
     env:
       RUSTC_TARGET: thumbv7em-none-eabihf
       CARGO_ENV_TARGET: CARGO_TARGET_THUMBV7EM_NONE_EABIHF
-      NEWLIB_ARCH: v7e-m+fp/hard
       RUSTFLAGS:
         - --cfg armv7m
 
@@ -284,16 +259,6 @@ contexts:
 
 
 modules:
-  - name: riot-sources
-    download:
-      git:
-        url: https://github.com/kaspar030/RIOT
-        commit: 1fdeff314f300394505e0753a42cc0fdb37ed004
-    env:
-      global:
-        RIOTBASE: ${srcdir}
-    is_global_build_dep: true
-
   - name: release
     selects:
       - release-arch
@@ -319,8 +284,6 @@ modules:
 
   - name: lto
     context: riot-rs
-    selects:
-      - ?lto-riot
     env:
       global:
         RUSTFLAGS:
@@ -341,13 +304,6 @@ modules:
       global:
         CARGO_ARGS:
           - -Zbuild-std
-
-  - name: lto-riot
-    context: riot-rs
-    env:
-      global:
-        RIOT_ENV:
-          - LTO=1
 
   - name: no_overflow_checks
     context: riot-rs
@@ -381,8 +337,6 @@ modules:
       global:
         FEATURES:
           - riot-rs/thread_info
-        CFLAGS:
-          - -DCONFIG_THREAD_NAMES
 
   - name: cross-language-lto
     # use clang/lld to link, enables cross-language LTO.
@@ -410,34 +364,6 @@ modules:
           - NRF52840_FLASH_OFFSET=${FLASH_OFFSET}
           - NRF52840_FLASH_SLOT_OFFSET=${FLASH_SLOT_OFFSET}
           - NRF52840_FLASH_SLOT=0
-
-  - name: libc_default
-    context: riot-rs
-    selects:
-      - riot_libc|newlib
-
-  - name: riot-c
-    selects:
-      - "riot-c-currently-unsupported"
-      - ?newlib
-      - riot-sources
-
-  - name: newlib
-    context: riot-rs
-    env:
-      global:
-        FEATURES:
-          - riot-rs/newlib
-
-  - name: riot_libc
-    context: riot-rs
-    env:
-      global:
-        USEMODULE:
-          - libc
-
-  - name: testable
-    context: lm3s6965evb
 
   - name: probe-rs-run
     selects:
