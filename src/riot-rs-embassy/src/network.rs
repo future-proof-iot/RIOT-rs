@@ -1,5 +1,6 @@
 use core::cell::OnceCell;
 
+use embassy_executor::Spawner;
 use embassy_net::Stack;
 use embassy_sync::blocking_mutex::CriticalSectionMutex;
 
@@ -15,8 +16,8 @@ pub(crate) static STACK: CriticalSectionMutex<OnceCell<SendCell<&'static Network
     CriticalSectionMutex::new(OnceCell::new());
 
 pub async fn network_stack() -> Option<&'static NetworkStack> {
-    let spawner = crate::Spawner::for_current_executor().await;
-    STACK.lock(|cell| cell.get().map(|x| *x.get(&spawner).unwrap()))
+    let spawner = Spawner::for_current_executor().await;
+    STACK.lock(|cell| cell.get().map(|x| *x.get(spawner).unwrap()))
 }
 
 #[embassy_executor::task]
