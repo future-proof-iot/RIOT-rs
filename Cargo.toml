@@ -46,10 +46,6 @@ riot-rs = { path = "src/riot-rs" }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 
-riot-wrappers = { version = "^0.8", default-features = false, features = [
-  "with_riot_rs",
-] }
-
 heapless = { version = "0.8.0", default-features = false }
 static_cell = { version = "2.0.0", features = [ "nightly" ] }
 ld-memory = { version = "0.2.9" }
@@ -71,15 +67,6 @@ lto = false
 opt-level = "s"
 
 [patch.crates-io]
-# these have some patches to support riot.rs
-riot-sys = { git = "https://github.com/kaspar030/rust-riot-sys", branch = "update_riot_rs_support" }
-riot-wrappers = { git = "https://github.com/kaspar030/rust-riot-wrappers", branch = "add_riotrs_support" }
-# these are listed so deps doesn't pull from crates.io
-# (there are dummy crates so riot-wrappers / riot-sys compile while riot-rs has not published any crates)
-riot-build = { path = "src/riot-build" }
-riot-rs-core = { path = "src/riot-rs-core" }
-riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
-
 # these are patched to work with critical-section
 nrf51-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
 nrf52840-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
