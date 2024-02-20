@@ -1,9 +1,3 @@
-use proc_macro::TokenStream;
-use quote::{format_ident, quote};
-use syn::{meta::ParseNestedMeta, ItemFn, LitInt};
-
-const RIOT_RS_CRATE_NAME: &str = "riot-rs";
-
 // TODO: document default values (which may be platform-dependent)
 // TODO: document valid values
 /// Runs the function decorated with this attribute macro as a separate thread.
@@ -39,11 +33,13 @@ const RIOT_RS_CRATE_NAME: &str = "riot-rs";
 /// this macro is used.
 #[proc_macro_attribute]
 pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
+    use quote::{format_ident, quote};
+
     let mut attrs = ThreadAttributes::default();
     let thread_parser = syn::meta::parser(|meta| attrs.parse(&meta));
     syn::parse_macro_input!(args with thread_parser);
 
-    let thread_function = syn::parse_macro_input!(item as ItemFn);
+    let thread_function = syn::parse_macro_input!(item as syn::ItemFn);
 
     let no_mangle_attr = if attrs.no_mangle {
         quote! {#[no_mangle]}
@@ -58,31 +54,21 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
         priority,
     } = ThreadParameters::from(attrs);
 
-    let this_crate = proc_macro_crate::crate_name(RIOT_RS_CRATE_NAME)
-        .unwrap_or_else(|_| panic!("{RIOT_RS_CRATE_NAME} should be present in `Cargo.toml`"));
-    let this_crate = match this_crate {
-        proc_macro_crate::FoundCrate::Itself => {
-            panic!(
-                "{} cannot be used as a dependency of itself",
-                env!("CARGO_CRATE_NAME"),
-            );
-        }
-        proc_macro_crate::FoundCrate::Name(this_crate) => format_ident!("{}", this_crate),
-    };
+    let riot_rs_crate = utils::riot_rs_crate();
 
     let expanded = quote! {
         #no_mangle_attr
         #[inline(always)]
         #thread_function
 
-        #[#this_crate::linkme::distributed_slice(#this_crate::thread::THREAD_FNS)]
-        #[linkme(crate = #this_crate::linkme)]
+        #[#riot_rs_crate::linkme::distributed_slice(#riot_rs_crate::thread::THREAD_FNS)]
+        #[linkme(crate = #riot_rs_crate::linkme)]
         fn #slice_fn_name_ident() {
             fn trampoline(_arg: ()) {
                 #fn_name();
             }
-            let stack = #this_crate::static_cell::make_static!([0u8; #stack_size as usize]);
-            #this_crate::thread::thread_create(trampoline, (), stack, #priority);
+            let stack = #riot_rs_crate::static_cell::make_static!([0u8; #stack_size as usize]);
+            #riot_rs_crate::thread::thread_create(trampoline, (), stack, #priority);
         }
     };
 
@@ -123,7 +109,7 @@ impl From<ThreadAttributes> for ThreadParameters {
     }
 }
 
-fn parse_base10_or_panic<I>(lit_int: &LitInt, attr: &str) -> I
+fn parse_base10_or_panic<I>(lit_int: &syn::LitInt, attr: &str) -> I
 where
     I: core::str::FromStr,
     <I as core::str::FromStr>::Err: std::fmt::Display,
@@ -141,13 +127,13 @@ where
 
 #[derive(Default)]
 struct ThreadAttributes {
-    stack_size: Option<LitInt>,
-    priority: Option<LitInt>,
+    stack_size: Option<syn::LitInt>,
+    priority: Option<syn::LitInt>,
     no_mangle: bool,
 }
 
 impl ThreadAttributes {
-    fn parse(&mut self, meta: &ParseNestedMeta) -> syn::Result<()> {
+    fn parse(&mut self, meta: &syn::meta::ParseNestedMeta) -> syn::Result<()> {
         if meta.path.is_ident("stacksize") {
             self.stack_size = Some(meta.value()?.parse()?);
             Ok(())
