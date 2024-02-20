@@ -1,6 +1,7 @@
-[![Build Status](https://drone.schleiser.de/api/badges/future-proof-iot/RIOT-rs/status.svg?ref=refs/heads/main)](https://drone.schleiser.de/future-proof-iot/RIOT-rs)
-
 # RIOT-rs
+[![Build Status][build-badge]][build-info]
+[![Documentation][doc-badge]][documentation-mdbook]
+[![Matrix][matrix-badge]][matrix-link]
 
 > Rust & RIOT combined for ergonomic embedded development
 
@@ -98,3 +99,10 @@ Copyright (C) 2020-2023 Freie Universität Berlin, Inria, Kaspar Schleiser
 Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall
 be dual licensed as above, without any additional terms or conditions.
+
+[build-badge]: https://github.com/future-proof-iot/RIOT-rs/actions/workflows/main.yml/badge.svg
+[build-info]: https://github.com/future-proof-iot/RIOT-rs/actions/workflows/main.yml
+[matrix-badge]: https://img.shields.io/badge/chat-Matrix-brightgreen.svg
+[matrix-link]: https://matrix.to/#/#RIOT-rs:matrix.org
+[doc-badge]: https://img.shields.io/badge/Documentation-%F0%9F%93%94-blue
+[documentation-mdbook]: https://future-proof-iot.github.io/RIOT-rs/dev/
