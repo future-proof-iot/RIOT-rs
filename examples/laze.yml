@@ -5,16 +5,11 @@ defaults:
 
 subdirs:
   - benchmark
-  - bottles
   - core-sizes
   - embassy
   - embassy-http-server
   - embassy-net-tcp
   - embassy-net-udp
-    #  - embassy-gpio
   - hello-world
   - minimal
-  - riot-app
-  - rust-gcoap
-  - riot-wrappers-mutex
   - threading
