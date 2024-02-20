@@ -2,7 +2,7 @@
 
 # RIOT-rs
 
-    Rust & RIOT OS combined for ergonomic embedded development
+> Rust & RIOT OS combined for ergonomic embedded development
 
 This is an experimental project trying to provide a nice base OS for embedded
 development on low-end IoT devices (with some kilobytes of RAM/flash, think Cortex-M).
