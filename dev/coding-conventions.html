@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>RIOT-rs manual</title>
-        <meta name="robots" content="noindex">
+        <title>Coding Conventions - RIOT-rs manual</title>
 
 
         <!-- Custom HTML head -->
@@ -89,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="appendices.html"><strong aria-hidden="true">2.</strong> Appendices</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="coding-conventions.html"><strong aria-hidden="true">2.1.</strong> Coding Conventions</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="appendices.html"><strong aria-hidden="true">2.</strong> Appendices</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="coding-conventions.html" class="active"><strong aria-hidden="true">2.1.</strong> Coding Conventions</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -151,6 +150,9 @@
                         <a href="https://github.com/future-proof-iot/RIOT-rs" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
+                        <a href="https://github.com/future-proof-iot/RIOT-rs/edit/master/book/src/coding-conventions.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
 
                     </div>
                 </div>
@@ -177,12 +179,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
-<p><strong>RIOT-rs</strong> is an experimental project trying to provide a nice base OS for
-embedded development on low-end IoT devices (with some kilobytes of RAM/flash,
-think Cortex-M). It combines the awesome Rust embedded ecosystem with RIOT OS.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="appendices"><a class="header" href="#appendices">Appendices</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="coding-conventions"><a class="header" href="#coding-conventions">Coding Conventions</a></h1>
+                        <h1 id="coding-conventions"><a class="header" href="#coding-conventions">Coding Conventions</a></h1>
 <h2 id="item-order-in-rust-modules"><a class="header" href="#item-order-in-rust-modules">Item Order in Rust Modules</a></h2>
 <p>Items SHOULD appear in Rust modules in the following order, based on <a href="https://rust-analyzer.github.io/manual.html#auto-import">the one used by rust-analyzer</a>:</p>
 <ol>
@@ -239,6 +236,9 @@ For instance, instead of:</p>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="appendices.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
 
                         <div style="clear: both"></div>
@@ -247,6 +247,9 @@ For instance, instead of:</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="appendices.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
             </nav>
 
@@ -270,11 +273,6 @@ For instance, instead of:</p>
 
         <!-- Custom JS scripts -->
 
-        <script>
-        window.addEventListener('load', function() {
-            window.setTimeout(window.print, 100);
-        });
-        </script>
 
     </div>
     </body>
