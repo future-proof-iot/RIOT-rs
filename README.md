@@ -64,6 +64,8 @@ example](https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/hello-wo
 
         laze -C examples/hello-world build -b nrf52840dk -s probe-rs-run run
 
+![Example](./doc/hello-world_render.svg)
+
 ## More information
 
 Please look [at the build system documentation](doc/build_system) for more usage
