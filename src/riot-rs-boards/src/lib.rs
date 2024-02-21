@@ -31,6 +31,10 @@ cfg_if! {
     } else if #[cfg(feature = "rpi-pico-w")] {
         // sharing rpi-pico
         pub use rpi_pico as board;
+    } else if #[cfg(feature = "nintendo-game-and-watch-mario")] {
+        pub use nintendo_game_and_watch as board;
+    } else if #[cfg(feature = "nintendo-game-and-watch-zelda")] {
+        pub use nintendo_game_and_watch as board;
     } else if #[cfg(feature = "no-boards")] {
         // Do nothing
     } else {

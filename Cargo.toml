@@ -43,6 +43,7 @@ embassy-net-driver-channel = { version = "0.2.0", default-features = false }
 embassy-nrf = { version = "0.1", default-features = false }
 embassy-rp = { version = "0.1", default-features = false }
 embassy-sync = { version = "0.5", default-features = false }
+embassy-stm32 = { version = "0.1", default-features = false }
 embassy-time = { version = "0.3", default-features = false }
 embassy-usb = { version = "0.1", default-features = false }
 
@@ -95,6 +96,7 @@ embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot
 embassy-rp = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 embassy-net-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 embassy-net-driver-channel = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-stm32 = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 embassy-time-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 embassy-time-queue-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 embassy-usb-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
