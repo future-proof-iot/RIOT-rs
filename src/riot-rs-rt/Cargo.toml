@@ -5,7 +5,7 @@ authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2021"
 
 [dependencies]
-cfg-if = "1.0.0"
+cfg-if.workspace = true
 linkme.workspace = true
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-utils = { path = "../riot-rs-utils" }
