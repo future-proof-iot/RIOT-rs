@@ -69,7 +69,7 @@ example](https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/hello-wo
 
 ## More information
 
-Please look [at the build system documentation](doc/build_system) for more usage
+Please look [at the build system documentation](doc/build_system.md) for more usage
 information.
 
 ## Minimum Supported Rust Version (MSRV)
