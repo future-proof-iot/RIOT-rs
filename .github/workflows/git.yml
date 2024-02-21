@@ -1,9 +1,12 @@
 name: Git Checks
 
-on: [pull_request]
+on:
+  pull_request:
+  merge_group:
 
 jobs:
   block-fixup:
+    if: github.event_name != 'merge_group'
     runs-on: ubuntu-latest
 
     steps:
