@@ -26,7 +26,7 @@ jobs:
 
     steps:
     - name: Run sccache-cache
-      uses: mozilla-actions/sccache-action@v0.0.3
+      uses: mozilla-actions/sccache-action@v0.0.4
 
     - name: Install toolchain
       uses: dtolnay/rust-toolchain@nightly
