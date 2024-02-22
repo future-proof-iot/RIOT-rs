@@ -3,7 +3,17 @@
 /// Dummy type.
 ///
 /// See the `OptionalPeripherals` type of your Embassy architecture crate instead.
+#[derive(Default)]
 pub struct OptionalPeripherals;
+
+/// Dummy type.
+pub struct Peripherals;
+
+impl From<Peripherals> for OptionalPeripherals {
+    fn from(_peripherals: Peripherals) -> Self {
+        Self {}
+    }
+}
 
 mod executor {
     use embassy_executor::SpawnToken;
@@ -25,15 +35,16 @@ mod executor {
     pub struct Spawner {}
 
     impl Spawner {
-        pub fn spawn<S>(&self, token: SpawnToken<S>) -> Result<(), ()> {
+        #[allow(clippy::result_unit_err)]
+        pub fn spawn<S>(&self, _token: SpawnToken<S>) -> Result<(), ()> {
             Ok(())
         }
     }
 }
 pub use executor::{Executor, Spawner};
 
-pub fn init(_: ()) -> OptionalPeripherals {
-    OptionalPeripherals {}
+pub fn init(_: OptionalPeripherals) -> Peripherals {
+    Peripherals {}
 }
 
 pub struct SWI;
