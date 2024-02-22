@@ -32,7 +32,7 @@ pub use static_cell::make_static;
 
 pub use embassy_executor::Spawner;
 
-#[cfg(feature = "usb")]
+#[cfg(feature = "usb_ethernet")]
 use usb::ethernet::NetworkDevice;
 
 #[cfg(feature = "wifi_cyw43")]
