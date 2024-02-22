@@ -12,8 +12,6 @@ on:
 jobs:
   CI:
     runs-on: ubuntu-latest
-    container:
-      image: ghcr.io/kaspar030/riot.rs-build:v0.0.2
 
     env:
       SCCACHE_GHA_ENABLED: "true"
@@ -25,6 +23,9 @@ jobs:
         partition: [ "1/10", "2/10", "3/10", "4/10", "5/10", "6/10", "7/10", "8/10", "9/10", "10/10" ]
 
     steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+
     - name: Run sccache-cache
       uses: mozilla-actions/sccache-action@v0.0.4
 
@@ -42,17 +43,14 @@ jobs:
       with:
         tool: cargo-binstall
 
-    - name: Check out repository code
-      uses: actions/checkout@v4
-
     - name: "installing prerequisites"
       run: |
         git config --global init.defaultBranch main
         git config --global user.email "ci@riot-labs.de"
         git config --global user.name "CI"
-        cargo binstall -y --no-symlinks laze
-        cargo binstall -y --no-symlinks c2rust
+        cargo binstall --no-confirm --no-symlinks --force --no-discover-github-token laze
         echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+        sudo apt-get install ninja-build
 
     - name: "riot-rs compilation test"
       run: |
