@@ -31,7 +31,7 @@ cfg_if::cfg_if! {
     else {
         mod arch {
             pub fn init() {}
-            pub fn benchmark<F: Fn() -> ()>(_iterations: usize, f: F) -> core::result::Result<usize, ()> {
+            pub fn benchmark<F: Fn()>(_iterations: usize, _f: F) -> core::result::Result<usize, ()> {
                 unimplemented!();
             }
         }
