@@ -80,6 +80,24 @@ jobs:
       with:
         args: --verbose --locked -p riot-rs-embassy
 
+  rustdoc:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+
+    - name: Install toolchain
+      uses: dtolnay/rust-toolchain@nightly
+
+    - name: rust cache
+      uses: Swatinem/rust-cache@v2
+
+    # TODO: we'll eventually want to generate docs for riot-rs instead
+    # TODO: we'll eventually want to enable relevant features
+    - name: "rustdoc generation check"
+      run: cargo rustdoc -p riot-rs-embassy -- -D warnings
+
   CI-success:
       if: ${{ always() }}
       runs-on: ubuntu-latest
