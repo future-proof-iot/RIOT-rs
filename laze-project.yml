@@ -383,7 +383,7 @@ modules:
     selects:
       - network_device
 
-  - name: wifi_cyw43
+  - name: wifi-cyw43
     context:
       - rpi-pico-w
     provides_unique:
@@ -391,9 +391,9 @@ modules:
     env:
       global:
         FEATURES:
-          - riot-rs/wifi_cyw43
+          - riot-rs/wifi-cyw43
 
-  - name: usb_ethernet
+  - name: usb-ethernet
     provides_unique:
       - network_device
     selects:
@@ -401,7 +401,7 @@ modules:
     env:
       global:
         FEATURES:
-          - riot-rs/usb_ethernet
+          - riot-rs/usb-ethernet
 
   - name: usb_device_port
     context:
