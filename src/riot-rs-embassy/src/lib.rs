@@ -20,7 +20,7 @@ pub mod usb;
 #[cfg(feature = "net")]
 pub mod network;
 
-#[cfg(feature = "wifi_cyw43")]
+#[cfg(feature = "wifi-cyw43")]
 mod wifi;
 
 #[cfg(feature = "net")]
@@ -32,10 +32,10 @@ pub use static_cell::make_static;
 
 pub use embassy_executor::Spawner;
 
-#[cfg(feature = "usb_ethernet")]
+#[cfg(feature = "usb-ethernet")]
 use usb::ethernet::NetworkDevice;
 
-#[cfg(feature = "wifi_cyw43")]
+#[cfg(feature = "wifi-cyw43")]
 use wifi::cyw43::NetworkDevice;
 
 #[cfg(feature = "net")]
@@ -103,7 +103,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         builder
     };
 
-    #[cfg(feature = "usb_ethernet")]
+    #[cfg(feature = "usb-ethernet")]
     let device = {
         use embassy_usb::class::cdc_ncm::{
             embassy_net::State as NetState, CdcNcmClass, State as CdcNcmState,
@@ -142,7 +142,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         spawner.spawn(usb::usb_task(usb)).unwrap();
     }
 
-    #[cfg(feature = "wifi_cyw43")]
+    #[cfg(feature = "wifi-cyw43")]
     let (device, control) = {
         let (net_device, control) = wifi::cyw43::device(&mut peripherals, &spawner).await;
         (net_device, control)
@@ -187,7 +187,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         }
     }
 
-    #[cfg(feature = "wifi_cyw43")]
+    #[cfg(feature = "wifi-cyw43")]
     {
         wifi::cyw43::join(control).await;
     };

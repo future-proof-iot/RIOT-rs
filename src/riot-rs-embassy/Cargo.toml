@@ -62,9 +62,9 @@ embassy-rp = { workspace = true, features = [
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
 usb = ["dep:embassy-usb"]
 net = ["dep:embassy-net"]
-usb_ethernet = ["usb", "net"]
+usb-ethernet = ["usb", "net"]
 
-wifi_cyw43 = ["dep:cyw43", "dep:cyw43-pio", "dep:embassy-net-driver-channel", "net"]
+wifi-cyw43 = ["dep:cyw43", "dep:cyw43-pio", "dep:embassy-net-driver-channel", "net"]
 
 threading = ["dep:riot-rs-core"]
 override-network-config = []

@@ -13,9 +13,6 @@ riot-rs-threads = { path = "../riot-rs-threads" }
 
 ringbuffer = { path = "../lib/ringbuffer" }
 
-[features]
-thread_info = []
-
 [build-dependencies]
 cbindgen = "0.26.*"
 

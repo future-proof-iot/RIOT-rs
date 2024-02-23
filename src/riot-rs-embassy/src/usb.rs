@@ -19,7 +19,7 @@ pub(crate) async fn usb_task(mut device: embassy_usb::UsbDevice<'static, UsbDriv
     device.run().await
 }
 
-#[cfg(feature = "usb_ethernet")]
+#[cfg(feature = "usb-ethernet")]
 pub(crate) mod ethernet {
     use embassy_usb::class::cdc_ncm::embassy_net::{Device, Runner};
 
