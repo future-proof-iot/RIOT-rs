@@ -98,6 +98,21 @@ jobs:
     - name: "rustdoc generation check"
       run: cargo rustdoc -p riot-rs-embassy -- -D warnings
 
+  rustfmt:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check out repository code
+      uses: actions/checkout@v4
+
+    - name: Install toolchain
+      uses: dtolnay/rust-toolchain@nightly
+      with:
+        components: rustfmt
+
+    - name: Check rustfmt formatting
+      run: cargo fmt --check --all
+
   CI-success:
       if: ${{ always() }}
       runs-on: ubuntu-latest
