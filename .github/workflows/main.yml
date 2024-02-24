@@ -26,24 +26,41 @@ jobs:
     - name: Check out repository code
       uses: actions/checkout@v4
 
+    - name: Get git tree hash
+      id: get-tree-hash
+      run: |
+          git rev-parse HEAD^{tree} > .tree-hash
+          echo "hash=$(cat .tree-hash)" >> $GITHUB_OUTPUT
+
+    - uses: actions/cache@v4
+      id: result-cache
+      with:
+        path: .tree-hash
+        key: success-${{ steps.get-tree-hash.outputs.hash }}-${{ matrix.partition }}
+
     - name: Run sccache-cache
+      if: steps.result-cache.outputs.cache-hit != 'true'
       uses: mozilla-actions/sccache-action@v0.0.4
 
     - name: Install toolchain
+      if: steps.result-cache.outputs.cache-hit != 'true'
       uses: dtolnay/rust-toolchain@nightly
       with:
         targets: thumbv6m-none-eabi,thumbv7m-none-eabi,thumbv7em-none-eabi
 
     - name: rust cache
+      if: steps.result-cache.outputs.cache-hit != 'true'
       uses: Swatinem/rust-cache@v2
       with:
         key: "${{ matrix.partition }}"
 
     - uses: taiki-e/install-action@v2
+      if: steps.result-cache.outputs.cache-hit != 'true'
       with:
         tool: cargo-binstall
 
     - name: "installing prerequisites"
+      if: steps.result-cache.outputs.cache-hit != 'true'
       run: |
         git config --global init.defaultBranch main
         git config --global user.email "ci@riot-labs.de"
@@ -53,6 +70,7 @@ jobs:
         sudo apt-get install ninja-build
 
     - name: "riot-rs compilation test"
+      if: steps.result-cache.outputs.cache-hit != 'true'
       run: |
         sccache --start-server || true # work around https://github.com/ninja-build/ninja/issues/2052
 
