@@ -6,22 +6,22 @@ edition.workspace = true
 
 [dependencies]
 linkme = { workspace = true }
-riot-rs-rt = { path = "../riot-rs-rt" }
-riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-boards = { path = "../riot-rs-boards" }
 riot-rs-buildinfo = { path = "../riot-rs-buildinfo" }
 riot-rs-embassy = { path = "../riot-rs-embassy" }
 riot-rs-macros = { path = "../riot-rs-macros" }
+riot-rs-rt = { path = "../riot-rs-rt" }
+riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 static_cell = { workspace = true }
 
 [features]
-debug-console = [ "riot-rs-rt/debug-console" ]
-silent-panic = [ "riot-rs-rt/silent-panic" ]
-threading = ["dep:riot-rs-threads", "riot-rs-rt/threading", "riot-rs-embassy/threading" ]
-time = [ "riot-rs-embassy/time" ]
-usb = [ "riot-rs-embassy/usb" ]
-net = [ "riot-rs-embassy/net" ]
-usb_ethernet = [ "riot-rs-embassy/usb_ethernet" ]
-wifi_cyw43 = [ "riot-rs-embassy/wifi_cyw43" ]
+debug-console = ["riot-rs-rt/debug-console"]
+net = ["riot-rs-embassy/net"]
 override-network-config = ["riot-rs-embassy/override-network-config"]
 override-usb-config = ["riot-rs-embassy/override-usb-config"]
+silent-panic = ["riot-rs-rt/silent-panic"]
+threading = ["dep:riot-rs-threads", "riot-rs-rt/threading", "riot-rs-embassy/threading"]
+time = ["riot-rs-embassy/time"]
+usb = ["riot-rs-embassy/usb"]
+usb_ethernet = ["riot-rs-embassy/usb_ethernet"]
+wifi_cyw43 = ["riot-rs-embassy/wifi_cyw43"]

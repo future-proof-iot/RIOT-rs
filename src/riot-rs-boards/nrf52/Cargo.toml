@@ -5,13 +5,13 @@ authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2021"
 
 [dependencies]
-riot-rs-rt = { path = "../../riot-rs-rt", features = ["rtt-target"] }
 nrf52832-pac = { version = "0.12.2", default-features = false, features = [
   "rt",
 ], optional = true }
 nrf52840-pac = { version = "0.12.2", default-features = false, features = [
   "rt",
 ], optional = true }
+riot-rs-rt = { path = "../../riot-rs-rt", features = ["rtt-target"] }
 
 [features]
 nrf52832 = ["dep:nrf52832-pac"]

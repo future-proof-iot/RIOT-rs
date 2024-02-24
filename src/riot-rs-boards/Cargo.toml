@@ -10,15 +10,15 @@ linkme.workspace = true
 
 riot-rs-rt = { path = "../riot-rs-rt" }
 
-lm3s6965evb = { optional=true, path="lm3s6965evb" }
-nrf52dk = { optional=true, path="nrf52dk" }
-nrf52840dk = { optional=true, path="nrf52840dk" }
-nrf52840-mdk = { optional=true, path="nrf52840-mdk" }
-nucleo-f401re = { optional=true, path="nucleo-f401re" }
-microbit = { optional=true, path="microbit" }
-microbit-v2 = { optional=true, path="microbit-v2" }
-dwm1001 = { optional=true, path="dwm1001" }
-rpi-pico = { optional=true, path="rpi-pico" }
+dwm1001 = { optional = true, path = "dwm1001" }
+lm3s6965evb = { optional = true, path = "lm3s6965evb" }
+microbit = { optional = true, path = "microbit" }
+microbit-v2 = { optional = true, path = "microbit-v2" }
+nrf52840-mdk = { optional = true, path = "nrf52840-mdk" }
+nrf52840dk = { optional = true, path = "nrf52840dk" }
+nrf52dk = { optional = true, path = "nrf52dk" }
+nucleo-f401re = { optional = true, path = "nucleo-f401re" }
+rpi-pico = { optional = true, path = "rpi-pico" }
 
 [features]
-rpi-pico-w = [ "rpi-pico/rpi-pico-w" ]
+rpi-pico-w = ["rpi-pico/rpi-pico-w"]

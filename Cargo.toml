@@ -1,16 +1,16 @@
 [workspace]
 members = [
-  "src/*",
-  "src/riot-rs",
-  "src/riot-rs-boards",
-  "src/riot-rs-boards/lm3s6965evb",
-  "src/riot-rs-boards/nrf52",
-  "src/riot-rs-boards/nrf52840dk",
-  "src/riot-rs-boards/nucleo-f401re",
-  "src/riot-rs-chips",
-  "src/riot-rs-macros",
-  "src/lib/*",
-  "examples/*",
+    "examples/*",
+    "src/*",
+    "src/lib/*",
+    "src/riot-rs",
+    "src/riot-rs-boards",
+    "src/riot-rs-boards/lm3s6965evb",
+    "src/riot-rs-boards/nrf52",
+    "src/riot-rs-boards/nrf52840dk",
+    "src/riot-rs-boards/nucleo-f401re",
+    "src/riot-rs-chips",
+    "src/riot-rs-macros"
 ]
 
 exclude = ["src/lib"]
@@ -33,12 +33,12 @@ critical-section = { version = "1.1.2" }
 
 embassy-executor = { version = "0.5", default-features = false }
 embassy-net = { version = "0.4", default-features = false }
+embassy-net-driver-channel = { version = "0.2.0", default-features = false }
 embassy-nrf = { version = "0.1", default-features = false }
 embassy-rp = { version = "0.1", default-features = false }
 embassy-sync = { version = "0.5", default-features = false }
 embassy-time = { version = "0.3", default-features = false }
 embassy-usb = { version = "0.1", default-features = false }
-embassy-net-driver-channel = { version = "0.2.0", default-features = false }
 
 linkme = { version = "0.3.21", features = ["used_linker"] }
 
@@ -46,11 +46,11 @@ riot-rs = { path = "src/riot-rs" }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 
-heapless = { version = "0.8.0", default-features = false }
-static_cell = { version = "2.0.0", features = [ "nightly" ] }
-ld-memory = { version = "0.2.9" }
-konst = { version = "0.3.8", default_features = false }
 const_panic = { version = "0.2.8", default_features = false }
+heapless = { version = "0.8.0", default-features = false }
+konst = { version = "0.3.8", default_features = false }
+ld-memory = { version = "0.2.9" }
+static_cell = { version = "2.0.0", features = [ "nightly" ] }
 
 [profile.dev]
 incremental = false
@@ -69,8 +69,8 @@ opt-level = "s"
 [patch.crates-io]
 # these are patched to work with critical-section
 nrf51-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
-nrf52840-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
 nrf52832-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
+nrf52840-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
 
 # riot-rs embassy fork
 embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-140224" }

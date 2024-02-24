@@ -7,9 +7,9 @@ edition = "2021"
 links = "riot-rs-core"
 
 [dependencies]
-riot-rs-threads = { path = "../riot-rs-threads" }
 critical-section.workspace = true
 ref-cast = "1.0"
+riot-rs-threads = { path = "../riot-rs-threads" }
 
 ringbuffer = { path = "../lib/ringbuffer" }
 
@@ -20,5 +20,5 @@ thread_info = []
 cbindgen = "0.26.*"
 
 [dev-dependencies]
-riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-boards = { path = "../riot-rs-boards" }
+riot-rs-rt = { path = "../riot-rs-rt" }
