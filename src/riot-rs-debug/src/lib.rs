@@ -34,6 +34,22 @@ mod backend {
     }
 }
 
+#[cfg(all(feature = "debug-console", context = "esp"))]
+mod backend {
+    pub use esp_println::{print, println};
+    pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
+    pub const EXIT_FAILURE: Result<(), ()> = Err(());
+    pub fn exit(_code: Result<(), ()>) {
+        loop {}
+    }
+    pub fn init() {
+        // TODO: unify logging config.
+        // Until then, `ESP_LOGLEVEL` can be used.
+        // See https://github.com/esp-rs/esp-println#logging.
+        esp_println::logger::init_logger_from_env();
+    }
+}
+
 #[cfg(not(feature = "debug-console"))]
 mod backend {
     pub const EXIT_SUCCESS: Result<(), ()> = Ok(());

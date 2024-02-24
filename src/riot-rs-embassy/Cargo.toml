@@ -61,6 +61,12 @@ embassy-rp = { workspace = true, features = [
   #  "unstable-traits",
 ] }
 
+[target.'cfg(context = "esp")'.dependencies]
+esp-hal = { workspace = true, features = [ "embassy", "embassy-executor-interrupt", "embassy-time-systick" ] }
+
+[target.'cfg(context = "esp32c3")'.dependencies]
+esp-hal = { workspace = true, features = [ "esp32c3", "rt", "vectored", "embassy-time-systick" ] }
+
 [features]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
 usb = ["dep:embassy-usb"]

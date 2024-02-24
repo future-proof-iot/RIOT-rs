@@ -1,0 +1,11 @@
+[package]
+name = "ai-c3"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+riot-rs-rt.workspace = true
+riot-rs-debug.workspace = true
+esp-hal = { workspace = true, features = [
+  "embassy-time-driver",
+], default-features = true }
