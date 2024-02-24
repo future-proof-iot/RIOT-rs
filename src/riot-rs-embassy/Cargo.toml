@@ -4,22 +4,22 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-# always
+critical-section.workspace = true
 linkme.workspace = true
 static_cell.workspace = true
-critical-section.workspace = true
+
 embassy-executor = { workspace = true, features = ["nightly"] }
+embassy-net = { workspace = true, optional = true, features = [ "dhcpv4", "medium-ethernet" ] }
+embassy-net-driver-channel = { workspace = true, optional = true }
 embassy-sync = { workspace = true }
+embassy-time = { workspace = true, optional = true }
+embassy-usb = { workspace = true, optional = true }
+
+# always
 riot-rs-core = { path = "../riot-rs-core", optional = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-utils = { path = "../riot-rs-utils" }
 
-# time
-embassy-time = { workspace = true, optional = true }
-
-embassy-usb = { workspace = true, optional = true }
-embassy-net = { workspace = true, optional = true, features = [ "dhcpv4", "medium-ethernet" ] }
-embassy-net-driver-channel = { workspace = true, optional = true }
 heapless = "0.8.0"
 
 # rpi-pico-w cyw43
@@ -60,11 +60,11 @@ embassy-rp = { workspace = true, features = [
 
 [features]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
-usb = [ "dep:embassy-usb" ]
-net = [ "dep:embassy-net" ]
-usb_ethernet = [ "usb", "net" ]
+usb = ["dep:embassy-usb"]
+net = ["dep:embassy-net"]
+usb_ethernet = ["usb", "net"]
 
-wifi_cyw43 = [ "dep:cyw43", "dep:cyw43-pio", "dep:embassy-net-driver-channel", "net" ]
+wifi_cyw43 = ["dep:cyw43", "dep:cyw43-pio", "dep:embassy-net-driver-channel", "net"]
 
 threading = ["dep:riot-rs-core"]
 override-network-config = []

@@ -5,6 +5,6 @@ authors.workspace = true
 edition.workspace = true
 
 [dependencies]
+const_panic = { workspace = true }
 # env utils
 konst = { workspace = true, features = ["parsing"] }
-const_panic = { workspace = true }
