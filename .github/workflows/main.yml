@@ -68,7 +68,7 @@ jobs:
     - name: Install toolchain
       uses: dtolnay/rust-toolchain@nightly
       with:
-        components: clippy
+        components: clippy, rustfmt
 
     - name: rust cache
       uses: Swatinem/rust-cache@v2
@@ -85,6 +85,9 @@ jobs:
     # TODO: we'll eventually want to enable relevant features
     - name: "rustdoc"
       run: cargo rustdoc -p riot-rs-embassy -- -D warnings
+
+    - name: rustfmt
+      run: cargo fmt --check --all
 
   CI-success:
       if: ${{ always() }}
