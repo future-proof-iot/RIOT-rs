@@ -13,6 +13,7 @@ linkme.workspace = true
 
 riot-rs-rt = { path = "../riot-rs-rt" }
 
+ai-c3 = { optional = true, path = "ai-c3" }
 dwm1001 = { optional = true, path = "dwm1001" }
 microbit = { optional = true, path = "microbit" }
 microbit-v2 = { optional = true, path = "microbit-v2" }

@@ -25,6 +25,10 @@ cfg_if::cfg_if! {
         mod cortexm;
         use cortexm as arch;
     }
+    else if #[cfg(context = "esp")] {
+        mod esp;
+        use esp as arch;
+    }
     else {
         mod arch {
             pub fn init() {}

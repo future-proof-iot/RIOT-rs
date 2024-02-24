@@ -4,7 +4,9 @@
 use cfg_if::cfg_if;
 
 cfg_if! {
-    if #[cfg(feature = "nrf52dk")] {
+    if #[cfg(feature = "ai-c3")] {
+        pub use ai_c3 as board;
+    } else if #[cfg(feature = "nrf52dk")] {
         pub use nrf52dk as board;
     } else if #[cfg(feature = "dwm1001")] {
         pub use dwm1001 as board;

@@ -43,6 +43,7 @@ mod executor {
         pub fn spawn<S>(&self, _token: SpawnToken<S>) -> Result<(), ()> {
             unimplemented!();
         }
+        pub fn must_spawn<S>(&self, _token: SpawnToken<S>) {}
     }
 }
 pub use executor::{Executor, Spawner};
