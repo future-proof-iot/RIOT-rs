@@ -76,26 +76,14 @@ jobs:
     # TODO: we'll eventually want to check the whole workspace with --workspace
     # TODO: we'll eventually want to check relevant feature combinations
     # TODO: we may want to use --no-deps as well
-    - uses: clechasseur/rs-clippy-check@v3
+    - name: clippy
+      uses: clechasseur/rs-clippy-check@v3
       with:
         args: --verbose --locked -p riot-rs-embassy
 
-  rustdoc:
-    runs-on: ubuntu-latest
-
-    steps:
-    - name: Check out repository code
-      uses: actions/checkout@v4
-
-    - name: Install toolchain
-      uses: dtolnay/rust-toolchain@nightly
-
-    - name: rust cache
-      uses: Swatinem/rust-cache@v2
-
     # TODO: we'll eventually want to generate docs for riot-rs instead
     # TODO: we'll eventually want to enable relevant features
-    - name: "rustdoc generation check"
+    - name: "rustdoc"
       run: cargo rustdoc -p riot-rs-embassy -- -D warnings
 
   CI-success:
