@@ -49,7 +49,8 @@ jobs:
         if: steps.result-cache.outputs.cache-hit != 'true'
         uses: dtolnay/rust-toolchain@nightly
         with:
-          targets: thumbv6m-none-eabi,thumbv7m-none-eabi,thumbv7em-none-eabi
+          targets: riscv32imc-unknown-none-elf,thumbv6m-none-eabi,thumbv7m-none-eabi,thumbv7em-none-eabi
+          components: rust-src
 
       - name: rust cache
         if: steps.result-cache.outputs.cache-hit != 'true'
@@ -75,7 +76,7 @@ jobs:
       - name: "limit build unless nightly build"
         if: github.event_name != 'schedule'
         run: |
-            echo "LAZE_BUILDERS=microbit-v2,nrf52840dk,rpi-pico,rpi-pico-w" >> "$GITHUB_ENV"
+          echo "LAZE_BUILDERS=ai-c3,microbit-v2,nrf52840dk,rpi-pico,rpi-pico-w" >> "$GITHUB_ENV"
 
       - name: "riot-rs compilation test"
         if: steps.result-cache.outputs.cache-hit != 'true'
@@ -92,7 +93,6 @@ jobs:
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
           message: "The nightly build failed at step ${{ github.job }}. [link](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
           server: "matrix.org"
-
 
   cargo-test:
     runs-on: ubuntu-latest
