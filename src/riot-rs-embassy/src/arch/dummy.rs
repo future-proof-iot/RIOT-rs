@@ -43,8 +43,11 @@ mod executor {
 }
 pub use executor::{Executor, Spawner};
 
-pub fn init(_: OptionalPeripherals) -> Peripherals {
-    Peripherals {}
+#[derive(Default)]
+pub struct Config;
+
+pub fn init(_config: Config) -> OptionalPeripherals {
+    unimplemented!();
 }
 
 pub struct SWI;

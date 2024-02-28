@@ -56,7 +56,7 @@ pub static EMBASSY_TASKS: [Task] = [..];
 #[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
     riot_rs_rt::debug::println!("riot-rs-embassy::init()");
-    let p = arch::OptionalPeripherals::from(arch::init(Default::default()));
+    let p = arch::init(Default::default());
     EXECUTOR.start(arch::SWI);
     EXECUTOR.spawner().spawn(init_task(p)).unwrap();
 
