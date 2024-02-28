@@ -20,7 +20,7 @@ modules:
           - button-readings
 
   - name: internal-temp
-    builder:
+    context:
       - nrf52840
     env:
       global:
