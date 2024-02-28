@@ -12,8 +12,13 @@ use riot_rs_utils::str_from_env_or;
 use self::rpi_pico_w::{Cyw43Periphs, CywSpi, Irqs, CYW43_PWR};
 use crate::{arch::OptionalPeripherals, make_static};
 
-const WIFI_NETWORK: &str = str_from_env_or!("CONFIG_WIFI_NETWORK", "test_network");
-const WIFI_PASSWORD: &str = str_from_env_or!("CONFIG_WIFI_PASSWORD", "test_password");
+const WIFI_NETWORK: &str = str_from_env_or!(
+    "CONFIG_WIFI_NETWORK",
+    "test_network",
+    "Wi-Fi SSID (network name)"
+);
+const WIFI_PASSWORD: &str =
+    str_from_env_or!("CONFIG_WIFI_PASSWORD", "test_password", "Wi-Fi password");
 
 pub type NetworkDevice = cyw43::NetDriver<'static>;
 

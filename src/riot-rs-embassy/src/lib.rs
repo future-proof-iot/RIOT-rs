@@ -158,8 +158,11 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         use crate::sendcell::SendCell;
         use embassy_net::{Stack, StackResources};
 
-        const STACK_RESOURCES: usize =
-            riot_rs_utils::usize_from_env_or!("CONFIG_STACK_RESOURCES", 4);
+        const MAX_CONCURRENT_SOCKETS: usize = riot_rs_utils::usize_from_env_or!(
+            "CONFIG_NETWORK_MAX_CONCURRENT_SOCKETS",
+            4,
+            "maximum number of concurrent sockets allowed by the network stack"
+        );
 
         let config = network::config();
 
@@ -174,7 +177,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         let stack = &*make_static!(Stack::new(
             device,
             config,
-            make_static!(StackResources::<STACK_RESOURCES>::new()),
+            make_static!(StackResources::<MAX_CONCURRENT_SOCKETS>::new()),
             seed
         ));
 
