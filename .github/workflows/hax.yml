@@ -1,0 +1,25 @@
+name: hax
+
+on:
+  pull_request:
+  push:
+
+jobs:
+  hax:
+    runs-on: "ubuntu-latest"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: ⤵ Install and configure hax
+        uses: hacspec/hax-actions@main
+
+      - name: 🏃 Extract `riot-rs-runqueue`
+        working-directory: ./src/riot-rs-runqueue
+        run: |
+          rm -f proofs/fstar/extraction/*.fst*
+          cargo hax into fstar
+
+      - name: 🏃 Verify `riot-rs-runqueue`
+        working-directory: ./src/riot-rs-runqueue/proofs/fstar/extraction
+        run: make
