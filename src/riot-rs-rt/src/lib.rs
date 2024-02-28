@@ -40,7 +40,8 @@ cfg_if::cfg_if! {
 
 pub use arch::benchmark;
 
-const ISR_STACKSIZE: usize = riot_rs_utils::usize_from_env_or!("CONFIG_ISR_STACKSIZE", 8192);
+const ISR_STACKSIZE: usize =
+    riot_rs_utils::usize_from_env_or!("CONFIG_ISR_STACKSIZE", 8192, "ISR stack size (in bytes)");
 
 #[link_section = ".isr_stack"]
 #[used(linker)]
