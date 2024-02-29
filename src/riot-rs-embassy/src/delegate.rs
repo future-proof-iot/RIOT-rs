@@ -37,6 +37,7 @@ use crate::sendcell::SendCell;
 /// [`with()`](Delegate::with) multiple times
 ///   each, breaking safety assumptions. So while the API seems OK, the implementation
 ///   needs work.
+#[derive(Default)]
 pub struct Delegate<T> {
     send: Signal<CriticalSectionRawMutex, SendCell<*mut T>>,
     reply: Signal<CriticalSectionRawMutex, ()>,
