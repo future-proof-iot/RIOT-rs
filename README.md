@@ -67,6 +67,20 @@ example](https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/hello-wo
 
 ![Example](./doc/hello-world_render.svg)
 
+<details>
+<summary> (might fail if the flash is locked, click here for unlocking instructions) </summary>
+This might fail due to a locked chip, e.g., on most nrf52840dk boards that are fresh from the factory.
+In that case, the above command throws an error that ends with something like this:
+
+```
+An operation could not be performed because it lacked the permission to do so: erase_all
+```
+
+The chip can be unlocked using this command:
+
+    laze -C examples/hello-world build -b nrf52840dk flash-erase-all
+</details>
+
 ## More information
 
 Please look [at the build system documentation](doc/build_system.md) for more usage
