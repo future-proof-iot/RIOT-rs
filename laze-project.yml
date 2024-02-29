@@ -218,6 +218,13 @@ contexts:
       RUSTFLAGS:
         - --cfg context=\"nrf52\"
 
+    tasks:
+      flash-erase-all:
+        help: Erases the whole chip including user data. Unlocks it if locked.
+        build: false
+        cmd:
+          - probe-rs erase --chip ${PROBE_RS_CHIP} --allow-erase-all
+
   - name: nrf52832
     parent: nrf52
     env:
