@@ -28,6 +28,9 @@ riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-utils = { path = "../riot-rs-utils" }
 
 heapless = "0.8.0"
+once_cell = { version = "1.19.0", default-features = false, features = [
+  "critical-section",
+] }
 
 # rpi-pico-w cyw43
 cyw43 = { version = "0.1.0", features = ["firmware-logs"], optional = true }
@@ -62,10 +65,24 @@ embassy-rp = { workspace = true, features = [
 ] }
 
 [target.'cfg(context = "esp")'.dependencies]
-esp-hal = { workspace = true, features = [ "embassy", "embassy-executor-interrupt", "embassy-time-systick" ] }
+esp-hal = { workspace = true, features = [
+  "embassy",
+  "embassy-executor-interrupt",
+] }
+esp-wifi = { workspace = true, features = [
+  "async",
+  "embassy-net",
+  "wifi",
+], optional = true }
 
 [target.'cfg(context = "esp32c3")'.dependencies]
-esp-hal = { workspace = true, features = [ "esp32c3", "rt", "vectored", "embassy-time-systick" ] }
+esp-hal = { workspace = true, features = [
+  "esp32c3",
+  "rt",
+  "vectored",
+  "embassy-time-timg0",
+] }
+esp-wifi = { workspace = true, features = ["esp32c3"], optional = true }
 
 [features]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
@@ -73,6 +90,7 @@ usb = ["dep:embassy-usb"]
 net = ["dep:embassy-net"]
 usb-ethernet = ["usb", "net"]
 
+wifi-esp = ["dep:esp-wifi", "dep:embassy-net-driver-channel", "net"]
 wifi-cyw43 = [
   "dep:cyw43",
   "dep:cyw43-pio",

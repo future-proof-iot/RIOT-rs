@@ -1,5 +1,7 @@
-#[cfg(feature = "wifi_cyw43")]
+#[cfg(feature = "wifi-cyw43")]
 pub mod cyw43;
+#[cfg(feature = "wifi-esp")]
+pub mod esp_wifi;
 
 use riot_rs_utils::str_from_env_or;
 

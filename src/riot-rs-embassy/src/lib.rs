@@ -21,7 +21,7 @@ pub mod usb;
 #[cfg(feature = "net")]
 pub mod network;
 
-#[cfg(feature = "wifi-cyw43")]
+#[cfg(any(feature = "wifi-cyw43", feature = "wifi-esp"))]
 mod wifi;
 
 use riot_rs_debug::println;
@@ -37,6 +37,9 @@ use usb::ethernet::NetworkDevice;
 
 #[cfg(feature = "wifi-cyw43")]
 use wifi::cyw43::NetworkDevice;
+
+#[cfg(feature = "wifi-esp")]
+use wifi::esp_wifi::NetworkDevice;
 
 #[cfg(feature = "net")]
 pub use network::NetworkStack;
@@ -153,6 +156,9 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         let (net_device, control) = wifi::cyw43::device(&mut peripherals, &spawner).await;
         (net_device, control)
     };
+
+    #[cfg(feature = "wifi-esp")]
+    let device = wifi::esp_wifi::init(&mut peripherals, spawner);
 
     #[cfg(feature = "net")]
     {
