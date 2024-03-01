@@ -89,7 +89,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">1.</strong> Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded affix "><li class="part-title">Developer Guide</li><li class="chapter-item expanded "><a href="appendices.html"><strong aria-hidden="true">2.</strong> Appendices</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="coding-conventions.html"><strong aria-hidden="true">2.1.</strong> Coding Conventions</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="manifesto.html"><strong aria-hidden="true">1.</strong> Manifesto</a></li><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">2.</strong> Introduction</a></li><li class="chapter-item expanded affix "><li class="part-title">User Guide</li><li class="chapter-item expanded affix "><li class="part-title">Developer Guide</li><li class="chapter-item expanded "><a href="appendices.html"><strong aria-hidden="true">3.</strong> Appendices</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="coding-conventions.html"><strong aria-hidden="true">3.1.</strong> Coding Conventions</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -177,7 +177,18 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
+                        <h1 id="manifesto"><a class="header" href="#manifesto">Manifesto</a></h1>
+<p>We must (re)write the foundations of system software on more solid ground. Even <a href="https://www.whitehouse.gov/wp-content/uploads/2024/02/Final-ONCD-Technical-Report.pdf">POTUS roots for it</a>! For the Internet of Things, our cyberphysical world under continuous development, <strong>we  need stronger cybersecurity</strong>. </p>
+<p>So what does it mean for the main embedded operating systems targeting networked microcontrollers (Zephyr, FreeRTOS, or <a href="https://github.com/RIOT-OS/RIOT/">RIOT</a>) which are primarily written in C? </p>
+<p>Well, how about using instead a memory-safe language, <a href="https://www.rust-lang.org/">Rust</a>, as foundation. And for good measure, how about formal verification for the critical modules cherry-picked incrementally, along the way. Implementing the above guidelines is exactly the mission of <a href="https://github.com/future-proof-iot/RIOT-rs">RIOT-rs</a>: collaboration to produce open source re-write(s) of RIOT core modules providing a basis for next-level cybersecurity in IoT.</p>
+<p>Curious about more details on principles driving RIOT-rs development? Here you go. </p>
+<p><em>Southbound</em>, RIOT-rs builds on top of <a href="https://github.com/embassy-rs/embassy">Embassy</a> which provides an awesome open source HAL for a large variety of low-power IoT hardware, written in Rust. </p>
+<p><em>Northbound</em>, RIOT-rs provides high-level APIs working nicely across all supported hardware (work-in-progress) for generic sensors/actuators interaction (such as <a href="https://api.riot-os.org/group__drivers__saul.html">SAUL</a>) and for generic network I/O (such as <a href="https://api.riot-os.org/group__net__sock.html">sock</a>). </p>
+<p><em>At the core</em>, RIOT-rs provides a programming framework for both async and blocking (threads with priorities) paradigms and convenient scaffolding to bundle various the libraries and 3rd party modules you need. </p>
+<p>True to the spirit of RIOT development, RIOT-rs aims at a level of integration and <strong>code portability</strong> such that ~95% of the code is reused as-is on all supported hardware. The targeted <strong>memory footprint</strong> (RAM &amp; Flash) is measured in tens of kBytes. The targeted <strong>power consumption</strong> levels enable applications lasting 1+ years on a small battery.</p>
+<p>Last but not least the CI process for each pull-request to RIOT-rs includes extensive and rigorous tests which are automated for all supported configuration and hardware. And for selected modules, a <strong>formal verification workflow</strong> is used based on <a href="https://github.com/hacspec/hax">hax</a>, running directly on the functional Rust.</p>
+<p>Long story short: RIOT-rs embodies the developing love affair between RIOT and embedded Rust, fostering stronger IoT cybersecurity. This is a joyous open source community, so... you're welcome to <a href="https://github.com/future-proof-iot/RIOT-rs">join us</a>! </p>
+<div style="break-before: page; page-break-before: always;"></div><h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
 <p><strong>RIOT-rs</strong> is an experimental project trying to provide a nice base OS for
 embedded development on low-end IoT devices (with some kilobytes of RAM/flash,
 think Cortex-M). It combines the awesome Rust embedded ecosystem with RIOT OS.</p>
