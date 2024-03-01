@@ -2,18 +2,20 @@ use critical_section::CriticalSection;
 
 use crate::{arch, ThreadId, ThreadState, THREADS};
 
+/// Manages blocked [`super::Thread`]s for a resource, and triggering the scheduler when needed.
 #[derive(Debug)]
 pub struct ThreadList {
+    /// Next thread to run once the resource is available.
     pub head: Option<ThreadId>,
 }
 
 impl ThreadList {
-    /// Creates a new empty`ThreadList`
+    /// Creates a new empty [`ThreadList`]
     pub const fn new() -> Self {
         Self { head: None }
     }
 
-    /// Puts the current thread into this `ThreadList`.
+    /// Puts the current (blocked) thread into this [`ThreadList`] and triggers the scheduler.
     pub fn put_current(&mut self, cs: CriticalSection, state: ThreadState) {
         THREADS.with_mut_cs(cs, |mut threads| {
             let thread_id = threads.current_thread.unwrap();
@@ -24,12 +26,12 @@ impl ThreadList {
         });
     }
 
-    /// Removes the head from this `ThreadList`
+    /// Removes the head from this [`ThreadList`].
     ///
-    /// Sets the thread's `ThreadState` to `ThreadState::Running` and triggers
+    /// Sets the thread's [`ThreadState`] to [`ThreadState::Running`] and triggers
     /// the scheduler.
     ///
-    /// Returns the thread's `ThreadId` and it's previous `ThreadState`.
+    /// Returns the thread's [`ThreadId`] and it's previous [`ThreadState`].
     pub fn pop(&mut self, cs: CriticalSection) -> Option<(ThreadId, ThreadState)> {
         if let Some(head) = self.head {
             let old_state = THREADS.with_mut_cs(cs, |mut threads| {
@@ -44,7 +46,7 @@ impl ThreadList {
         }
     }
 
-    /// Determines if this `ThreadList` is empty
+    /// Determines if this [`ThreadList`] is empty
     pub fn is_empty(&self, _cs: CriticalSection) -> bool {
         self.head.is_none()
     }

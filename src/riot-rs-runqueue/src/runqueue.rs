@@ -7,10 +7,10 @@ const USIZE_BITS: usize = mem::size_of::<usize>() * 8;
 pub type RunqueueId = u8;
 pub type ThreadId = u8;
 
-/// Runqueue for N_QUEUES, supporting N_THREADS total.
+/// Runqueue for `N_QUEUES`, supporting `N_THREADS` total.
 ///
-/// assumptions:
-/// - higher runqueue number means higher priority
+/// Assumptions:
+/// - higher [`RunqueueId`] means higher priority
 /// - runqueue numbers (corresponding priorities) are 0..N_QUEUES (exclusive)
 /// - runqueue numbers fit in usize bits (supporting max 32 priority levels)
 /// - pids range from 0..N_THREADS

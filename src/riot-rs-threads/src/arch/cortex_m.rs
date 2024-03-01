@@ -10,6 +10,19 @@ use crate::{cleanup, THREADS};
 /// After running this, the stack should look as if the thread was
 /// interrupted by an ISR. On the next return, it starts executing
 /// `func`.
+///
+///  +-------------+ <- sp
+///  |    arg      | 
+///  | (dummy r1)  | 
+///  | (dummy r2)  | 
+///  | (dummy r3)  | 
+///  | (dummy r12) | 
+///  | *cleanup    |
+///  |  *func      | 
+///  | 0x01000000  | 
+///  +-------------+
+///
+/// returns the sp
 pub(crate) fn setup_stack(stack: &mut [u8], func: usize, arg: usize) -> usize {
     let stack_start = stack.as_ptr() as usize;
     let stack_pos = ((stack_start + stack.len() - 36) & 0xFFFFFFFC) as *mut usize;
@@ -28,6 +41,10 @@ pub(crate) fn setup_stack(stack: &mut [u8], func: usize, arg: usize) -> usize {
     stack_pos as usize
 }
 
+/// Triggers a PendSV exception to initiate a context switch.
+/// 
+/// If this is called from within a critical section the exception 
+/// happens after the critical section was left.
 #[inline(always)]
 pub fn schedule() {
     SCB::set_pendsv();
@@ -173,8 +190,21 @@ unsafe extern "C" fn PendSV() {
     );
 }
 
-/// scheduler
+/// Scheduler
 ///
+/// It selects the next thread that should run from the runqueue.
+/// This may equal be current thread, or a new one.
+/// 
+/// Input:
+/// - old_sp (`r0``): the stack pointer of the currently running thread.
+///
+/// Returns:
+/// - `0` in `r0` if the next thread in the runqueue is the currently running thread
+/// - Else it writes into the following registers:
+///   - `r0`: pointer to [`Thread::high_regs`] from old thread (to store old register state)
+///   - `r1`: pointer to [`Thread::high_regs`] from new thread (to load new register state)
+///   - `r2`: stack-pointer for new thread
+//
 /// On Cortex-M, this is called in PendSV.
 // TODO: make arch independent, or move to arch
 #[no_mangle]
