@@ -17,6 +17,8 @@ static_cell = { workspace = true }
 [features]
 debug-console = ["riot-rs-rt/debug-console"]
 net = ["riot-rs-embassy/net"]
+# Allows to have no boards selected, useful to run platform-independent tooling
+no-boards = ["riot-rs-boards/no-boards"]
 override-network-config = ["riot-rs-embassy/override-network-config"]
 override-usb-config = ["riot-rs-embassy/override-usb-config"]
 silent-panic = ["riot-rs-rt/silent-panic"]
