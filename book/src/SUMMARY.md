@@ -1,5 +1,6 @@
 # Summary
 
+- [Manifesto](./manifesto.md)
 - [Introduction](./introduction.md)
 
 # User Guide
