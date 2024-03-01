@@ -44,6 +44,7 @@ embassy-usb = { version = "0.1", default-features = false }
 
 esp-hal = { version = "0.15", git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-290224", default-features = false }
 esp-println = { version = "0.9.0" }
+esp-wifi = { git = "https://github.com/kaspar030/esp-wifi", branch = "update-esp-hal" }
 
 linkme = { version = "0.3.21", features = ["used_linker"] }
 
@@ -71,6 +72,9 @@ codegen-units = 1
 debug = true
 lto = false
 opt-level = "s"
+
+[profile.release.package.esp-wifi]
+opt-level = 3
 
 [patch.crates-io]
 # these are patched to work with critical-section

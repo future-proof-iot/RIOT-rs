@@ -5,6 +5,7 @@ use esp_hal::{
         executor::{FromCpu1, InterruptExecutor},
     },
     prelude::*,
+    timer::TimerGroup,
 };
 
 pub(crate) use esp_hal::interrupt::{self};
@@ -24,12 +25,32 @@ fn FROM_CPU_INTR1() {
 pub fn init(_config: Config) -> OptionalPeripherals {
     let mut peripherals = OptionalPeripherals::from(Peripherals::take());
     let system = peripherals.SYSTEM.take().unwrap().split();
-    let clocks = ClockControl::boot_defaults(system.clock_control).freeze();
+    let clocks = ClockControl::max(system.clock_control).freeze();
 
-    embassy::init(
-        &clocks,
-        esp_hal::systimer::SystemTimer::new(peripherals.SYSTIMER.take().unwrap()),
-    );
+    #[cfg(feature = "wifi-esp")]
+    {
+        use esp_hal::Rng;
+        use esp_wifi::{initialize, EspWifiInitFor};
+
+        riot_rs_debug::println!("riot-rs-embassy::arch::esp::init(): wifi");
+
+        let timer = esp_hal::systimer::SystemTimer::new(peripherals.SYSTIMER.take().unwrap());
+
+        #[cfg(target_arch = "riscv32")]
+        let init = initialize(
+            EspWifiInitFor::Wifi,
+            timer.alarm0,
+            Rng::new(peripherals.RNG.take().unwrap()),
+            system.radio_clock_control,
+            &clocks,
+        )
+        .unwrap();
+
+        crate::wifi::esp_wifi::WIFI_INIT.set(init).unwrap();
+    }
+
+    let timer_group0 = TimerGroup::new(peripherals.TIMG0.take().unwrap(), &clocks);
+    embassy::init(&clocks, timer_group0);
 
     peripherals
 }

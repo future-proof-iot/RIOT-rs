@@ -35,5 +35,7 @@ threading = [
 ]
 time = ["riot-rs-embassy/time"]
 usb = ["riot-rs-embassy/usb"]
+
 usb-ethernet = ["riot-rs-embassy/usb-ethernet"]
+wifi-esp = ["riot-rs-embassy/wifi-esp"]
 wifi-cyw43 = ["riot-rs-embassy/wifi-cyw43"]
