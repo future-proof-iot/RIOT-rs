@@ -21,4 +21,6 @@ nucleo-f401re = { optional = true, path = "nucleo-f401re" }
 rpi-pico = { optional = true, path = "rpi-pico" }
 
 [features]
+# Allows to have no boards selected, useful to run platform-independent tooling
+no-boards = []
 rpi-pico-w = ["rpi-pico/rpi-pico-w"]
