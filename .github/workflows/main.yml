@@ -99,10 +99,9 @@ jobs:
       with:
         args: --verbose --locked -p riot-rs-embassy
 
-    # TODO: we'll eventually want to generate docs for riot-rs instead
     # TODO: we'll eventually want to enable relevant features
     - name: "rustdoc"
-      run: cargo rustdoc -p riot-rs-embassy -- -D warnings
+      run: cargo rustdoc -p riot-rs --features no-boards -- -D warnings
 
     - name: rustfmt
       run: cargo fmt --check --all
