@@ -22,7 +22,7 @@ pub type ThreadId = u8;
 /// an `[u8; N_QUEUES]` array for the list tail indexes
 /// and an `[u8; N_THREADS]` for the list next indexes.
 pub struct RunQueue<const N_QUEUES: usize, const N_THREADS: usize> {
-    /// Bitcache that represents the currently used queues 
+    /// Bitcache that represents the currently used queues
     /// in `0..N_QUEUES`.
     bitcache: usize,
     queues: clist::CList<N_QUEUES, N_THREADS>,
@@ -47,9 +47,9 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     }
 
     /// Remove thread with pid `n` from runqueue number `rq`
-    /// 
-    /// # Safety 
-    /// 
+    ///
+    /// # Safety
+    ///
     /// Panics if `n` is not the queue's head.
     /// This is fine, RIOT-rs only ever calls `del()` for the current thread.
     pub fn del(&mut self, n: ThreadId, rq: RunqueueId) {
@@ -68,10 +68,10 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     }
 
     /// Get the pid that should run next.
-    /// 
+    ///
     /// Returns the next runnable thread of
     /// the runqueue with the highest index.
-    // 
+    //
     // TODO: Return `ThreadId` instead of u8?
     pub fn get_next(&self) -> Option<u8> {
         let rq_ffs = Self::ffs(self.bitcache);
@@ -84,7 +84,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     }
 
     /// Advance runqueue number `rq`.
-    /// 
+    ///
     /// This is used to "yield" to another thread of *the same* priority.
     pub fn advance(&mut self, rq: RunqueueId) {
         debug_assert!((rq as usize) < N_QUEUES);

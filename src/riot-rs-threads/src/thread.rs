@@ -25,7 +25,7 @@ pub enum ThreadState {
     /// No active thread.
     Invalid,
     /// Ready to run.
-    /// 
+    ///
     /// This doesn't necessarily mean that the thread is currently running,
     /// but rather that it is in the runqueue.
     Running,

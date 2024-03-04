@@ -11,10 +11,10 @@ pub enum WaitMode {
 }
 
 /// Set flags for a thread.
-/// 
+///
 /// If the thread was blocked on these flags it's unblocked and added
 /// to the runqueue.
-/// 
+///
 /// # Safety
 /// Panics if no valid thread for `thread_id` exists.
 pub fn set(thread_id: ThreadId, mask: ThreadFlags) {
@@ -22,7 +22,7 @@ pub fn set(thread_id: ThreadId, mask: ThreadFlags) {
 }
 
 /// Wait until all flags in `mask` are set for the current thread.
-/// 
+///
 /// # Safety
 /// Panics if this is called outside of a thread context.
 pub fn wait_all(mask: ThreadFlags) -> ThreadFlags {
@@ -34,7 +34,7 @@ pub fn wait_all(mask: ThreadFlags) -> ThreadFlags {
 }
 
 /// Wait until any flag in `mask` is set for the current thread.
-/// 
+///
 /// # Safety
 /// Panics if this is called outside of a thread context.
 pub fn wait_any(mask: ThreadFlags) -> ThreadFlags {
@@ -54,7 +54,7 @@ pub fn wait_one(mask: ThreadFlags) -> ThreadFlags {
 }
 
 /// Clear flags for the current thread.
-/// 
+///
 /// # Safety
 /// Panics if this is called outside of a thread context.
 pub fn clear(mask: ThreadFlags) -> ThreadFlags {
@@ -67,7 +67,7 @@ pub fn clear(mask: ThreadFlags) -> ThreadFlags {
 }
 
 /// Get the flags set for the current thread.
-/// 
+///
 /// # Safety
 /// Panics if this is called outside of a thread context.
 pub fn get() -> ThreadFlags {

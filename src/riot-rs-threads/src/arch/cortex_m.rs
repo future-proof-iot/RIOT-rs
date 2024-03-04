@@ -12,14 +12,14 @@ use crate::{cleanup, THREADS};
 /// `func`.
 ///
 ///  +-------------+ <- sp
-///  |    arg      | 
-///  | (dummy r1)  | 
-///  | (dummy r2)  | 
-///  | (dummy r3)  | 
-///  | (dummy r12) | 
+///  |    arg      |
+///  | (dummy r1)  |
+///  | (dummy r2)  |
+///  | (dummy r3)  |
+///  | (dummy r12) |
 ///  | *cleanup    |
-///  |  *func      | 
-///  | 0x01000000  | 
+///  |  *func      |
+///  | 0x01000000  |
 ///  +-------------+
 ///
 /// returns the sp
@@ -42,8 +42,8 @@ pub(crate) fn setup_stack(stack: &mut [u8], func: usize, arg: usize) -> usize {
 }
 
 /// Triggers a PendSV exception to initiate a context switch.
-/// 
-/// If this is called from within a critical section the exception 
+///
+/// If this is called from within a critical section the exception
 /// happens after the critical section was left.
 #[inline(always)]
 pub fn schedule() {
@@ -194,7 +194,7 @@ unsafe extern "C" fn PendSV() {
 ///
 /// It selects the next thread that should run from the runqueue.
 /// This may equal be current thread, or a new one.
-/// 
+///
 /// Input:
 /// - old_sp (`r0``): the stack pointer of the currently running thread.
 ///

@@ -10,8 +10,8 @@ pub use riot_rs_runqueue::{RunqueueId, ThreadId};
 
 mod arch;
 mod ensure_once;
-mod threadlist;
 mod thread;
+mod threadlist;
 
 /// Synchronous channel implementation for sending data between threads.
 pub mod channel;
@@ -67,9 +67,9 @@ impl Threads {
     //     &mut self.threads[thread_id as usize]
     // }
 
-    /// Get checked mutable access to the thread data of the currently 
+    /// Get checked mutable access to the thread data of the currently
     /// running thread.
-    /// 
+    ///
     /// Returns `None` if there is no current thread.
     pub(crate) fn current(&mut self) -> Option<&mut Thread> {
         self.current_thread
@@ -81,9 +81,9 @@ impl Threads {
     }
 
     /// Create a new thread.
-    /// 
+    ///
     /// This sets up the stack and TCB for this thread.
-    /// 
+    ///
     /// Returns `None` if there is no free thread slot.
     pub(crate) fn create(
         &mut self,
@@ -109,7 +109,7 @@ impl Threads {
     // }
 
     /// Get mutable access to any thread data.
-    /// 
+    ///
     /// # Safety
     /// Panics if `thread_id` is >= [`THREADS_NUMOF`].
     /// If the thread for this `thread_id` is in an invalid state, the
@@ -207,7 +207,7 @@ impl<T> Arguable for &T {
 
 /// Low-level function to create a thread that runs
 ///  `func` with `arg`.
-/// 
+///
 /// This sets up the stack for the thread and adds it to
 /// the runqueue.
 pub fn thread_create<T: Arguable + Send>(
@@ -232,8 +232,8 @@ pub unsafe fn thread_create_raw(func: usize, arg: usize, stack: &mut [u8], prio:
     })
 }
 
-/// Get the [`ThreadState`] for this `thread_id`. 
-/// 
+/// Get the [`ThreadState`] for this `thread_id`.
+///
 /// Returns `None` if `thread_id` is out of bound or no thread with
 /// valid state exists.
 pub fn get_state(thread_id: ThreadId) -> Option<ThreadState> {
@@ -288,8 +288,8 @@ pub fn sleep() {
 }
 
 /// Wake-up a thread and add it to the runqueue.
-/// 
-/// Returns `false` if no paused thread exists for `thread_id`. 
+///
+/// Returns `false` if no paused thread exists for `thread_id`.
 pub fn wakeup(thread_id: ThreadId) -> bool {
     THREADS.with_mut(|mut threads| {
         if let Some(state) = threads.get_state(thread_id) {
