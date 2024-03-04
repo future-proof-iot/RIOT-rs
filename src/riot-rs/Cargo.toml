@@ -15,6 +15,8 @@ riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 static_cell = { workspace = true }
 
 [features]
+default = ["riot-rs-rt/_panic-handler"]
+
 debug-console = ["riot-rs-rt/debug-console"]
 net = ["riot-rs-embassy/net"]
 # Allows to have no boards selected, useful to run platform-independent tooling
