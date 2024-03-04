@@ -71,10 +71,9 @@ impl Threads {
 
     fn flag_wait_all(&mut self, mask: ThreadFlags) -> Option<ThreadFlags> {
         let thread = self.current().unwrap();
-        if thread.flags & mask != 0 {
-            let result = thread.flags & mask;
+        if thread.flags & mask == mask {
             thread.flags &= !mask;
-            Some(result)
+            Some(mask)
         } else {
             let thread_id = thread.pid;
             self.set_state(thread_id, ThreadState::FlagBlocked(WaitMode::All(mask)));
