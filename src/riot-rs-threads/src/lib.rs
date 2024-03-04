@@ -11,10 +11,13 @@ pub use riot_rs_runqueue::{RunqueueId, ThreadId};
 mod arch;
 mod ensure_once;
 mod threadlist;
+mod thread;
 
+/// Synchronous channel implementation for sending data between threads.
 pub mod channel;
+/// Lock implementation that doesn't hold data.
 pub mod lock;
-pub mod thread;
+/// Thread flags.
 pub mod thread_flags;
 
 pub use arch::schedule;
@@ -41,8 +44,12 @@ pub static THREAD_FNS: [ThreadFn] = [..];
 pub struct Threads {
     /// global thread runqueue
     runqueue: RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF>,
+    /// The actual TCBs
     threads: [Thread; THREADS_NUMOF],
+    /// `Some` when a thread is blocking another thread due to conflicting
+    /// resource access.
     thread_blocklist: [Option<ThreadId>; THREADS_NUMOF],
+    /// The currently running thread.
     current_thread: Option<ThreadId>,
 }
 
@@ -60,6 +67,10 @@ impl Threads {
     //     &mut self.threads[thread_id as usize]
     // }
 
+    /// Get checked mutable access to the thread data of the currently 
+    /// running thread.
+    /// 
+    /// Returns `None` if there is no current thread.
     pub(crate) fn current(&mut self) -> Option<&mut Thread> {
         self.current_thread
             .map(|tid| &mut self.threads[tid as usize])
@@ -69,7 +80,11 @@ impl Threads {
         self.current_thread
     }
 
-    /// Create a new thread
+    /// Create a new thread.
+    /// 
+    /// This sets up the stack and TCB for this thread.
+    /// 
+    /// Returns `None` if there is no free thread slot.
     pub(crate) fn create(
         &mut self,
         func: usize,
@@ -93,11 +108,17 @@ impl Threads {
     //     &self.threads[thread_id as usize]
     // }
 
+    /// Get mutable access to any thread data.
+    /// 
+    /// # Safety
+    /// Panics if `thread_id` is >= [`THREADS_NUMOF`].
+    /// If the thread for this `thread_id` is in an invalid state, the
+    /// data in the returned [`Thread`] is undefined, i.e. empty or outdated.
     fn get_unchecked_mut(&mut self, thread_id: ThreadId) -> &mut Thread {
         &mut self.threads[thread_id as usize]
     }
 
-    // get an unused ThreadId / Thread slot
+    /// Get an unused ThreadId / Thread slot.
     fn get_unused(&mut self) -> Option<(&mut Thread, ThreadId)> {
         for i in 0..THREADS_NUMOF {
             if self.threads[i].state == ThreadState::Invalid {
@@ -107,6 +128,7 @@ impl Threads {
         None
     }
 
+    /// Checks if a thread with valid state exists for this `thread_id`.
     fn is_valid_pid(&self, thread_id: ThreadId) -> bool {
         if thread_id as usize >= THREADS_NUMOF {
             false
@@ -115,7 +137,7 @@ impl Threads {
         }
     }
 
-    /// set state of thread
+    /// Set the state of a thread.
     ///
     /// This function handles adding/removing the thread to the Runqueue depending
     /// on its previous or new state.
@@ -141,7 +163,7 @@ impl Threads {
     }
 }
 
-/// start threading
+/// Start threading.
 ///
 /// Supposed to be started early on by OS startup code.
 ///
@@ -158,7 +180,7 @@ pub unsafe fn start_threading() {
     arch::start_threading(next_sp);
 }
 
-/// trait for types that fit into a single register.
+/// Trait for types that fit into a single register.
 ///
 /// Currently implemented for references (`&T`) and usize.
 pub trait Arguable {
@@ -183,7 +205,11 @@ impl<T> Arguable for &T {
     }
 }
 
-/// Low-level function to create a thread
+/// Low-level function to create a thread that runs
+///  `func` with `arg`.
+/// 
+/// This sets up the stack for the thread and adds it to
+/// the runqueue.
 pub fn thread_create<T: Arguable + Send>(
     func: fn(arg: T),
     arg: T,
@@ -206,11 +232,15 @@ pub unsafe fn thread_create_raw(func: usize, arg: usize, stack: &mut [u8], prio:
     })
 }
 
+/// Get the [`ThreadState`] for this `thread_id`. 
+/// 
+/// Returns `None` if `thread_id` is out of bound or no thread with
+/// valid state exists.
 pub fn get_state(thread_id: ThreadId) -> Option<ThreadState> {
     THREADS.with(|threads| threads.get_state(thread_id))
 }
 
-/// Returns the thread id of the currently active thread.
+/// Returns the [`ThreadId`] of the currently active thread.
 ///
 /// Note: when called from ISRs, this will return the thread id of the thread
 /// that was interrupted.
@@ -223,10 +253,11 @@ pub fn is_valid_pid(thread_id: ThreadId) -> bool {
     THREADS.with(|threads| threads.is_valid_pid(thread_id))
 }
 
-/// thread cleanup function
+/// Thread cleanup function.
 ///
 /// This gets hooked into a newly created thread stack so it gets called when
 /// the thread function returns.
+#[allow(unused)]
 fn cleanup() -> ! {
     THREADS.with_mut(|mut threads| {
         let thread_id = threads.current_pid().unwrap();
@@ -238,6 +269,7 @@ fn cleanup() -> ! {
     unreachable!();
 }
 
+/// "Yield" to another thread with the same priority.
 pub fn yield_same() {
     THREADS.with_mut(|mut threads| {
         let runqueue = threads.current().unwrap().prio;
@@ -246,7 +278,7 @@ pub fn yield_same() {
     })
 }
 
-/// Suspend/pause the current thread's execution
+/// Suspend/pause the current thread's execution.
 pub fn sleep() {
     THREADS.with_mut(|mut threads| {
         let pid = threads.current_pid().unwrap();
@@ -255,7 +287,9 @@ pub fn sleep() {
     });
 }
 
-/// Suspend/pause the current thread's execution
+/// Wake-up a thread and add it to the runqueue.
+/// 
+/// Returns `false` if no paused thread exists for `thread_id`. 
 pub fn wakeup(thread_id: ThreadId) -> bool {
     THREADS.with_mut(|mut threads| {
         if let Some(state) = threads.get_state(thread_id) {

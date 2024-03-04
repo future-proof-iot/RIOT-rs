@@ -13,9 +13,9 @@ pub struct Thread {
     /// Id of the thread between 0..[`super::THREADS_NUMOF`].
     /// Ids are unique while a thread is alive but reused after a thread finished.
     pub pid: ThreadId,
-    // TODO
+    /// Flags set for the thread.
     pub flags: ThreadFlags,
-    // Saved non-volatile registers.
+    /// Saved non-volatile registers.
     pub(crate) high_regs: [usize; 8],
 }
 
@@ -24,9 +24,12 @@ pub struct Thread {
 pub enum ThreadState {
     /// No active thread.
     Invalid,
-    /// Currently running.
+    /// Ready to run.
+    /// 
+    /// This doesn't necessarily mean that the thread is currently running,
+    /// but rather that it is in the runqueue.
     Running,
-    /// Suspended / paused, but ready to run.
+    /// Suspended / paused.
     Paused,
     /// Waiting to acquire a [`super::lock::Lock`].
     LockBlocked,

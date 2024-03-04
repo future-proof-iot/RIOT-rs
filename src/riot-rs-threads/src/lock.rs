@@ -93,7 +93,7 @@ impl Lock {
         critical_section::with(|cs| {
             let state = unsafe { &mut *self.state.get() };
             match state {
-                LockState::Unlocked => {} // TODO: panic?
+                LockState::Unlocked => {}
                 LockState::Locked(waiters) => {
                     if waiters.pop(cs).is_none() {
                         *state = LockState::Unlocked

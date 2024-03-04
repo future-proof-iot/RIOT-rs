@@ -1,19 +1,30 @@
 use crate::{ThreadId, ThreadState, Threads, THREADS};
 
-/// type of thread flags
+/// Bitmask that represent the flags that are set for a thread.
 pub type ThreadFlags = u16;
 
-/// Possible waiting modes for thread flags
+/// Possible waiting modes for [`ThreadFlags`].
 #[derive(Copy, Clone, PartialEq, Debug)]
 pub enum WaitMode {
     Any(ThreadFlags),
     All(ThreadFlags),
 }
 
+/// Set flags for a thread.
+/// 
+/// If the thread was blocked on these flags it's unblocked and added
+/// to the runqueue.
+/// 
+/// # Safety
+/// Panics if no valid thread for `thread_id` exists.
 pub fn set(thread_id: ThreadId, mask: ThreadFlags) {
     THREADS.with_mut(|mut threads| threads.flag_set(thread_id, mask))
 }
 
+/// Wait until all flags in `mask` are set for the current thread.
+/// 
+/// # Safety
+/// Panics if this is called outside of a thread context.
 pub fn wait_all(mask: ThreadFlags) -> ThreadFlags {
     loop {
         if let Some(flags) = THREADS.with_mut(|mut threads| threads.flag_wait_all(mask)) {
@@ -22,6 +33,10 @@ pub fn wait_all(mask: ThreadFlags) -> ThreadFlags {
     }
 }
 
+/// Wait until any flag in `mask` is set for the current thread.
+/// 
+/// # Safety
+/// Panics if this is called outside of a thread context.
 pub fn wait_any(mask: ThreadFlags) -> ThreadFlags {
     loop {
         if let Some(flags) = THREADS.with_mut(|mut threads| threads.flag_wait_any(mask)) {
@@ -38,6 +53,10 @@ pub fn wait_one(mask: ThreadFlags) -> ThreadFlags {
     }
 }
 
+/// Clear flags for the current thread.
+/// 
+/// # Safety
+/// Panics if this is called outside of a thread context.
 pub fn clear(mask: ThreadFlags) -> ThreadFlags {
     THREADS.with_mut(|mut threads| {
         let thread = threads.current().unwrap();
@@ -47,6 +66,10 @@ pub fn clear(mask: ThreadFlags) -> ThreadFlags {
     })
 }
 
+/// Get the flags set for the current thread.
+/// 
+/// # Safety
+/// Panics if this is called outside of a thread context.
 pub fn get() -> ThreadFlags {
     // TODO: current() requires us to use mutable `threads` here
     THREADS.with_mut(|mut threads| threads.current().unwrap().flags)
