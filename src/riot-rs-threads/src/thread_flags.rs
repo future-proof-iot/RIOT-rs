@@ -24,6 +24,8 @@ pub fn set(thread_id: ThreadId, mask: ThreadFlags) {
 }
 
 /// Waits until all flags in `mask` are set for the current thread.
+/// 
+/// Returns the set flags for this mask and clears them for the thread.
 ///
 /// # Panics
 ///
@@ -37,6 +39,8 @@ pub fn wait_all(mask: ThreadFlags) -> ThreadFlags {
 }
 
 /// Waits until any flag in `mask` is set for the current thread.
+/// 
+/// Returns all set flags for this mask and clears them for the thread.
 ///
 /// # Panics
 ///
@@ -49,6 +53,14 @@ pub fn wait_any(mask: ThreadFlags) -> ThreadFlags {
     }
 }
 
+/// Waits until any flag in `mask` is set for the current thread.
+/// 
+/// Compared to [`wait_any`], this returns and clears only one flag 
+/// from the mask.
+///
+/// # Panics
+///
+/// Panics if this is called outside of a thread context.
 pub fn wait_one(mask: ThreadFlags) -> ThreadFlags {
     loop {
         if let Some(flags) = THREADS.with_mut(|mut threads| threads.flag_wait_one(mask)) {
