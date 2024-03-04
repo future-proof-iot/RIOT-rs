@@ -1,3 +1,5 @@
+//! Synchronous channel implementation for sending data between threads.
+
 use core::cell::UnsafeCell;
 use core::marker::PhantomData;
 use core::mem::MaybeUninit;

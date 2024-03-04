@@ -4,7 +4,7 @@ use self::clist::CList;
 
 const USIZE_BITS: usize = mem::size_of::<usize>() * 8;
 
-/// Runqueue number
+/// Runqueue number.
 pub type RunqueueId = u8;
 pub type ThreadId = u8;
 
@@ -15,7 +15,7 @@ pub type ThreadId = u8;
 /// - higher runqueue number ([`RunqueueId`]) means higher priority
 /// - runqueue numbers fit in usize bits (supporting max 32 priority levels)
 /// - [`ThreadId`]s range from 0..N_THREADS
-/// - `N_THREADS`` is <255 (as u8 is used to store them, but 0xFF is used as
+/// - `N_THREADS` is <255 (as u8 is used to store them, but 0xFF is used as
 ///   special value)
 ///
 /// The current implementation needs an usize for the bit cache,
@@ -38,7 +38,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         }
     }
 
-    /// Add thread with pid `n` to runqueue number `rq`.
+    /// Adds thread with pid `n` to runqueue number `rq`.
     pub fn add(&mut self, n: ThreadId, rq: RunqueueId) {
         debug_assert!((n as usize) < N_THREADS);
         debug_assert!((rq as usize) < N_QUEUES);
@@ -46,9 +46,9 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         self.queues.push(n, rq);
     }
 
-    /// Remove thread with pid `n` from runqueue number `rq`
+    /// Removes thread with pid `n` from runqueue number `rq`.
     ///
-    /// # Safety
+    /// # Panics
     ///
     /// Panics if `n` is not the queue's head.
     /// This is fine, RIOT-rs only ever calls `del()` for the current thread.
@@ -67,7 +67,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         USIZE_BITS as u32 - val.leading_zeros()
     }
 
-    /// Get the pid that should run next.
+    /// Returns the pid that should run next.
     ///
     /// Returns the next runnable thread of
     /// the runqueue with the highest index.
@@ -83,7 +83,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         }
     }
 
-    /// Advance runqueue number `rq`.
+    /// Advances runqueue number `rq`.
     ///
     /// This is used to "yield" to another thread of *the same* priority.
     pub fn advance(&mut self, rq: RunqueueId) {
@@ -93,7 +93,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
 }
 
 mod clist {
-    //! This module implements an array of `N_QUEUES`` circular linked lists over an
+    //! This module implements an array of `N_QUEUES` circular linked lists over an
     //! array of size `N_THREADS`.
     //! The array is used for "next" pointers, so each integer value in the array
     //! corresponds to one element, which can only be in one of the lists.

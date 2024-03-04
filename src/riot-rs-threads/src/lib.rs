@@ -13,11 +13,8 @@ mod ensure_once;
 mod thread;
 mod threadlist;
 
-/// Synchronous channel implementation for sending data between threads.
 pub mod channel;
-/// Lock implementation that doesn't hold data.
 pub mod lock;
-/// Thread flags.
 pub mod thread_flags;
 
 pub use arch::schedule;
@@ -42,9 +39,9 @@ pub static THREAD_FNS: [ThreadFn] = [..];
 
 /// Struct holding all scheduler state
 pub struct Threads {
-    /// global thread runqueue
+    /// Global thread runqueue.
     runqueue: RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF>,
-    /// The actual TCBs
+    /// The actual TCBs.
     threads: [Thread; THREADS_NUMOF],
     /// `Some` when a thread is blocking another thread due to conflicting
     /// resource access.
@@ -67,7 +64,7 @@ impl Threads {
     //     &mut self.threads[thread_id as usize]
     // }
 
-    /// Get checked mutable access to the thread data of the currently
+    /// Returns checked mutable access to the thread data of the currently
     /// running thread.
     ///
     /// Returns `None` if there is no current thread.
@@ -80,7 +77,7 @@ impl Threads {
         self.current_thread
     }
 
-    /// Create a new thread.
+    /// Creates a new thread.
     ///
     /// This sets up the stack and TCB for this thread.
     ///
@@ -108,9 +105,10 @@ impl Threads {
     //     &self.threads[thread_id as usize]
     // }
 
-    /// Get mutable access to any thread data.
+    /// Returns mutable access to any thread data.
     ///
-    /// # Safety
+    /// # Panics
+    ///
     /// Panics if `thread_id` is >= [`THREADS_NUMOF`].
     /// If the thread for this `thread_id` is in an invalid state, the
     /// data in the returned [`Thread`] is undefined, i.e. empty or outdated.
@@ -137,9 +135,9 @@ impl Threads {
         }
     }
 
-    /// Set the state of a thread.
+    /// Sets the state of a thread.
     ///
-    /// This function handles adding/removing the thread to the Runqueue depending
+    /// This function handles adding/ removing the thread to the Runqueue depending
     /// on its previous or new state.
     pub(crate) fn set_state(&mut self, pid: ThreadId, state: ThreadState) -> ThreadState {
         let thread = &mut self.threads[pid as usize];
@@ -163,7 +161,7 @@ impl Threads {
     }
 }
 
-/// Start threading.
+/// Starts threading.
 ///
 /// Supposed to be started early on by OS startup code.
 ///
@@ -206,7 +204,7 @@ impl<T> Arguable for &T {
 }
 
 /// Low-level function to create a thread that runs
-///  `func` with `arg`.
+/// `func` with `arg`.
 ///
 /// This sets up the stack for the thread and adds it to
 /// the runqueue.
@@ -220,7 +218,7 @@ pub fn thread_create<T: Arguable + Send>(
     unsafe { thread_create_raw(func as usize, arg, stack, prio) }
 }
 
-/// Create a thread, low-level
+/// Creates a thread, low-level.
 ///
 /// # Safety
 /// only use when you know what you are doing.
@@ -232,7 +230,7 @@ pub unsafe fn thread_create_raw(func: usize, arg: usize, stack: &mut [u8], prio:
     })
 }
 
-/// Get the [`ThreadState`] for this `thread_id`.
+/// Returns the [`ThreadState`] for this `thread_id`.
 ///
 /// Returns `None` if `thread_id` is out of bound or no thread with
 /// valid state exists.
@@ -248,7 +246,7 @@ pub fn current_pid() -> Option<ThreadId> {
     THREADS.with(|threads| threads.current_pid())
 }
 
-/// Check if a given [`ThreadId`] is valid
+/// Checks if a given [`ThreadId`] is valid
 pub fn is_valid_pid(thread_id: ThreadId) -> bool {
     THREADS.with(|threads| threads.is_valid_pid(thread_id))
 }
@@ -269,7 +267,7 @@ fn cleanup() -> ! {
     unreachable!();
 }
 
-/// "Yield" to another thread with the same priority.
+/// "Yields" to another thread with the same priority.
 pub fn yield_same() {
     THREADS.with_mut(|mut threads| {
         let runqueue = threads.current().unwrap().prio;
@@ -278,7 +276,7 @@ pub fn yield_same() {
     })
 }
 
-/// Suspend/pause the current thread's execution.
+/// Suspends/ pauses the current thread's execution.
 pub fn sleep() {
     THREADS.with_mut(|mut threads| {
         let pid = threads.current_pid().unwrap();
@@ -287,7 +285,7 @@ pub fn sleep() {
     });
 }
 
-/// Wake-up a thread and add it to the runqueue.
+/// Wakes up a thread and adds it to the runqueue.
 ///
 /// Returns `false` if no paused thread exists for `thread_id`.
 pub fn wakeup(thread_id: ThreadId) -> bool {

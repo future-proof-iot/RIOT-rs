@@ -1,4 +1,4 @@
-//! This module provides a Mutex-protected RefCell - basically a way to ensure
+//! This module provides a Mutex-protected RefCell --- basically a way to ensure
 //! at runtime that some reference is used only once.
 use core::cell::{Ref, RefCell, RefMut};
 use critical_section::{with, CriticalSection, Mutex};

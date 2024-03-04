@@ -1,3 +1,4 @@
+//! Thread flags.
 use crate::{ThreadId, ThreadState, Threads, THREADS};
 
 /// Bitmask that represent the flags that are set for a thread.
@@ -10,20 +11,22 @@ pub enum WaitMode {
     All(ThreadFlags),
 }
 
-/// Set flags for a thread.
+/// Sets flags for a thread.
 ///
 /// If the thread was blocked on these flags it's unblocked and added
 /// to the runqueue.
 ///
-/// # Safety
+/// # Panics
+///
 /// Panics if no valid thread for `thread_id` exists.
 pub fn set(thread_id: ThreadId, mask: ThreadFlags) {
     THREADS.with_mut(|mut threads| threads.flag_set(thread_id, mask))
 }
 
-/// Wait until all flags in `mask` are set for the current thread.
+/// Waits until all flags in `mask` are set for the current thread.
 ///
-/// # Safety
+/// # Panics
+///
 /// Panics if this is called outside of a thread context.
 pub fn wait_all(mask: ThreadFlags) -> ThreadFlags {
     loop {
@@ -33,9 +36,10 @@ pub fn wait_all(mask: ThreadFlags) -> ThreadFlags {
     }
 }
 
-/// Wait until any flag in `mask` is set for the current thread.
+/// Waits until any flag in `mask` is set for the current thread.
 ///
-/// # Safety
+/// # Panics
+///
 /// Panics if this is called outside of a thread context.
 pub fn wait_any(mask: ThreadFlags) -> ThreadFlags {
     loop {
@@ -53,9 +57,10 @@ pub fn wait_one(mask: ThreadFlags) -> ThreadFlags {
     }
 }
 
-/// Clear flags for the current thread.
+/// Clears flags for the current thread.
 ///
-/// # Safety
+/// # Panics
+///
 /// Panics if this is called outside of a thread context.
 pub fn clear(mask: ThreadFlags) -> ThreadFlags {
     THREADS.with_mut(|mut threads| {
@@ -66,9 +71,10 @@ pub fn clear(mask: ThreadFlags) -> ThreadFlags {
     })
 }
 
-/// Get the flags set for the current thread.
+/// Returns the flags set for the current thread.
 ///
-/// # Safety
+/// # Panics
+///
 /// Panics if this is called outside of a thread context.
 pub fn get() -> ThreadFlags {
     // TODO: current() requires us to use mutable `threads` here

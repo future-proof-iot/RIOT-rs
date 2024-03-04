@@ -193,7 +193,7 @@ unsafe extern "C" fn PendSV() {
 /// Scheduler
 ///
 /// It selects the next thread that should run from the runqueue.
-/// This may equal be current thread, or a new one.
+/// This may be current thread, or a new one.
 ///
 /// Input:
 /// - old_sp (`r0``): the stack pointer of the currently running thread.
@@ -204,7 +204,7 @@ unsafe extern "C" fn PendSV() {
 ///   - `r0`: pointer to [`Thread::high_regs`] from old thread (to store old register state)
 ///   - `r1`: pointer to [`Thread::high_regs`] from new thread (to load new register state)
 ///   - `r2`: stack-pointer for new thread
-//
+///
 /// On Cortex-M, this is called in PendSV.
 // TODO: make arch independent, or move to arch
 #[no_mangle]

@@ -31,7 +31,7 @@ impl ThreadList {
     /// Sets the thread's [`ThreadState`] to [`ThreadState::Running`] and triggers
     /// the scheduler.
     ///
-    /// Returns the thread's [`ThreadId`] and it's previous [`ThreadState`].
+    /// Returns the thread's [`ThreadId`] and its previous [`ThreadState`].
     pub fn pop(&mut self, cs: CriticalSection) -> Option<(ThreadId, ThreadState)> {
         if let Some(head) = self.head {
             let old_state = THREADS.with_mut_cs(cs, |mut threads| {
@@ -46,7 +46,7 @@ impl ThreadList {
         }
     }
 
-    /// Determines if this [`ThreadList`] is empty
+    /// Determines if this [`ThreadList`] is empty.
     pub fn is_empty(&self, _cs: CriticalSection) -> bool {
         self.head.is_none()
     }
