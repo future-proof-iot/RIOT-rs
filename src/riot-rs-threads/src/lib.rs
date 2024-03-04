@@ -166,7 +166,12 @@ impl Threads {
 /// Supposed to be started early on by OS startup code.
 ///
 /// # Safety
+///
 /// This may only be called once.
+///
+/// # Panics
+///
+/// Panics if no thread exists.
 pub unsafe fn start_threading() {
     // faking a critical section to get THREADS
     let cs = CriticalSection::new();
