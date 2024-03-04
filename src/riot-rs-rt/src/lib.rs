@@ -15,8 +15,6 @@
 #![reexport_test_harness_main = "test_main"]
 pub mod testing;
 
-use core::panic::PanicInfo;
-
 pub mod debug;
 pub use debug::*;
 
@@ -47,8 +45,9 @@ const ISR_STACKSIZE: usize =
 #[used(linker)]
 static ISR_STACK: [u8; ISR_STACKSIZE] = [0u8; ISR_STACKSIZE];
 
+#[cfg(feature = "_panic-handler")]
 #[panic_handler]
-fn panic(_info: &PanicInfo) -> ! {
+fn panic(_info: &core::panic::PanicInfo) -> ! {
     #[cfg(not(feature = "silent-panic"))]
     {
         debug::println!("panic: {}\n", _info);
