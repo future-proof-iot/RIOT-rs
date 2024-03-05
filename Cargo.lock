@@ -2031,13 +2031,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "riot-rs-timers"
-version = "0.1.0"
-dependencies = [
- "riot-rs",
-]
-
-[[package]]
 name = "riot-rs-utils"
 version = "0.1.0"
 dependencies = [
