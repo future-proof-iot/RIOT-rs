@@ -12,7 +12,13 @@ use crate::{cleanup, THREADS};
 /// `func`.
 pub(crate) fn setup_stack(stack: &mut [u8], func: usize, arg: usize) -> usize {
     let stack_start = stack.as_ptr() as usize;
-    let stack_pos = ((stack_start + stack.len() - 36) & 0xFFFFFFFC) as *mut usize;
+
+    // 1. The stack starts at the highest address and grows downwards.
+    // 2. A full stored context also contains R4-R11 and the stack pointer,
+    //    thus an additional 36 bytes need to be reserved.
+    // 3. Cortex-M expects the SP to be 8 byte aligned, so we chop the lowest
+    //    7 bits by doing `& 0xFFFFFFF8`.
+    let stack_pos = ((stack_start + stack.len() - 36) & 0xFFFFFFF8) as *mut usize;
 
     unsafe {
         write_volatile(stack_pos.offset(0), arg); // -> R0
