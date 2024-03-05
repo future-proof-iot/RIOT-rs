@@ -11,35 +11,35 @@ jobs:
     if: github.repository == 'future-proof-iot/RIOT-rs'
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
-      with:
-        fetch-depth: 0
-    - name: Install mdbook
-      run: |
-        mkdir mdbook
-        curl -Lf https://github.com/rust-lang/mdBook/releases/download/v0.4.36/mdbook-v0.4.36-x86_64-unknown-linux-gnu.tar.gz | tar -xz --directory=./mdbook
-        echo `pwd`/mdbook >> $GITHUB_PATH
-    - name: Build docs
-      run: |
-        cd book
-        mdbook build
-    - name: Update gh-pages branch
-      # This has no reason to fail, only the commit step fails if there are no
-      # changes.
-      continue-on-error: true
-      run: |
-        cd book
-        git worktree add gh-pages gh-pages
-        git config user.name "Deploy from CI"
-        git config user.email ""
-        cd gh-pages
-        git rm -rf dev
-        mv ../book dev
-        git add dev
-        git commit -m "Deploy $GITHUB_SHA to gh-pages"
-    - name: Deploy changed book
-      # only deploy if there were changes
-      if: success()
-      run: |
-        cd book/gh-pages
-        git push --force
+      - uses: actions/checkout@v3
+        with:
+          fetch-depth: 0
+      - name: Install mdbook
+        run: |
+          mkdir mdbook
+          curl -Lf https://github.com/rust-lang/mdBook/releases/download/v0.4.36/mdbook-v0.4.36-x86_64-unknown-linux-gnu.tar.gz | tar -xz --directory=./mdbook
+          echo `pwd`/mdbook >> $GITHUB_PATH
+      - name: Build docs
+        run: |
+          cd book
+          mdbook build
+      - name: Update gh-pages branch
+        # This has no reason to fail, only the commit step fails if there are no
+        # changes.
+        continue-on-error: true
+        run: |
+          cd book
+          git worktree add gh-pages gh-pages
+          git config user.name "Deploy from CI"
+          git config user.email ""
+          cd gh-pages
+          git rm -rf dev
+          mv ../book dev
+          git add dev
+          git commit -m "Deploy $GITHUB_SHA to gh-pages"
+      - name: Deploy changed book
+        # only deploy if there were changes
+        if: success()
+        run: |
+          cd book/gh-pages
+          git push --force
