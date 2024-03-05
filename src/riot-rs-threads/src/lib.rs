@@ -194,6 +194,11 @@ pub fn thread_create<T: Arguable + Send>(
     unsafe { thread_create_raw(func as usize, arg, stack, prio) }
 }
 
+/// Low-level function to create a thread without argument
+pub fn thread_create_noarg(func: fn(), stack: &mut [u8], prio: u8) -> ThreadId {
+    unsafe { thread_create_raw(func as usize, 0, stack, prio) }
+}
+
 /// Create a thread, low-level
 ///
 /// # Safety
