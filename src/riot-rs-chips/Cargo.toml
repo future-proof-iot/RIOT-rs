@@ -5,6 +5,9 @@ authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lints]
+workspace = true
+
 [dependencies]
 stm32f4xx = { optional = true, path = "stm32f4xx" }
 

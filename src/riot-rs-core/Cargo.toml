@@ -6,6 +6,9 @@ edition = "2021"
 
 links = "riot-rs-core"
 
+[lints]
+workspace = true
+
 [dependencies]
 critical-section.workspace = true
 ref-cast = "1.0"
