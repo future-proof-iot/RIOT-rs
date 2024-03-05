@@ -76,3 +76,12 @@ nrf52840-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-r
 embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-140224" }
 embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-140224" }
 embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-140224" }
+
+[workspace.lints.rust]
+unsafe_op_in_unsafe_fn = "warn"
+unused_must_use = "deny"
+
+[workspace.lints.clippy]
+# Clippy lints are documented here: https://rust-lang.github.io/rust-clippy/master/index.html
+indexing_slicing = "warn"
+missing_safety_doc = { level = "warn", check-private-items = true }

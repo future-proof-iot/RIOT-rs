@@ -3,6 +3,9 @@ name = "riot-rs-embassy"
 version = "0.1.0"
 edition = "2021"
 
+[lints]
+workspace = true
+
 [dependencies]
 critical-section.workspace = true
 linkme.workspace = true

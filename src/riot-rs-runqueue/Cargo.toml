@@ -6,4 +6,7 @@ edition = "2018"
 description = "RIOT-rs runqueue implementation"
 license = "Apache-2.0 / MIT"
 
+[lints]
+workspace = true
+
 [dependencies]

@@ -7,6 +7,9 @@ description = "generic embedded scheduler & IPC"
 include = ["src/**/*", "LICENSE", "README.md"]
 repository.workspace = true
 
+[lints]
+workspace = true
+
 [dependencies]
 cfg-if.workspace = true
 critical-section.workspace = true
