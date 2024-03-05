@@ -58,17 +58,13 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
 
     let expanded = quote! {
         #no_mangle_attr
-        #[inline(always)]
         #thread_function
 
         #[#riot_rs_crate::linkme::distributed_slice(#riot_rs_crate::thread::THREAD_FNS)]
         #[linkme(crate = #riot_rs_crate::linkme)]
         fn #slice_fn_name_ident() {
-            fn trampoline(_arg: ()) {
-                #fn_name();
-            }
             let stack = #riot_rs_crate::static_cell::make_static!([0u8; #stack_size as usize]);
-            #riot_rs_crate::thread::thread_create(trampoline, (), stack, #priority);
+            #riot_rs_crate::thread::thread_create_noarg(#fn_name, stack, #priority);
         }
     };
 
