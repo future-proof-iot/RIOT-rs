@@ -3,10 +3,10 @@ name: CI
 on:
   push:
     branches:
-    - main
+      - main
   pull_request:
     branches:
-    - main
+      - main
   merge_group:
 
 jobs:
@@ -23,105 +23,105 @@ jobs:
         partition: [ "1/10", "2/10", "3/10", "4/10", "5/10", "6/10", "7/10", "8/10", "9/10", "10/10" ]
 
     steps:
-    - name: Check out repository code
-      uses: actions/checkout@v4
+      - name: Check out repository code
+        uses: actions/checkout@v4
 
-    - name: Get git tree hash
-      id: get-tree-hash
-      run: |
-          git rev-parse HEAD^{tree} > .tree-hash
-          echo "hash=$(cat .tree-hash)" >> $GITHUB_OUTPUT
+      - name: Get git tree hash
+        id: get-tree-hash
+        run: |
+            git rev-parse HEAD^{tree} > .tree-hash
+            echo "hash=$(cat .tree-hash)" >> $GITHUB_OUTPUT
 
-    - uses: actions/cache@v4
-      id: result-cache
-      with:
-        path: .tree-hash
-        key: success-${{ steps.get-tree-hash.outputs.hash }}-${{ matrix.partition }}
+      - uses: actions/cache@v4
+        id: result-cache
+        with:
+          path: .tree-hash
+          key: success-${{ steps.get-tree-hash.outputs.hash }}-${{ matrix.partition }}
 
-    - name: Run sccache-cache
-      if: steps.result-cache.outputs.cache-hit != 'true'
-      uses: mozilla-actions/sccache-action@v0.0.4
+      - name: Run sccache-cache
+        if: steps.result-cache.outputs.cache-hit != 'true'
+        uses: mozilla-actions/sccache-action@v0.0.4
 
-    - name: Install toolchain
-      if: steps.result-cache.outputs.cache-hit != 'true'
-      uses: dtolnay/rust-toolchain@nightly
-      with:
-        targets: thumbv6m-none-eabi,thumbv7m-none-eabi,thumbv7em-none-eabi
+      - name: Install toolchain
+        if: steps.result-cache.outputs.cache-hit != 'true'
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          targets: thumbv6m-none-eabi,thumbv7m-none-eabi,thumbv7em-none-eabi
 
-    - name: rust cache
-      if: steps.result-cache.outputs.cache-hit != 'true'
-      uses: Swatinem/rust-cache@v2
-      with:
-        key: "${{ matrix.partition }}"
+      - name: rust cache
+        if: steps.result-cache.outputs.cache-hit != 'true'
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: "${{ matrix.partition }}"
 
-    - uses: taiki-e/install-action@v2
-      if: steps.result-cache.outputs.cache-hit != 'true'
-      with:
-        tool: cargo-binstall
+      - uses: taiki-e/install-action@v2
+        if: steps.result-cache.outputs.cache-hit != 'true'
+        with:
+          tool: cargo-binstall
 
-    - name: "installing prerequisites"
-      if: steps.result-cache.outputs.cache-hit != 'true'
-      run: |
-        git config --global init.defaultBranch main
-        git config --global user.email "ci@riot-labs.de"
-        git config --global user.name "CI"
-        cargo binstall --no-confirm --no-symlinks --force --no-discover-github-token laze
-        echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-        sudo apt-get install ninja-build
+      - name: "installing prerequisites"
+        if: steps.result-cache.outputs.cache-hit != 'true'
+        run: |
+          git config --global init.defaultBranch main
+          git config --global user.email "ci@riot-labs.de"
+          git config --global user.name "CI"
+          cargo binstall --no-confirm --no-symlinks --force --no-discover-github-token laze
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          sudo apt-get install ninja-build
 
-    - name: "riot-rs compilation test"
-      if: steps.result-cache.outputs.cache-hit != 'true'
-      run: |
-        sccache --start-server || true # work around https://github.com/ninja-build/ninja/issues/2052
+      - name: "riot-rs compilation test"
+        if: steps.result-cache.outputs.cache-hit != 'true'
+        run: |
+          sccache --start-server || true # work around https://github.com/ninja-build/ninja/issues/2052
 
-        laze build --partition hash:${{ matrix.partition }} --builders microbit-v2,nrf52840dk,rpi-pico,rpi-pico-w -g
+          laze build --partition hash:${{ matrix.partition }} --builders microbit-v2,nrf52840dk,rpi-pico,rpi-pico-w -g
 
   lint:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Check out repository code
-      uses: actions/checkout@v4
+      - name: Check out repository code
+        uses: actions/checkout@v4
 
-    - name: Install toolchain
-      uses: dtolnay/rust-toolchain@nightly
-      with:
-        components: clippy, rustfmt
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@nightly
+        with:
+          components: clippy, rustfmt
 
-    - name: rust cache
-      uses: Swatinem/rust-cache@v2
+      - name: rust cache
+        uses: Swatinem/rust-cache@v2
 
-    # TODO: we'll eventually want to check the whole workspace with --workspace
-    # TODO: we'll eventually want to check relevant feature combinations
-    # TODO: we may want to use --no-deps as well
-    - name: clippy
-      uses: clechasseur/rs-clippy-check@v3
-      with:
-        args: --verbose --locked -p riot-rs-embassy
+      # TODO: we'll eventually want to check the whole workspace with --workspace
+      # TODO: we'll eventually want to check relevant feature combinations
+      # TODO: we may want to use --no-deps as well
+      - name: clippy
+        uses: clechasseur/rs-clippy-check@v3
+        with:
+          args: --verbose --locked -p riot-rs-embassy
 
-    # TODO: we'll eventually want to enable relevant features
-    - name: "rustdoc"
-      run: cargo rustdoc -p riot-rs --features no-boards -- -D warnings
+      # TODO: we'll eventually want to enable relevant features
+      - name: "rustdoc"
+        run: cargo rustdoc -p riot-rs --features no-boards -- -D warnings
 
-    - name: rustfmt
-      run: cargo fmt --check --all
+      - name: rustfmt
+        run: cargo fmt --check --all
 
-    - name: Install rust-sort
-      run: cargo install --git=https://github.com/DevinR528/cargo-sort --rev 55ec89082466f6bb246d870a8d56d166a8e1f08b cargo-sort
+      - name: Install rust-sort
+        run: cargo install --git=https://github.com/DevinR528/cargo-sort --rev 55ec89082466f6bb246d870a8d56d166a8e1f08b cargo-sort
 
-    - name: Check formatting and item order of Cargo.toml files
-      run: cargo sort --check --check-format --grouped --workspace
+      - name: Check formatting and item order of Cargo.toml files
+        run: cargo sort --check --check-format --grouped --workspace
 
   CI-success:
-      if: ${{ always() }}
-      runs-on: ubuntu-latest
-      name: Final Results
-      needs: [build]
-      steps:
-        - run: |
-            result="${{ needs.build.result }}"
-            if [[ $result == "success" || $result == "skipped" ]]; then
-              exit 0
-            else
-              exit 1
-            fi
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Final Results
+    needs: [build]
+    steps:
+      - run: |
+          result="${{ needs.build.result }}"
+          if [[ $result == "success" || $result == "skipped" ]]; then
+            exit 0
+          else
+            exit 1
+          fi
