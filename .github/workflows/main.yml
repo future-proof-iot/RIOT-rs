@@ -76,6 +76,21 @@ jobs:
 
           laze build --partition hash:${{ matrix.partition }} --builders microbit-v2,nrf52840dk,rpi-pico,rpi-pico-w -g
 
+  cargo-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Install toolchain
+        uses: dtolnay/rust-toolchain@nightly
+
+      # TODO: we'll eventually want to test the whole workspace with --workspace
+      # TODO: we'll eventually want to enable relevant features
+      - name: Run crate tests
+        run: cargo test --no-default-features --features no-boards -p riot-rs -p riot-rs-embassy -p riot-rs-threads -p riot-rs-macros
+
   lint:
     runs-on: ubuntu-latest
 
