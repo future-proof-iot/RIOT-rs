@@ -5,38 +5,46 @@
 
 > Rust & RIOT combined for ergonomic embedded development
 
-This is an experimental project to provide a nice base OS for embedded
-development on low-end IoT devices (with some kilobytes of RAM/flash, think
-Cortex-M). It combines the awesome Rust embedded ecosystem with
-[RIOT](https://github.com/RIOT-OS/RIOT).
+RIOT-rs is a project aiming to provide an adequate 
+operating system for cybersecure, memory-safe, low-power IoT,
+based on Rust from the ground up, and formal verification for critical modules. 
+For a more verbose rant, see this
+[manifesto](https://future-proof-iot.github.io/RIOT-rs/dev/manifesto.html).
 
-**This is highly experimental. Expect heavy changes and breakage!**
+Overall, RIOT-rs aims for a 'batteries-included' experience, on par
+with [RIOT](https://github.com/RIOT-OS/RIOT): 
+all the needed OS facilities and a high level of integration for 
+the various libs, tools and toolchains required by low-power IoT application
+development. Targets include various hardware based on 
+32-bit microcontroller architectures (such as Cortex-M, RISC-V).
+In particular, RIOT-rs aims for:
 
-If you're looking for a more production ready way of writing RIOT applications
-in Rust, check out [riot-wrappers](https://gitlab.com/etonomy/riot-wrappers).
+- **code portability** across all supported hardware, via consistent memory/energy efficient APIs;
+- programming based either/both on **async & preemptive scheduling** paradigms, the latter using formally verified modules using [hax](https://hacspec.org/blog/posts/hax-v0-1/);
+- **booting & update security**, via measured boot (tending towards [DICE](https://trustedcomputinggroup.org/work-groups/dice-architectures/) compliance) and secure software updates (tending towards [SUIT](https://datatracker.ietf.org/wg/suit/about/) compliance), using formally verified modules using [hax](https://hacspec.org/blog/posts/hax-v0-1/).
 
-## Goals
 
-- improve RIOT using the merits of Rust.
-- provide a "rusty" development workflow (e.g., using cargo / crates.io)
-- provide a nice Rust API, framework and collection of crates suitable for
-  embedded development
-- rewrite parts of RIOT in Rust to improve robustness and maintainability
+![Architecture](./doc/RIOT-rs-arch-diagram1.svg)
+
 
 ## Supported hardware
 
 The following list of hardware is currently supported
  - [Nordic nRF52840 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF52840-DK)
  - [Raspberry Pi Pico](https://www.raspberrypi.com/products/raspberry-pi-pico/)
+ - more to come soon.
 
 ## Status
 
-The current iteration of RIOT-rs combines [embassy](https://embassy.dev/) with
-a preemptive scheduler and adds some integration and build system work.
+**This is currently work-in-progress. Expect missing functionalities and frequent changes!** 
+If you are not so adventurous, but nevertheless looking for a way 
+to run your Rust module on a microcontroller, you could try to 
+glue it directly on top of the [embassy HAL](https://github.com/embassy-rs/embassy), 
+or instead, run your module in a [riot-wrappers](https://gitlab.com/etonomy/riot-wrappers).
 
 ## Quickstart
 
-Assuming you have a Nordic nrf52840dk connected, the following guidelines
+Assuming you have a Nordic nrf52840dk connected to your PC, the following guidelines
 provides instructions for flashing and running the [`hello-world`
 example](https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/hello-world):
 
