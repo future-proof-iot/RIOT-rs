@@ -4,7 +4,7 @@ use core::cell::UnsafeCell;
 use super::threadlist::ThreadList;
 use super::ThreadState;
 
-/// A basic locking object
+/// A basic locking object.
 ///
 /// A `Lock` behaves like a Mutex, but carries no data.
 /// This is supposed to be used to implement other locking primitives.
@@ -93,7 +93,7 @@ impl Lock {
         critical_section::with(|cs| {
             let state = unsafe { &mut *self.state.get() };
             match state {
-                LockState::Unlocked => {} // TODO: panic?
+                LockState::Unlocked => {}
                 LockState::Locked(waiters) => {
                     if waiters.pop(cs).is_none() {
                         *state = LockState::Unlocked
