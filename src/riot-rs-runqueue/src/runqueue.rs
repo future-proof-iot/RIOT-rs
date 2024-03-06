@@ -4,23 +4,26 @@ use self::clist::CList;
 
 const USIZE_BITS: usize = mem::size_of::<usize>() * 8;
 
+/// Runqueue number.
 pub type RunqueueId = u8;
 pub type ThreadId = u8;
 
-/// Runqueue for N_QUEUES, supporting N_THREADS total.
+/// Runqueue for `N_QUEUES`, supporting `N_THREADS` total.
 ///
-/// assumptions:
-/// - higher runqueue number means higher priority
+/// Assumptions:
 /// - runqueue numbers (corresponding priorities) are 0..N_QUEUES (exclusive)
+/// - higher runqueue number ([`RunqueueId`]) means higher priority
 /// - runqueue numbers fit in usize bits (supporting max 32 priority levels)
-/// - pids range from 0..N_THREADS
-/// - N_THREADS is <255 (as u8 is used to store them, but 0xFF is used as
+/// - [`ThreadId`]s range from 0..N_THREADS
+/// - `N_THREADS` is <255 (as u8 is used to store them, but 0xFF is used as
 ///   special value)
 ///
-///   The current implementation needs an usize for the bit cache,
-///   an [u8; N_QUEUES] array for the list tail indexes
-///   and an [u8; N_THREADS] for the list next indexes.
+/// The current implementation needs an usize for the bit cache,
+/// an `[u8; N_QUEUES]` array for the list tail indexes
+/// and an `[u8; N_THREADS]` for the list next indexes.
 pub struct RunQueue<const N_QUEUES: usize, const N_THREADS: usize> {
+    /// Bitcache that represents the currently used queues
+    /// in `0..N_QUEUES`.
     bitcache: usize,
     queues: clist::CList<N_QUEUES, N_THREADS>,
 }
@@ -35,7 +38,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         }
     }
 
-    /// add thread with pid n to runqueue number rq
+    /// Adds thread with pid `n` to runqueue number `rq`.
     pub fn add(&mut self, n: ThreadId, rq: RunqueueId) {
         debug_assert!((n as usize) < N_THREADS);
         debug_assert!((rq as usize) < N_QUEUES);
@@ -43,9 +46,12 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         self.queues.push(n, rq);
     }
 
-    /// remove thread with pid n from runqueue number rq
-    /// @note: this implementation fails if "n" is not the queue's head.
-    /// This is fine, RIOT-rs only ever calls del() for the current thread.
+    /// Removes thread with pid `n` from runqueue number `rq`.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `n` is not the queue's head.
+    /// This is fine, RIOT-rs only ever calls `del()` for the current thread.
     pub fn del(&mut self, n: ThreadId, rq: RunqueueId) {
         debug_assert!((n as usize) < N_THREADS);
         debug_assert!((rq as usize) < N_QUEUES);
@@ -61,9 +67,12 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         USIZE_BITS as u32 - val.leading_zeros()
     }
 
-    /// get pid that should run next
-    /// returns the next runnable thread of
-    /// the runqueue with the highest index
+    /// Returns the pid that should run next.
+    ///
+    /// Returns the next runnable thread of
+    /// the runqueue with the highest index.
+    //
+    // TODO: Return `ThreadId` instead of u8?
     pub fn get_next(&self) -> Option<u8> {
         let rq_ffs = Self::ffs(self.bitcache);
         if rq_ffs > 0 {
@@ -74,8 +83,9 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         }
     }
 
-    /// advance runqueue number rq
-    /// (this is used to "yield" to another thread of *the same* priority)
+    /// Advances runqueue number `rq`.
+    ///
+    /// This is used to "yield" to another thread of *the same* priority.
     pub fn advance(&mut self, rq: RunqueueId) {
         debug_assert!((rq as usize) < N_QUEUES);
         self.queues.advance(rq)
@@ -83,10 +93,10 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
 }
 
 mod clist {
-    // this module implements an array of N_QUEUES circular linked lists over an
-    // array of size N_THREADS.
-    // the array is used for "next" pointers, so each integer value in the array
-    // corresponds to one element, which can only be in one of the lists.
+    //! This module implements an array of `N_QUEUES` circular linked lists over an
+    //! array of size `N_THREADS`.
+    //! The array is used for "next" pointers, so each integer value in the array
+    //! corresponds to one element, which can only be in one of the lists.
     use super::{RunqueueId, ThreadId};
 
     #[derive(Debug, Copy, Clone)]
