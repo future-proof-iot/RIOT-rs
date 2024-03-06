@@ -41,8 +41,6 @@ fn thread1() {
 }
 ```
 
-(*TODO*)
-
 # Developer Guide
 
 ## riot-rs-threads
@@ -99,9 +97,20 @@ If a context switch is required, the following steps occur:
    - updates the stack pointer
 3. return from exception
 
-### Thread Creation
+### Creating Threads
 
-(*TODO*)
+Threads are created using `riot_rs_thread::thread_create`.
+Apart from a pointer to the thread function, the first argument and the priority, it requires a pointer to the thread's stack as input.
+The stack can be allocated using the [`static_cell`](https://docs.rs/static_cell/latest/static_cell/) crate, which allows to reserve memory at compile time that can then be initialized at runtime.
+
+`thread_create` sets up the thread's stack and adds it to the runqueue.
+Setting up the stack is arch specific and realized in the exact configuration as the CPU's interrupt-service routine does it when a running thread is interrupted by a context switch, so they can be restored after the ISR returns.
+Apart from setting up the first argument and PC for the thread function, it also sets up the link-register with a cleanup function that will run once the user's function returned.
+
+The user-side logic has to be implemented in a separate function and added to the `riot_rs_thread::THREAD_FNS` distributed slice.
+A [`linkme::distributed_slice`](https://docs.rs/linkme/latest/linkme/struct.DistributedSlice.html) allows to declare a static slice of elements that is then linked into a contiguous section of the binary.
+In `riot_rs`, distributed slices are used to inject initialization functions from the outside into the start-up code.
+For convenience, the `riot_rs_macros::thread` macro is implements the above boilerplate code and can be used directly on the function that should run inside the thread.
 
 - [Appendices](./appendices.md)
   - [Coding Conventions](./coding-conventions.md)
