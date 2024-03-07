@@ -211,7 +211,7 @@ pub fn benchmark<F: Fn() -> ()>(iterations: usize, f: F) -> core::result::Result
     use cortex_m::peripheral::syst::SystClkSource;
     use cortex_m::Peripherals;
 
-    let mut p = Peripherals::take().unwrap();
+    let mut p = unsafe { Peripherals::steal() };
     //
     p.SCB.clear_sleepdeep();
 
@@ -234,6 +234,6 @@ pub fn benchmark<F: Fn() -> ()>(iterations: usize, f: F) -> core::result::Result
     if p.SYST.has_wrapped() {
         Err(())
     } else {
-        Ok((total * 10) as usize / iterations)
+        Ok((total) as usize / iterations)
     }
 }
