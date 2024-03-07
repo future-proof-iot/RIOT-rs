@@ -10,3 +10,6 @@ define_peripherals!(Buttons {
     btn3: P0_24,
     btn4: P0_25,
 });
+
+#[cfg(context = "nrf52840")]
+define_peripherals!(Temp { temp: TEMP });
