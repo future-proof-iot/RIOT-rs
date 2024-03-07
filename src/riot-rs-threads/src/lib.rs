@@ -22,6 +22,7 @@ pub use thread::{Thread, ThreadState};
 pub use thread_flags as flags;
 pub use threadlist::ThreadList;
 
+use arch::{Arch, Cpu, ThreadData};
 use ensure_once::EnsureOnce;
 
 /// a global defining the number of possible priority levels
@@ -90,7 +91,7 @@ impl Threads {
         prio: u8,
     ) -> Option<&mut Thread> {
         if let Some((thread, pid)) = self.get_unused() {
-            thread.sp = arch::setup_stack(stack, func, arg);
+            thread.sp = Cpu::setup_stack(stack, func, arg);
             thread.prio = prio;
             thread.pid = pid;
             thread.state = ThreadState::Paused;
@@ -180,7 +181,7 @@ pub unsafe fn start_threading() {
         threads.current_thread = Some(next_pid);
         threads.threads[next_pid as usize].sp
     });
-    arch::start_threading(next_sp);
+    Cpu::start_threading(next_sp);
 }
 
 /// Trait for types that fit into a single register.
@@ -272,7 +273,7 @@ fn cleanup() -> ! {
         threads.set_state(thread_id, ThreadState::Invalid);
     });
 
-    arch::schedule();
+    schedule();
 
     unreachable!();
 }
@@ -282,7 +283,7 @@ pub fn yield_same() {
     THREADS.with_mut(|mut threads| {
         let runqueue = threads.current().unwrap().prio;
         threads.runqueue.advance(runqueue);
-        arch::schedule();
+        schedule();
     })
 }
 
@@ -291,7 +292,7 @@ pub fn sleep() {
     THREADS.with_mut(|mut threads| {
         let pid = threads.current_pid().unwrap();
         threads.set_state(pid, ThreadState::Paused);
-        arch::schedule();
+        schedule();
     });
 }
 
@@ -303,7 +304,7 @@ pub fn wakeup(thread_id: ThreadId) -> bool {
         if let Some(state) = threads.get_state(thread_id) {
             if state == ThreadState::Paused {
                 threads.set_state(thread_id, ThreadState::Running);
-                arch::schedule();
+                schedule();
                 true
             } else {
                 false

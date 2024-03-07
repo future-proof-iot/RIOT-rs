@@ -1,3 +1,4 @@
+use super::Arch;
 use core::arch::asm;
 use core::ptr::write_volatile;
 use cortex_m::peripheral::SCB;
@@ -5,74 +6,71 @@ use critical_section::CriticalSection;
 
 use crate::{cleanup, THREADS};
 
-/// Sets up the stack for newly created threads and returns the sp.
-///
-/// After running this, the stack should look as if the thread was
-/// interrupted by an ISR.
-/// The exact order in which Cortex-M pushes the registers to the stack when
-/// entering the ISR is:
-///
-/// +---------+ <- sp
-/// |   r0    |
-/// |   r1    |
-/// |   r2    |
-/// |   r3    |
-/// |   r12   |
-/// |   LR    |
-/// |   PC    |
-/// |   PSR   |
-/// +---------+
-///
-/// This function sets up the stack so when the context is switched to this thread,
-/// it starts executing `func` with argument `arg`.
-/// Furthermore, it sets up the link-register with the [`crate::cleanup`] function that
-/// will be executed after the thread function returned.
-pub(crate) fn setup_stack(stack: &mut [u8], func: usize, arg: usize) -> usize {
-    let stack_start = stack.as_ptr() as usize;
+pub struct Cpu;
 
-    // 1. The stack starts at the highest address and grows downwards.
-    // 2. A full stored context also contains R4-R11 and the stack pointer,
-    //    thus an additional 36 bytes need to be reserved.
-    // 3. Cortex-M expects the SP to be 8 byte aligned, so we chop the lowest
-    //    7 bits by doing `& 0xFFFFFFF8`.
-    let stack_pos = ((stack_start + stack.len() - 36) & 0xFFFFFFF8) as *mut usize;
+impl Arch for Cpu {
+    /// Callee-save registers.
+    type ThreadData = [usize; 8];
 
-    unsafe {
-        write_volatile(stack_pos.offset(0), arg); // -> R0
-        write_volatile(stack_pos.offset(1), 1); // -> R1
-        write_volatile(stack_pos.offset(2), 2); // -> R2
-        write_volatile(stack_pos.offset(3), 3); // -> R3
-        write_volatile(stack_pos.offset(4), 12); // -> R12
-        write_volatile(stack_pos.offset(5), cleanup as usize); // -> LR
-        write_volatile(stack_pos.offset(6), func); // -> PC
-        write_volatile(stack_pos.offset(7), 0x01000000); // -> APSR
+    const DEFAULT_THREAD_DATA: Self::ThreadData = [0; 8];
+
+    /// The exact order in which Cortex-M pushes the registers to the stack when
+    /// entering the ISR is:
+    ///
+    /// +---------+ <- sp
+    /// |   r0    |
+    /// |   r1    |
+    /// |   r2    |
+    /// |   r3    |
+    /// |   r12   |
+    /// |   LR    |
+    /// |   PC    |
+    /// |   PSR   |
+    /// +---------+
+    fn setup_stack(stack: &mut [u8], func: usize, arg: usize) -> usize {
+        let stack_start = stack.as_ptr() as usize;
+
+        // 1. The stack starts at the highest address and grows downwards.
+        // 2. A full stored context also contains R4-R11 and the stack pointer,
+        //    thus an additional 36 bytes need to be reserved.
+        // 3. Cortex-M expects the SP to be 8 byte aligned, so we chop the lowest
+        //    7 bits by doing `& 0xFFFFFFF8`.
+        let stack_pos = ((stack_start + stack.len() - 36) & 0xFFFFFFF8) as *mut usize;
+
+        unsafe {
+            write_volatile(stack_pos.offset(0), arg); // -> R0
+            write_volatile(stack_pos.offset(1), 1); // -> R1
+            write_volatile(stack_pos.offset(2), 2); // -> R2
+            write_volatile(stack_pos.offset(3), 3); // -> R3
+            write_volatile(stack_pos.offset(4), 12); // -> R12
+            write_volatile(stack_pos.offset(5), cleanup as usize); // -> LR
+            write_volatile(stack_pos.offset(6), func); // -> PC
+            write_volatile(stack_pos.offset(7), 0x01000000); // -> APSR
+        }
+
+        stack_pos as usize
     }
 
-    stack_pos as usize
-}
+    /// Triggers a PendSV exception.
+    #[inline(always)]
+    fn schedule() {
+        SCB::set_pendsv();
+        cortex_m::asm::isb();
+    }
 
-/// Triggers a PendSV exception to initiate a context switch.
-///
-/// If this is called from within a critical section the exception
-/// happens after the critical section was left.
-#[inline(always)]
-pub fn schedule() {
-    SCB::set_pendsv();
-    cortex_m::asm::isb();
-}
-
-#[inline(always)]
-pub(crate) fn start_threading(next_sp: usize) {
-    cortex_m::interrupt::disable();
-    schedule();
-    unsafe {
-        asm!(
-            "
-            msr psp, r1 // set new thread's SP to PSP
-            cpsie i     // enable interrupts, otherwise svc hard faults
-            svc 0       // SVC 0 handles switching
-            ",
-        in("r1")next_sp);
+    #[inline(always)]
+    fn start_threading(next_sp: usize) {
+        cortex_m::interrupt::disable();
+        Self::schedule();
+        unsafe {
+            asm!(
+                "
+                msr psp, r1 // set new thread's SP to PSP
+                cpsie i     // enable interrupts, otherwise svc hard faults
+                svc 0       // SVC 0 handles switching
+                ",
+            in("r1")next_sp);
+        }
     }
 }
 
@@ -215,7 +213,7 @@ unsafe extern "C" fn PendSV() {
 ///   - `r2`: pointer to [`Thread::high_regs`] from new thread (to load new register state)
 ///   - `r0`: stack-pointer for new thread
 ///
-/// On Cortex-M, this is called in PendSV.
+/// This function is called in PendSV.
 // TODO: make arch independent, or move to arch
 #[no_mangle]
 unsafe fn sched(old_sp: usize) -> usize {
@@ -247,14 +245,14 @@ unsafe fn sched(old_sp: usize) -> usize {
         //println!("current: {} next: {}", current_pid, next_pid);
         threads.threads[current_pid as usize].sp = old_sp;
         threads.current_thread = Some(next_pid);
-        current_high_regs = threads.threads[current_pid as usize].high_regs.as_ptr();
+        current_high_regs = threads.threads[current_pid as usize].data.as_ptr();
     } else {
         current_high_regs = core::ptr::null();
     }
 
     let next = &threads.threads[next_pid as usize];
     let next_sp = next.sp;
-    let next_high_regs = next.high_regs.as_ptr();
+    let next_high_regs = next.data.as_ptr();
 
     //println!("old_sp: {:x} next.sp: {:x}", old_sp, next_sp);
 

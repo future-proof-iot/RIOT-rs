@@ -1,6 +1,6 @@
 use critical_section::CriticalSection;
 
-use crate::{arch, ThreadId, ThreadState, THREADS};
+use crate::{ThreadId, ThreadState, THREADS};
 
 /// Manages blocked [`super::Thread`]s for a resource, and triggering the scheduler when needed.
 #[derive(Debug)]
@@ -22,7 +22,7 @@ impl ThreadList {
             threads.thread_blocklist[thread_id as usize] = self.head;
             self.head = Some(thread_id);
             threads.set_state(thread_id, state);
-            arch::schedule();
+            crate::schedule();
         });
     }
 
@@ -37,7 +37,7 @@ impl ThreadList {
             let old_state = THREADS.with_mut_cs(cs, |mut threads| {
                 self.head = threads.thread_blocklist[head as usize].take();
                 let old_state = threads.set_state(head, ThreadState::Running);
-                arch::schedule();
+                crate::schedule();
                 old_state
             });
             Some((head, old_state))

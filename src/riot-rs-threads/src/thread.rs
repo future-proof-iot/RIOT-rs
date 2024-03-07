@@ -1,4 +1,4 @@
-pub use crate::{thread_flags::ThreadFlags, RunqueueId, ThreadId};
+use crate::{thread_flags::ThreadFlags, Arch, Cpu, RunqueueId, ThreadData, ThreadId};
 
 /// Main struct for holding thread data.
 #[derive(Debug)]
@@ -15,8 +15,8 @@ pub struct Thread {
     pub pid: ThreadId,
     /// Flags set for the thread.
     pub flags: ThreadFlags,
-    /// Saved non-volatile registers.
-    pub(crate) high_regs: [usize; 8],
+    /// Arch-specific thread data.
+    pub(crate) data: ThreadData,
 }
 
 /// Possible states of a thread
@@ -48,7 +48,7 @@ impl Thread {
         Thread {
             sp: 0,
             state: ThreadState::Invalid,
-            high_regs: [0; 8],
+            data: Cpu::DEFAULT_THREAD_DATA,
             flags: 0,
             prio: 0,
             pid: 0,

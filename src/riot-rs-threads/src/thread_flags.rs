@@ -106,7 +106,7 @@ impl Threads {
             _ => false,
         } {
             self.set_state(thread_id, ThreadState::Running);
-            super::schedule();
+            crate::schedule();
         }
     }
 
@@ -118,7 +118,7 @@ impl Threads {
         } else {
             let thread_id = thread.pid;
             self.set_state(thread_id, ThreadState::FlagBlocked(WaitMode::All(mask)));
-            super::schedule();
+            crate::schedule();
             None
         }
     }
@@ -132,7 +132,7 @@ impl Threads {
         } else {
             let thread_id = thread.pid;
             self.set_state(thread_id, ThreadState::FlagBlocked(WaitMode::Any(mask)));
-            super::schedule();
+            crate::schedule();
             None
         }
     }
@@ -148,7 +148,7 @@ impl Threads {
         } else {
             let thread_id = thread.pid;
             self.set_state(thread_id, ThreadState::FlagBlocked(WaitMode::Any(mask)));
-            super::schedule();
+            crate::schedule();
             None
         }
     }
