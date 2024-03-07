@@ -135,9 +135,9 @@ unsafe extern "C" fn PendSV() {
              * so let's use '99' forward ('99f')
              */
             beq 99f
-            stmia r0, {{r4-r11}}
-            ldmia r1, {{r4-r11}}
-            msr.n psp, r2
+            stmia r1, {{r4-r11}}
+            ldmia r2, {{r4-r11}}
+            msr.n psp, r0
             99:
             movw LR, #0xFFFd
             movt LR, #0xFFFF
@@ -162,31 +162,31 @@ unsafe extern "C" fn PendSV() {
             cmp r0, #0
             beq 99f
 
-            //stmia r0!, {{r4-r7}}
-            str r4, [r0, #16]
-            str r5, [r0, #20]
-            str r6, [r0, #24]
-            str r7, [r0, #28]
+            //stmia r1!, {{r4-r7}}
+            str r4, [r1, #16]
+            str r5, [r1, #20]
+            str r6, [r1, #24]
+            str r7, [r1, #28]
 
             mov  r4, r8
             mov  r5, r9
             mov  r6, r10
             mov  r7, r11
 
-            str r4, [r0, #0]
-            str r5, [r0, #4]
-            str r6, [r0, #8]
-            str r7, [r0, #12]
+            str r4, [r1, #0]
+            str r5, [r1, #4]
+            str r6, [r1, #8]
+            str r7, [r1, #12]
 
             //
-            ldmia r1!, {{r4-r7}}
+            ldmia r2!, {{r4-r7}}
             mov r11, r7
             mov r10, r6
             mov r9,  r5
             mov r8,  r4
-            ldmia r1!, {{r4-r7}}
+            ldmia r2!, {{r4-r7}}
 
-            msr.n psp, r2
+            msr.n psp, r0
             99:
             ldr r0, 999f
             mov LR, r0
@@ -206,19 +206,19 @@ unsafe extern "C" fn PendSV() {
 /// This may be current thread, or a new one.
 ///
 /// Input:
-/// - old_sp (`r0``): the stack pointer of the currently running thread.
+/// - old_sp (`r0`): the stack pointer of the currently running thread.
 ///
 /// Returns:
 /// - `0` in `r0` if the next thread in the runqueue is the currently running thread
 /// - Else it writes into the following registers:
-///   - `r0`: pointer to [`Thread::high_regs`] from old thread (to store old register state)
-///   - `r1`: pointer to [`Thread::high_regs`] from new thread (to load new register state)
-///   - `r2`: stack-pointer for new thread
+///   - `r1`: pointer to [`Thread::high_regs`] from old thread (to store old register state)
+///   - `r2`: pointer to [`Thread::high_regs`] from new thread (to load new register state)
+///   - `r0`: stack-pointer for new thread
 ///
 /// On Cortex-M, this is called in PendSV.
 // TODO: make arch independent, or move to arch
 #[no_mangle]
-unsafe fn sched(old_sp: usize) {
+unsafe fn sched(old_sp: usize) -> usize {
     let cs = CriticalSection::new();
     let next_pid;
 
@@ -242,8 +242,7 @@ unsafe fn sched(old_sp: usize) {
 
     if let Some(current_pid) = threads.current_pid() {
         if next_pid == current_pid {
-            asm!("", in("r0") 0);
-            return;
+            return 0;
         }
         //println!("current: {} next: {}", current_pid, next_pid);
         threads.threads[current_pid as usize].sp = old_sp;
@@ -260,10 +259,12 @@ unsafe fn sched(old_sp: usize) {
     //println!("old_sp: {:x} next.sp: {:x}", old_sp, next_sp);
 
     // PendSV expects these three pointers in r0, r1 and r2:
-    // r0= &current.high_regs
-    // r1= &next.high_regs
-    // r2= &next.sp
+    // r1= &current.high_regs
+    // r2= &next.high_regs
+    // r0 = &next.sp (implicitly done here via return value)
     //
     // write to registers manually, as ABI would return the values via stack
-    asm!("", in("r0") current_high_regs, in("r1") next_high_regs, in("r2")next_sp);
+    asm!("", in("r1") current_high_regs, in("r2") next_high_regs);
+
+    next_sp
 }
