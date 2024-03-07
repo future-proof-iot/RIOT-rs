@@ -106,7 +106,7 @@ mod tests {
     #[test]
     fn basic() {
         let mut array: [MaybeUninit<char>; 16] = unsafe { MaybeUninit::uninit().assume_init() };
-        let mut rb = RingBuffer::new(Some(&mut array));
+        let mut rb = RingBuffer::new_with(&mut array);
         assert!(rb.put('0'));
         assert_eq!(rb.peek(), Some('0'));
         assert_eq!(rb.get(), Some('0'));
