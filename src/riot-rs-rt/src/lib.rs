@@ -53,6 +53,7 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
         debug::println!("panic: {}\n", _info);
         debug::exit(debug::EXIT_FAILURE);
     }
+    #[allow(clippy::empty_loop)]
     loop {}
 }
 
@@ -86,6 +87,7 @@ fn startup() -> ! {
     {
         #[cfg(test)]
         test_main();
+        #[allow(clippy::empty_loop)]
         loop {}
     }
 }
