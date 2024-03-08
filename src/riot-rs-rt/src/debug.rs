@@ -36,6 +36,7 @@ mod backend {
     pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
     pub const EXIT_FAILURE: Result<(), ()> = Err(());
     pub fn exit(_code: Result<(), ()>) {
+        #[allow(clippy::empty_loop)]
         loop {}
     }
     pub fn init() {}

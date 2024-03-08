@@ -13,5 +13,6 @@ pub unsafe fn start() -> ! {
         start_threading();
     }
 
+    #[allow(clippy::empty_loop)]
     loop {}
 }

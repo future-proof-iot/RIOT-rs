@@ -177,6 +177,7 @@ unsafe fn DefaultHandler(_irqn: i16) {
         debug::println!("IRQn = {}", _irqn);
         debug::exit(debug::EXIT_FAILURE);
     }
+    #[allow(clippy::empty_loop)]
     loop {}
 }
 
