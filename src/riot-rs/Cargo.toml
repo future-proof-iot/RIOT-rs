@@ -18,6 +18,17 @@ riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 static_cell = { workspace = true }
 
+[target.'cfg(context = "cortex-m")'.dependencies]
+riot-rs-embassy = { path = "../riot-rs-embassy", features = [
+  "executor-interrupt",
+] }
+
+[target.'cfg(context = "esp")'.dependencies]
+riot-rs-embassy = { path = "../riot-rs-embassy", features = [
+  "executor-single-thread",
+] }
+riot-rs-rt = { path = "../riot-rs-rt", features = ["executor-single-thread"] }
+
 [features]
 default = ["riot-rs-rt/_panic-handler"]
 

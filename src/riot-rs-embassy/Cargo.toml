@@ -12,6 +12,7 @@ linkme.workspace = true
 static_cell.workspace = true
 
 embassy-executor = { workspace = true, features = ["nightly"] }
+
 embassy-net = { workspace = true, optional = true, features = [
   "dhcpv4",
   "medium-ethernet",
@@ -37,18 +38,10 @@ cyw43 = { version = "0.1.0", features = ["firmware-logs"], optional = true }
 cyw43-pio = { version = "0.1.0", features = ["overclock"], optional = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
-embassy-executor = { workspace = true, features = [
-  "arch-cortex-m",
-  "executor-interrupt",
-] }
+embassy-executor = { workspace = true, features = ["arch-cortex-m", "executor-interrupt"] }
 
 [target.'cfg(context = "nrf52")'.dependencies]
-embassy-nrf = { workspace = true, features = [
-  "time-driver-rtc1",
-  "time",
-  "unstable-pac",
-  "rt",
-] }
+embassy-nrf = { workspace = true, features = ["time-driver-rtc1", "time", "unstable-pac", "rt"] }
 
 [target.'cfg(context = "nrf52832")'.dependencies]
 embassy-nrf = { workspace = true, features = ["nrf52832"] }
@@ -67,7 +60,7 @@ embassy-rp = { workspace = true, features = [
 [target.'cfg(context = "esp")'.dependencies]
 esp-hal = { workspace = true, features = [
   "embassy",
-  "embassy-executor-interrupt",
+  "embassy-executor-thread",
 ] }
 esp-wifi = { workspace = true, features = [
   "async",
@@ -82,7 +75,7 @@ esp-hal = { workspace = true, features = [
   "vectored",
   "embassy-time-timg0",
 ] }
-esp-wifi = { workspace = true, features = ["esp32c3"], optional = true }
+esp-wifi = { workspace = true, features = [ "esp32c3" ], optional = true }
 
 [features]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
@@ -101,3 +94,6 @@ wifi-cyw43 = [
 threading = ["dep:riot-rs-core"]
 override-network-config = []
 override-usb-config = []
+
+executor-single-thread = []
+executor-interrupt = []

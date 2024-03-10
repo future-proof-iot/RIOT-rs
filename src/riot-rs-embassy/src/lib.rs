@@ -51,25 +51,38 @@ pub mod sendcell;
 
 pub type Task = fn(&Spawner, &mut arch::OptionalPeripherals);
 
-pub static EXECUTOR: arch::Executor = arch::Executor::new();
-
 #[distributed_slice]
 pub static EMBASSY_TASKS: [Task] = [..];
 
+#[cfg(feature = "executor-interrupt")]
+pub static EXECUTOR: arch::Executor = arch::Executor::new();
+
+#[cfg(feature = "executor-interrupt")]
 #[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
     println!("riot-rs-embassy::init()");
     let p = arch::init(Default::default());
 
     #[cfg(any(context = "nrf52", context = "rp2040"))]
-    EXECUTOR.start(arch::SWI);
+    {
+        EXECUTOR.start(arch::SWI);
+        EXECUTOR.spawner().must_spawn(init_task(p));
+    }
 
     #[cfg(context = "esp")]
-    EXECUTOR.start(arch::interrupt::Priority::Priority1);
+    EXECUTOR.run(|spawner| spawner.must_spawn(init_task(p)));
+}
 
-    EXECUTOR.spawner().must_spawn(init_task(p));
+#[cfg(feature = "executor-single-thread")]
+#[export_name = "riot_rs_embassy_init"]
+fn init() -> ! {
+    println!("riot-rs-embassy::init()");
+    let p = arch::init(Default::default());
 
     println!("riot-rs-embassy::init() done");
+
+    let executor = make_static!(arch::Executor::new());
+    executor.run(|spawner| spawner.must_spawn(init_task(p)));
 }
 
 #[embassy_executor::task]

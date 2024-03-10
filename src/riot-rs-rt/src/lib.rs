@@ -86,7 +86,15 @@ fn startup() -> ! {
         }
     }
 
-    #[cfg(not(feature = "threading"))]
+    #[cfg(feature = "executor-single-thread")]
+    {
+        extern "Rust" {
+            fn riot_rs_embassy_init() -> !;
+        }
+        unsafe { riot_rs_embassy_init() };
+    }
+
+    #[cfg(not(any(feature = "threading", feature = "executor-single-thread")))]
     {
         #[cfg(test)]
         test_main();
