@@ -38,10 +38,18 @@ cyw43 = { version = "0.1.0", features = ["firmware-logs"], optional = true }
 cyw43-pio = { version = "0.1.0", features = ["overclock"], optional = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
-embassy-executor = { workspace = true, features = ["arch-cortex-m", "executor-interrupt"] }
+embassy-executor = { workspace = true, features = [
+  "arch-cortex-m",
+  "executor-interrupt",
+] }
 
 [target.'cfg(context = "nrf52")'.dependencies]
-embassy-nrf = { workspace = true, features = ["time-driver-rtc1", "time", "unstable-pac", "rt"] }
+embassy-nrf = { workspace = true, features = [
+  "time-driver-rtc1",
+  "time",
+  "unstable-pac",
+  "rt",
+] }
 
 [target.'cfg(context = "nrf52832")'.dependencies]
 embassy-nrf = { workspace = true, features = ["nrf52832"] }
@@ -75,7 +83,7 @@ esp-hal = { workspace = true, features = [
   "vectored",
   "embassy-time-timg0",
 ] }
-esp-wifi = { workspace = true, features = [ "esp32c3" ], optional = true }
+esp-wifi = { workspace = true, features = ["esp32c3"], optional = true }
 
 [features]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
@@ -83,13 +91,15 @@ usb = ["dep:embassy-usb"]
 net = ["dep:embassy-net"]
 usb-ethernet = ["usb", "net"]
 
-wifi-esp = ["dep:esp-wifi", "dep:embassy-net-driver-channel", "net"]
+wifi = []
 wifi-cyw43 = [
   "dep:cyw43",
   "dep:cyw43-pio",
   "dep:embassy-net-driver-channel",
   "net",
+  "wifi",
 ]
+wifi-esp = ["dep:esp-wifi", "dep:embassy-net-driver-channel", "net", "wifi"]
 
 threading = ["dep:riot-rs-core"]
 override-network-config = []

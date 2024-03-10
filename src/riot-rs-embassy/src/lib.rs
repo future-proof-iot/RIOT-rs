@@ -21,7 +21,7 @@ pub mod usb;
 #[cfg(feature = "net")]
 pub mod network;
 
-#[cfg(any(feature = "wifi-cyw43", feature = "wifi-esp"))]
+#[cfg(feature = "wifi")]
 mod wifi;
 
 use riot_rs_debug::println;
@@ -35,11 +35,8 @@ pub use embassy_executor::Spawner;
 #[cfg(feature = "usb-ethernet")]
 use usb::ethernet::NetworkDevice;
 
-#[cfg(feature = "wifi-cyw43")]
-use wifi::cyw43::NetworkDevice;
-
-#[cfg(feature = "wifi-esp")]
-use wifi::esp_wifi::NetworkDevice;
+#[cfg(feature = "wifi")]
+use wifi::NetworkDevice;
 
 #[cfg(feature = "net")]
 pub use network::NetworkStack;
