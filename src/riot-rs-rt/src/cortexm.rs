@@ -27,6 +27,7 @@ pub fn ipsr_isr_number_to_str(isr_number: usize) -> &'static str {
 ///
 /// (copied from Tock OS)
 #[allow(non_snake_case)]
+#[allow(unsafe_op_in_unsafe_fn)]
 #[exception]
 unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
     use core::arch::asm;
