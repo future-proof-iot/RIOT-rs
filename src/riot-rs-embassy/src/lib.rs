@@ -6,11 +6,11 @@
 
 pub mod define_peripherals;
 
-#[cfg_attr(context = "nrf52", path = "arch/nrf52.rs")]
+#[cfg_attr(context = "nrf", path = "arch/nrf52.rs")]
 #[cfg_attr(context = "rp2040", path = "arch/rp2040.rs")]
 #[cfg_attr(context = "esp", path = "arch/esp.rs")]
 #[cfg_attr(
-    not(any(context = "nrf52", context = "rp2040", context = "esp")),
+    not(any(context = "nrf", context = "rp2040", context = "esp")),
     path = "arch/dummy.rs"
 )]
 pub mod arch;
@@ -66,7 +66,7 @@ pub(crate) fn init() {
     println!("riot-rs-embassy::init()");
     let p = arch::init(Default::default());
 
-    #[cfg(any(context = "nrf52", context = "rp2040"))]
+    #[cfg(any(context = "nrf", context = "rp2040"))]
     {
         EXECUTOR.start(arch::SWI);
         EXECUTOR.spawner().must_spawn(init_task(p));
@@ -92,7 +92,7 @@ fn init() -> ! {
 async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     println!("riot-rs-embassy::init_task()");
 
-    #[cfg(all(context = "nrf52", feature = "usb"))]
+    #[cfg(all(context = "nrf", feature = "usb"))]
     {
         // nrf52840
         let clock: embassy_nrf::pac::CLOCK = unsafe { core::mem::transmute(()) };

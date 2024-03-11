@@ -21,6 +21,7 @@ microbit-v2 = { optional = true, path = "microbit-v2" }
 nrf52840-mdk = { optional = true, path = "nrf52840-mdk" }
 nrf52840dk = { optional = true, path = "nrf52840dk" }
 nrf52dk = { optional = true, path = "nrf52dk" }
+nrf5340dk = { optional = true, path = "nrf5340dk" }
 nucleo-f401re = { optional = true, path = "nucleo-f401re" }
 rpi-pico = { optional = true, path = "rpi-pico" }
 

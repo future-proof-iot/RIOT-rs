@@ -16,6 +16,8 @@ cfg_if! {
         pub use nrf52840dk as board;
     } else if #[cfg(feature = "nrf52840-mdk")] {
         pub use nrf52840_mdk as board;
+    } else if #[cfg(feature = "nrf5340dk")] {
+        pub use nrf5340dk as board;
     } else if #[cfg(feature = "microbit")] {
         pub use microbit as board;
     } else if #[cfg(feature = "microbit-v2")] {

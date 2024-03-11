@@ -1,0 +1,11 @@
+[package]
+name = "nrf5340"
+version = "0.1.0"
+authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
+edition = "2021"
+
+[dependencies]
+riot-rs-debug = { workspace = true, features = ["rtt-target"] }
+
+[build-dependencies]
+ld-memory = { workspace = true, features = ["build-rs"] }

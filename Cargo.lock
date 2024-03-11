@@ -1982,6 +1982,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "nrf5340"
+version = "0.1.0"
+dependencies = [
+ "ld-memory",
+ "riot-rs-debug",
+]
+
+[[package]]
 name = "nrf5340-app-pac"
 version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2001,6 +2009,16 @@ dependencies = [
  "cortex-m",
  "cortex-m-rt",
  "vcell",
+]
+
+[[package]]
+name = "nrf5340dk"
+version = "0.1.0"
+dependencies = [
+ "cortex-m",
+ "cortex-m-rt",
+ "nrf5340",
+ "riot-rs-debug",
 ]
 
 [[package]]
@@ -2431,6 +2449,7 @@ dependencies = [
  "nrf52840-mdk",
  "nrf52840dk",
  "nrf52dk",
+ "nrf5340dk",
  "nucleo-f401re",
  "riot-rs-rt",
  "rpi-pico",

@@ -1,7 +1,14 @@
 pub(crate) use embassy_executor::InterruptExecutor as Executor;
+
+#[cfg(context = "nrf52")]
 pub use embassy_nrf::interrupt::SWI0_EGU0 as SWI;
+
+#[cfg(context = "nrf5340")]
+pub use embassy_nrf::interrupt::EGU0 as SWI;
+
 pub use embassy_nrf::{config::Config, interrupt, peripherals, OptionalPeripherals};
 
+#[cfg(context = "nrf52")]
 #[interrupt]
 unsafe fn SWI0_EGU0() {
     // SAFETY:
@@ -11,10 +18,16 @@ unsafe fn SWI0_EGU0() {
     unsafe { crate::EXECUTOR.on_interrupt() }
 }
 
+#[cfg(context = "nrf5340")]
+#[interrupt]
+unsafe fn EGU0() {
+    unsafe { crate::EXECUTOR.on_interrupt() }
+}
+
 #[cfg(feature = "usb")]
 pub mod usb {
     use embassy_nrf::{
-        bind_interrupts, peripherals, rng,
+        bind_interrupts, peripherals,
         usb::{
             self,
             vbus_detect::{self, HardwareVbusDetect},
@@ -24,10 +37,16 @@ pub mod usb {
 
     use crate::arch;
 
+    #[cfg(context = "nrf52")]
     bind_interrupts!(struct Irqs {
         USBD => usb::InterruptHandler<peripherals::USBD>;
         POWER_CLOCK => vbus_detect::InterruptHandler;
-        RNG => rng::InterruptHandler<peripherals::RNG>;
+    });
+
+    #[cfg(context = "nrf5340")]
+    bind_interrupts!(struct Irqs {
+        USBD => usb::InterruptHandler<peripherals::USBD>;
+        USBREGULATOR => vbus_detect::InterruptHandler;
     });
 
     pub type UsbDriver = Driver<'static, peripherals::USBD, HardwareVbusDetect>;

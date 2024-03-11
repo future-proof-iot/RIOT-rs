@@ -154,6 +154,16 @@ contexts:
   - name: nrf
     help: Nordic MCU support (based on embassy-nrf)
     parent: riot-rs
+    env:
+      RUSTFLAGS:
+        - --cfg context=\"nrf\"
+    tasks:
+      flash-erase-all:
+        help: Erases the whole chip including user data. Unlocks it if locked.
+        build: false
+        cmd:
+          - probe-rs erase --chip ${PROBE_RS_CHIP} --allow-erase-all
+
 
   - name: nrf51
     parent: nrf
@@ -185,12 +195,15 @@ contexts:
       RUSTFLAGS:
         - --cfg context=\"nrf52\"
 
-    tasks:
-      flash-erase-all:
-        help: Erases the whole chip including user data. Unlocks it if locked.
-        build: false
-        cmd:
-          - probe-rs erase --chip ${PROBE_RS_CHIP} --allow-erase-all
+  - name: nrf5340
+    parent: nrf
+    selects:
+      - thumbv8m.main-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+      - probe-rs-run
+    env:
+      PROBE_RS_CHIP: nrf5340_xxAA
+      RUSTFLAGS:
+        - --cfg context=\"nrf5340\"
 
   - name: nrf52832
     parent: nrf52
@@ -313,6 +326,16 @@ modules:
         CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7M_NONE_EABI
         RUSTFLAGS:
           - --cfg armv7m
+
+  - name: thumbv8m.main-none-eabi
+    depends:
+      - cortex-m
+    env:
+      global:
+        RUSTC_TARGET: thumbv8m.main-none-eabi
+        CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV8M_MAIN_NONE_EABI
+        RUSTFLAGS:
+          - --cfg armv8m
 
   - name: thumbv7em-none-eabihf
     depends:
@@ -466,6 +489,7 @@ modules:
 
   - name: hw/usb-device-port
     context:
+      - nrf5340dk
       - nrf52840dk
       - rpi-pico
       - rpi-pico-w
@@ -571,6 +595,9 @@ builders:
 
   - name: expressif-esp32-c6-devkitc-1
     parent: esp32c6
+
+  - name: nrf5340dk
+    parent: nrf5340
 
 apps:
   # define a dummy host application so the host tasks work

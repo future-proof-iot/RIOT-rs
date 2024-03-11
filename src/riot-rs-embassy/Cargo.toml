@@ -42,7 +42,7 @@ embassy-executor = { workspace = true, features = [
   "executor-interrupt",
 ] }
 
-[target.'cfg(context = "nrf52")'.dependencies]
+[target.'cfg(context = "nrf")'.dependencies]
 embassy-nrf = { workspace = true, features = [
   "time-driver-rtc1",
   "time",
@@ -55,6 +55,9 @@ embassy-nrf = { workspace = true, features = ["nrf52832"] }
 
 [target.'cfg(context = "nrf52840")'.dependencies]
 embassy-nrf = { workspace = true, features = ["nrf52840"] }
+
+[target.'cfg(context = "nrf5340")'.dependencies]
+embassy-nrf = { workspace = true, features = ["nrf5340-app-s"] }
 
 [target.'cfg(context = "rp2040")'.dependencies]
 embassy-rp = { workspace = true, features = [
