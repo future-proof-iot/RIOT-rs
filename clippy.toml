@@ -1,0 +1,2 @@
+# Require SAFETY docs, as well as a few other lints, for private items
+check-private-items = true

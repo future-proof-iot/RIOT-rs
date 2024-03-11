@@ -84,4 +84,4 @@ unused_must_use = "deny"
 [workspace.lints.clippy]
 # Clippy lints are documented here: https://rust-lang.github.io/rust-clippy/master/index.html
 indexing_slicing = "warn"
-missing_safety_doc = { level = "warn", check-private-items = true }
+missing_safety_doc = { level = "warn" }
