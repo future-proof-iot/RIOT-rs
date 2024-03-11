@@ -23,6 +23,8 @@ pub mod network;
 #[cfg(feature = "wifi-cyw43")]
 mod wifi;
 
+use riot_rs_debug::println;
+
 // re-exports
 pub use linkme::{self, distributed_slice};
 pub use static_cell::make_static;
@@ -52,24 +54,24 @@ pub static EMBASSY_TASKS: [Task] = [..];
 
 #[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
-    riot_rs_rt::debug::println!("riot-rs-embassy::init()");
+    println!("riot-rs-embassy::init()");
     let p = arch::init(Default::default());
     EXECUTOR.start(arch::SWI);
     EXECUTOR.spawner().spawn(init_task(p)).unwrap();
 
-    riot_rs_rt::debug::println!("riot-rs-embassy::init() done");
+    println!("riot-rs-embassy::init() done");
 }
 
 #[embassy_executor::task]
 async fn init_task(mut peripherals: arch::OptionalPeripherals) {
-    riot_rs_rt::debug::println!("riot-rs-embassy::init_task()");
+    println!("riot-rs-embassy::init_task()");
 
     #[cfg(all(context = "nrf52", feature = "usb"))]
     {
         // nrf52840
         let clock: embassy_nrf::pac::CLOCK = unsafe { core::mem::transmute(()) };
 
-        riot_rs_rt::debug::println!("nrf: enabling ext hfosc...");
+        println!("nrf: enabling ext hfosc...");
         clock.tasks_hfclkstart.write(|w| unsafe { w.bits(1) });
         while clock.events_hfclkstarted.read().bits() != 1 {}
     }
@@ -192,5 +194,5 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     // mark used
     let _ = peripherals;
 
-    riot_rs_rt::debug::println!("riot-rs-embassy::init_task() done");
+    println!("riot-rs-embassy::init_task() done");
 }

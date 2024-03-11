@@ -436,6 +436,7 @@ dependencies = [
  "cortex-m",
  "cortex-m-rt",
  "nrf52",
+ "riot-rs-debug",
  "riot-rs-rt",
 ]
 
@@ -1318,6 +1319,7 @@ checksum = "b4ce301924b7887e9d637144fdade93f9dfff9b60981d4ac161db09720d39aa5"
 name = "lm3s6965evb"
 version = "0.1.0"
 dependencies = [
+ "riot-rs-debug",
  "riot-rs-rt",
 ]
 
@@ -1356,6 +1358,7 @@ dependencies = [
  "cortex-m",
  "cortex-m-rt",
  "nrf51",
+ "riot-rs-debug",
  "riot-rs-rt",
 ]
 
@@ -1366,6 +1369,7 @@ dependencies = [
  "cortex-m",
  "cortex-m-rt",
  "nrf52",
+ "riot-rs-debug",
  "riot-rs-rt",
 ]
 
@@ -1409,6 +1413,7 @@ name = "nrf51"
 version = "0.1.0"
 dependencies = [
  "nrf51-pac",
+ "riot-rs-debug",
  "riot-rs-rt",
 ]
 
@@ -1430,6 +1435,7 @@ dependencies = [
  "ld-memory",
  "nrf52832-pac",
  "nrf52840-pac",
+ "riot-rs-debug",
  "riot-rs-rt",
 ]
 
@@ -1506,6 +1512,7 @@ dependencies = [
  "cortex-m",
  "cortex-m-rt",
  "nrf52",
+ "riot-rs-debug",
  "riot-rs-rt",
 ]
 
@@ -1527,6 +1534,7 @@ dependencies = [
  "cortex-m",
  "cortex-m-rt",
  "nrf52",
+ "riot-rs-debug",
  "riot-rs-rt",
 ]
 
@@ -1537,6 +1545,7 @@ dependencies = [
  "cortex-m",
  "cortex-m-rt",
  "nrf52",
+ "riot-rs-debug",
  "riot-rs-rt",
 ]
 
@@ -1915,6 +1924,7 @@ dependencies = [
  "linkme",
  "riot-rs-boards",
  "riot-rs-buildinfo",
+ "riot-rs-debug",
  "riot-rs-embassy",
  "riot-rs-macros",
  "riot-rs-rt",
@@ -1965,6 +1975,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "riot-rs-debug"
+version = "0.1.0"
+dependencies = [
+ "cortex-m",
+ "cortex-m-semihosting",
+ "rtt-target",
+]
+
+[[package]]
 name = "riot-rs-embassy"
 version = "0.1.0"
 dependencies = [
@@ -1982,6 +2001,7 @@ dependencies = [
  "heapless 0.8.0",
  "linkme",
  "riot-rs-core",
+ "riot-rs-debug",
  "riot-rs-rt",
  "riot-rs-utils",
  "static_cell",
@@ -2003,13 +2023,12 @@ dependencies = [
  "cfg-if",
  "cortex-m",
  "cortex-m-rt",
- "cortex-m-semihosting",
  "linkme",
  "portable-atomic",
  "riot-rs-boards",
+ "riot-rs-debug",
  "riot-rs-threads",
  "riot-rs-utils",
- "rtt-target",
 ]
 
 [[package]]
@@ -2052,6 +2071,7 @@ dependencies = [
 name = "rp2040"
 version = "0.1.0"
 dependencies = [
+ "riot-rs-debug",
  "riot-rs-embassy",
  "riot-rs-rt",
 ]
@@ -2069,6 +2089,7 @@ dependencies = [
 name = "rpi-pico"
 version = "0.1.0"
 dependencies = [
+ "riot-rs-debug",
  "riot-rs-rt",
  "rp2040",
 ]

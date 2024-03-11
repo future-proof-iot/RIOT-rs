@@ -3,7 +3,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::rt::debug::{exit, println, EXIT_SUCCESS};
+use riot_rs::debug::{exit, println, EXIT_SUCCESS};
 
 #[riot_rs::thread]
 fn main() {

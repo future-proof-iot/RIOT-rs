@@ -6,5 +6,6 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [target.'cfg(context = "rp2040")'.dependencies]
+riot-rs-debug = { workspace = true, features = ["rtt-target"] }
 riot-rs-embassy = { path = "../../riot-rs-embassy" }
-riot-rs-rt = { path = "../../riot-rs-rt", features = ["rtt-target"] }
+riot-rs-rt = { path = "../../riot-rs-rt" }

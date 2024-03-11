@@ -10,20 +10,19 @@ workspace = true
 [dependencies]
 cfg-if.workspace = true
 linkme.workspace = true
+riot-rs-debug.workspace = true
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-utils = { path = "../riot-rs-utils" }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
 cortex-m = { workspace = true, features = ["critical-section-single-core"] }
 cortex-m-rt = { workspace = true }
-cortex-m-semihosting = { workspace = true, optional = true }
 portable-atomic = { version = "1.6.0", features = ["critical-section"] }
-rtt-target = { version = "0.4.0", optional = true }
 
 [features]
 #default = ["threading"]
 threading = ["dep:riot-rs-threads"]
-debug-console = []
+debug-console = ["riot-rs-debug/debug-console"]
 silent-panic = []
 _panic-handler = []
 

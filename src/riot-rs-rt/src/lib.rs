@@ -15,11 +15,10 @@
 #![reexport_test_harness_main = "test_main"]
 pub mod testing;
 
-pub mod debug;
-pub use debug::*;
-
 #[cfg(feature = "threading")]
 mod threading;
+
+use riot_rs_debug::println;
 
 cfg_if::cfg_if! {
     if #[cfg(context = "cortex-m")] {
@@ -50,8 +49,8 @@ static ISR_STACK: [u8; ISR_STACKSIZE] = [0u8; ISR_STACKSIZE];
 fn panic(_info: &core::panic::PanicInfo) -> ! {
     #[cfg(not(feature = "silent-panic"))]
     {
-        debug::println!("panic: {}\n", _info);
-        debug::exit(debug::EXIT_FAILURE);
+        println!("panic: {}\n", _info);
+        riot_rs_debug::exit(riot_rs_debug::EXIT_FAILURE);
     }
     #[allow(clippy::empty_loop)]
     loop {}
@@ -67,9 +66,9 @@ fn startup() -> ! {
     arch::init();
 
     #[cfg(feature = "debug-console")]
-    debug::init();
+    riot_rs_debug::init();
 
-    debug::println!("riot_rs_rt::startup()");
+    println!("riot_rs_rt::startup()");
 
     for f in INIT_FUNCS {
         f();

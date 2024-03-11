@@ -9,6 +9,7 @@ members = [
   "src/riot-rs-boards/nrf52840dk",
   "src/riot-rs-boards/nucleo-f401re",
   "src/riot-rs-chips",
+  "src/riot-rs-debug",
   "src/riot-rs-macros",
 ]
 
@@ -44,6 +45,7 @@ embassy-usb = { version = "0.1", default-features = false }
 linkme = { version = "0.3.21", features = ["used_linker"] }
 
 riot-rs = { path = "src/riot-rs", default-features = false }
+riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 

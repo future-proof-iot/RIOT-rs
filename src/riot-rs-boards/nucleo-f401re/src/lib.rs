@@ -3,7 +3,7 @@
 use crate::hal::{prelude::*, serial::config::Config, serial::Serial, stm32};
 use stm32f4xx::{hal, peripheral};
 
-use riot_rs_rt::debug::println;
+use riot_rs_debug::println;
 
 use core::fmt::Write;
 

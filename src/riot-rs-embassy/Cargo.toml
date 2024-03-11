@@ -23,6 +23,7 @@ embassy-usb = { workspace = true, optional = true }
 
 # always
 riot-rs-core = { path = "../riot-rs-core", optional = true }
+riot-rs-debug = { workspace = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-utils = { path = "../riot-rs-utils" }
 
