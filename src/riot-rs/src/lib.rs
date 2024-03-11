@@ -5,6 +5,7 @@
 #![no_std]
 
 pub use riot_rs_buildinfo as buildinfo;
+pub use riot_rs_debug as debug;
 pub use riot_rs_embassy::{self as embassy, define_peripherals};
 pub use riot_rs_rt as rt;
 

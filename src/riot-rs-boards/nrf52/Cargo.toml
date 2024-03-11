@@ -11,7 +11,8 @@ nrf52832-pac = { version = "0.12.2", default-features = false, features = [
 nrf52840-pac = { version = "0.12.2", default-features = false, features = [
   "rt",
 ], optional = true }
-riot-rs-rt = { path = "../../riot-rs-rt", features = ["rtt-target"] }
+riot-rs-debug = { workspace = true, features = ["rtt-target"] }
+riot-rs-rt = { path = "../../riot-rs-rt" }
 
 [features]
 nrf52832 = ["dep:nrf52832-pac"]

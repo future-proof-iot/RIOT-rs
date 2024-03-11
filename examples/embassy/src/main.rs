@@ -3,8 +3,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::rt::debug::exit;
-use riot_rs::rt::debug::println;
+use riot_rs::debug::{exit, println};
 
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal};
 use riot_rs::embassy::{blocker, EXECUTOR};

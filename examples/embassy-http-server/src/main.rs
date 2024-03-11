@@ -6,10 +6,7 @@
 mod pins;
 mod routes;
 
-use riot_rs as _;
-
-use riot_rs::embassy::network;
-use riot_rs::rt::debug::println;
+use riot_rs::{debug::println, embassy::network};
 
 use embassy_net::tcp::TcpSocket;
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};

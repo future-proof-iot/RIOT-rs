@@ -6,6 +6,7 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+riot-rs-debug.workspace = true
 riot-rs-rt.workspace = true
 rp2040 = { path = "../../riot-rs-chips/rp2040" }
 

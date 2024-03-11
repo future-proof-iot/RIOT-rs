@@ -11,6 +11,7 @@ workspace = true
 linkme = { workspace = true }
 riot-rs-boards = { path = "../riot-rs-boards" }
 riot-rs-buildinfo = { path = "../riot-rs-buildinfo" }
+riot-rs-debug = { workspace = true }
 riot-rs-embassy = { path = "../riot-rs-embassy" }
 riot-rs-macros = { path = "../riot-rs-macros" }
 riot-rs-rt = { path = "../riot-rs-rt" }

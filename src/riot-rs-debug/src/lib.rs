@@ -1,3 +1,6 @@
+#![cfg_attr(not(test), no_std)]
+#![cfg_attr(test, no_main)]
+
 #[cfg(all(feature = "rtt-target", feature = "cortex-m-semihosting"))]
 compile_error!("feature \"rtt-target\" and feature \"cortex-m-semihosting\" cannot be enabled at the same time");
 

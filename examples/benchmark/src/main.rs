@@ -3,7 +3,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::rt::debug::println;
+use riot_rs::debug::println;
 
 #[riot_rs::thread]
 fn main() {
