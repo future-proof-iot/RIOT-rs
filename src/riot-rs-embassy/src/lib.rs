@@ -23,9 +23,6 @@ pub mod network;
 #[cfg(feature = "wifi-cyw43")]
 mod wifi;
 
-#[cfg(feature = "net")]
-use core::cell::OnceCell;
-
 // re-exports
 pub use linkme::{self, distributed_slice};
 pub use static_cell::make_static;
