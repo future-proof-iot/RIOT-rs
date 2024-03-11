@@ -29,6 +29,10 @@ cfg_if::cfg_if! {
         mod cortex_m;
         pub use cortex_m::Cpu;
     }
+    else if #[cfg(context = "esp32c3")] {
+        mod riscv;
+        pub use riscv::Cpu;
+    }
     else {
         pub struct Cpu;
         impl Arch for Cpu {
