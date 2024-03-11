@@ -89,7 +89,7 @@ impl Threads {
         prio: u8,
     ) -> Option<&mut Thread> {
         if let Some((thread, pid)) = self.get_unused() {
-            thread.sp = Cpu::setup_stack(stack, func, arg);
+            Cpu::setup_stack(thread, stack, func, arg);
             thread.prio = prio;
             thread.pid = pid;
             thread.state = ThreadState::Paused;

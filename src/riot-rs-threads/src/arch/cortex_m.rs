@@ -1,4 +1,5 @@
 use super::Arch;
+use crate::Thread;
 use core::arch::asm;
 use core::ptr::write_volatile;
 use cortex_m::peripheral::SCB;
@@ -29,7 +30,7 @@ impl Arch for Cpu {
     /// |   PC    |
     /// |   PSR   |
     /// +---------+
-    fn setup_stack(stack: &mut [u8], func: usize, arg: usize) -> usize {
+    fn setup_stack(thread: &mut Thread, stack: &mut [u8], func: usize, arg: usize) {
         let stack_start = stack.as_ptr() as usize;
 
         // 1. The stack starts at the highest address and grows downwards.
@@ -50,7 +51,7 @@ impl Arch for Cpu {
             write_volatile(stack_pos.offset(7), 0x01000000); // -> APSR
         }
 
-        stack_pos as usize
+        thread.sp = stack_pos as usize;
     }
 
     /// Triggers a PendSV exception.
