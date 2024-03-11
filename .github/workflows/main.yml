@@ -80,7 +80,7 @@ jobs:
       - name: "limit build unless nightly build"
         if: github.event_name != 'schedule'
         run: |
-          echo "LAZE_BUILDERS=ai-c3,expressif-esp32-c6-devkitc-1,microbit-v2,nrf52840dk,rpi-pico,rpi-pico-w" >> "$GITHUB_ENV"
+          echo "LAZE_BUILDERS=ai-c3,expressif-esp32-c6-devkitc-1,microbit-v2,nrf52840dk,nrf5340dk,rpi-pico,rpi-pico-w" >> "$GITHUB_ENV"
 
       - name: "riot-rs compilation test"
         if: steps.result-cache.outputs.cache-hit != 'true'
