@@ -6,7 +6,7 @@ contexts:
 
   # base context for all RIOT-rs applications
   - name: riot-rs
-
+    parent: default
     env:
       RUSTFLAGS:
         - "-Clink-arg=--nmagic"
@@ -154,51 +154,19 @@ contexts:
         cmd:
           - rust-objdump -S ${out}
 
-  - name: cortex-m
+  - name: nrf
+    help: Nordic MCU support (based on embassy-nrf)
     parent: riot-rs
-    env:
-      OBJCOPY: arm-none-eabi-objcopy
-      RUSTFLAGS:
-        - -Clink-arg=-Tisr_stack.x
-        - --cfg context=\"cortex-m\"
 
-  - name: thumbv6m-none-eabi
-    parent: cortex-m
-    env:
-      RUSTC_TARGET: thumbv6m-none-eabi
-      CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV6M_NONE_EABI
-      RUSTFLAGS:
-        - --cfg armv6m
-
-  - name: thumbv7em-none-eabi
-    parent: cortex-m
-    env:
-      RUSTC_TARGET: thumbv7em-none-eabi
-      CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7EM_NONE_EABI
-      RUSTFLAGS:
-        - "-Ctarget-cpu=cortex-m4"
-        - --cfg armv7m
-
-  - name: thumbv7m-none-eabi
-    parent: cortex-m
-    env:
-      RUSTC_TARGET: thumbv7m-none-eabi
-      CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7M_NONE_EABI
-      RUSTFLAGS:
-        - --cfg armv7m
-
-  - name: thumbv7em-none-eabihf
-    parent: cortex-m
-    env:
-      RUSTC_TARGET: thumbv7em-none-eabihf
-      CARGO_ENV_TARGET: CARGO_TARGET_THUMBV7EM_NONE_EABIHF
-      RUSTFLAGS:
-        - --cfg armv7m
+  - name: nrf51
+    parent: nrf
+    selects:
+      - thumbv6m-none-eabi
 
   - name: microbit-base
     # this is a context, not a builder, to be used as parent by  "microbit" and
     # "microbit-qemu"
-    parent: thumbv6m-none-eabi
+    parent: nrf51
     selects:
       - "microbit disabled due to missing nrf51 support in embassy"
     env:
@@ -208,7 +176,9 @@ contexts:
         - "-f board/nordic_nrf52_dk.cfg"
 
   - name: nrf52
-    parent: thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+    parent: nrf
+    selects:
+      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
     env:
       CARGO_RUNNER:
         - ${SCRIPTS}/debug-openocd.sh
@@ -248,8 +218,17 @@ contexts:
         cmd:
           - probe-rs gdb --chip ${PROBE_RS_CHIP}
 
+  - name: rp
+    help: Raspberry Pi pico MCU support (based on embassy-rp)
+    parent: riot-rs
+    selects:
+     - thumbv6m-none-eabi
+    env:
+      RUSTFLAGS:
+        - --cfg context=\"rp\"
+
   - name: rp2040
-    parent: thumbv6m-none-eabi
+    parent: rp
     env:
       RUSTFLAGS:
         - --cfg context=\"rp2040\"
@@ -264,16 +243,60 @@ contexts:
         cmd:
           - probe-rs debug --chip ${PROBE_RS_CHIP} --exe ${out}
 
-
 modules:
+  - name: cortex-m
+    env:
+      global:
+        OBJCOPY: arm-none-eabi-objcopy
+        RUSTFLAGS:
+          - -Clink-arg=-Tisr_stack.x
+          - --cfg context=\"cortex-m\"
+
+  - name: thumbv6m-none-eabi
+    depends:
+      - cortex-m
+    env:
+      global:
+        RUSTC_TARGET: thumbv6m-none-eabi
+        CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV6M_NONE_EABI
+        RUSTFLAGS:
+          - --cfg armv6m
+
+  - name: thumbv7em-none-eabi
+    depends:
+      - cortex-m
+    env:
+      global:
+        RUSTC_TARGET: thumbv7em-none-eabi
+        CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7EM_NONE_EABI
+        RUSTFLAGS:
+          - "-Ctarget-cpu=cortex-m4"
+          - --cfg armv7m
+
+  - name: thumbv7m-none-eabi
+    depends:
+      - cortex-m
+    env:
+      global:
+        RUSTC_TARGET: thumbv7m-none-eabi
+        CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7M_NONE_EABI
+        RUSTFLAGS:
+          - --cfg armv7m
+
+  - name: thumbv7em-none-eabihf
+    depends:
+      - cortex-m
+    env:
+      global:
+        RUSTC_TARGET: thumbv7em-none-eabihf
+        CARGO_ENV_TARGET: CARGO_TARGET_THUMBV7EM_NONE_EABIHF
+        RUSTFLAGS:
+          - --cfg armv7m
+
   - name: release
     selects:
-      - release-arch
       - ?silent-panic
       - ?lto
-
-  - name: release-arch
-    context: cortex-m
 
   - name: debug-console
     context: riot-rs
@@ -477,7 +500,9 @@ builders:
     parent: nrf52840
 
   - name: lm3s6965evb
-    parent: thumbv7m-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+    parent: riot-rs
+    selects:
+      - thumbv7m-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
     disables:
       - riot_support
     env:
