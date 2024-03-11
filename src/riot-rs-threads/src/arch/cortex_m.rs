@@ -245,11 +245,11 @@ unsafe fn sched(old_sp: usize) -> usize {
         }
         //println!("current: {} next: {}", current_pid, next_pid);
         threads.threads[current_pid as usize].sp = old_sp;
-        threads.current_thread = Some(next_pid);
         current_high_regs = threads.threads[current_pid as usize].data.as_ptr();
     } else {
         current_high_regs = core::ptr::null();
     }
+    threads.current_thread = Some(next_pid);
 
     let next = &threads.threads[next_pid as usize];
     let next_sp = next.sp;
