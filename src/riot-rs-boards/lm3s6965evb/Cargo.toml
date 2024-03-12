@@ -5,4 +5,4 @@ authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2021"
 
 [dependencies]
-riot-rs-rt = { workspace = true, features = [ "cortex-m-semihosting" ] }
+riot-rs-rt = { workspace = true, features = ["cortex-m-semihosting"] }

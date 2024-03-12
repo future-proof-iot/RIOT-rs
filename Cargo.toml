@@ -1,16 +1,16 @@
 [workspace]
 members = [
-    "examples/*",
-    "src/*",
-    "src/lib/*",
-    "src/riot-rs",
-    "src/riot-rs-boards",
-    "src/riot-rs-boards/lm3s6965evb",
-    "src/riot-rs-boards/nrf52",
-    "src/riot-rs-boards/nrf52840dk",
-    "src/riot-rs-boards/nucleo-f401re",
-    "src/riot-rs-chips",
-    "src/riot-rs-macros"
+  "examples/*",
+  "src/*",
+  "src/lib/*",
+  "src/riot-rs",
+  "src/riot-rs-boards",
+  "src/riot-rs-boards/lm3s6965evb",
+  "src/riot-rs-boards/nrf52",
+  "src/riot-rs-boards/nrf52840dk",
+  "src/riot-rs-boards/nucleo-f401re",
+  "src/riot-rs-chips",
+  "src/riot-rs-macros",
 ]
 
 exclude = ["src/lib"]
@@ -26,7 +26,9 @@ repository = "https://github.com/future-proof-iot/riot-rs"
 
 [workspace.dependencies]
 cfg-if = { version = "1.0.0" }
-cortex-m = { version = "0.7", default-features = false, features = [ "inline-asm" ] }
+cortex-m = { version = "0.7", default-features = false, features = [
+  "inline-asm",
+] }
 cortex-m-rt = { version = "0.7" }
 cortex-m-semihosting = { version = "0.5" }
 critical-section = { version = "1.1.2" }
@@ -50,7 +52,7 @@ const_panic = { version = "0.2.8", default_features = false }
 heapless = { version = "0.8.0", default-features = false }
 konst = { version = "0.3.8", default_features = false }
 ld-memory = { version = "0.2.9" }
-static_cell = { version = "2.0.0", features = [ "nightly" ] }
+static_cell = { version = "2.0.0", features = ["nightly"] }
 
 [profile.dev]
 incremental = false

@@ -27,7 +27,11 @@ no-boards = ["riot-rs-boards/no-boards"]
 override-network-config = ["riot-rs-embassy/override-network-config"]
 override-usb-config = ["riot-rs-embassy/override-usb-config"]
 silent-panic = ["riot-rs-rt/silent-panic"]
-threading = ["dep:riot-rs-threads", "riot-rs-rt/threading", "riot-rs-embassy/threading"]
+threading = [
+  "dep:riot-rs-threads",
+  "riot-rs-rt/threading",
+  "riot-rs-embassy/threading",
+]
 time = ["riot-rs-embassy/time"]
 usb = ["riot-rs-embassy/usb"]
 usb-ethernet = ["riot-rs-embassy/usb-ethernet"]

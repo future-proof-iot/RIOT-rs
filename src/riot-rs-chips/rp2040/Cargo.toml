@@ -7,4 +7,4 @@ edition = "2021"
 
 [target.'cfg(context = "rp2040")'.dependencies]
 riot-rs-embassy = { path = "../../riot-rs-embassy" }
-riot-rs-rt = { path = "../../riot-rs-rt", features = [ "rtt-target" ] }
+riot-rs-rt = { path = "../../riot-rs-rt", features = ["rtt-target"] }
