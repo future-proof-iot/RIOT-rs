@@ -123,11 +123,21 @@ jobs:
       - name: rustfmt
         run: cargo fmt --check --all
 
-      - name: Install rust-sort
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-binstall
+
+      - name: Install taplo
+        run: cargo binstall --no-confirm --no-symlinks --no-discover-github-token taplo-cli
+
+      - name: Check toml formatting
+        run: taplo fmt --check
+
+      - name: Install cargo-sort
         run: cargo install --git=https://github.com/DevinR528/cargo-sort --rev 55ec89082466f6bb246d870a8d56d166a8e1f08b cargo-sort
 
-      - name: Check formatting and item order of Cargo.toml files
-        run: cargo sort --check --check-format --grouped --workspace
+      - name: Check item order of Cargo.toml files
+        run: cargo sort --check --grouped --workspace --no-format
 
   CI-success:
     if: ${{ always() }}
