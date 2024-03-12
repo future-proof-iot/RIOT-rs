@@ -14,7 +14,6 @@ linkme.workspace = true
 riot-rs-rt = { path = "../riot-rs-rt" }
 
 dwm1001 = { optional = true, path = "dwm1001" }
-lm3s6965evb = { optional = true, path = "lm3s6965evb" }
 microbit = { optional = true, path = "microbit" }
 microbit-v2 = { optional = true, path = "microbit-v2" }
 nrf52840-mdk = { optional = true, path = "nrf52840-mdk" }

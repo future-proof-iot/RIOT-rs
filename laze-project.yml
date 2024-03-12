@@ -499,22 +499,6 @@ builders:
   - name: microbit-v2
     parent: nrf52840
 
-  - name: lm3s6965evb
-    parent: riot-rs
-    selects:
-      - thumbv7m-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
-    disables:
-      - riot_support
-    env:
-      QEMU_MACHINE: lm3s6965evb -cpu cortex-m3
-      CARGO_RUNNER:
-        - '"qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"'
-    tasks:
-      qemu:
-        build: true
-        cmd:
-          - ${QEMU_SYSTEM_ARM} ${out}
-
   - name: rpi-pico
     parent: rp2040
     env:

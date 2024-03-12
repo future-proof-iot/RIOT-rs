@@ -5,7 +5,6 @@ members = [
   "src/lib/*",
   "src/riot-rs",
   "src/riot-rs-boards",
-  "src/riot-rs-boards/lm3s6965evb",
   "src/riot-rs-boards/nrf52",
   "src/riot-rs-boards/nrf52840dk",
   "src/riot-rs-boards/nucleo-f401re",
