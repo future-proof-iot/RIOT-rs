@@ -8,6 +8,9 @@ on:
     branches:
       - main
   merge_group:
+  schedule:
+    # run every morning at 3:17am
+    - cron:  '17 3 * * *'
 
 jobs:
   build:
@@ -69,12 +72,27 @@ jobs:
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
           sudo apt-get install ninja-build
 
+      - name: "limit build unless nightly build"
+        if: github.event_name != 'schedule'
+        run: |
+            echo "LAZE_BUILDERS=microbit-v2,nrf52840dk,rpi-pico,rpi-pico-w" >> "$GITHUB_ENV"
+
       - name: "riot-rs compilation test"
         if: steps.result-cache.outputs.cache-hit != 'true'
         run: |
           sccache --start-server || true # work around https://github.com/ninja-build/ninja/issues/2052
 
-          laze build --partition hash:${{ matrix.partition }} --builders microbit-v2,nrf52840dk,rpi-pico,rpi-pico-w -g
+          laze build --global --partition hash:${{ matrix.partition }}
+
+      - name: Report nightly failure
+        if: failure() && github.event_name == 'schedule' && github.repository == 'future-proof-iot/RIOT-rs'
+        uses: s3krit/matrix-message-action@v0.0.3
+        with:
+          room_id: ${{ secrets.MATRIX_ROOM_ID }}
+          access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
+          message: "The nightly build failed at step ${{ github.job }}. [link](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
+          server: "matrix.org"
+
 
   cargo-test:
     runs-on: ubuntu-latest
