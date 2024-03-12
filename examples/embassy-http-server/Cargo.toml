@@ -13,8 +13,13 @@ embassy-time = { workspace = true, default-features = false }
 embedded-io-async = "0.6.0"
 heapless = { workspace = true }
 httparse = { version = "1.8.0", default-features = false }
-picoserve = { version = "0.8.0", default-features = false, features = ["embassy"] }
-riot-rs = { path = "../../src/riot-rs", features = ["time", "override-network-config"] }
+picoserve = { version = "0.8.0", default-features = false, features = [
+  "embassy",
+] }
+riot-rs = { path = "../../src/riot-rs", features = [
+  "time",
+  "override-network-config",
+] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 serde = { version = "1.0", default-features = false }
 static_cell = { workspace = true }

@@ -16,4 +16,4 @@ panic-semihosting = { version = "0.6.0", features = ["exit"] }
 riot-rs-threads = { path = ".." }
 
 [profile.release]
-debug=true
+debug = true

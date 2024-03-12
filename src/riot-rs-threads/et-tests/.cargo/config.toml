@@ -1,7 +1,7 @@
 [target.thumbv7m-none-eabi]
 runner = "qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -kernel"
 #runner = "qemu-system-arm -cpu cortex-m3 -machine lm3s6965evb -nographic -semihosting-config enable=on,target=native -gdb tcp::3333 -S -kernel"
-rustflags = [ "-C", "link-arg=-Tlink.x" ]
+rustflags = ["-C", "link-arg=-Tlink.x"]
 
 [build]
-target = "thumbv7m-none-eabi"        # Cortex-M3
+target = "thumbv7m-none-eabi" # Cortex-M3

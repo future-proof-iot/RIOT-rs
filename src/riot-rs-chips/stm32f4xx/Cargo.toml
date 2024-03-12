@@ -13,4 +13,4 @@ version = "0.11"
 #features = [ "rt" ]
 
 [features]
-stm32f401 = ["stm32f4xx-hal/stm32f401" ]
+stm32f401 = ["stm32f4xx-hal/stm32f401"]

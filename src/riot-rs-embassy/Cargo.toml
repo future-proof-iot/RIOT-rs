@@ -12,7 +12,10 @@ linkme.workspace = true
 static_cell.workspace = true
 
 embassy-executor = { workspace = true, features = ["nightly"] }
-embassy-net = { workspace = true, optional = true, features = [ "dhcpv4", "medium-ethernet" ] }
+embassy-net = { workspace = true, optional = true, features = [
+  "dhcpv4",
+  "medium-ethernet",
+] }
 embassy-net-driver-channel = { workspace = true, optional = true }
 embassy-sync = { workspace = true }
 embassy-time = { workspace = true, optional = true }
@@ -44,21 +47,17 @@ embassy-nrf = { workspace = true, features = [
 ] }
 
 [target.'cfg(context = "nrf52832")'.dependencies]
-embassy-nrf = { workspace = true, features = [
-  "nrf52832",
-] }
+embassy-nrf = { workspace = true, features = ["nrf52832"] }
 
 [target.'cfg(context = "nrf52840")'.dependencies]
-embassy-nrf = { workspace = true, features = [
-  "nrf52840",
-] }
+embassy-nrf = { workspace = true, features = ["nrf52840"] }
 
 [target.'cfg(context = "rp2040")'.dependencies]
 embassy-rp = { workspace = true, features = [
   "rt",
   "time-driver",
   "unstable-pac",
-#  "unstable-traits",
+  #  "unstable-traits",
 ] }
 
 [features]
@@ -67,7 +66,12 @@ usb = ["dep:embassy-usb"]
 net = ["dep:embassy-net"]
 usb-ethernet = ["usb", "net"]
 
-wifi-cyw43 = ["dep:cyw43", "dep:cyw43-pio", "dep:embassy-net-driver-channel", "net"]
+wifi-cyw43 = [
+  "dep:cyw43",
+  "dep:cyw43-pio",
+  "dep:embassy-net-driver-channel",
+  "net",
+]
 
 threading = ["dep:riot-rs-core"]
 override-network-config = []
