@@ -114,10 +114,11 @@ fn FROM_CPU_INTR3(trap_frame: &mut TrapFrame) {
 unsafe fn sched(trap_frame: &mut TrapFrame) {
     unsafe {
         let cs = CriticalSection::new();
-        let next_pid = if let Some(pid) = (&*THREADS.as_ptr(cs)).runqueue.get_next() {
-            pid
-        } else {
-            todo!();
+        let next_pid = loop {
+            if let Some(pid) = (&*THREADS.as_ptr(cs)).runqueue.get_next() {
+                break pid;
+            }
+            riscv::asm::wfi();
         };
 
         let threads = &mut *THREADS.as_ptr(cs);
