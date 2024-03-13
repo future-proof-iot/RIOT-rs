@@ -4,7 +4,11 @@ pub use embassy_nrf::{config::Config, interrupt, peripherals, OptionalPeripheral
 
 #[interrupt]
 unsafe fn SWI0_EGU0() {
-    crate::EXECUTOR.on_interrupt()
+    // SAFETY:
+    // - called from ISR
+    // - not called before `start()`, as the interrupt is enabled by `start()`
+    //   itself
+    unsafe { crate::EXECUTOR.on_interrupt() }
 }
 
 #[cfg(feature = "usb")]
