@@ -3,13 +3,13 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
+#[cfg(feature = "button-readings")]
 mod pins;
 mod routes;
 
 use riot_rs::{debug::println, embassy::network};
 
 use embassy_net::tcp::TcpSocket;
-use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 use embassy_time::Duration;
 use picoserve::routing::get;
 use static_cell::make_static;
@@ -21,6 +21,9 @@ struct AppState {
     #[cfg(feature = "button-readings")]
     buttons: ButtonInputs,
 }
+
+#[cfg(feature = "button-readings")]
+use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
 
 #[cfg(feature = "button-readings")]
 #[derive(Copy, Clone)]
@@ -87,6 +90,9 @@ use riot_rs::embassy::{arch::OptionalPeripherals, Spawner};
 #[riot_rs::embassy::distributed_slice(riot_rs::embassy::EMBASSY_TASKS)]
 #[linkme(crate = riot_rs::embassy::linkme)]
 fn web_server_init(spawner: &Spawner, peripherals: &mut OptionalPeripherals) {
+    #[cfg(not(feature = "button-readings"))]
+    let _ = peripherals;
+
     #[cfg(feature = "button-readings")]
     let button_inputs = {
         let buttons = pins::Buttons::take_from(peripherals).unwrap();
