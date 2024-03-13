@@ -5,7 +5,11 @@ pub use embassy_rp::{config::Config, peripherals, OptionalPeripherals};
 
 #[interrupt]
 unsafe fn SWI_IRQ_1() {
-    crate::EXECUTOR.on_interrupt()
+    // SAFETY:
+    // - called from ISR
+    // - not called before `start()`, as the interrupt is enabled by `start()`
+    //   itself
+    unsafe { crate::EXECUTOR.on_interrupt() }
 }
 
 #[cfg(feature = "usb")]
