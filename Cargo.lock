@@ -2405,9 +2405,9 @@ dependencies = [
  "heapless 0.8.0",
  "linkme",
  "once_cell",
- "riot-rs-core",
  "riot-rs-debug",
  "riot-rs-rt",
+ "riot-rs-threads",
  "riot-rs-utils",
  "static_cell",
 ]

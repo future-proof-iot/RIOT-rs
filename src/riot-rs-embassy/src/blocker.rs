@@ -1,7 +1,7 @@
 use core::future::Future;
 use core::pin::Pin;
 use core::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
-use riot_rs_core::thread::{current_pid, flags, flags::ThreadFlags, ThreadId};
+use riot_rs_threads::{current_pid, flags, flags::ThreadFlags, ThreadId};
 
 const THREAD_FLAG_WAKER: ThreadFlags = 1; // TODO: find more appropriate value
 
