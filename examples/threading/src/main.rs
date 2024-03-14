@@ -14,11 +14,3 @@ fn thread0() {
 fn thread1() {
     println!("Hello from thread 1");
 }
-
-#[no_mangle]
-fn riot_main() {
-    println!(
-        "Hello from riot_main()! Running on a {} board.",
-        riot_rs::buildinfo::BOARD
-    );
-}
