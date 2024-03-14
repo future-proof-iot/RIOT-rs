@@ -11,9 +11,14 @@
 #[doc(cfg(feature = "bench"))]
 #[doc(inline)]
 pub use riot_rs_bench as bench;
+#[doc(inline)]
 pub use riot_rs_buildinfo as buildinfo;
+#[doc(inline)]
 pub use riot_rs_debug as debug;
-pub use riot_rs_embassy::{self as embassy, define_peripherals, group_peripherals};
+#[doc(inline)]
+pub use riot_rs_embassy as embassy;
+pub use riot_rs_embassy::{define_peripherals, group_peripherals};
+#[doc(inline)]
 pub use riot_rs_rt as rt;
 
 // Attribute macros
