@@ -3,8 +3,7 @@
     <head>
         <!-- Book generated using mdBook -->
         <meta charset="UTF-8">
-        <title>RIOT-rs manual</title>
-        <meta name="robots" content="noindex">
+        <title>Code of Conduct - RIOT-rs manual</title>
 
 
         <!-- Custom HTML head -->
@@ -89,7 +88,7 @@
 
         <nav id="sidebar" class="sidebar" aria-label="Table of contents">
             <div class="sidebar-scrollbox">
-                <ol class="chapter"><li class="chapter-item expanded "><a href="manifesto.html"><strong aria-hidden="true">1.</strong> Manifesto</a></li><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">2.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="CODE_OF_CONDUCT.html"><strong aria-hidden="true">3.</strong> Code of Conduct</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="COC_reporting.html"><strong aria-hidden="true">3.1.</strong> Reporting Guidelines</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">User Guide</li><li class="chapter-item expanded affix "><li class="part-title">Developer Guide</li><li class="chapter-item expanded "><a href="appendices.html"><strong aria-hidden="true">4.</strong> Appendices</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="coding-conventions.html"><strong aria-hidden="true">4.1.</strong> Coding Conventions</a></li></ol></li></ol>
+                <ol class="chapter"><li class="chapter-item expanded "><a href="manifesto.html"><strong aria-hidden="true">1.</strong> Manifesto</a></li><li class="chapter-item expanded "><a href="introduction.html"><strong aria-hidden="true">2.</strong> Introduction</a></li><li class="chapter-item expanded "><a href="CODE_OF_CONDUCT.html" class="active"><strong aria-hidden="true">3.</strong> Code of Conduct</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="COC_reporting.html"><strong aria-hidden="true">3.1.</strong> Reporting Guidelines</a></li></ol></li><li class="chapter-item expanded "><li class="part-title">User Guide</li><li class="chapter-item expanded affix "><li class="part-title">Developer Guide</li><li class="chapter-item expanded "><a href="appendices.html"><strong aria-hidden="true">4.</strong> Appendices</a></li><li><ol class="section"><li class="chapter-item expanded "><a href="coding-conventions.html"><strong aria-hidden="true">4.1.</strong> Coding Conventions</a></li></ol></li></ol>
             </div>
             <div id="sidebar-resize-handle" class="sidebar-resize-handle">
                 <div class="sidebar-resize-indicator"></div>
@@ -151,6 +150,9 @@
                         <a href="https://github.com/future-proof-iot/RIOT-rs" title="Git repository" aria-label="Git repository">
                             <i id="git-repository-button" class="fa fa-github"></i>
                         </a>
+                        <a href="https://github.com/future-proof-iot/RIOT-rs/edit/master/book/src/CODE_OF_CONDUCT.md" title="Suggest an edit" aria-label="Suggest an edit">
+                            <i id="git-edit-button" class="fa fa-edit"></i>
+                        </a>
 
                     </div>
                 </div>
@@ -177,22 +179,7 @@
 
                 <div id="content" class="content">
                     <main>
-                        <h1 id="manifesto"><a class="header" href="#manifesto">Manifesto</a></h1>
-<p>We must (re)write the foundations of system software on more solid ground. Even <a href="https://www.whitehouse.gov/wp-content/uploads/2024/02/Final-ONCD-Technical-Report.pdf">POTUS roots for it</a>! For the Internet of Things, our cyberphysical world under continuous development, <strong>we  need stronger cybersecurity</strong>. </p>
-<p>So what does it mean for the main embedded operating systems targeting networked microcontrollers (Zephyr, FreeRTOS, or <a href="https://github.com/RIOT-OS/RIOT/">RIOT</a>) which are primarily written in C? </p>
-<p>Well, how about using instead a memory-safe language, <a href="https://www.rust-lang.org/">Rust</a>, as foundation. And for good measure, how about formal verification for the critical modules cherry-picked incrementally, along the way. Implementing the above guidelines is exactly the mission of <a href="https://github.com/future-proof-iot/RIOT-rs">RIOT-rs</a>: collaboration to produce open source re-write(s) of RIOT core modules providing a basis for next-level cybersecurity in IoT.</p>
-<p>Curious about more details on principles driving RIOT-rs development? Here you go. </p>
-<p><em>Southbound</em>, RIOT-rs builds on top of <a href="https://github.com/embassy-rs/embassy">Embassy</a> which provides an awesome open source HAL for a large variety of low-power IoT hardware, written in Rust. </p>
-<p><em>Northbound</em>, RIOT-rs provides high-level APIs working nicely across all supported hardware (work-in-progress) for generic sensors/actuators interaction (such as <a href="https://api.riot-os.org/group__drivers__saul.html">SAUL</a>) and for generic network I/O (such as <a href="https://api.riot-os.org/group__net__sock.html">sock</a>). </p>
-<p><em>At the core</em>, RIOT-rs provides a programming framework for both async and blocking (threads with priorities) paradigms and convenient scaffolding to bundle various the libraries and 3rd party modules you need. </p>
-<p>True to the spirit of RIOT development, RIOT-rs aims at a level of integration and <strong>code portability</strong> such that ~95% of the code is reused as-is on all supported hardware. The targeted <strong>memory footprint</strong> (RAM &amp; Flash) is measured in tens of kBytes. The targeted <strong>power consumption</strong> levels enable applications lasting 1+ years on a small battery.</p>
-<p>Last but not least the CI process for each pull-request to RIOT-rs includes extensive and rigorous tests which are automated for all supported configuration and hardware. And for selected modules, a <strong>formal verification workflow</strong> is used based on <a href="https://github.com/hacspec/hax">hax</a>, running directly on the functional Rust.</p>
-<p>Long story short: RIOT-rs embodies the developing love affair between RIOT and embedded Rust, fostering stronger IoT cybersecurity. This is a joyous open source community, so... you're welcome to <a href="https://github.com/future-proof-iot/RIOT-rs">join us</a>! </p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
-<p><strong>RIOT-rs</strong> is an experimental project trying to provide a nice base OS for
-embedded development on low-end IoT devices (with some kilobytes of RAM/flash,
-think Cortex-M). It combines the awesome Rust embedded ecosystem with RIOT OS.</p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="riot-rs-code-of-conduct"><a class="header" href="#riot-rs-code-of-conduct">RIOT-rs Code of Conduct</a></h1>
+                        <h1 id="riot-rs-code-of-conduct"><a class="header" href="#riot-rs-code-of-conduct">RIOT-rs Code of Conduct</a></h1>
 <p>RIOT-rs, like so many other free and open source software projects, is made up of a
 mixed group of professionals and volunteers from all over the world, working on
 every aspect of our goals - including teaching, steering, and connecting people.</p>
@@ -264,130 +251,18 @@ helping to resolve issues and learning from mistakes.</li>
 community</a>.</p>
 <h2 id="questions"><a class="header" href="#questions">Questions?</a></h2>
 <p>If you have questions, please feel free to <a href="mailto:conduct@riot-rs.org">contact us</a>.</p>
-<div style="break-before: page; page-break-before: always;"></div><p>If you believe someone is violating the code of conduct we ask that you
-report it to us by emailing <a href="mailto:conduct@riot-rs.org">conduct@riot-rs.org</a>.</p>
-<p><strong>All reports will be kept confidential.</strong> In some cases we may determine that a
-public statement will need to be made. If that's the case, the identities of all
-victims and reporters will remain confidential unless those individuals instruct
-us otherwise.</p>
-<p><strong>If you believe anyone is in physical danger, please notify appropriate law
-enforcement first.</strong> If you are unsure what law enforcement agency is
-appropriate, please include this in your report and we will attempt to notify
-them.</p>
-<p>If you are unsure whether the incident is a violation, or whether the space
-where it happened is covered by this Code of Conduct, we encourage you to still
-report it. We would much rather have a few extra reports where we decide to take
-no action, rather than miss a report of an actual violation. We do not look
-negatively on you if we find the incident is not a violation. And knowing about
-incidents that are not violations, or happen outside our spaces, can also help
-us to improve the Code of Conduct or the processes surrounding it.</p>
-<p>In your report please include:</p>
-<ul>
-<li>Your contact info (so we can get in touch with you if we need to follow up)</li>
-<li>Names (real, nicknames, or pseudonyms) of any individuals involved. If there
-were other witnesses besides you, please try to include them as well.</li>
-<li>When and where the incident occurred. Please be as specific as possible.</li>
-<li>Your account of what occurred. If there is a publicly available record (e.g.
-a mailing list archive or a public Matrix logger) please include a link.</li>
-<li>Any extra context you believe existed for the incident.</li>
-<li>If you believe this incident is ongoing.</li>
-<li>Any other information you believe we should have.</li>
-</ul>
-<h3 id="what-happens-after-you-file-a-report"><a class="header" href="#what-happens-after-you-file-a-report">What happens after you file a report?</a></h3>
-<p>You will receive an email from one of the core community members as soon as
-possible. We promise to acknowledge receipt within 24 hours (and will aim for
-much quicker than that).</p>
-<p>They will review the incident and determine:</p>
-<ul>
-<li>What happened.</li>
-<li>Whether this event constitutes a code of conduct violation.</li>
-<li>Who the bad actor was.</li>
-<li>Whether this is an ongoing situation, or if there is a threat to anyone's
-physical safety.</li>
-</ul>
-<p>If this is determined to be an ongoing incident or a threat to physical safety,
-their immediate priority will be to protect everyone involved.
-This means we may delay an &quot;official&quot; response until we believe that the
-situation has ended and that everyone is physically safe.</p>
-<p>Once the working group has a complete account of the events they will make a
-decision as to how to response. Responses may include:</p>
-<ul>
-<li>Nothing (if we determine no violation occurred).</li>
-<li>A private reprimand from us to the individual(s) involved.</li>
-<li>A public reprimand.</li>
-<li>An imposed vacation (i.e. asking someone to &quot;take a week off&quot; from a mailing
-list or Matrix).</li>
-<li>A permanent or temporary ban from some or all RIOT-rs spaces (mailing lists,
-Matrix, etc.)</li>
-<li>A request for a public or private apology.</li>
-</ul>
-<p>We'll respond within one week to the person who filed the report with either a
-resolution or an explanation of why the situation is not yet resolved.</p>
-<p>Once we've determined our final action, we'll contact the original reporter to
-let them know what action (if any) we'll be taking. We'll take into account
-feedback from the reporter on the appropriateness of our response, but we don't
-guarantee we'll act on it.</p>
-<h4 id="reference"><a class="header" href="#reference">Reference</a></h4>
-<p>These reporting guidelines were adapted from the <a href="https://www.djangoproject.com/conduct/reporting/">Django reporting guidelines</a></p>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="appendices"><a class="header" href="#appendices">Appendices</a></h1>
-<div style="break-before: page; page-break-before: always;"></div><h1 id="coding-conventions"><a class="header" href="#coding-conventions">Coding Conventions</a></h1>
-<h2 id="item-order-in-rust-modules"><a class="header" href="#item-order-in-rust-modules">Item Order in Rust Modules</a></h2>
-<p>Items SHOULD appear in Rust modules in the following order, based on <a href="https://rust-analyzer.github.io/manual.html#auto-import">the one used by rust-analyzer</a>:</p>
-<ol>
-<li>Inner doc comment</li>
-<li><a href="https://doc.rust-lang.org/reference/attributes.html">Inner attributes</a></li>
-<li>Unconditional—i.e., not feature-gated—bodyless <a href="https://doc.rust-lang.org/reference/items/modules.html">modules</a></li>
-<li>Conditional—i.e., feature-gated—bodyless modules</li>
-<li>Unconditional imports from the following:
-<ol>
-<li><code>std</code>/<code>alloc</code>/<code>core</code></li>
-<li>External crates (including crates from the same workspace)</li>
-<li>Current crate, paths prefixed by <code>crate</code></li>
-<li>Current module, paths prefixed by <code>self</code></li>
-<li>Super module, paths prefixed by <code>super</code></li>
-<li>Re-exports—i.e., <code>pub</code> imports not used in the module</li>
-</ol>
-</li>
-<li>Conditional imports from the same</li>
-<li><a href="https://doc.rust-lang.org/reference/items/constant-items.html">Const items</a></li>
-<li><a href="https://doc.rust-lang.org/reference/items/static-items.html">Static items</a></li>
-<li>Other items</li>
-</ol>
-<p>TODO: type aliases before other items?</p>
-<p>TODO: how to organize type definitions w.r.t. related logic?</p>
-<h2 id="imports"><a class="header" href="#imports">Imports</a></h2>
-<p>Imports from the same crate with the same visibility MUST be <a href="https://rust-analyzer.github.io/manual.html#auto-import">merged into a single use statement</a>.</p>
-<h2 id="comments"><a class="header" href="#comments">Comments</a></h2>
-<h3 id="doc-comments"><a class="header" href="#doc-comments">Doc Comments</a></h3>
-<p>All public items listed in the documentation—i.e., not marked with <a href="https://doc.rust-lang.org/rustdoc/write-documentation/the-doc-attribute.html#hidden"><code>#[doc(hidden)]</code></a>—SHOULD be documented.</p>
-<p>Doc comments MUST use the <a href="https://doc.rust-lang.org/reference/comments.html#doc-comments">line comment style</a>, not the block style.</p>
-<p>Doc comments MUST be written in third person present, not in the imperative mood, as recommended by <a href="https://github.com/rust-lang/rfcs/blob/master/text/1574-more-api-documentation-conventions.md#summary-sentence">RFC 1574</a>.
-Each sentence in doc comments—including the first one, before an empty line—SHOULD end with a period.
-For instance, instead of:</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Get the underlying value
-<span class="boring">}</span></code></pre></pre>
-<p>write:</p>
-<pre><pre class="playground"><code class="language-rust"><span class="boring">#![allow(unused)]
-</span><span class="boring">fn main() {
-</span>/// Returns the underlying value.
-<span class="boring">}</span></code></pre></pre>
-<p>More generally, use the <a href="https://doc.rust-lang.org/stable/std/"><code>std</code> docs</a> as inspiration.</p>
-<h2 id="unsafe-code"><a class="header" href="#unsafe-code"><code>unsafe</code> Code</a></h2>
-<p>When <code>unsafe</code> is used, a <code>SAFETY</code> comment MUST be added, in the style <a href="https://rust-lang.github.io/rust-clippy/master/index.html#/undocumented_unsafe_blocks">supported by Clippy</a>.</p>
-<p>TODO: enforce it in CI</p>
-<h2 id="naming-conventions"><a class="header" href="#naming-conventions">Naming Conventions</a></h2>
-<p>Names SHOULD adhere to the <a href="https://rust-lang.github.io/api-guidelines/naming.html">official API guidelines</a>.</p>
-<p>TODO: how to name error types/error enum variants (<code>CannotDoSth</code> vs <code>DoingSth</code>)?</p>
-<h2 id="dependencies"><a class="header" href="#dependencies">Dependencies</a></h2>
-<p>If the same dependency is used in multiples crates within the workspace, that dependency SHOULD be specified in the <em>workspace</em>'s <code>Cargo.toml</code> file and workspace crates should import them from there.</p>
 
                     </main>
 
                     <nav class="nav-wrapper" aria-label="Page navigation">
                         <!-- Mobile navigation buttons -->
+                            <a rel="prev" href="introduction.html" class="mobile-nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                                <i class="fa fa-angle-left"></i>
+                            </a>
 
+                            <a rel="next prefetch" href="COC_reporting.html" class="mobile-nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                                <i class="fa fa-angle-right"></i>
+                            </a>
 
                         <div style="clear: both"></div>
                     </nav>
@@ -395,7 +270,13 @@ For instance, instead of:</p>
             </div>
 
             <nav class="nav-wide-wrapper" aria-label="Page navigation">
+                    <a rel="prev" href="introduction.html" class="nav-chapters previous" title="Previous chapter" aria-label="Previous chapter" aria-keyshortcuts="Left">
+                        <i class="fa fa-angle-left"></i>
+                    </a>
 
+                    <a rel="next prefetch" href="COC_reporting.html" class="nav-chapters next" title="Next chapter" aria-label="Next chapter" aria-keyshortcuts="Right">
+                        <i class="fa fa-angle-right"></i>
+                    </a>
             </nav>
 
         </div>
@@ -418,11 +299,6 @@ For instance, instead of:</p>
 
         <!-- Custom JS scripts -->
 
-        <script>
-        window.addEventListener('load', function() {
-            window.setTimeout(window.print, 100);
-        });
-        </script>
 
     </div>
     </body>
