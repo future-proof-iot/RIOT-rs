@@ -1,0 +1,7 @@
+error: custom attribute panicked
+ --> tests/ui/task/forbidden_pool_size_on_autostart_task.rs:6:1
+  |
+6 | #[riot_rs::task(autostart, pool_size = 4)]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = help: message: pool size cannot be set on an `autostart` task

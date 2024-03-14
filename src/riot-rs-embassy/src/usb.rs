@@ -4,8 +4,10 @@ pub use crate::arch::usb::UsbDriver;
 
 pub type UsbBuilder = embassy_usb::Builder<'static, UsbDriver>;
 
+pub type UsbBuilderHook = &'static crate::delegate::Delegate<UsbBuilder>;
+
 #[linkme::distributed_slice]
-pub static USB_BUILDER_HOOKS: [&crate::delegate::Delegate<UsbBuilder>] = [..];
+pub static USB_BUILDER_HOOKS: [UsbBuilderHook] = [..];
 
 #[embassy_executor::task]
 pub(crate) async fn usb_task(mut device: embassy_usb::UsbDevice<'static, UsbDriver>) -> ! {

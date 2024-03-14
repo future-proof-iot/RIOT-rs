@@ -7,7 +7,7 @@ use riot_rs::{debug::println, embassy::network};
 
 use embedded_io_async::Write;
 
-#[embassy_executor::task]
+#[riot_rs::task(autostart)]
 async fn tcp_echo() {
     use embassy_net::tcp::TcpSocket;
     let stack = network::network_stack().await.unwrap();
@@ -52,14 +52,6 @@ async fn tcp_echo() {
             };
         }
     }
-}
-
-// TODO: macro up this
-use riot_rs::embassy::{arch::OptionalPeripherals, Spawner};
-#[riot_rs::embassy::distributed_slice(riot_rs::embassy::EMBASSY_TASKS)]
-#[linkme(crate = riot_rs::embassy::linkme)]
-fn __init_tcp_echo(spawner: &Spawner, _peripherals: &mut OptionalPeripherals) {
-    spawner.spawn(tcp_echo()).unwrap();
 }
 
 #[riot_rs::config(network)]
