@@ -48,7 +48,7 @@ impl<T: Copy + Send> Channel<T> {
                         }
                         if let ThreadState::ChannelRxBlocked(ptr) = head_state {
                             // copy over `something`
-                            unsafe { *(ptr as *mut T) = *something };
+                            unsafe { (ptr as *mut T).write(*something) };
                         } else {
                             unreachable!("unexpected thread state");
                         }
@@ -77,7 +77,7 @@ impl<T: Copy + Send> Channel<T> {
                         }
                         if let ThreadState::ChannelRxBlocked(ptr) = head_state {
                             // copy over `something`
-                            unsafe { *(ptr as *mut T) = *something };
+                            unsafe { (ptr as *mut T).write(*something) };
                         } else {
                             unreachable!("unexpected thread state");
                         }
@@ -92,23 +92,19 @@ impl<T: Copy + Send> Channel<T> {
     }
 
     pub fn recv(&self) -> T {
-        let mut res = MaybeUninit::uninit();
+        let mut res: MaybeUninit<T> = MaybeUninit::uninit();
+
         with(|cs| {
             let state = unsafe { &mut *self.state.get() };
+            let ptr = res.as_mut_ptr();
             match state {
                 ChannelState::Idle => {
                     let mut waiters = ThreadList::new();
-                    waiters.put_current(
-                        cs,
-                        crate::ThreadState::ChannelRxBlocked(res.as_ptr() as usize),
-                    );
+                    waiters.put_current(cs, crate::ThreadState::ChannelRxBlocked(ptr as usize));
                     *state = ChannelState::ReceiversWaiting(waiters);
                 }
                 ChannelState::ReceiversWaiting(waiters) => {
-                    waiters.put_current(
-                        cs,
-                        crate::ThreadState::ChannelRxBlocked(res.as_ptr() as usize),
-                    );
+                    waiters.put_current(cs, crate::ThreadState::ChannelRxBlocked(ptr as usize));
                     // sender will copy message
                 }
                 ChannelState::SendersWaiting(waiters) => {
@@ -116,9 +112,9 @@ impl<T: Copy + Send> Channel<T> {
                         if waiters.is_empty(cs) {
                             *state = ChannelState::Idle;
                         }
-                        if let ThreadState::ChannelTxBlocked(ptr) = head_state {
+                        if let ThreadState::ChannelTxBlocked(other_ptr) = head_state {
                             // copy over `something`
-                            unsafe { res.write(*(ptr as *const T)) };
+                            unsafe { ptr.write(*(other_ptr as *const T)) };
                         } else {
                             unreachable!("unexpected thread state");
                         }
@@ -129,22 +125,27 @@ impl<T: Copy + Send> Channel<T> {
             }
         });
 
+        // ensure the compiler honors what happened to memory while the thread
+        // was scheduled away.
+        core::sync::atomic::fence(core::sync::atomic::Ordering::Acquire);
+
         unsafe { res.assume_init() }
     }
 
     pub fn try_recv(&self) -> Option<T> {
-        let mut res = MaybeUninit::uninit();
+        let mut res: MaybeUninit<T> = MaybeUninit::uninit();
         let have_received = with(|cs| {
             let state = unsafe { &mut *self.state.get() };
             match state {
                 ChannelState::SendersWaiting(waiters) => {
+                    let ptr = res.as_mut_ptr();
                     if let Some((_, head_state)) = waiters.pop(cs) {
                         if waiters.is_empty(cs) {
                             *state = ChannelState::Idle;
                         }
-                        if let ThreadState::ChannelTxBlocked(ptr) = head_state {
+                        if let ThreadState::ChannelTxBlocked(other_ptr) = head_state {
                             // copy over `something`
-                            unsafe { res.write(*(ptr as *const T)) };
+                            unsafe { ptr.write(*(other_ptr as *const T)) };
                         } else {
                             unreachable!("unexpected thread state");
                         }
@@ -158,7 +159,8 @@ impl<T: Copy + Send> Channel<T> {
         });
 
         if have_received {
-            unsafe { Some(res.assume_init()) }
+            core::sync::atomic::compiler_fence(core::sync::atomic::Ordering::Acquire);
+            Some(unsafe { res.assume_init() })
         } else {
             None
         }
