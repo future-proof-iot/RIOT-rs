@@ -41,8 +41,8 @@ pub async fn device<'a, 'b: 'a>(
 ) -> (embassy_net_driver_channel::Device<'b, 1514>, Control<'b>) {
     let p = Cyw43Periphs::take_from(p).unwrap();
 
-    let fw = include_bytes!("../../firmware/cyw43/43439A0.bin");
-    let clm = include_bytes!("../../firmware/cyw43/43439A0_clm.bin");
+    let fw = include_bytes!("cyw43/firmware/43439A0.bin");
+    let clm = include_bytes!("cyw43/firmware/43439A0_clm.bin");
 
     // To make flashing faster for development, you may want to flash the firmwares independently
     // at hardcoded addresses, instead of baking them into the program with `include_bytes!`:
