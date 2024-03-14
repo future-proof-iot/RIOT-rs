@@ -2522,9 +2522,11 @@ dependencies = [
 name = "riot-rs-macros"
 version = "0.1.0"
 dependencies = [
+ "embassy-executor",
  "enum-iterator",
  "heapless 0.8.0",
  "proc-macro-crate",
+ "proc-macro2",
  "quote",
  "riot-rs",
  "syn 2.0.52",

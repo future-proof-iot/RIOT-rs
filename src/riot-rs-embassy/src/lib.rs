@@ -30,6 +30,8 @@ use riot_rs_debug::println;
 pub use linkme::{self, distributed_slice};
 pub use static_cell::make_static;
 
+// Used by a macro we provide
+pub use embassy_executor;
 pub use embassy_executor::Spawner;
 
 // Crates used in driver configuration functions
@@ -52,7 +54,7 @@ pub mod blocker;
 pub mod delegate;
 pub mod sendcell;
 
-pub type Task = fn(&Spawner, &mut arch::OptionalPeripherals);
+pub type Task = fn(Spawner, &mut arch::OptionalPeripherals);
 
 #[distributed_slice]
 pub static EMBASSY_TASKS: [Task] = [..];
@@ -105,7 +107,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     let spawner = Spawner::for_current_executor().await;
 
     for task in EMBASSY_TASKS {
-        task(&spawner, &mut peripherals);
+        task(spawner, &mut peripherals);
     }
 
     #[cfg(feature = "usb")]

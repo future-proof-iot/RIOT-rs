@@ -36,10 +36,12 @@ async fn wifi_cyw43_task(runner: Runner<'static, Output<'static, CYW43_PWR>, Cyw
 }
 
 pub async fn device<'a, 'b: 'a>(
-    p: &'a mut OptionalPeripherals,
+    mut p: &'a mut OptionalPeripherals,
     spawner: &crate::Spawner,
 ) -> (embassy_net_driver_channel::Device<'b, 1514>, Control<'b>) {
-    let p = Cyw43Periphs::take_from(p).unwrap();
+    use crate::define_peripherals::TakePeripherals;
+
+    let pins: Cyw43Periphs = p.take_peripherals();
 
     let fw = include_bytes!("cyw43/firmware/43439A0.bin");
     let clm = include_bytes!("cyw43/firmware/43439A0_clm.bin");
@@ -51,10 +53,18 @@ pub async fn device<'a, 'b: 'a>(
     //let fw = unsafe { core::slice::from_raw_parts(0x10100000 as *const u8, 230321) };
     //let clm = unsafe { core::slice::from_raw_parts(0x10140000 as *const u8, 4752) };
 
-    let pwr = Output::new(p.pwr, Level::Low);
-    let cs = Output::new(p.cs, Level::High);
-    let mut pio = Pio::new(p.pio, Irqs);
-    let spi = CywSpi::new(&mut pio.common, pio.sm0, pio.irq0, cs, p.dio, p.clk, p.dma);
+    let pwr = Output::new(pins.pwr, Level::Low);
+    let cs = Output::new(pins.cs, Level::High);
+    let mut pio = Pio::new(pins.pio, Irqs);
+    let spi = CywSpi::new(
+        &mut pio.common,
+        pio.sm0,
+        pio.irq0,
+        cs,
+        pins.dio,
+        pins.clk,
+        pins.dma,
+    );
 
     let state = make_static!(cyw43::State::new());
     let (net_device, mut control, runner) = cyw43::new(state, pwr, spi, fw).await;

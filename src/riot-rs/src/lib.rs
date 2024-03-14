@@ -9,11 +9,13 @@
 
 pub use riot_rs_buildinfo as buildinfo;
 pub use riot_rs_debug as debug;
-pub use riot_rs_embassy::{self as embassy, define_peripherals};
+pub use riot_rs_embassy::{self as embassy, define_peripherals, group_peripherals};
 pub use riot_rs_rt as rt;
 
 // Attribute macros
 pub use riot_rs_macros::config;
+pub use riot_rs_macros::spawner;
+pub use riot_rs_macros::task;
 #[cfg(any(feature = "threading", doc))]
 #[doc(cfg(feature = "threading"))]
 pub use riot_rs_macros::thread;

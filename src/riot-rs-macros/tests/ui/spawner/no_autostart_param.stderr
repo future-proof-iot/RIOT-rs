@@ -1,0 +1,7 @@
+error: custom attribute panicked
+  --> tests/ui/spawner/no_autostart_param.rs:10:1
+   |
+10 | #[riot_rs::spawner]
+   | ^^^^^^^^^^^^^^^^^^^
+   |
+   = help: message: the `autostart` parameter must be provided

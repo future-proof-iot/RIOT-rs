@@ -7,23 +7,17 @@ use embassy_time::Duration;
 use embassy_usb::class::hid::{self, HidReaderWriter};
 use riot_rs::{
     debug::println,
-    embassy::{make_static, usb::UsbDriver},
-    linkme::distributed_slice,
+    embassy::{
+        make_static,
+        usb::{UsbBuilderHook, UsbDriver},
+    },
 };
 
 use usbd_hid::descriptor::KeyboardReport;
 
 mod pins;
 
-// TODO: wrap in macro
-use riot_rs::embassy::delegate::Delegate;
-static USB_BUILDER_HOOK: Delegate<riot_rs::embassy::usb::UsbBuilder> = Delegate::new();
-
-#[distributed_slice(riot_rs::embassy::usb::USB_BUILDER_HOOKS)]
-#[linkme(crate=riot_rs::embassy::linkme)]
-static _USB_BUILDER_HOOK: &Delegate<riot_rs::embassy::usb::UsbBuilder> = &USB_BUILDER_HOOK;
-
-#[embassy_executor::task]
+#[riot_rs::task(autostart, peripherals, usb_builder_hook)]
 async fn usb_keyboard(button_peripherals: pins::Buttons) {
     let mut buttons = Buttons::new(button_peripherals);
 
@@ -60,16 +54,6 @@ async fn usb_keyboard(button_peripherals: pins::Buttons) {
         // Debounce events
         embassy_time::Timer::after(Duration::from_millis(50)).await;
     }
-}
-
-// TODO: macro up this
-use riot_rs::embassy::{arch::OptionalPeripherals, Spawner};
-#[riot_rs::embassy::distributed_slice(riot_rs::embassy::EMBASSY_TASKS)]
-#[linkme(crate = riot_rs::embassy::linkme)]
-fn __init_usb_keyboard(spawner: &Spawner, peripherals: &mut OptionalPeripherals) {
-    spawner
-        .spawn(usb_keyboard(pins::Buttons::take_from(peripherals).unwrap()))
-        .unwrap();
 }
 
 use crate::buttons::{Buttons, KEY_COUNT};

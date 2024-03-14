@@ -1,0 +1,7 @@
+error: custom attribute panicked
+  --> tests/ui/spawner/missing_peripherals_param.rs:10:1
+   |
+10 | #[riot_rs::spawner(autostart)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: message: to provide this function with peripherals, use the `peripherals` macro parameter

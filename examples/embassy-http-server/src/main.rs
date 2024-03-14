@@ -3,11 +3,13 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-#[cfg(feature = "button-readings")]
 mod pins;
 mod routes;
 
-use riot_rs::{debug::println, embassy::network};
+use riot_rs::{
+    debug::println,
+    embassy::{network, Spawner},
+};
 
 use embassy_net::tcp::TcpSocket;
 use embassy_time::Duration;
@@ -48,7 +50,7 @@ type AppRouter = impl picoserve::routing::PathRouter<AppState>;
 
 const WEB_TASK_POOL_SIZE: usize = 2;
 
-#[embassy_executor::task(pool_size = WEB_TASK_POOL_SIZE)]
+#[riot_rs::task(pool_size = WEB_TASK_POOL_SIZE)]
 async fn web_task(
     id: usize,
     app: &'static picoserve::Router<AppRouter, AppState>,
@@ -85,17 +87,14 @@ async fn web_task(
     }
 }
 
-// TODO: macro up this up
-use riot_rs::embassy::{arch::OptionalPeripherals, Spawner};
-#[riot_rs::embassy::distributed_slice(riot_rs::embassy::EMBASSY_TASKS)]
-#[linkme(crate = riot_rs::embassy::linkme)]
-fn web_server_init(spawner: &Spawner, peripherals: &mut OptionalPeripherals) {
+#[riot_rs::spawner(autostart, peripherals)]
+fn main(spawner: Spawner, peripherals: pins::Peripherals) {
     #[cfg(not(feature = "button-readings"))]
     let _ = peripherals;
 
     #[cfg(feature = "button-readings")]
     let button_inputs = {
-        let buttons = pins::Buttons::take_from(peripherals).unwrap();
+        let buttons = peripherals.buttons;
 
         let buttons = Buttons {
             button1: Input::new(buttons.btn1.degrade(), Pull::Up),

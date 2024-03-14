@@ -1,8 +1,8 @@
 /// This macro allows to extract the specified peripherals from `OptionalPeripherals` for use in an
 /// application.
 ///
-/// The generated struct provides a `take_from()` method for extracting the specified peripherals
-/// from `OptionalPeripherals`.
+/// The generated struct can be obtained by calling the `take_peripherals()` method on
+/// `&mut OptionalPeripherals`.
 ///
 /// The `define_peripherals!` macro expects a `peripherals` module to be in scope, where the
 /// peripheral types should come from.
@@ -21,11 +21,12 @@ macro_rules! define_peripherals {
         $peripherals:ident {
             $(
                 $(#[$inner:meta])*
-                $peripheral_name:ident : $peripheral_field:ident $(=$peripheral_alias:ident)?),*
+                $peripheral_name:ident : $peripheral_field:ident $(=$peripheral_alias:ident)?
+            ),*
             $(,)?
         }
     ) => {
-        #[allow(dead_code,non_snake_case,missing_docs)]
+        #[allow(dead_code,non_snake_case)]
         $(#[$outer])*
         pub struct $peripherals {
             $(
@@ -39,22 +40,55 @@ macro_rules! define_peripherals {
             pub type $peripheral_alias = peripherals::$peripheral_field;
         )?)*
 
-        impl $peripherals {
-            pub fn take_from(
-                opt_peripherals: &mut $crate::arch::OptionalPeripherals
-            ) -> Result<Self, $crate::define_peripherals::DefinePeripheralsError> {
-                Ok(Self {
-                    $($peripheral_name: opt_peripherals.$peripheral_field
-                        .take()
-                        .ok_or($crate::define_peripherals::DefinePeripheralsError::TakingPeripheral)?
+        impl $crate::define_peripherals::TakePeripherals<$peripherals> for &mut $crate::arch::OptionalPeripherals {
+            fn take_peripherals(&mut self) -> $peripherals {
+                $peripherals {
+                    $(
+                        $(#[$inner])*
+                        $peripheral_name: self.$peripheral_field.take().unwrap()
                     ),*
-                })
+                }
             }
         }
     }
 }
 
-#[derive(Debug)]
-pub enum DefinePeripheralsError {
-    TakingPeripheral,
+/// This macros allows to group peripheral structs defined with `define_peripherals!` into a single
+/// struct that also implements `take_peripherals()`.
+#[macro_export]
+macro_rules! group_peripherals {
+    (
+        $(#[$outer:meta])*
+        $group:ident {
+            $(
+                $(#[$inner:meta])*
+                $peripheral_name:ident : $peripherals:ident
+            ),*
+            $(,)?
+        }
+    ) => {
+        #[allow(dead_code,non_snake_case)]
+        $(#[$outer])*
+        pub struct $group {
+            $(
+                $(#[$inner])*
+                pub $peripheral_name: $peripherals
+            ),*
+        }
+
+        impl $crate::define_peripherals::TakePeripherals<$group> for &mut $crate::arch::OptionalPeripherals {
+            fn take_peripherals(&mut self) -> $group {
+                $group {
+                    $(
+                        $(#[$inner])*
+                        $peripheral_name: self.take_peripherals(),
+                    ),*
+                }
+            }
+        }
+    }
+}
+
+pub trait TakePeripherals<T> {
+    fn take_peripherals(&mut self) -> T;
 }
