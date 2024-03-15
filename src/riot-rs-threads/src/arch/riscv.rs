@@ -111,6 +111,14 @@ fn FROM_CPU_INTR3(trap_frame: &mut TrapFrame) {
     }
 }
 
+/// Probes the runqueue for the next thread and switches context if needed.
+///
+/// # Safety
+///
+/// This method might switch the current register state that is saved in the
+/// `trap_frame`.
+/// It should only be called from inside the trap handler that is responsible for
+/// context switching.
 unsafe fn sched(trap_frame: &mut TrapFrame) {
     unsafe {
         let cs = CriticalSection::new();
