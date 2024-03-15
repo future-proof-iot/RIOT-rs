@@ -499,6 +499,13 @@ modules:
         RUSTFLAGS:
           - --cfg capability=\"hw/usb-device-port\"
 
+  - name: sw/benchmark
+    help: provided if a target supports `benchmark()`
+    # Currently there's only one implementation based on Systick, so Cortex-M only.
+    context:
+      - nrf
+      - rp
+
   - name: wifi-esp
     context:
       - esp
@@ -609,3 +616,4 @@ apps:
 subdirs:
   - examples
   - src
+  - tests

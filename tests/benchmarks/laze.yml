@@ -1,0 +1,2 @@
+subdirs:
+  - bench_sched_yield

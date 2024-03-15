@@ -12,6 +12,7 @@ members = [
   "src/riot-rs-chips",
   "src/riot-rs-debug",
   "src/riot-rs-macros",
+  "tests/benchmarks/bench_sched_yield",
 ]
 
 exclude = ["src/lib"]
@@ -50,6 +51,7 @@ esp-wifi = { git = "https://github.com/kaspar030/esp-wifi", branch = "update-esp
 linkme = { version = "0.3.21", features = ["used_linker"] }
 
 riot-rs = { path = "src/riot-rs", default-features = false }
+riot-rs-boards = { path = "src/riot-rs-boards", default-features = false }
 riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
