@@ -125,7 +125,10 @@ unsafe fn sched(trap_frame: &mut TrapFrame) {
         if THREADS.with_mut(|mut threads| {
             let next_pid = match threads.runqueue.get_next() {
                 Some(pid) => pid,
-                None => return false,
+                None => {
+                    riscv::asm::wfi();
+                    return false
+                }
             };
 
             if let Some(current_pid) = threads.current_pid() {
@@ -136,10 +139,10 @@ unsafe fn sched(trap_frame: &mut TrapFrame) {
             }
             threads.current_thread = Some(next_pid);
             copy_registers(&threads.threads[next_pid as usize].data, trap_frame);
-            return true;
+            true
         }) {
             break;
         }
-        riscv::asm::wfi();
     }
 }
+
