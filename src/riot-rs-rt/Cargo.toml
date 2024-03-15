@@ -35,5 +35,11 @@ executor-single-thread = []
 silent-panic = []
 _panic-handler = []
 
+# internal
+# These two features are used by `build.rs`, which doesn't "see" context
+# variables.
+_esp32c3 = []
+_esp32c6 = []
+
 [dev-dependencies]
 riot-rs-boards = { path = "../riot-rs-boards" }

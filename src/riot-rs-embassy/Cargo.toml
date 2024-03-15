@@ -68,6 +68,10 @@ embassy-rp = { workspace = true, features = [
 esp-hal = { workspace = true, features = [
   "embassy",
   "embassy-executor-thread",
+  "embassy-time-driver",
+  "embassy-time-timg0",
+  "rt",
+  "vectored",
 ] }
 esp-wifi = { workspace = true, features = [
   "async",
@@ -76,13 +80,12 @@ esp-wifi = { workspace = true, features = [
 ], optional = true }
 
 [target.'cfg(context = "esp32c3")'.dependencies]
-esp-hal = { workspace = true, features = [
-  "esp32c3",
-  "rt",
-  "vectored",
-  "embassy-time-timg0",
-] }
+esp-hal = { workspace = true, features = ["esp32c3"] }
 esp-wifi = { workspace = true, features = ["esp32c3"], optional = true }
+
+[target.'cfg(context = "esp32c6")'.dependencies]
+esp-hal = { workspace = true, features = ["esp32c6"] }
+esp-wifi = { workspace = true, features = ["esp32c6"], optional = true }
 
 [features]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]

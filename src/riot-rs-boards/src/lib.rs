@@ -6,6 +6,8 @@ use cfg_if::cfg_if;
 cfg_if! {
     if #[cfg(feature = "ai-c3")] {
         pub use ai_c3 as board;
+    } else if #[cfg(feature = "expressif-esp32-c6-devkitc-1")] {
+        pub use expressif_esp32_c6_devkitc_1 as board;
     } else if #[cfg(feature = "nrf52dk")] {
         pub use nrf52dk as board;
     } else if #[cfg(feature = "dwm1001")] {

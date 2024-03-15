@@ -263,6 +263,14 @@ contexts:
       RUSTC_TARGET: riscv32imc-unknown-none-elf
       CARGO_TARGET_PREFIX: CARGO_TARGET_RISCV32IMC_UNKNOWN_NONE_ELF
 
+  - name: esp32c6
+    parent: esp
+    env:
+      RUSTFLAGS:
+        - --cfg context=\"esp32c6\"
+      RUSTC_TARGET: riscv32imac-unknown-none-elf
+      CARGO_TARGET_PREFIX: CARGO_TARGET_RISCV32IMAC_UNKNOWN_NONE_ELF
+
 modules:
   - name: cortex-m
     env:
@@ -497,6 +505,7 @@ builders:
           - rustup target add thumbv7em-none-eabi
           - rustup target add thumbv7em-none-eabihf
           - rustup target add riscv32imc-unknown-none-elf
+          - rustup target add riscv32imac-unknown-none-elf
           - rustup component add rust-src
 
       install-c2rust:
@@ -559,6 +568,9 @@ builders:
 
   - name: ai-c3
     parent: esp32c3
+
+  - name: expressif-esp32-c6-devkitc-1
+    parent: esp32c6
 
 apps:
   # define a dummy host application so the host tasks work

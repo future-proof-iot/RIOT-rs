@@ -4,8 +4,5 @@ version = "0.1.0"
 edition = "2021"
 
 [dependencies]
-riot-rs-rt.workspace = true
+riot-rs-rt = { workspace = true, features = ["_esp32c3"] }
 riot-rs-debug.workspace = true
-esp-hal = { workspace = true, features = [
-  "embassy-time-driver",
-], default-features = true }

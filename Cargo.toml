@@ -87,6 +87,8 @@ embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for
 embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-140224" }
 embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-140224" }
 
+usbd-hid-macros = { git = "https://github.com/kaspar030/usbd-hid", branch = "for-riot-rs" }
+
 [workspace.lints.rust]
 unsafe_op_in_unsafe_fn = "warn"
 unused_must_use = "deny"
