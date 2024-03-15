@@ -216,36 +216,38 @@ unsafe fn sched(old_sp: usize) -> u128 {
     loop {
         if let Some(res) = critical_section::with(|cs| {
             let threads = &mut *THREADS.as_ptr(cs);
-            if let Some(next_pid) = threads.runqueue.get_next() {
-                let current_high_regs = if let Some(current_pid) = threads.current_pid() {
-                    if next_pid == current_pid {
-                        return Some(0);
-                    }
-                    threads.threads[current_pid as usize].sp = old_sp;
-                    threads.current_thread = Some(next_pid);
-                    threads.threads[current_pid as usize].data.as_ptr()
-                } else {
-                    core::ptr::null()
-                } as usize;
+            let next_pid = match threads.runqueue.get_next() {
+                Some(pid) => pid,
+                None => {
+                    cortex_m::asm::wfi();
+                    return None;
+                }
+            };
 
-                let next = &threads.threads[next_pid as usize];
-                let next_sp = next.sp as usize;
-                let next_high_regs = next.data.as_ptr() as usize;
+            let current_pid = threads.current_pid().unwrap();
+            if next_pid == current_pid {
+                return Some(0);
+            }
 
-                // PendSV expects these three pointers in r0, r1 and r2:
-                // r0 = &next.sp
-                // r1 = &current.high_regs
-                // r2 = &next.high_regs
-                // On Cortex-M, a u128 as return value is passed in registers r0-r3.
-                // So let's use that.
-                let res: u128 =
+            threads.threads[current_pid as usize].sp = old_sp;
+            threads.current_thread = Some(next_pid);
+
+            let next = &threads.threads[next_pid as usize];
+
+            let next_sp = next.sp as usize;
+            let current_high_regs = threads.threads[current_pid as usize].data.as_ptr() as usize;
+            let next_high_regs = next.data.as_ptr() as usize;
+
+            // PendSV expects these three pointers in r0, r1 and r2:
+            // r0 = &next.sp
+            // r1 = &current.high_regs
+            // r2 = &next.high_regs
+            // On Cortex-M, a u128 as return value is passed in registers r0-r3.
+            // So let's use that.
+            let res: u128 =
                 //  (r0)                     (r1)                        (r2)
                     (next_sp as u128) |  ((current_high_regs as u128) << 32) | ((next_high_regs as u128) << 64);
-                Some(res)
-            } else {
-                cortex_m::asm::wfi();
-                None
-            }
+            Some(res)
         }) {
             break res;
         }
