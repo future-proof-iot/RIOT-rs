@@ -87,7 +87,8 @@ esp-wifi = { workspace = true, features = ["esp32c3"], optional = true }
 [features]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
 usb = ["dep:embassy-usb"]
-net = ["dep:embassy-net"]
+# embassy-net requires embassy-time and support for timeouts in the executor
+net = ["dep:embassy-net", "time"]
 usb-ethernet = ["usb", "net"]
 
 wifi = []

@@ -11,8 +11,5 @@ embassy-net = { workspace = true, features = ["udp"] }
 embassy-time = { workspace = true, default-features = false }
 embedded-io-async = "0.6.1"
 heapless = { workspace = true }
-riot-rs = { path = "../../src/riot-rs", features = [
-  "time",
-  "override-network-config",
-] }
+riot-rs = { path = "../../src/riot-rs", features = ["override-network-config"] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
