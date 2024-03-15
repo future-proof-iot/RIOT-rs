@@ -1,4 +1,5 @@
 use crate::{cleanup, Arch, Thread, THREADS};
+use core::ops::ControlFlow;
 use critical_section::CriticalSection;
 use esp_hal::{
     interrupt::{self, TrapFrame},
@@ -120,28 +121,25 @@ fn FROM_CPU_INTR3(trap_frame: &mut TrapFrame) {
 /// It should only be called from inside the trap handler that is responsible for
 /// context switching.
 unsafe fn sched(trap_frame: &mut TrapFrame) {
-    unsafe {
-        let mut cs_state = critical_section::acquire();
-        let next_pid = loop {
-            if let Some(pid) = THREADS.with(|threads| threads.runqueue.get_next()) {
-                break pid;
-            }
-            critical_section::release(cs_state);
-            riscv::asm::wfi();
-            cs_state = critical_section::acquire();
-        };
+    loop {
+        if THREADS.with_mut(|mut threads| {
+            let next_pid = match threads.runqueue.get_next() {
+                Some(pid) => pid,
+                None => return false,
+            };
 
-        THREADS.with_mut(|mut threads| {
             if let Some(current_pid) = threads.current_pid() {
                 if next_pid == current_pid {
-                    return;
+                    return true;
                 }
                 copy_registers(trap_frame, &mut threads.threads[current_pid as usize].data);
             }
             threads.current_thread = Some(next_pid);
             copy_registers(&threads.threads[next_pid as usize].data, trap_frame);
-        });
-
-        critical_section::release(cs_state);
+            return true;
+        }) {
+            break;
+        }
+        riscv::asm::wfi();
     }
 }
