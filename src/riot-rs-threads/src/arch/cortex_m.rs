@@ -221,7 +221,6 @@ unsafe fn sched(old_sp: usize) -> u128 {
                     if next_pid == current_pid {
                         return Some(0);
                     }
-                    //println!("current: {} next: {}", current_pid, next_pid);
                     threads.threads[current_pid as usize].sp = old_sp;
                     threads.current_thread = Some(next_pid);
                     threads.threads[current_pid as usize].data.as_ptr()
@@ -235,8 +234,8 @@ unsafe fn sched(old_sp: usize) -> u128 {
 
                 // PendSV expects these three pointers in r0, r1 and r2:
                 // r0 = &next.sp
-                // r1= &current.high_regs
-                // r2= &next.high_regs
+                // r1 = &current.high_regs
+                // r2 = &next.high_regs
                 // On Cortex-M, a u128 as return value is passed in registers r0-r3.
                 // So let's use that.
                 let res: u128 =
