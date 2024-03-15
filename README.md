@@ -33,9 +33,13 @@ with [RIOT](https://github.com/RIOT-OS/RIOT).
 ## Supported hardware
 
 The following list of hardware is currently supported:
- - [Nordic nRF52840 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF52840-DK)
- - [Raspberry Pi Pico](https://www.raspberrypi.com/products/raspberry-pi-pico/)
- - more to come soon.
+ - [Nordic nRF52840 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF52840-DK) (Cortex-M4)
+ - [Nordic nRF5340 DK](https://www.nordicsemi.com/Products/Development-hardware/nRF5340-DK) (Cortex-M33)
+ - [Raspberry Pi Pico](https://www.raspberrypi.com/products/raspberry-pi-pico/) (RP2040, Cortex-M0+)
+ - [Raspberry Pi Pico W](https://www.raspberrypi.com/products/raspberry-pi-pico/) (RP2040, Cortex-M0+)
+ - [BBC Micro:Bit v2](https://tech.microbit.org/hardware/2-0-revision/) (Cortex-M4)
+ - [Expressif ESP32-C6-DevKitC-1](https://docs.espressif.com/projects/espressif-esp-dev-kits/en/latest/esp32c6/esp32-c6-devkitc-1/user_guide.html) (RISC-V)
+ - and more to come soon.
 
 ## Status
 
@@ -47,8 +51,12 @@ or instead, run your module in a [riot-wrappers](https://gitlab.com/etonomy/riot
 
 ## Quickstart
 
-Assuming you have a Nordic nrf52840dk connected to your PC, the following guidelines
-provides instructions for flashing and running the [`hello-world`
+The following assumes you have a Nordic nrf52840dk connected to your PC.
+(For other supported boards, you can find your board's name in
+[./src/riot-rs-boards/Cargo.toml](https://github.com/future-proof-iot/RIOT-rs/blob/main/src/riot-rs-boards/Cargo.toml)
+and use it instead of 'nrf52840dk' in the below guidelines.)
+
+The following instructions will enable you to flash and run the [`hello-world`
 example](https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/hello-world):
 
 ### Prerequisites
