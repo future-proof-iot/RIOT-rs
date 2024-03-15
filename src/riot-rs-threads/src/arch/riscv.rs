@@ -121,23 +121,27 @@ fn FROM_CPU_INTR3(trap_frame: &mut TrapFrame) {
 /// context switching.
 unsafe fn sched(trap_frame: &mut TrapFrame) {
     unsafe {
-        let cs = CriticalSection::new();
+        let mut cs_state = critical_section::acquire();
         let next_pid = loop {
-            if let Some(pid) = (&*THREADS.as_ptr(cs)).runqueue.get_next() {
+            if let Some(pid) = THREADS.with(|threads| threads.runqueue.get_next()) {
                 break pid;
             }
+            critical_section::release(cs_state);
             riscv::asm::wfi();
+            cs_state = critical_section::acquire();
         };
 
-        let threads = &mut *THREADS.as_ptr(cs);
-
-        if let Some(current_pid) = threads.current_pid() {
-            if next_pid == current_pid {
-                return;
+        THREADS.with_mut(|mut threads| {
+            if let Some(current_pid) = threads.current_pid() {
+                if next_pid == current_pid {
+                    return;
+                }
+                copy_registers(trap_frame, &mut threads.threads[current_pid as usize].data);
             }
-            copy_registers(trap_frame, &mut threads.threads[current_pid as usize].data);
-        }
-        threads.current_thread = Some(next_pid);
-        copy_registers(&threads.threads[next_pid as usize].data, trap_frame);
+            threads.current_thread = Some(next_pid);
+            copy_registers(&threads.threads[next_pid as usize].data, trap_frame);
+        });
+
+        critical_section::release(cs_state);
     }
 }
