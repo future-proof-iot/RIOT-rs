@@ -8,6 +8,7 @@ edition.workspace = true
 workspace = true
 
 [dependencies]
+document-features = { workspace = true }
 linkme = { workspace = true }
 riot-rs-boards = { path = "../riot-rs-boards" }
 riot-rs-buildinfo = { path = "../riot-rs-buildinfo" }
@@ -32,21 +33,50 @@ riot-rs-rt = { path = "../riot-rs-rt", features = ["executor-single-thread"] }
 [features]
 default = ["riot-rs-rt/_panic-handler"]
 
-debug-console = ["riot-rs-rt/debug-console"]
-net = ["riot-rs-embassy/net"]
-# Allows to have no boards selected, useful to run platform-independent tooling
-no-boards = ["riot-rs-boards/no-boards"]
-override-network-config = ["riot-rs-embassy/override-network-config"]
-override-usb-config = ["riot-rs-embassy/override-usb-config"]
-silent-panic = ["riot-rs-rt/silent-panic"]
+#! ## System functionality
+## Enables threading support, see the [`macro@thread`] attribute macro.
 threading = [
   "dep:riot-rs-threads",
   "riot-rs-rt/threading",
   "riot-rs-embassy/threading",
 ]
+## Enables support for timeouts in the internal executor---required to use
+## `embassy_time::Timer`.
 time = ["riot-rs-embassy/time"]
+
+#! ## Wired communication
+## Enables USB support.
 usb = ["riot-rs-embassy/usb"]
 
+#! ## System configuration
+#! The [`macro@config`] attribute macro allows to provide configuration for
+#! specific system functionality.
+#! The features below need to be enabled so that the provided custom
+#! configuration is taken into account.
+## Enables custom network configuration.
+override-network-config = ["riot-rs-embassy/override-network-config"]
+## Enables custom USB configuration.
+override-usb-config = ["riot-rs-embassy/override-usb-config"]
+
+#! ## Network type selection
+#! At most one of the features below can be enabled at once.
+#! These features are normally automatically selected by
+#! [laze](https://github.com/kaspar030/laze) based on what the board supports,
+#! and don't need to be selected manually.
+## Selects Ethernet over USB (USB CDC-NCM).
 usb-ethernet = ["riot-rs-embassy/usb-ethernet"]
-wifi-esp = ["riot-rs-embassy/wifi-esp"]
+## Selects Wi-Fi (with the CYW43 chip).
 wifi-cyw43 = ["riot-rs-embassy/wifi-cyw43"]
+## Selects Wi-Fi (on ESP chips).
+wifi-esp = ["riot-rs-embassy/wifi-esp"]
+
+#! ## Development and debugging
+## Enables the debug console, required to use
+## [`println!`](riot_rs_debug::println).
+debug-console = ["riot-rs-rt/debug-console"]
+## Prints nothing in case of panics (may help reduce binary size).
+silent-panic = ["riot-rs-rt/silent-panic"]
+## Allows to have no boards selected, useful to run target-independent tooling.
+no-boards = ["riot-rs-boards/no-boards"]
+
+net = ["riot-rs-embassy/net"]

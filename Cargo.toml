@@ -54,6 +54,7 @@ riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 
 const_panic = { version = "0.2.8", default_features = false }
+document-features = "0.2.8"
 heapless = { version = "0.8.0", default-features = false }
 konst = { version = "0.3.8", default_features = false }
 ld-memory = { version = "0.2.9" }
