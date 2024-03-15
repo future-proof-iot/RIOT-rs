@@ -20,8 +20,8 @@ impl Arch for Cpu {
     fn schedule() {
         unsafe {
             (&*SYSTEM::PTR)
-                .cpu_intr_from_cpu_3()
-                .modify(|_, w| w.cpu_intr_from_cpu_3().set_bit());
+                .cpu_intr_from_cpu_1()
+                .modify(|_, w| w.cpu_intr_from_cpu_1().set_bit());
         }
     }
 
@@ -41,10 +41,10 @@ impl Arch for Cpu {
 
     /// Enable and trigger the appropriate software interrupt.
     fn start_threading() {
-        interrupt::disable(EspHalCpu::ProCpu, Interrupt::FROM_CPU_INTR3);
+        interrupt::disable(EspHalCpu::ProCpu, Interrupt::FROM_CPU_INTR1);
         Self::schedule();
         // TODO: handle unwrap error?
-        interrupt::enable(Interrupt::FROM_CPU_INTR3, interrupt::Priority::min()).unwrap();
+        interrupt::enable(Interrupt::FROM_CPU_INTR1, interrupt::Priority::min()).unwrap();
     }
 }
 
@@ -100,15 +100,15 @@ fn copy_registers(src: &TrapFrame, dst: &mut TrapFrame) {
     dst.mtval = mtval;
 }
 
-/// Handler for software interrupt 3, which we use for context switching.
+/// Handler for software interrupt 0, which we use for context switching.
 #[allow(non_snake_case)]
 #[interrupt]
-fn FROM_CPU_INTR3(trap_frame: &mut TrapFrame) {
+fn FROM_CPU_INTR1(trap_frame: &mut TrapFrame) {
     unsafe {
-        // clear FROM_CPU_INTR3
+        // clear FROM_CPU_INTR1
         (&*SYSTEM::PTR)
-            .cpu_intr_from_cpu_3()
-            .modify(|_, w| w.cpu_intr_from_cpu_3().clear_bit());
+            .cpu_intr_from_cpu_1()
+            .modify(|_, w| w.cpu_intr_from_cpu_1().clear_bit());
 
         sched(trap_frame)
     }
