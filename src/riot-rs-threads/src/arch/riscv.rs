@@ -85,10 +85,10 @@ const fn default_trap_frame() -> TrapFrame {
     }
 }
 
-/// Copies the register state from `stc` to `dst`.
+/// Copies the register state from `src` to `dst`.
 ///
 /// It copies state from the `TrapFrame` except for CSR registers
-/// `mstatus`, `mcuase` and `mtval`.
+/// `mstatus`, `mcause` and `mtval`.
 fn copy_registers(src: &TrapFrame, dst: &mut TrapFrame) {
     let (mstatus, mcause, mtval) = (dst.mstatus, dst.mcause, dst.mtval);
     dst.clone_from(src);
