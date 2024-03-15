@@ -122,9 +122,7 @@ unsafe extern "C" fn PendSV() {
     asm!(
         "
             mrs r0, psp
-            cpsid i
             bl {sched}
-            cpsie i
             cmp r0, #0
             /* label rules:
              * - number only
@@ -154,9 +152,7 @@ unsafe extern "C" fn PendSV() {
     asm!(
         "
             mrs r0, psp
-            cpsid i
             bl sched
-            cpsie i
             cmp r0, #0
             beq 99f
 
@@ -216,53 +212,43 @@ unsafe extern "C" fn PendSV() {
 /// This function is called in PendSV.
 // TODO: make arch independent, or move to arch
 #[no_mangle]
-unsafe fn sched(old_sp: usize) -> usize {
-    let cs = CriticalSection::new();
-    let next_pid;
-
+unsafe fn sched(old_sp: usize) -> u128 {
     loop {
-        {
-            if let Some(pid) = (&*THREADS.as_ptr(cs)).runqueue.get_next() {
-                next_pid = pid;
-                break;
+        if let Some(res) = critical_section::with(|cs| {
+            let threads = &mut *THREADS.as_ptr(cs);
+            if let Some(next_pid) = threads.runqueue.get_next() {
+                let current_high_regs = if let Some(current_pid) = threads.current_pid() {
+                    if next_pid == current_pid {
+                        return Some(0);
+                    }
+                    //println!("current: {} next: {}", current_pid, next_pid);
+                    threads.threads[current_pid as usize].sp = old_sp;
+                    threads.current_thread = Some(next_pid);
+                    threads.threads[current_pid as usize].data.as_ptr()
+                } else {
+                    core::ptr::null()
+                } as usize;
+
+                let next = &threads.threads[next_pid as usize];
+                let next_sp = next.sp as usize;
+                let next_high_regs = next.data.as_ptr() as usize;
+
+                // PendSV expects these three pointers in r0, r1 and r2:
+                // r0 = &next.sp
+                // r1= &current.high_regs
+                // r2= &next.high_regs
+                // On Cortex-M, a u128 as return value is passed in registers r0-r3.
+                // So let's use that.
+                let res: u128 =
+                //  (r0)                     (r1)                        (r2)
+                    (next_sp as u128) |  ((current_high_regs as u128) << 32) | ((next_high_regs as u128) << 64);
+                Some(res)
+            } else {
+                cortex_m::asm::wfi();
+                None
             }
+        }) {
+            break res;
         }
-        //pm_set_lowest();
-        cortex_m::asm::wfi();
-        cortex_m::interrupt::enable();
-        cortex_m::asm::isb();
-        // pending interrupts would now get to run their ISRs
-        cortex_m::interrupt::disable();
     }
-
-    let threads = &mut *THREADS.as_ptr(cs);
-    let current_high_regs;
-
-    if let Some(current_pid) = threads.current_pid() {
-        if next_pid == current_pid {
-            return 0;
-        }
-        //println!("current: {} next: {}", current_pid, next_pid);
-        threads.threads[current_pid as usize].sp = old_sp;
-        threads.current_thread = Some(next_pid);
-        current_high_regs = threads.threads[current_pid as usize].data.as_ptr();
-    } else {
-        current_high_regs = core::ptr::null();
-    }
-
-    let next = &threads.threads[next_pid as usize];
-    let next_sp = next.sp;
-    let next_high_regs = next.data.as_ptr();
-
-    //println!("old_sp: {:x} next.sp: {:x}", old_sp, next_sp);
-
-    // PendSV expects these three pointers in r0, r1 and r2:
-    // r1= &current.high_regs
-    // r2= &next.high_regs
-    // r0 = &next.sp (implicitly done here via return value)
-    //
-    // write to registers manually, as ABI would return the values via stack
-    asm!("", in("r1") current_high_regs, in("r2") next_high_regs);
-
-    next_sp
 }
