@@ -1,0 +1,12 @@
+[package]
+name = "bench_sched_yield"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+publish = false
+
+[dependencies]
+riot-rs = { workspace = true, default-features = true, features = [
+  "threading",
+] }
+riot-rs-boards = { workspace = true }
