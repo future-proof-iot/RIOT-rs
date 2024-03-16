@@ -89,15 +89,6 @@ jobs:
 
           laze build --global --partition hash:${{ matrix.partition }}
 
-      - name: Report nightly failure
-        if: failure() && github.event_name == 'schedule' && github.repository == 'future-proof-iot/RIOT-rs'
-        uses: s3krit/matrix-message-action@v0.0.3
-        with:
-          room_id: ${{ secrets.MATRIX_ROOM_ID }}
-          access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
-          message: "The nightly build failed at step ${{ github.job }}. [link](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})"
-          server: "matrix.org"
-
   cargo-test:
     runs-on: ubuntu-latest
 
@@ -184,3 +175,13 @@ jobs:
           else
             exit 1
           fi
+
+      - name: Report nightly failure
+        if: failure() && github.event_name == 'schedule' && github.repository == 'future-proof-iot/RIOT-rs'
+        uses: s3krit/matrix-message-action@v0.0.3
+        with:
+          room_id: ${{ secrets.MATRIX_ROOM_ID }}
+          access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
+          message: "The nightly build [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+          server: "matrix.org"
+
