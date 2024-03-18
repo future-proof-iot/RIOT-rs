@@ -45,10 +45,14 @@ jobs:
         if: steps.result-cache.outputs.cache-hit != 'true'
         uses: mozilla-actions/sccache-action@v0.0.4
 
+      - id: get_toolchain
+        run: echo "toolchain=$(cat rust-toolchain)" >> $GITHUB_OUTPUT
+
       - name: Install toolchain
         if: steps.result-cache.outputs.cache-hit != 'true'
-        uses: dtolnay/rust-toolchain@nightly
+        uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
           targets: riscv32imc-unknown-none-elf,riscv32imac-unknown-none-elf,thumbv6m-none-eabi,thumbv7m-none-eabi,thumbv7em-none-eabi
           components: rust-src
 
@@ -101,8 +105,13 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
+      - id: get_toolchain
+        run: echo "toolchain=$(cat rust-toolchain)" >> $GITHUB_OUTPUT
+
       - name: Install toolchain
-        uses: dtolnay/rust-toolchain@nightly
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
 
       # TODO: we'll eventually want to test the whole workspace with --workspace
       # TODO: we'll eventually want to enable relevant features
@@ -118,9 +127,13 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
+      - id: get_toolchain
+        run: echo "toolchain=$(cat rust-toolchain)" >> $GITHUB_OUTPUT
+
       - name: Install toolchain
-        uses: dtolnay/rust-toolchain@nightly
+        uses: dtolnay/rust-toolchain@master
         with:
+          toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
           components: clippy, rustfmt
 
       - name: rust cache
