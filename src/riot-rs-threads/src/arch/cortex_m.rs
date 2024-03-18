@@ -74,7 +74,7 @@ impl Arch for Cpu {
     }
 }
 
-#[cfg(armv7m)]
+#[cfg(any(armv7m, armv8m))]
 #[naked]
 #[no_mangle]
 #[allow(non_snake_case)]
@@ -114,7 +114,7 @@ unsafe extern "C" fn SVCall() {
     );
 }
 
-#[cfg(armv7m)]
+#[cfg(any(armv7m, armv8m))]
 #[naked]
 #[no_mangle]
 #[allow(non_snake_case)]
