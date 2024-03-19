@@ -4,7 +4,9 @@ use core::cell::OnceCell;
 
 use embassy_executor::Spawner;
 use embassy_net::Stack;
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embassy_sync::blocking_mutex::CriticalSectionMutex;
+use embassy_sync::mutex::Mutex;
 
 use crate::sendcell::SendCell;
 use crate::NetworkDevice;
@@ -14,12 +16,18 @@ pub const ETHERNET_MTU: usize = 1514;
 
 pub type NetworkStack = Stack<NetworkDevice>;
 
+// this lock is held early on by `crate::init_task()` and only released once
+// the stack objectis actually available.
+pub(crate) static STACK_LOCK: Mutex<CriticalSectionRawMutex, ()> = Mutex::new(());
 pub(crate) static STACK: CriticalSectionMutex<OnceCell<SendCell<&'static NetworkStack>>> =
     CriticalSectionMutex::new(OnceCell::new());
 
 pub async fn network_stack() -> Option<&'static NetworkStack> {
     let spawner = Spawner::for_current_executor().await;
-    STACK.lock(|cell| cell.get().map(|x| *x.get(spawner).unwrap()))
+    {
+        let _lock = STACK_LOCK.lock().await;
+        STACK.lock(|cell| cell.get().map(|x| *x.get(spawner).unwrap()))
+    }
 }
 
 #[embassy_executor::task]
