@@ -17,3 +17,5 @@ port 1234 that will echo the input back to the client. It can be accessed with
 e.g., `telnet`:
 
     telnet 10.42.0.61 1234
+
+Look [here](../README.md#networking) or more information about network configuration.

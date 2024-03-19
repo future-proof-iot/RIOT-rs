@@ -13,3 +13,5 @@ In this folder, run
 
 With the device USB cable connected, a USB ethernet device should pop up.
 RIOT-rs will reply to ping requests on 10.42.0.61.
+
+Look [here](../README.md#networking) or more information about network configuration.
