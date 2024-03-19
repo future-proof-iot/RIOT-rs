@@ -528,6 +528,7 @@ builders:
           - rustup target add thumbv7m-none-eabi
           - rustup target add thumbv7em-none-eabi
           - rustup target add thumbv7em-none-eabihf
+          - rustup target add thumbv8m.main-none-eabi
           - rustup target add riscv32imc-unknown-none-elf
           - rustup target add riscv32imac-unknown-none-elf
           - rustup component add rust-src
