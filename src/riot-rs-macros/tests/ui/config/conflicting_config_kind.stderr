@@ -1,5 +1,5 @@
 error: custom attribute panicked
- --> tests/ui/config_conflicting_config_kind.rs:9:1
+ --> tests/ui/config/conflicting_config_kind.rs:9:1
   |
 9 | #[riot_rs::config(network, usb)]
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
