@@ -5,7 +5,7 @@
 
 use riot_rs::debug::{exit, println, EXIT_SUCCESS};
 
-#[riot_rs::thread]
+#[riot_rs::thread(autostart)]
 fn main() {
     println!(
         "riot_rs::thread::lock::Lock: {}",

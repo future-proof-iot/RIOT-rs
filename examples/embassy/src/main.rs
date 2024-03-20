@@ -26,7 +26,7 @@ async fn async_task() {
     }
 }
 
-#[riot_rs::thread]
+#[riot_rs::thread(autostart)]
 fn main() {
     use embassy_time::Instant;
 
