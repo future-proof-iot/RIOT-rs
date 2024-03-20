@@ -5,7 +5,7 @@
 
 use riot_rs::debug::println;
 
-#[riot_rs::thread]
+#[riot_rs::thread(autostart)]
 fn main() {
     match riot_rs::rt::benchmark(10000, || {
         //

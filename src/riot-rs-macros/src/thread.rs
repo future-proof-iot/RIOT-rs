@@ -4,8 +4,9 @@
 ///
 /// # Parameters
 ///
-/// - `stacksize`: (*optional*) the size of the stack allocated to the thread (in bytes)
-/// - `priority`: (*optional*) the thread's priority
+/// - `autostart`: (*mandatory*) autostart the thread.
+/// - `stacksize`: (*optional*) the size of the stack allocated to the thread (in bytes).
+/// - `priority`: (*optional*) the thread's priority.
 ///
 /// # Examples
 ///
@@ -38,6 +39,11 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
     let mut attrs = ThreadAttributes::default();
     let thread_parser = syn::meta::parser(|meta| attrs.parse(&meta));
     syn::parse_macro_input!(args with thread_parser);
+
+    assert!(
+        attrs.autostart,
+        "the `autostart` parameter must be provided",
+    );
 
     let thread_function = syn::parse_macro_input!(item as syn::ItemFn);
 
@@ -123,6 +129,7 @@ where
 
 #[derive(Default)]
 struct ThreadAttributes {
+    autostart: bool,
     stack_size: Option<syn::LitInt>,
     priority: Option<syn::LitInt>,
     no_mangle: bool,
@@ -130,17 +137,26 @@ struct ThreadAttributes {
 
 impl ThreadAttributes {
     fn parse(&mut self, meta: &syn::meta::ParseNestedMeta) -> syn::Result<()> {
+        if meta.path.is_ident("autostart") {
+            self.autostart = true;
+            return Ok(());
+        }
+
         if meta.path.is_ident("stacksize") {
             self.stack_size = Some(meta.value()?.parse()?);
-            Ok(())
-        } else if meta.path.is_ident("priority") {
-            self.priority = Some(meta.value()?.parse()?);
-            Ok(())
-        } else if meta.path.is_ident("no_mangle") {
-            self.no_mangle = true;
-            Ok(())
-        } else {
-            Err(meta.error("unsupported parameter"))
+            return Ok(());
         }
+
+        if meta.path.is_ident("priority") {
+            self.priority = Some(meta.value()?.parse()?);
+            return Ok(());
+        }
+
+        if meta.path.is_ident("no_mangle") {
+            self.no_mangle = true;
+            return Ok(());
+        }
+
+        Err(meta.error("unsupported parameter"))
     }
 }

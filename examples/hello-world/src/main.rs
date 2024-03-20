@@ -5,7 +5,7 @@
 
 use riot_rs::debug::{exit, println};
 
-#[riot_rs::thread]
+#[riot_rs::thread(autostart)]
 fn main() {
     println!(
         "Hello from main()! Running on a {} board.",

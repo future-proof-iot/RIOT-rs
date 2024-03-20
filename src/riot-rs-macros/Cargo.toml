@@ -22,6 +22,7 @@ embassy-executor = { workspace = true, features = [
 ] } # FIXME: embassy_executor::task requires embassy_executor to be imported at crate-level
 heapless = { workspace = true }
 riot-rs = { workspace = true, features = [
+  "threading",
   "no-boards",
   "usb-ethernet",
   "override-network-config",
