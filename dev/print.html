@@ -189,9 +189,28 @@
 <p>Last but not least the CI process for each pull-request to RIOT-rs includes extensive and rigorous tests which are automated for all supported configuration and hardware. And for selected modules, a <strong>formal verification workflow</strong> is used based on <a href="https://github.com/hacspec/hax">hax</a>, running directly on the functional Rust.</p>
 <p>Long story short: RIOT-rs embodies the developing love affair between RIOT and embedded Rust, fostering stronger IoT cybersecurity. This is a joyous open source community, so... you're welcome to <a href="https://github.com/future-proof-iot/RIOT-rs">join us</a>! </p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="introduction"><a class="header" href="#introduction">Introduction</a></h1>
-<p><strong>RIOT-rs</strong> is an experimental project trying to provide a nice base OS for
-embedded development on low-end IoT devices (with some kilobytes of RAM/flash,
-think Cortex-M). It combines the awesome Rust embedded ecosystem with RIOT OS.</p>
+<p><strong>RIOT-rs</strong> RIOT-rs is a project aiming to provide a general-purpose 
+operating system adequate for low-power Internet of Things (IoT).</p>
+<p>RIOT-rs is based on Rust from the ground up, and formal verification for critical modules. 
+It combines the awesome Rust embedded ecosystem with RIOT OS.</p>
+<p>RIOT-rs builds on top of the hardware abstraction layer 
+and async programming framework provided by
+<a href="https://github.com/embassy-rs/embassy">embassy</a> and 
+drivers via embedded-HAL.</p>
+<p>Aiming to cover versatile use cases, RIOT-rs integrates and combines 
+the above HAL with a preemptive scheduler, 
+a set of efficient operating system facilities, a bootloader, 
+and a curated ecosystem of libraries (available via crates.io)
+for cybersecure, memory-safe IoT. </p>
+<p>As a result, a low-power IoT developer can focus on business logic
+sitting on top of APIs which remain close to the hardware but
+nevertheless stay the same across all supported hardware.
+The intent is three-fold: decrease application development time,
+increase code portability, and decrease core system vulnerabilities.</p>
+<p>RIOT-rs can also be used to host legacy C application and libraries.
+However, the essence and ultimate goal of the RIOT-rs is to
+provide everything one might need in Rust.</p>
+<p><img src="./doc/RIOT-rs-arch-diagram1.svg" alt="Architecture" /></p>
 <div style="break-before: page; page-break-before: always;"></div><h1 id="riot-rs-code-of-conduct"><a class="header" href="#riot-rs-code-of-conduct">RIOT-rs Code of Conduct</a></h1>
 <p>RIOT-rs, like so many other free and open source software projects, is made up of a
 mixed group of professionals and volunteers from all over the world, working on
