@@ -29,7 +29,11 @@ cfg_if::cfg_if! {
         mod esp;
         use esp as arch;
     }
-    else {
+    else if #[cfg(context = "riot-rs")] {
+        // When run with laze but the architecture is not supported
+        compile_error!("no runtime is defined for this architecture");
+    } else {
+        // Provide a default architecture, for arch-independent tooling
         mod arch {
             pub fn init() {}
             pub fn benchmark<F: Fn()>(_iterations: usize, _f: F) -> core::result::Result<usize, ()> {

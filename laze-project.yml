@@ -12,6 +12,7 @@ contexts:
         - "-Clink-arg=--nmagic"
         - "-Clink-arg=${LINK_ARG_PREFIX}--no-eh-frame-hdr"
         - --cfg builder=\"${builder}\"
+        - --cfg context=\"riot-rs\"
       FEATURES:
         - riot-rs-boards/${BOARD}
       SCRIPTS: ${relroot}/scripts
