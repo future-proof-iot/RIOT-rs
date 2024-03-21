@@ -2323,6 +2323,7 @@ version = "0.1.0"
 dependencies = [
  "document-features",
  "linkme",
+ "riot-rs-bench",
  "riot-rs-boards",
  "riot-rs-buildinfo",
  "riot-rs-debug",
@@ -2331,6 +2332,14 @@ dependencies = [
  "riot-rs-rt",
  "riot-rs-threads",
  "static_cell",
+]
+
+[[package]]
+name = "riot-rs-bench"
+version = "0.1.0"
+dependencies = [
+ "cfg-if",
+ "cortex-m",
 ]
 
 [[package]]

@@ -7,6 +7,10 @@
 #![no_std]
 #![feature(doc_cfg)]
 
+#[cfg(feature = "bench")]
+#[doc(cfg(feature = "bench"))]
+#[doc(inline)]
+pub use riot_rs_bench as bench;
 pub use riot_rs_buildinfo as buildinfo;
 pub use riot_rs_debug as debug;
 pub use riot_rs_embassy::{self as embassy, define_peripherals, group_peripherals};
