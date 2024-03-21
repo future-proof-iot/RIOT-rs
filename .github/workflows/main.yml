@@ -136,7 +136,7 @@ jobs:
       - name: clippy
         uses: clechasseur/rs-clippy-check@v3
         with:
-          args: --verbose --locked -p riot-rs-embassy
+          args: --verbose --locked -p riot-rs-embassy -p riot-rs-bench
 
       # TODO: we'll eventually want to enable relevant features
       - name: "rustdoc"
