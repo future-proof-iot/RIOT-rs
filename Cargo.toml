@@ -5,6 +5,7 @@ members = [
   "src/lib/rbi",
   "src/lib/ringbuffer",
   "src/riot-rs",
+  "src/riot-rs-bench",
   "src/riot-rs-boards",
   "src/riot-rs-boards/nrf52",
   "src/riot-rs-boards/nrf52840dk",
@@ -51,6 +52,7 @@ esp-wifi = { git = "https://github.com/kaspar030/esp-wifi", branch = "update-esp
 linkme = { version = "0.3.21", features = ["used_linker"] }
 
 riot-rs = { path = "src/riot-rs", default-features = false }
+riot-rs-bench = { path = "src/riot-rs-bench", default-features = false }
 riot-rs-boards = { path = "src/riot-rs-boards", default-features = false }
 riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
 riot-rs-rt = { path = "src/riot-rs-rt" }
