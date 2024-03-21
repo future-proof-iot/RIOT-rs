@@ -208,34 +208,3 @@ pub fn init() {
         p.SCB.set_priority(SystemHandler::PendSV, 0xFF);
     }
 }
-
-pub fn benchmark<F: Fn() -> ()>(iterations: usize, f: F) -> core::result::Result<usize, ()> {
-    use cortex_m::peripheral::syst::SystClkSource;
-    use cortex_m::Peripherals;
-
-    let mut p = unsafe { Peripherals::steal() };
-    //
-    p.SCB.clear_sleepdeep();
-
-    //
-    p.SYST.set_clock_source(SystClkSource::Core);
-    p.SYST.set_reload(0x00FFFFFF);
-    p.SYST.clear_current();
-    p.SYST.enable_counter();
-
-    while cortex_m::peripheral::SYST::get_current() == 0 {}
-
-    let before = cortex_m::peripheral::SYST::get_current();
-
-    for _ in 0..iterations {
-        f();
-    }
-
-    let total = before - cortex_m::peripheral::SYST::get_current();
-
-    if p.SYST.has_wrapped() {
-        Err(())
-    } else {
-        Ok((total) as usize / iterations)
-    }
-}

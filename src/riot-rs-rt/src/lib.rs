@@ -37,14 +37,9 @@ cfg_if::cfg_if! {
         mod arch {
             #[cfg_attr(not(context = "riot-rs"), allow(dead_code))]
             pub fn init() {}
-            pub fn benchmark<F: Fn()>(_iterations: usize, _f: F) -> core::result::Result<usize, ()> {
-                unimplemented!();
-            }
         }
     }
 }
-
-pub use arch::benchmark;
 
 const ISR_STACKSIZE: usize =
     riot_rs_utils::usize_from_env_or!("CONFIG_ISR_STACKSIZE", 8192, "ISR stack size (in bytes)");
