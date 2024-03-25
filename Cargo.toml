@@ -1,8 +1,9 @@
 [workspace]
 members = [
   "examples/*",
-  "src/*",
-  "src/lib/*",
+  "src/lib/clist",
+  "src/lib/rbi",
+  "src/lib/ringbuffer",
   "src/riot-rs",
   "src/riot-rs-boards",
   "src/riot-rs-boards/nrf52",
