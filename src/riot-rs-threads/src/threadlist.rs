@@ -3,7 +3,7 @@ use critical_section::CriticalSection;
 use crate::{ThreadId, ThreadState, THREADS};
 
 /// Manages blocked [`super::Thread`]s for a resource, and triggering the scheduler when needed.
-#[derive(Debug)]
+#[derive(Debug, Default)]
 pub struct ThreadList {
     /// Next thread to run once the resource is available.
     pub head: Option<ThreadId>,
