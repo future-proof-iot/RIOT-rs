@@ -6,6 +6,9 @@ use critical_section::CriticalSection;
 
 use crate::{cleanup, THREADS};
 
+#[cfg(not(any(armv6m, armv7m, armv8m)))]
+compile_error!("no supported ARM variant selected");
+
 pub struct Cpu;
 
 impl Arch for Cpu {
