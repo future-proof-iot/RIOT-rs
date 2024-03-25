@@ -29,6 +29,9 @@ pub struct RunQueue<const N_QUEUES: usize, const N_THREADS: usize> {
 }
 
 impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_THREADS }> {
+    // NOTE: we don't impl Default here because hax does not support it yet. When it does, we
+    // should impl it.
+    #[allow(clippy::new_without_default)]
     pub const fn new() -> RunQueue<{ N_QUEUES }, { N_THREADS }> {
         // unfortunately we cannot assert!() on N_QUEUES and N_THREADS,
         // as panics in const fn's are not (yet) implemented.

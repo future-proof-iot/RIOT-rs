@@ -166,3 +166,9 @@ impl<T: Copy + Send> Channel<T> {
         }
     }
 }
+
+impl<T: Copy + Send> Default for Channel<T> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
