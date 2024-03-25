@@ -1,9 +1,13 @@
 on:
   pull_request_target:
     types: [opened, edited, closed, reopened]
+  pull_request:
+    types: [synchronize]
+  merge_group:
 
 jobs:
   check_dependencies:
+    if: github.event_name != 'merge_group'
     runs-on: ubuntu-latest
     name: Check Dependencies
     steps:
