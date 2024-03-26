@@ -37,7 +37,11 @@
 ///     })
 /// }
 /// ```
-#[allow(clippy::missing_panics_doc)]
+///
+/// # Panics
+///
+/// This macro panics when the `riot-rs` crate cannot be found as a dependency of the crate where
+/// this macro is used.
 #[proc_macro_attribute]
 pub fn config(args: TokenStream, item: TokenStream) -> TokenStream {
     #[allow(clippy::wildcard_imports)]
@@ -90,6 +94,11 @@ mod config_macro {
     }
 
     impl ConfigAttributes {
+        /// Parses macro attributes.
+        ///
+        /// # Errors
+        ///
+        /// Returns an error when an unsupported parameter is found.
         pub fn parse(&mut self, meta: &syn::meta::ParseNestedMeta) -> syn::Result<()> {
             use enum_iterator::all;
 
@@ -110,6 +119,11 @@ mod config_macro {
             )))
         }
 
+        /// Checks that the macro is used for only one kind of configuration.
+        ///
+        /// # Panics
+        ///
+        /// Panics if multiple kinds are found.
         fn check_only_one_kind(&self, param: &str) {
             assert!(
                 self.kind.is_none(),
