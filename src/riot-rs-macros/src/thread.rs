@@ -34,9 +34,12 @@
 /// this macro is used.
 #[proc_macro_attribute]
 pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
+    #[allow(clippy::wildcard_imports)]
+    use thread::*;
+
     use quote::{format_ident, quote};
 
-    let mut attrs = ThreadAttributes::default();
+    let mut attrs = Attributes::default();
     let thread_parser = syn::meta::parser(|meta| attrs.parse(&meta));
     syn::parse_macro_input!(args with thread_parser);
 
@@ -55,10 +58,10 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
 
     let fn_name = thread_function.sig.ident.clone();
     let slice_fn_name_ident = format_ident!("__start_thread_{fn_name}");
-    let ThreadParameters {
+    let Parameters {
         stack_size,
         priority,
-    } = ThreadParameters::from(attrs);
+    } = Parameters::from(attrs);
 
     let riot_rs_crate = utils::riot_rs_crate();
 
@@ -77,86 +80,98 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
     TokenStream::from(expanded)
 }
 
-struct ThreadParameters {
-    stack_size: u64,
-    priority: u8,
-}
+mod thread {
+    pub struct Parameters {
+        pub stack_size: u64,
+        pub priority: u8,
+    }
 
-impl Default for ThreadParameters {
-    fn default() -> Self {
-        // TODO: proper values
-        Self {
-            stack_size: 2048,
-            priority: 1,
+    impl Default for Parameters {
+        fn default() -> Self {
+            // TODO: proper values
+            Self {
+                stack_size: 2048,
+                priority: 1,
+            }
         }
     }
-}
 
-impl From<ThreadAttributes> for ThreadParameters {
-    fn from(attrs: ThreadAttributes) -> Self {
-        let default = Self::default();
+    impl From<Attributes> for Parameters {
+        fn from(attrs: Attributes) -> Self {
+            let default = Self::default();
 
-        let stack_size = attrs.stack_size.map_or(default.stack_size, |l| {
-            parse_base10_or_panic(&l, "stack_size")
-        });
+            let stack_size = attrs.stack_size.map_or(default.stack_size, |l| {
+                parse_base10_or_panic(&l, "stack_size")
+            });
 
-        let priority = attrs
-            .priority
-            .map_or(default.priority, |l| parse_base10_or_panic(&l, "priority"));
+            let priority = attrs
+                .priority
+                .map_or(default.priority, |l| parse_base10_or_panic(&l, "priority"));
 
-        Self {
-            stack_size,
-            priority,
+            Self {
+                stack_size,
+                priority,
+            }
         }
     }
-}
 
-fn parse_base10_or_panic<I>(lit_int: &syn::LitInt, attr: &str) -> I
-where
-    I: core::str::FromStr,
-    <I as core::str::FromStr>::Err: std::fmt::Display,
-{
-    if let Ok(int) = lit_int.base10_parse() {
-        assert!(
-            lit_int.suffix().is_empty(),
-            "`{attr}` must be a base-10 integer without a suffix",
-        );
-        int
-    } else {
-        panic!("`{attr}` must be a base-10 integer");
+    /// Parse a base-10 integer literal.
+    ///
+    /// # Panics
+    ///
+    /// Panics if parsing fails.
+    fn parse_base10_or_panic<I>(lit_int: &syn::LitInt, attr: &str) -> I
+    where
+        I: core::str::FromStr,
+        <I as core::str::FromStr>::Err: std::fmt::Display,
+    {
+        if let Ok(int) = lit_int.base10_parse() {
+            assert!(
+                lit_int.suffix().is_empty(),
+                "`{attr}` must be a base-10 integer without a suffix",
+            );
+            int
+        } else {
+            panic!("`{attr}` must be a base-10 integer");
+        }
     }
-}
 
-#[derive(Default)]
-struct ThreadAttributes {
-    autostart: bool,
-    stack_size: Option<syn::LitInt>,
-    priority: Option<syn::LitInt>,
-    no_mangle: bool,
-}
+    #[derive(Default)]
+    pub struct Attributes {
+        pub autostart: bool,
+        pub stack_size: Option<syn::LitInt>,
+        pub priority: Option<syn::LitInt>,
+        pub no_mangle: bool,
+    }
 
-impl ThreadAttributes {
-    fn parse(&mut self, meta: &syn::meta::ParseNestedMeta) -> syn::Result<()> {
-        if meta.path.is_ident("autostart") {
-            self.autostart = true;
-            return Ok(());
+    impl Attributes {
+        /// Parse macro attributes.
+        ///
+        /// # Errors
+        ///
+        /// Returns an error when an unsupported parameter is found.
+        pub fn parse(&mut self, meta: &syn::meta::ParseNestedMeta) -> syn::Result<()> {
+            if meta.path.is_ident("autostart") {
+                self.autostart = true;
+                return Ok(());
+            }
+
+            if meta.path.is_ident("stacksize") {
+                self.stack_size = Some(meta.value()?.parse()?);
+                return Ok(());
+            }
+
+            if meta.path.is_ident("priority") {
+                self.priority = Some(meta.value()?.parse()?);
+                return Ok(());
+            }
+
+            if meta.path.is_ident("no_mangle") {
+                self.no_mangle = true;
+                return Ok(());
+            }
+
+            Err(meta.error("unsupported parameter"))
         }
-
-        if meta.path.is_ident("stacksize") {
-            self.stack_size = Some(meta.value()?.parse()?);
-            return Ok(());
-        }
-
-        if meta.path.is_ident("priority") {
-            self.priority = Some(meta.value()?.parse()?);
-            return Ok(());
-        }
-
-        if meta.path.is_ident("no_mangle") {
-            self.no_mangle = true;
-            return Ok(());
-        }
-
-        Err(meta.error("unsupported parameter"))
     }
 }
