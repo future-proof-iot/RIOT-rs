@@ -16,6 +16,12 @@ critical-section.workspace = true
 linkme = { workspace = true }
 riot-rs-runqueue.workspace = true
 
+[target.'cfg(context = "esp32c3")'.dependencies]
+esp-hal = { workspace = true, features = ["esp32c3"] }
+
+[target.'cfg(context = "esp32c6")'.dependencies]
+esp-hal = { workspace = true, features = ["esp32c6"] }
+
 [target.'cfg(context = "cortex-m")'.dependencies]
 # cortex-m specifics
 cortex-m.workspace = true
