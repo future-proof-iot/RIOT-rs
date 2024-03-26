@@ -1,5 +1,6 @@
 apps:
   - name: benchmark
     depends:
+      - sw/benchmark
       - ?release
       - sw/benchmark
