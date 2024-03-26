@@ -40,10 +40,7 @@ impl Lock {
     pub fn is_locked(&self) -> bool {
         critical_section::with(|_| {
             let state = unsafe { &*self.state.get() };
-            match state {
-                LockState::Unlocked => false,
-                _ => true,
-            }
+            !matches!(state, LockState::Unlocked)
         })
     }
 

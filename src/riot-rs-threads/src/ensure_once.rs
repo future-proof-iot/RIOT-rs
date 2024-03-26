@@ -49,6 +49,7 @@ impl<T> EnsureOnce<T> {
     //     self.inner.borrow(cs).borrow()
     // }
 
+    #[allow(dead_code)]
     pub fn as_ptr(&self, cs: CriticalSection) -> *mut T {
         self.inner.borrow(cs).as_ptr()
     }

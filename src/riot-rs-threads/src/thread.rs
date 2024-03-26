@@ -16,6 +16,7 @@ pub struct Thread {
     /// Flags set for the thread.
     pub flags: ThreadFlags,
     /// Arch-specific thread data.
+    #[allow(dead_code)]
     pub(crate) data: ThreadData,
 }
 

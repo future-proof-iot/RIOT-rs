@@ -9,10 +9,5 @@ fn main() {
 
     let builder = env::var("CARGO_CFG_BUILDER").unwrap_or("unknown".into());
 
-    writeln!(
-        &mut file,
-        "pub const BOARD: &'static str = \"{}\";",
-        builder
-    )
-    .unwrap();
+    writeln!(&mut file, "pub const BOARD: &str = \"{}\";", builder).unwrap();
 }
