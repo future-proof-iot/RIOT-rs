@@ -2,3 +2,4 @@ apps:
   - name: benchmark
     depends:
       - ?release
+      - sw/benchmark
