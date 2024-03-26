@@ -69,9 +69,7 @@ pub fn task(args: TokenStream, item: TokenStream) -> TokenStream {
             );
         }
     } else {
-        if attrs.peripherals {
-            panic!("the task must be `{AUTOSTART_PARAM}` to receive peripherals");
-        }
+        assert!(!attrs.peripherals, "the task must be `{AUTOSTART_PARAM}` to receive peripherals");
 
         assert!(
             attrs.hooks.is_empty(),
