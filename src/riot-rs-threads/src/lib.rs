@@ -175,7 +175,8 @@ impl Threads {
 /// Panics if no thread exists.
 pub unsafe fn start_threading() {
     // faking a critical section to get THREADS
-    let cs = CriticalSection::new();
+    // SAFETY: caller ensures invariants
+    let cs = unsafe { CriticalSection::new() };
     let next_sp = THREADS.with_mut_cs(cs, |mut threads| {
         let next_pid = threads.runqueue.get_next().unwrap();
         threads.current_thread = Some(next_pid);

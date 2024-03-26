@@ -82,14 +82,16 @@ impl Arch for Cpu {
 #[no_mangle]
 #[allow(non_snake_case)]
 unsafe extern "C" fn SVCall() {
-    asm!(
-        "
+    unsafe {
+        asm!(
+            "
             movw LR, #0xFFFd
             movt LR, #0xFFFF
             bx lr
             ",
-        options(noreturn)
-    );
+            options(noreturn)
+        )
+    };
 }
 
 #[cfg(armv6m)]
@@ -97,8 +99,9 @@ unsafe extern "C" fn SVCall() {
 #[no_mangle]
 #[allow(non_snake_case)]
 unsafe extern "C" fn SVCall() {
-    asm!(
-        "
+    unsafe {
+        asm!(
+            "
             /* label rules:
              * - number only
              * - no combination of *only* [01]
@@ -113,8 +116,9 @@ unsafe extern "C" fn SVCall() {
             99:
             .word 0xFFFFFFFD
             ",
-        options(noreturn)
-    );
+            options(noreturn)
+        )
+    };
 }
 
 #[cfg(any(armv7m, armv8m))]
@@ -122,8 +126,9 @@ unsafe extern "C" fn SVCall() {
 #[no_mangle]
 #[allow(non_snake_case)]
 unsafe extern "C" fn PendSV() {
-    asm!(
-        "
+    unsafe {
+        asm!(
+            "
             mrs r0, psp
             cpsid i
             bl {sched}
@@ -144,9 +149,10 @@ unsafe extern "C" fn PendSV() {
             movt LR, #0xFFFF
             bx LR
             ",
-        sched = sym sched,
-        options(noreturn)
-    );
+            sched = sym sched,
+            options(noreturn)
+        )
+    };
 }
 
 #[cfg(any(armv6m))]
@@ -154,8 +160,9 @@ unsafe extern "C" fn PendSV() {
 #[no_mangle]
 #[allow(non_snake_case)]
 unsafe extern "C" fn PendSV() {
-    asm!(
-        "
+    unsafe {
+        asm!(
+            "
             mrs r0, psp
             cpsid i
             bl sched
@@ -197,8 +204,9 @@ unsafe extern "C" fn PendSV() {
             999:
             .word 0xFFFFFFFD
             ",
-        options(noreturn)
-    );
+            options(noreturn)
+        )
+    };
 }
 
 /// Schedule the next thread.
@@ -220,25 +228,26 @@ unsafe extern "C" fn PendSV() {
 // TODO: make arch independent, or move to arch
 #[no_mangle]
 unsafe fn sched(old_sp: usize) -> usize {
-    let cs = CriticalSection::new();
+    // SAFETY: interrupts are disabled by caller
+    let cs = unsafe { CriticalSection::new() };
     let next_pid;
 
     loop {
         {
-            if let Some(pid) = (&*THREADS.as_ptr(cs)).runqueue.get_next() {
+            if let Some(pid) = (unsafe { &*THREADS.as_ptr(cs) }).runqueue.get_next() {
                 next_pid = pid;
                 break;
             }
         }
         //pm_set_lowest();
         cortex_m::asm::wfi();
-        cortex_m::interrupt::enable();
+        unsafe { cortex_m::interrupt::enable() };
         cortex_m::asm::isb();
         // pending interrupts would now get to run their ISRs
         cortex_m::interrupt::disable();
     }
 
-    let threads = &mut *THREADS.as_ptr(cs);
+    let threads = unsafe { &mut *THREADS.as_ptr(cs) };
     let current_high_regs;
 
     if let Some(current_pid) = threads.current_pid() {
@@ -265,7 +274,7 @@ unsafe fn sched(old_sp: usize) -> usize {
     // r0 = &next.sp (implicitly done here via return value)
     //
     // write to registers manually, as ABI would return the values via stack
-    asm!("", in("r1") current_high_regs, in("r2") next_high_regs);
+    unsafe { asm!("", in("r1") current_high_regs, in("r2") next_high_regs) };
 
     next_sp
 }
