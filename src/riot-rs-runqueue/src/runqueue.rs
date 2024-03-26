@@ -60,7 +60,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         debug_assert!((rq as usize) < N_QUEUES);
         let popped = self.queues.pop_head(rq);
         //
-        assert_eq!(popped, Some(n as u8));
+        assert_eq!(popped, Some(n));
         if self.queues.is_empty(rq) {
             self.bitcache &= !(1 << rq);
         }
