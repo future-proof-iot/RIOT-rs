@@ -140,7 +140,7 @@ jobs:
 
       # TODO: we'll eventually want to enable relevant features
       - name: "rustdoc"
-        run: cargo rustdoc -p riot-rs --features no-boards -- -D warnings
+        run: cargo rustdoc -p riot-rs --features no-boards,bench -- -D warnings
 
       - name: rustfmt
         run: cargo fmt --check --all

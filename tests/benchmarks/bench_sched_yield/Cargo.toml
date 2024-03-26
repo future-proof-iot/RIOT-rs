@@ -7,6 +7,7 @@ publish = false
 
 [dependencies]
 riot-rs = { workspace = true, default-features = true, features = [
+  "bench",
   "threading",
 ] }
 riot-rs-boards = { workspace = true }
