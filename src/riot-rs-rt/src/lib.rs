@@ -35,6 +35,7 @@ cfg_if::cfg_if! {
     } else {
         // Provide a default architecture, for arch-independent tooling
         mod arch {
+            #[cfg_attr(not(context = "riot-rs"), allow(dead_code))]
             pub fn init() {}
             pub fn benchmark<F: Fn()>(_iterations: usize, _f: F) -> core::result::Result<usize, ()> {
                 unimplemented!();
@@ -70,6 +71,7 @@ use linkme::distributed_slice;
 pub static INIT_FUNCS: [fn()] = [..];
 
 #[inline]
+#[cfg_attr(not(context = "riot-rs"), allow(dead_code))]
 fn startup() -> ! {
     arch::init();
 
