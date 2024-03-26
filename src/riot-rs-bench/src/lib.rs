@@ -10,8 +10,7 @@ cfg_if::cfg_if! {
         mod cortexm;
         use cortexm as bench;
     }
-    else if #[cfg(context = "riot-rs")] {
-        // When run with laze but the architecture is not supported
+    else if #[cfg(capability = "sw/benchmark")] {
         compile_error!("benchmarking is not supported for this architecture");
     } else {
         // Provide a default bench module, for arch-independent tooling
