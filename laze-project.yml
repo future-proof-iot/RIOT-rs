@@ -489,6 +489,7 @@ modules:
           - riot-rs/usb-ethernet
 
   - name: hw/usb-device-port
+    help: provided if a device has a USB device port wired up
     context:
       - nrf5340dk
       - nrf52840dk
