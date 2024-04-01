@@ -8,7 +8,8 @@
 ## Multi-threading
 
 Riot-rs implements a scheduler based on fixed priorities and preemption.
-Within the same priority level, threads are scheduled cooperatively.
+This means that the highest priority thread is always running.
+Within one priority level, threads are scheduled cooperatively.
 
 Threading can be enabled with the `threading` feature.
 If the feature is enabled, at least one thread **must** be defined.  
@@ -20,7 +21,6 @@ The `riot_rs_threading` crate supports basic synchronization primitives:
 - a synchronous (blocking) channel for sending data between threads (the data must implement `Copy`)
 - a lock that can be used to implement mutually exclusive access to a resource
 - a thread-flags implementation that enables threads to wait for specific flags
-  (*TODO: should the thread\_flags even be mentioned here/ are they meant to be used by users?*)
 
 ### Example
 
