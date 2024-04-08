@@ -24,6 +24,8 @@ cfg_if! {
         pub use microbit_v2 as board;
     } else if #[cfg(feature = "nucleo-f401re")] {
         pub use nucleo_f401re as board;
+    } else if #[cfg(feature = "particle-xenon")] {
+        pub use particle_xenon as board;
     } else if #[cfg(feature = "rpi-pico")] {
         pub use rpi_pico as board;
     } else if #[cfg(feature = "rpi-pico-w")] {
