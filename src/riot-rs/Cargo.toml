@@ -12,13 +12,13 @@ document-features = { workspace = true }
 linkme = { workspace = true }
 riot-rs-bench = { workspace = true, optional = true }
 riot-rs-boards = { path = "../riot-rs-boards" }
-riot-rs-buildinfo = { path = "../riot-rs-buildinfo" }
 riot-rs-debug = { workspace = true }
 riot-rs-embassy = { path = "../riot-rs-embassy" }
 riot-rs-macros = { path = "../riot-rs-macros" }
 riot-rs-random = { path = "../riot-rs-random", optional = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
+riot-rs-utils = { workspace = true }
 static_cell = { workspace = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]

@@ -1,8 +1,0 @@
-[package]
-name = "riot-rs-buildinfo"
-version.workspace = true
-authors.workspace = true
-edition.workspace = true
-
-[lints]
-workspace = true

@@ -25,6 +25,7 @@ contexts:
         - >-
           OPENOCD_ARGS="${OPENOCD_ARGS}"
           SCRIPTS=${SCRIPTS}
+          CONFIG_BOARD=${builder}
           CARGO_BUILD_TARGET=${RUSTC_TARGET}
           ${CARGO_TARGET_PREFIX}_RUNNER=${CARGO_RUNNER}
           ${CARGO_TARGET_PREFIX}_RUSTFLAGS="${RUSTFLAGS}"
