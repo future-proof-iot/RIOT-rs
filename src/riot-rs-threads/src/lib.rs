@@ -2,6 +2,9 @@
 #![feature(inline_const)]
 #![feature(naked_functions)]
 #![feature(used_with_arg)]
+// Disable indexing lints for now, possible panics are documented or rely on internally-enforced
+// invariants
+#![allow(clippy::indexing_slicing)]
 
 use critical_section::CriticalSection;
 
@@ -140,6 +143,10 @@ impl Threads {
     ///
     /// This function handles adding/ removing the thread to the Runqueue depending
     /// on its previous or new state.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `pid` is >= [`THREADS_NUMOF`].
     pub(crate) fn set_state(&mut self, pid: ThreadId, state: ThreadState) -> ThreadState {
         let thread = &mut self.threads[pid as usize];
         let old_state = thread.state;
@@ -153,6 +160,7 @@ impl Threads {
         old_state
     }
 
+    /// Returns the state of a thread.
     pub fn get_state(&self, thread_id: ThreadId) -> Option<ThreadState> {
         if self.is_valid_pid(thread_id) {
             Some(self.threads[thread_id as usize].state)

@@ -1,3 +1,6 @@
+// Disable indexing lints for now
+#![allow(clippy::indexing_slicing)]
+
 use core::mem;
 
 use self::clist::CList;
