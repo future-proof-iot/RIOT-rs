@@ -26,8 +26,8 @@ embassy-usb = { workspace = true, optional = true }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-debug = { workspace = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
-riot-rs-utils = { path = "../riot-rs-utils" }
 riot-rs-random = { path = "../riot-rs-random", optional = true }
+riot-rs-utils = { workspace = true }
 
 heapless = "0.8.0"
 once_cell = { version = "1.19.0", default-features = false, features = [

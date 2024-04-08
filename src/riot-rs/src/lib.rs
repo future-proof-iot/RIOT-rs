@@ -7,11 +7,11 @@
 #![no_std]
 #![feature(doc_auto_cfg)]
 
+pub mod buildinfo;
+
 #[cfg(feature = "bench")]
 #[doc(inline)]
 pub use riot_rs_bench as bench;
-#[doc(inline)]
-pub use riot_rs_buildinfo as buildinfo;
 #[doc(inline)]
 pub use riot_rs_debug as debug;
 #[doc(inline)]
