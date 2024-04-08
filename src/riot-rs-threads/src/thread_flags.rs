@@ -18,7 +18,7 @@ pub enum WaitMode {
 ///
 /// # Panics
 ///
-/// Panics if no valid thread for `thread_id` exists.
+/// Panics if `thread_id` is >= [`THREADS_NUMOF`](crate::THREADS_NUMOF).
 pub fn set(thread_id: ThreadId, mask: ThreadFlags) {
     THREADS.with_mut(|mut threads| threads.flag_set(thread_id, mask))
 }
