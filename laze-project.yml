@@ -495,6 +495,7 @@ modules:
       - nrf52840dk
       - rpi-pico
       - rpi-pico-w
+      - particle-xenon
     env:
       global:
         RUSTFLAGS:
@@ -588,6 +589,9 @@ builders:
       - periph_rtt
 
   - name: microbit-v2
+    parent: nrf52840
+
+  - name: particle-xenon
     parent: nrf52840
 
   - name: rpi-pico

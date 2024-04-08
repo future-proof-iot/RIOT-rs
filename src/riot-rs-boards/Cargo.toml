@@ -24,6 +24,7 @@ nrf52dk = { optional = true, path = "nrf52dk" }
 nrf5340dk = { optional = true, path = "nrf5340dk" }
 nucleo-f401re = { optional = true, path = "nucleo-f401re" }
 rpi-pico = { optional = true, path = "rpi-pico" }
+particle-xenon = { optional = true, path = "particle-xenon" }
 
 [features]
 # Allows to have no boards selected, useful to run platform-independent tooling

@@ -2057,6 +2057,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "particle-xenon"
+version = "0.1.0"
+dependencies = [
+ "cortex-m",
+ "cortex-m-rt",
+ "nrf52",
+ "riot-rs-debug",
+ "riot-rs-rt",
+]
+
+[[package]]
 name = "paste"
 version = "1.0.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2358,6 +2369,7 @@ dependencies = [
  "nrf52dk",
  "nrf5340dk",
  "nucleo-f401re",
+ "particle-xenon",
  "riot-rs-rt",
  "rpi-pico",
 ]
