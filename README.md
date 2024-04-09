@@ -8,7 +8,7 @@
 RIOT-rs is an operating system for secure, memory-safe, low-power Internet of Things (IoT).
 RIOT-rs is based on Rust from the ground up, and uses formal verification
 for critical modules. To learn more about our motivations, see this
-[manifesto](https://future-proof-iot.github.io/RIOT-rs/dev/manifesto.html).
+[manifesto](https://future-proof-iot.github.io/RIOT-rs/dev/docs/book/manifesto.html).
 
 Hardware targets include varieties of IoT hardware based on 
 32-bit microcontroller architectures (such as Cortex-M, RISC-V).
@@ -113,7 +113,7 @@ recommended to use a current nightly.
 ## Coding Conventions
 
 Please see the chapter on
-[coding conventions](https://future-proof-iot.github.io/RIOT-rs/dev/coding-conventions.html)
+[coding conventions](https://future-proof-iot.github.io/RIOT-rs/dev/docs/book/coding-conventions.html)
 in the documentation.
 
 ## Copyright & License
@@ -141,4 +141,4 @@ be dual licensed as above, without any additional terms or conditions.
 [matrix-badge]: https://img.shields.io/badge/chat-Matrix-brightgreen.svg
 [matrix-link]: https://matrix.to/#/#RIOT-rs:matrix.org
 [doc-badge]: https://img.shields.io/badge/Documentation-%F0%9F%93%94-blue
-[documentation-mdbook]: https://future-proof-iot.github.io/RIOT-rs/dev/
+[documentation-mdbook]: https://future-proof-iot.github.io/RIOT-rs/dev/docs/book

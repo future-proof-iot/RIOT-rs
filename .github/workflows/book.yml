@@ -38,12 +38,12 @@ jobs:
       - name: Build the book
         run:
           - cd book && mdbook build
-          - mkdir -p ./dev && mv book ./dev
+          - mkdir -p ./dev/docs && mv book ./dev/docs/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dev
+          path: ./dev/docs/book
 
   deploy:
     environment:
