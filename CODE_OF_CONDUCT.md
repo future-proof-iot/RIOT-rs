@@ -23,7 +23,7 @@ affect a person's ability to participate within them.
 
 If you believe someone is violating the code of conduct, we ask that you report
 it by emailing <conduct@riot-rs.org>. For more details please see our [Reporting
-Guidelines](https://future-proof-iot.github.io/RIOT-rs/dev/COC_reporting.html).
+Guidelines](https://future-proof-iot.github.io/RIOT-rs/dev/docs/book/COC_reporting.html).
 
 -   **Be friendly and patient.**
 -   **Be welcoming.** We strive to be a community that welcomes and supports
