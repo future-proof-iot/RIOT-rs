@@ -2445,6 +2445,7 @@ dependencies = [
  "cfg-if",
  "cortex-m",
  "cortex-m-rt",
+ "embassy-rp",
  "esp-hal",
  "linkme",
  "portable-atomic",
@@ -2468,9 +2469,12 @@ dependencies = [
  "cortex-m-rt",
  "cortex-m-semihosting",
  "critical-section",
+ "embassy-rp",
  "linkme",
  "panic-semihosting",
  "riot-rs-runqueue",
+ "rp-pac",
+ "static_cell",
 ]
 
 [[package]]

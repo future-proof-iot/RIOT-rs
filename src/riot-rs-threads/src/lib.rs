@@ -2,6 +2,7 @@
 #![feature(inline_const)]
 #![feature(naked_functions)]
 #![feature(used_with_arg)]
+#![feature(type_alias_impl_trait)]
 
 use critical_section::CriticalSection;
 
@@ -10,6 +11,7 @@ pub use riot_rs_runqueue::{RunqueueId, ThreadId};
 
 mod arch;
 mod ensure_once;
+mod smp;
 mod thread;
 mod threadlist;
 
@@ -18,6 +20,7 @@ pub mod lock;
 pub mod thread_flags;
 
 pub use arch::schedule;
+use smp::Multicore;
 pub use thread::{Thread, ThreadState};
 pub use thread_flags as flags;
 pub use threadlist::ThreadList;
@@ -30,6 +33,8 @@ pub const SCHED_PRIO_LEVELS: usize = 12;
 
 /// a global defining the number of threads that can be created
 pub const THREADS_NUMOF: usize = 16;
+
+pub const CORES_NUMOF: usize = smp::Chip::CORES as usize;
 
 pub(crate) static THREADS: EnsureOnce<Threads> = EnsureOnce::new(Threads::new());
 
@@ -48,7 +53,7 @@ pub struct Threads {
     /// resource access.
     thread_blocklist: [Option<ThreadId>; THREADS_NUMOF],
     /// The currently running thread.
-    current_thread: Option<ThreadId>,
+    current_threads: [Option<ThreadId>; CORES_NUMOF],
 }
 
 impl Threads {
@@ -57,7 +62,7 @@ impl Threads {
             runqueue: RunQueue::new(),
             threads: [const { Thread::default() }; THREADS_NUMOF],
             thread_blocklist: [const { None }; THREADS_NUMOF],
-            current_thread: None,
+            current_threads: [None; CORES_NUMOF],
         }
     }
 
@@ -70,12 +75,11 @@ impl Threads {
     ///
     /// Returns `None` if there is no current thread.
     pub(crate) fn current(&mut self) -> Option<&mut Thread> {
-        self.current_thread
-            .map(|tid| &mut self.threads[tid as usize])
+        self.current_threads[cpuid()].map(|tid| &mut self.threads[tid as usize])
     }
 
     pub fn current_pid(&self) -> Option<ThreadId> {
-        self.current_thread
+        self.current_threads[cpuid()]
     }
 
     /// Creates a new thread.
@@ -179,9 +183,10 @@ pub unsafe fn start_threading() {
     let cs = unsafe { CriticalSection::new() };
     let next_sp = THREADS.with_mut_cs(cs, |mut threads| {
         let next_pid = threads.runqueue.get_next().unwrap();
-        threads.current_thread = Some(next_pid);
+        threads.current_threads[cpuid()] = Some(next_pid);
         threads.threads[next_pid as usize].sp
     });
+    smp::Chip::startup_cores();
     Cpu::start_threading(next_sp);
 }
 
@@ -256,6 +261,11 @@ pub fn get_state(thread_id: ThreadId) -> Option<ThreadState> {
 /// that was interrupted.
 pub fn current_pid() -> Option<ThreadId> {
     THREADS.with(|threads| threads.current_pid())
+}
+
+/// Returns the id of the CPU that this thread is running on.
+pub fn cpuid() -> usize {
+    smp::Chip::cpuid() as usize
 }
 
 /// Checks if a given [`ThreadId`] is valid

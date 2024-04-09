@@ -1,4 +1,5 @@
 use super::Arch;
+use crate::smp::Multicore;
 use core::arch::asm;
 use core::ptr::write_volatile;
 use cortex_m::peripheral::SCB;
@@ -228,6 +229,7 @@ unsafe extern "C" fn PendSV() {
 // TODO: make arch independent, or move to arch
 #[no_mangle]
 unsafe fn sched(old_sp: usize) -> usize {
+    let cpuid = crate::smp::Chip::cpuid() as usize;
     // SAFETY: interrupts are disabled by caller
     let cs = unsafe { CriticalSection::new() };
     let next_pid;
@@ -235,7 +237,9 @@ unsafe fn sched(old_sp: usize) -> usize {
     loop {
         {
             if let Some(pid) = (unsafe { &*THREADS.as_ptr(cs) }).runqueue.get_next() {
-                next_pid = pid;
+                // TODO: this is super hacky and only for a first test.
+                // `riot-rs-runqueue` needs to be adapted instead.
+                next_pid = pid + (cpuid as u8);
                 break;
             }
         }
@@ -256,7 +260,7 @@ unsafe fn sched(old_sp: usize) -> usize {
         }
         //println!("current: {} next: {}", current_pid, next_pid);
         threads.threads[current_pid as usize].sp = old_sp;
-        threads.current_thread = Some(next_pid);
+        threads.current_threads[cpuid] = Some(next_pid);
         current_high_regs = threads.threads[current_pid as usize].data.as_ptr();
     } else {
         current_high_regs = core::ptr::null();

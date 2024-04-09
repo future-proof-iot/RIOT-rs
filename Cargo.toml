@@ -45,6 +45,8 @@ embassy-sync = { version = "0.5", default-features = false }
 embassy-time = { version = "0.3", default-features = false }
 embassy-usb = { version = "0.1", default-features = false }
 
+rp-pac = { version = "6.0", default-features = false }
+
 esp-hal = { version = "0.15", git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-290224", default-features = false }
 esp-println = { version = "0.9.0" }
 esp-wifi = { git = "https://github.com/kaspar030/esp-wifi", branch = "update-esp-hal" }
