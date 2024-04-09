@@ -1,45 +1,57 @@
 name: Deploy Book
+
+# GitHub Action workflow documentation:
+# https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
+
+# This workflow is based on
+# https://github.com/actions/starter-workflows/blob/main/pages/mdbook.yml
+
 on:
   push:
-    branches:
-      - main
+    branches: [$default-branch]
     paths:
       - book/**
 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
+
 jobs:
-  deploy:
+  build:
     if: github.repository == 'future-proof-iot/RIOT-rs'
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Build the book
+        run:
+          - cd book && mdbook build
+          - mkdir -p ./dev && mv book ./dev
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          fetch-depth: 0
-      - name: Install mdbook
-        run: |
-          mkdir mdbook
-          curl -Lf https://github.com/rust-lang/mdBook/releases/download/v0.4.36/mdbook-v0.4.36-x86_64-unknown-linux-gnu.tar.gz | tar -xz --directory=./mdbook
-          echo `pwd`/mdbook >> $GITHUB_PATH
-      - name: Build docs
-        run: |
-          cd book
-          mdbook build
-      - name: Update gh-pages branch
-        # This has no reason to fail, only the commit step fails if there are no
-        # changes.
-        continue-on-error: true
-        run: |
-          cd book
-          git worktree add gh-pages gh-pages
-          git config user.name "Deploy from CI"
-          git config user.email ""
-          cd gh-pages
-          git rm -rf dev
-          mv ../book dev
-          git add dev
-          git commit -m "Deploy $GITHUB_SHA to gh-pages"
-      - name: Deploy changed book
-        # only deploy if there were changes
-        if: success()
-        run: |
-          cd book/gh-pages
-          git push --force
+          path: ./dev
+
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    needs: build
+    steps:
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
