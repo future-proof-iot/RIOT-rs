@@ -48,14 +48,13 @@ jobs:
         run:
           - cargo rustdoc -p riot-rs --features no-boards,bench -- -D warnings
           - echo "<meta http-equiv=\"refresh\" content=\"0; url=riot_rs\">" > target/doc/index.html
-          - mkdir -p ./docs/api/dev && mv target/doc/* ./docs/api/dev
+          - mkdir -p ./dev/docs/api && mv target/doc/* ./dev/docs/api
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./docs/api/dev
+          path: ./dev/docs/api
 
-  # Deployment job
   deploy:
     environment:
       name: github-pages
