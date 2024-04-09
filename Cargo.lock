@@ -4534,6 +4534,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "threading-multicore"
+version = "0.1.0"
+dependencies = [
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
 name = "time"
 version = "0.3.36"
 source = "registry+https://github.com/rust-lang/crates.io-index"

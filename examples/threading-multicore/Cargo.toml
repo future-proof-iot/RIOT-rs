@@ -1,0 +1,11 @@
+[package]
+name = "threading-multicore"
+version = "0.1.0"
+authors = ["Elena Frank <elena.frank@proton.me>"]
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+riot-rs = { path = "../../src/riot-rs", features = ["threading"] }
+riot-rs-boards = { path = "../../src/riot-rs-boards" }
