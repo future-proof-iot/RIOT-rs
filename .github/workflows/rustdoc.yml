@@ -47,13 +47,13 @@ jobs:
       - name: Build rustdoc docs
         run:
           - cargo rustdoc -p riot-rs --features no-boards,bench -- -D warnings
-          - echo "<meta http-equiv=\"refresh\" content=\"0; url=riot-rs\">" > target/doc/index.html
-          - mv target/doc ./docs
+          - echo "<meta http-equiv=\"refresh\" content=\"0; url=riot_rs\">" > target/doc/index.html
+          - mkdir -p ./docs/api/dev && mv target/doc/* ./docs/api/dev
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./docs
+          path: ./docs/api/dev
 
   # Deployment job
   deploy:
