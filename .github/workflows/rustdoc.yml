@@ -7,9 +7,6 @@ name: Deploy rustdoc
 # https://github.com/actions/starter-workflows/blob/main/pages/mdbook.yml
 
 on:
-  # HACK: temporary test
-  pull_request:
-    branches: [$default-branch]
   push:
     branches: [$default-branch]
     paths:
