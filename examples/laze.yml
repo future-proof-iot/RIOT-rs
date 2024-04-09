@@ -14,3 +14,4 @@ subdirs:
   - hello-world
   - minimal
   - threading
+  - threading-multicore
