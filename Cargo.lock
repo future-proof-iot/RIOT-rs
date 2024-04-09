@@ -527,7 +527,7 @@ dependencies = [
 [[package]]
 name = "embassy-executor"
 version = "0.5.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-140224#8350617237bf7c5e45151ec6b943bc7f81463b35"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-100424#9e283f29b4c76912c4fbf7c792782263c98e6ffb"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -558,7 +558,7 @@ checksum = "1f878075b9794c1e4ac788c95b728f26aa6366d32eeb10c7051389f898f7d067"
 [[package]]
 name = "embassy-hal-internal"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-140224#8350617237bf7c5e45151ec6b943bc7f81463b35"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-100424#9e283f29b4c76912c4fbf7c792782263c98e6ffb"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -652,7 +652,7 @@ dependencies = [
 [[package]]
 name = "embassy-nrf"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-140224#8350617237bf7c5e45151ec6b943bc7f81463b35"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-100424#9e283f29b4c76912c4fbf7c792782263c98e6ffb"
 dependencies = [
  "bitflags 2.4.2",
  "cfg-if",
