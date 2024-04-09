@@ -1,0 +1,4 @@
+apps:
+  - name: threading-multicore
+    selects:
+      - ?release
