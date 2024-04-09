@@ -25,6 +25,7 @@ nrf5340dk = { optional = true, path = "nrf5340dk" }
 nucleo-f401re = { optional = true, path = "nucleo-f401re" }
 rpi-pico = { optional = true, path = "rpi-pico" }
 particle-xenon = { optional = true, path = "particle-xenon" }
+st-nucleo-h755zi-q = { optional = true, path = "st-nucleo-h755zi-q" }
 nintendo-game-and-watch = { optional = true, path = "nintendo-game-and-watch" }
 
 [features]
