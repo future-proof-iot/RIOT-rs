@@ -45,10 +45,10 @@ jobs:
           toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
 
       - name: Build rustdoc docs
-        run:
-          - cargo rustdoc -p riot-rs --features no-boards,bench -- -D warnings
-          - echo "<meta http-equiv=\"refresh\" content=\"0; url=riot_rs\">" > target/doc/index.html
-          - mkdir -p ./dev/docs/api && mv target/doc/* ./dev/docs/api
+        run: |
+          cargo rustdoc -p riot-rs --features no-boards,bench -- -D warnings
+          echo "<meta http-equiv=\"refresh\" content=\"0; url=riot_rs\">" > target/doc/index.html
+          mkdir -p ./dev/docs/api && mv target/doc/* ./dev/docs/api
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
