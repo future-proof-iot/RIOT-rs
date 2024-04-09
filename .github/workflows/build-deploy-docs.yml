@@ -1,4 +1,4 @@
-name: Deploy rustdoc
+name: Deploy docs
 
 # GitHub Action workflow documentation:
 # https://docs.github.com/en/actions/using-workflows/workflow-syntax-for-github-actions
@@ -46,14 +46,26 @@ jobs:
 
       - name: Build rustdoc docs
         run: |
-          cargo rustdoc -p riot-rs --features no-boards,bench -- -D warnings
+          cargo doc -p riot-rs --features no-boards,bench
           echo "<meta http-equiv=\"refresh\" content=\"0; url=riot_rs\">" > target/doc/index.html
-          mkdir -p ./dev/docs/api && mv target/doc/* ./dev/docs/api
+          mkdir -p ./_site/dev/docs/api && mv target/doc/* ./_site/dev/docs/api
+
+      - name: Install mdbook
+        run: |
+          mkdir mdbook
+          curl -Lf https://github.com/rust-lang/mdBook/releases/download/v0.4.36/mdbook-v0.4.36-x86_64-unknown-linux-gnu.tar.gz | tar -xz --directory=./mdbook
+          echo `pwd`/mdbook >> $GITHUB_PATH
+
+      - name: Build the book
+        run: |
+          cd book
+          mdbook build
+          mv book ../_site/dev/docs
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./dev/docs/api
+          path: ./_site
 
   deploy:
     environment:
