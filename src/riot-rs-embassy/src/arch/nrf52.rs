@@ -57,6 +57,13 @@ pub mod usb {
     }
 }
 
+#[cfg(feature = "hwrng")]
+pub mod hwrng {
+    embassy_nrf::bind_interrupts!(pub struct Irqs {
+        RNG => embassy_nrf::rng::InterruptHandler<embassy_nrf::peripherals::RNG>;
+    });
+}
+
 pub fn init(config: Config) -> OptionalPeripherals {
     let peripherals = embassy_nrf::init(config);
     OptionalPeripherals::from(peripherals)

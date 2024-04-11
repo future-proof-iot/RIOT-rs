@@ -501,6 +501,24 @@ modules:
         RUSTFLAGS:
           - --cfg capability=\"hw/usb-device-port\"
 
+  - name: hwrng
+    help: The board's peripherals are suitable for passing into riot_rs_random::construct_rng.
+    context:
+      # these are precisely those for which the hwrng feature of
+      # riot-rs-embassy builds, which would fail if the big if(context=...)
+      # doesn't have an entry in the cfg(feature = "hwrng") part of init_task
+      - nrf
+    env:
+      global:
+        FEATURES:
+          - riot-rs/hwrng
+
+  - name: rng
+    help: A system-wide RNG is available
+    depends:
+      # could later alternatively depend on mutable config storage
+      - hwrng
+
   - name: sw/benchmark
     help: provided if a target supports `benchmark()`
     # Currently there's only one implementation based on Systick, so Cortex-M only.
