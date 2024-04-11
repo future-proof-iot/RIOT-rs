@@ -1,0 +1,5 @@
+apps:
+  - name: random
+    selects:
+      - ?release
+      - rng
