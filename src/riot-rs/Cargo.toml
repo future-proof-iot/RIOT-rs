@@ -44,6 +44,8 @@ threading = [
 ## Enables support for timeouts in the internal executor---required to use
 ## `embassy_time::Timer`.
 time = ["riot-rs-embassy/time"]
+## Enables seeding the random number generator from hardware.
+hwrng = ["riot-rs-embassy/hwrng"]
 
 #! ## Wired communication
 ## Enables USB support.
