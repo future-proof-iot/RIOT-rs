@@ -1,7 +1,9 @@
+use super::CoreId;
+
 pub trait Multicore {
     const CORES: u32;
 
-    fn cpuid() -> u32;
+    fn cpuid() -> CoreId;
 
     fn startup_cores();
 }
@@ -16,7 +18,7 @@ cfg_if::cfg_if! {
         impl Multicore for Chip {
             const CORES: u32 = 1;
 
-            fn cpuid() -> u32 {
+            fn cpuid() -> CoreId {
                 0
             }
 

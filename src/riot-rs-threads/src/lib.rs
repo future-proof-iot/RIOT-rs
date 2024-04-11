@@ -7,7 +7,7 @@
 use critical_section::CriticalSection;
 
 use riot_rs_runqueue::RunQueue;
-pub use riot_rs_runqueue::{RunqueueId, ThreadId};
+pub use riot_rs_runqueue::{CoreId, RunqueueId, ThreadId};
 
 mod arch;
 mod ensure_once;
@@ -46,7 +46,7 @@ pub static THREAD_FNS: [ThreadFn] = [..];
 /// Struct holding all scheduler state
 pub struct Threads {
     /// Global thread runqueue.
-    runqueue: RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF>,
+    runqueue: RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF, CORES_NUMOF>,
     /// The actual TCBs.
     threads: [Thread; THREADS_NUMOF],
     /// `Some` when a thread is blocking another thread due to conflicting
@@ -75,11 +75,16 @@ impl Threads {
     ///
     /// Returns `None` if there is no current thread.
     pub(crate) fn current(&mut self) -> Option<&mut Thread> {
-        self.current_threads[cpuid()].map(|tid| &mut self.threads[tid as usize])
+        self.current_pid()
+            .map(|tid| &mut self.threads[tid as usize])
     }
 
     pub fn current_pid(&self) -> Option<ThreadId> {
-        self.current_threads[cpuid()]
+        self.current_threads[cpuid() as usize]
+    }
+
+    pub fn current_pid_mut(&mut self) -> &mut Option<ThreadId> {
+        &mut self.current_threads[cpuid() as usize]
     }
 
     /// Creates a new thread.
@@ -182,8 +187,8 @@ pub unsafe fn start_threading() {
     // SAFETY: caller ensures invariants
     let cs = unsafe { CriticalSection::new() };
     let next_sp = THREADS.with_mut_cs(cs, |mut threads| {
-        let next_pid = threads.runqueue.get_next().unwrap();
-        threads.current_threads[cpuid()] = Some(next_pid);
+        let next_pid = threads.runqueue.get_next_for_core(cpuid()).unwrap();
+        *threads.current_pid_mut() = Some(next_pid);
         threads.threads[next_pid as usize].sp
     });
     smp::Chip::startup_cores();
@@ -264,8 +269,8 @@ pub fn current_pid() -> Option<ThreadId> {
 }
 
 /// Returns the id of the CPU that this thread is running on.
-pub fn cpuid() -> usize {
-    smp::Chip::cpuid() as usize
+pub fn cpuid() -> CoreId {
+    smp::Chip::cpuid() as CoreId
 }
 
 /// Checks if a given [`ThreadId`] is valid
