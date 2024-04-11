@@ -7,8 +7,8 @@
 //! * Where do we take a valid seed for the RNG from?
 //! * What's the type of RNG that we take along?
 //! * Can some of those be shared?
-//!   (This may need an API change, but non-Send tasks could very well use an executor-local RNG
-//!   behind a shared reference to not all carry a full RNG state for each user)
+//!   (Currently, Rng is a zero-sized type shared across all users, and locks on each access.
+//!   That behavior may still change).
 //!
 //! No matter the choices taken (eventually through the application's setup), all is hidden behind
 //! a main [`Rng`] type, which depending on the feature `main-is-csprng` also implements
@@ -21,9 +21,9 @@
 //! ---
 //!
 //! Currently, this provides very little choice, and little fanciness: It (more or less
-//! arbitrarily) uses the [rand_chacha::ChaCha20Rng] generator, seeds uses different copies of that
-//! RNG for all callers fo [`get_rng()`]. Later, it may offer a wider range of choices and
-//! trade-offs between flash size, speed and security. (See [Rng] for its properties).
+//! arbitrarily) uses the [rand_chacha::ChaCha20Rng] generator, and the zero-sized wrapper Rng
+//! around it locks the global state on demand. Neither the algorithm nor the size of Rng is
+//! guaranteed.
 #![no_std]
 
 use rand_core::{RngCore, SeedableRng};
@@ -31,7 +31,7 @@ use rand_core::{RngCore, SeedableRng};
 // The Mutex<RefCell> can probably be simplified
 static RNG: embassy_sync::blocking_mutex::Mutex<
     embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex,
-    core::cell::RefCell<Option<Rng>>,
+    core::cell::RefCell<Option<SelectedRng>>,
 > = embassy_sync::blocking_mutex::Mutex::new(core::cell::RefCell::new(None));
 
 // This is one of the points where we can tune easily. If calls to `get_rng()` are rare, it may
@@ -52,16 +52,17 @@ pub(crate) type SelectedRng = rand_chacha::ChaCha20Rng;
 /// depend on a known fast RNG and seed it from the OS's RNG, but preferably there should be a
 /// single configured implementation used across applications for ROM optimization, even if it
 /// turns out to be beneficial to have a thread or task local RNG around in RAM for speed).
-pub struct Rng {
-    inner: SelectedRng,
-}
+pub struct Rng;
 
 impl Rng {
-    // Create a per-thread/per-task copy of the RNG. Not sure whether we'll need that all the time,
-    // and/or whether these should all have the same types, but for the first iteration
-    // everything-is-of-type-Rng is good enough
-    fn split(&mut self) -> Self {
-        Self { inner: SelectedRng::from_rng(self).expect("Main RNG is infallible") }
+    fn with<R>(&mut self, action: impl FnOnce(&mut SelectedRng) -> R) -> R {
+        RNG.lock(|i| {
+            action(
+                i.borrow_mut()
+                    .as_mut()
+                    .expect("Initialization should have populated RNG"),
+            )
+        })
     }
 }
 
@@ -69,16 +70,16 @@ impl Rng {
 // details to users who might otherwise come to depend on platform specifics of the Rng.
 impl RngCore for Rng {
     fn next_u32(&mut self) -> u32 {
-        self.inner.next_u32()
+        self.with(|i| i.next_u32())
     }
     fn next_u64(&mut self) -> u64 {
-        self.inner.next_u64()
+        self.with(|i| i.next_u64())
     }
     fn fill_bytes(&mut self, buf: &mut [u8]) {
-        self.inner.fill_bytes(buf)
+        self.with(|i| i.fill_bytes(buf))
     }
     fn try_fill_bytes(&mut self, buf: &mut [u8]) -> Result<(), rand_core::Error> {
-        self.inner.try_fill_bytes(buf)
+        self.with(|i| i.try_fill_bytes(buf))
     }
 }
 
@@ -98,9 +99,9 @@ mod main_is_csprng {
 /// This is called by RIOT-rs's initialization functions.
 pub fn construct_rng(hwrng: impl RngCore) {
     RNG.lock(|r| {
-        r.replace(Some(Rng {
-            inner: SelectedRng::from_rng(hwrng).expect("Hardware RNG failed to provide entropy"),
-        }))
+        r.replace(Some(
+            SelectedRng::from_rng(hwrng).expect("Hardware RNG failed to provide entropy"),
+        ))
     });
 }
 
@@ -111,6 +112,5 @@ pub fn construct_rng(hwrng: impl RngCore) {
 /// macros.
 #[inline]
 pub fn get_rng() -> Rng {
-    RNG.lock(|r| r.borrow_mut().as_mut().map(|main| main.split()))
-        .expect("Initialization should have populated the RNG")
+    Rng
 }
