@@ -13,7 +13,7 @@ members = [
   "src/riot-rs-chips",
   "src/riot-rs-debug",
   "src/riot-rs-macros",
-  "src/riot-rs-saga",
+  "src/riot-rs-sensors",
   "tests/benchmarks/bench_sched_yield",
 ]
 
@@ -59,7 +59,7 @@ riot-rs-boards = { path = "src/riot-rs-boards", default-features = false }
 riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
-riot-rs-saga = { path = "src/riot-rs-saga" }
+riot-rs-sensors = { path = "src/riot-rs-sensors" }
 riot-rs-threads = { path = "src/riot-rs-threads" }
 
 const_panic = { version = "0.2.8", default_features = false }

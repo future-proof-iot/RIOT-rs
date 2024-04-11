@@ -25,7 +25,7 @@ embassy-usb = { workspace = true, optional = true }
 riot-rs-threads = { path = "../riot-rs-threads" }
 riot-rs-debug = { workspace = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
-riot-rs-saga = { path = "../riot-rs-saga" }
+riot-rs-sensors = { path = "../riot-rs-sensors" }
 riot-rs-utils = { path = "../riot-rs-utils" }
 
 fixed = "1.24.0"

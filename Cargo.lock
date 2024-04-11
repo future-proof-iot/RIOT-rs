@@ -2341,7 +2341,7 @@ dependencies = [
  "riot-rs-embassy",
  "riot-rs-macros",
  "riot-rs-rt",
- "riot-rs-saga",
+ "riot-rs-sensors",
  "riot-rs-threads",
  "static_cell",
 ]
@@ -2421,7 +2421,7 @@ dependencies = [
  "once_cell",
  "riot-rs-debug",
  "riot-rs-rt",
- "riot-rs-saga",
+ "riot-rs-sensors",
  "riot-rs-threads",
  "riot-rs-utils",
  "static_cell",
@@ -2464,7 +2464,7 @@ name = "riot-rs-runqueue"
 version = "0.1.2"
 
 [[package]]
-name = "riot-rs-saga"
+name = "riot-rs-sensors"
 version = "0.1.0"
 dependencies = [
  "embassy-sync 0.5.0",

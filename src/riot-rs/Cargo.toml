@@ -17,7 +17,7 @@ riot-rs-debug = { workspace = true }
 riot-rs-embassy = { path = "../riot-rs-embassy" }
 riot-rs-macros = { path = "../riot-rs-macros" }
 riot-rs-rt = { path = "../riot-rs-rt" }
-riot-rs-saga = { path = "../riot-rs-saga" }
+riot-rs-sensors = { path = "../riot-rs-sensors" }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 static_cell = { workspace = true }
 

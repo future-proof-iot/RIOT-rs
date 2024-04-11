@@ -20,7 +20,7 @@ pub use riot_rs_embassy::{define_peripherals, group_peripherals};
 #[doc(inline)]
 pub use riot_rs_rt as rt;
 #[doc(inline)]
-pub use riot_rs_saga as sensors;
+pub use riot_rs_sensors as sensors;
 #[cfg(feature = "threading")]
 #[doc(inline)]
 pub use riot_rs_threads as thread;

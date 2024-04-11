@@ -71,7 +71,7 @@ pub mod internal_temp {
     use embassy_sync::{
         blocking_mutex::raw::CriticalSectionRawMutex, channel::Channel, mutex::Mutex,
     };
-    use riot_rs_saga::sensor::{
+    use riot_rs_sensors::sensor::{
         Notification, NotificationReceiver, PhysicalUnit, PhysicalValue, Reading, ReadingError,
         ReadingResult, Sensor,
     };
