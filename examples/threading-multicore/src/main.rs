@@ -8,15 +8,30 @@ use riot_rs::debug::println;
 #[riot_rs::thread(autostart)]
 fn thread0() {
     let cpu = riot_rs::thread::cpuid();
-    // let thread_id = riot_rs::thread::current_pid().unwrap();
-    println!("Hello from thread {} on CPU {}", 0, cpu);
+    let thread_id = riot_rs::thread::current_pid().unwrap();
+    println!(
+        "[Thread {} on Core {}] Hello from a low-priority thread!",
+        thread_id, cpu
+    );
+}
+
+#[riot_rs::thread(autostart, priority = 2)]
+fn thread1() {
+    let cpu = riot_rs::thread::cpuid();
+    let thread_id = riot_rs::thread::current_pid().unwrap();
+    println!(
+        "[Thread {} on Core {}] Hello from a medium-priority thread! I am looping forever now...",
+        thread_id, cpu
+    );
     loop {}
 }
 
-#[riot_rs::thread(autostart)]
-fn thread1() {
+#[riot_rs::thread(autostart, priority = 3)]
+fn thread2() {
     let cpu = riot_rs::thread::cpuid();
-    // let thread_id = riot_rs::thread::current_pid().unwrap();
-    println!("Hello from thread {} on CPU {}", 1, cpu);
-    loop {}
+    let thread_id = riot_rs::thread::current_pid().unwrap();
+    println!(
+        "[Thread {} on Core {}] Hello from a high-priority thread!",
+        thread_id, cpu
+    );
 }
