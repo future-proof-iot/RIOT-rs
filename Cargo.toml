@@ -13,6 +13,7 @@ members = [
   "src/riot-rs-chips",
   "src/riot-rs-debug",
   "src/riot-rs-macros",
+  "src/riot-rs-saga",
   "tests/benchmarks/bench_sched_yield",
 ]
 
@@ -37,6 +38,7 @@ cortex-m-semihosting = { version = "0.5" }
 critical-section = { version = "1.1.2" }
 
 embassy-executor = { version = "0.5", default-features = false }
+embassy-futures = { version = "0.1.1", default-features = false }
 embassy-net = { version = "0.4", default-features = false }
 embassy-net-driver-channel = { version = "0.2.0", default-features = false }
 embassy-nrf = { version = "0.1", default-features = false }
@@ -57,6 +59,8 @@ riot-rs-boards = { path = "src/riot-rs-boards", default-features = false }
 riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
+riot-rs-saga = { path = "src/riot-rs-saga" }
+riot-rs-threads = { path = "src/riot-rs-threads" }
 
 const_panic = { version = "0.2.8", default_features = false }
 document-features = "0.2.8"

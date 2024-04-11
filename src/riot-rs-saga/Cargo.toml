@@ -1,0 +1,17 @@
+[package]
+name = "riot-rs-saga"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lints]
+workspace = true
+
+[dependencies]
+embassy-sync = { workspace = true }
+heapless = { workspace = true }
+linkme = { workspace = true }
+static_cell = { workspace = true }

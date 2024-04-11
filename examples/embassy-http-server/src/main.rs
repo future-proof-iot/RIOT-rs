@@ -8,7 +8,7 @@ mod routes;
 
 use riot_rs::{
     debug::println,
-    embassy::{network, Spawner},
+    embassy::{arch, network, Spawner},
 };
 
 use embassy_net::tcp::TcpSocket;
@@ -45,6 +45,12 @@ impl picoserve::extract::FromRef<AppState> for ButtonInputs {
         state.buttons
     }
 }
+
+static TEMP_SENSOR: arch::internal_temp::InternalTemp = arch::internal_temp::InternalTemp::new();
+// TODO: can we make this const?
+#[riot_rs::linkme::distributed_slice(riot_rs::sensors::registry::SENSOR_REFS)]
+#[linkme(crate = riot_rs::linkme)]
+static TEMP_SENSOR_REF: &'static dyn riot_rs::sensors::sensor::Sensor = &TEMP_SENSOR;
 
 type AppRouter = impl picoserve::routing::PathRouter<AppState>;
 
@@ -106,10 +112,21 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
         ButtonInputs(make_static!(Mutex::new(buttons)))
     };
 
+    #[cfg(context = "nrf52840")]
+    {
+        use riot_rs::sensors::registry::REGISTRY;
+
+        let temp_peripheral = peripherals.temp.temp;
+        TEMP_SENSOR.init(temp_peripheral);
+    }
+
     fn make_app() -> picoserve::Router<AppRouter, AppState> {
         let router = picoserve::Router::new().route("/", get(routes::index));
         #[cfg(feature = "button-readings")]
         let router = router.route("/buttons", get(routes::buttons));
+        let router = router.route("/api/sensors", get(routes::sensors));
+        #[cfg(context = "nrf52840")]
+        let router = router.route("/api/temp", get(routes::temp));
         router
     }
 
@@ -127,6 +144,13 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
             buttons: button_inputs,
         };
         spawner.spawn(web_task(id, app, config, app_state)).unwrap();
+    }
+}
+
+#[riot_rs::thread(autostart)]
+fn dummy() {
+    loop {
+        riot_rs::thread::yield_same();
     }
 }
 

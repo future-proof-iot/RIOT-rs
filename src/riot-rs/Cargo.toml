@@ -17,6 +17,7 @@ riot-rs-debug = { workspace = true }
 riot-rs-embassy = { path = "../riot-rs-embassy" }
 riot-rs-macros = { path = "../riot-rs-macros" }
 riot-rs-rt = { path = "../riot-rs-rt" }
+riot-rs-saga = { path = "../riot-rs-saga" }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 static_cell = { workspace = true }
 
@@ -83,3 +84,4 @@ silent-panic = ["riot-rs-rt/silent-panic"]
 no-boards = ["riot-rs-boards/no-boards"]
 
 net = ["riot-rs-embassy/net"]
+internal-temp = ["riot-rs-embassy/internal-temp"]

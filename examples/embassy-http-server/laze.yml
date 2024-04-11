@@ -3,11 +3,12 @@ apps:
     env:
       global:
         CARGO_ENV:
-          - CONFIG_ISR_STACKSIZE=16384
+          - CONFIG_ISR_STACKSIZE=65536
     selects:
       - ?release
       - network
       - ?button-readings
+      - ?internal-temp
 
 modules:
   - name: button-readings
@@ -17,3 +18,11 @@ modules:
       global:
         FEATURES:
           - button-readings
+
+  - name: internal-temp
+    context:
+      - nrf52840
+    env:
+      global:
+        FEATURES:
+          - internal-temp

@@ -2341,6 +2341,7 @@ dependencies = [
  "riot-rs-embassy",
  "riot-rs-macros",
  "riot-rs-rt",
+ "riot-rs-saga",
  "riot-rs-threads",
  "static_cell",
 ]
@@ -2404,6 +2405,7 @@ dependencies = [
  "cyw43",
  "cyw43-pio",
  "embassy-executor",
+ "embassy-futures",
  "embassy-net",
  "embassy-net-driver-channel",
  "embassy-nrf",
@@ -2413,11 +2415,13 @@ dependencies = [
  "embassy-usb",
  "esp-hal",
  "esp-wifi",
+ "fixed",
  "heapless 0.8.0",
  "linkme",
  "once_cell",
  "riot-rs-debug",
  "riot-rs-rt",
+ "riot-rs-saga",
  "riot-rs-threads",
  "riot-rs-utils",
  "static_cell",
@@ -2458,6 +2462,16 @@ dependencies = [
 [[package]]
 name = "riot-rs-runqueue"
 version = "0.1.2"
+
+[[package]]
+name = "riot-rs-saga"
+version = "0.1.0"
+dependencies = [
+ "embassy-sync 0.5.0",
+ "heapless 0.8.0",
+ "linkme",
+ "static_cell",
+]
 
 [[package]]
 name = "riot-rs-threads"
