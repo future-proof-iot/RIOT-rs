@@ -96,7 +96,9 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "hwrng")]
     {
-        #[cfg(context = "nrf")]
+        // The union of all contexts that wind up in a construct_rng should be synchronized with
+        // laze-project.yml's hwrng module.
+        #[cfg(any(context = "nrf51", context = "nrf52"))]
         let rng = embassy_nrf::rng::Rng::new(
             peripherals
                 .RNG
