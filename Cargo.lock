@@ -1211,6 +1211,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "example-random"
+version = "0.1.0"
+dependencies = [
+ "rand",
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
 name = "expressif-esp32-c6-devkitc-1"
 version = "0.1.0"
 dependencies = [
@@ -2288,13 +2297,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "ec0be4795e2f6a28069bec0b5ff3e2ac9bafc99e6a9a7dc3547996c5c816922c"
 
 [[package]]
-name = "random"
-version = "0.1.0"
+name = "rand_pcg"
+version = "0.3.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "59cad018caf63deb318e5a4586d99a24424a364f40f1e5778c29aca23f4fc73e"
 dependencies = [
- "rand",
- "riot-rs",
- "riot-rs-boards",
- "riot-rs-random",
+ "rand_core",
 ]
 
 [[package]]
@@ -2482,6 +2490,7 @@ dependencies = [
  "embassy-sync 0.5.0",
  "rand_chacha",
  "rand_core",
+ "rand_pcg",
 ]
 
 [[package]]
