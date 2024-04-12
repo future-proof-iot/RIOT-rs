@@ -86,7 +86,7 @@ contexts:
 
       gdb:
         cmd:
-          - arm-none-eabi-gdb -ex "target extended-remote localhost:1337" ${out}
+          - rust-gdb -ex "target extended-remote localhost:1337" ${out}
         build: false
         ignore_ctrl_c: true
 
