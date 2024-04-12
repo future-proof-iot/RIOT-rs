@@ -176,7 +176,8 @@ impl<const N_QUEUES: usize, const N_THREADS: usize, const N_CORES: usize>
                 bitcache &= !(1 << (ffs(bitcache) - 1));
                 head = match self.peek_head(bitcache) {
                     Some(h) => h,
-                    None => break,
+                    // Early return instead of break, to make hax happy.
+                    None => return next_list,
                 };
                 thread = head;
             };
@@ -279,19 +280,16 @@ mod clist {
                 let next = self.next_idxs[n as usize];
 
                 // Find previous in list and update its next-idx.
-                let mut prev = next;
-                // Worst-case performance is O(n).
-                loop {
-                    if self.next_idxs[prev as usize] == n {
-                        break;
-                    }
-                    prev = self.next_idxs[prev as usize];
-                }
-                self.next_idxs[prev as usize] = next as ThreadId;
+                let prev = self
+                    .next_idxs
+                    .iter()
+                    .position(|n| *n == next)
+                    .expect("List is circular.");
+                self.next_idxs[prev] = next as ThreadId;
 
                 // Update tail if the thread was the tail.
                 if self.tail[rq as usize] == n {
-                    self.tail[rq as usize] = prev
+                    self.tail[rq as usize] = prev as ThreadId;
                 }
             }
 
