@@ -52,7 +52,10 @@ pub(crate) type SelectedRng = rand_chacha::ChaCha20Rng;
 /// depend on a known fast RNG and seed it from the OS's RNG, but preferably there should be a
 /// single configured implementation used across applications for ROM optimization, even if it
 /// turns out to be beneficial to have a thread or task local RNG around in RAM for speed).
-pub struct Rng;
+pub struct Rng {
+    // Make the type not Send
+    _private: core::marker::PhantomData<*const ()>,
+}
 
 impl Rng {
     fn with<R>(&mut self, action: impl FnOnce(&mut SelectedRng) -> R) -> R {
@@ -112,5 +115,7 @@ pub fn construct_rng(hwrng: impl RngCore) {
 /// macros.
 #[inline]
 pub fn get_rng() -> Rng {
-    Rng
+    Rng {
+        _private: Default::default(),
+    }
 }
