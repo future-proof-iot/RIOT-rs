@@ -87,7 +87,7 @@ impl Threads {
         &mut self,
         func: usize,
         arg: usize,
-        stack: &mut [u8],
+        stack: &'static mut [u8],
         prio: u8,
     ) -> Option<&mut Thread> {
         if let Some((thread, pid)) = self.get_unused() {
@@ -218,7 +218,7 @@ impl<T> Arguable for &T {
 pub fn thread_create<T: Arguable + Send>(
     func: fn(arg: T),
     arg: T,
-    stack: &mut [u8],
+    stack: &'static mut [u8],
     prio: u8,
 ) -> ThreadId {
     let arg = arg.into_arg();
@@ -226,7 +226,7 @@ pub fn thread_create<T: Arguable + Send>(
 }
 
 /// Low-level function to create a thread without argument
-pub fn thread_create_noarg(func: fn(), stack: &mut [u8], prio: u8) -> ThreadId {
+pub fn thread_create_noarg(func: fn(), stack: &'static mut [u8], prio: u8) -> ThreadId {
     unsafe { thread_create_raw(func as usize, 0, stack, prio) }
 }
 
@@ -234,7 +234,12 @@ pub fn thread_create_noarg(func: fn(), stack: &mut [u8], prio: u8) -> ThreadId {
 ///
 /// # Safety
 /// only use when you know what you are doing.
-pub unsafe fn thread_create_raw(func: usize, arg: usize, stack: &mut [u8], prio: u8) -> ThreadId {
+pub unsafe fn thread_create_raw(
+    func: usize,
+    arg: usize,
+    stack: &'static mut [u8],
+    prio: u8,
+) -> ThreadId {
     THREADS.with_mut(|mut threads| {
         let thread_id = threads.create(func, arg, stack, prio).unwrap().pid;
         threads.set_state(thread_id, ThreadState::Running);
