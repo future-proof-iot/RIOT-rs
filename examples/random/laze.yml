@@ -1,5 +1,5 @@
 apps:
-  - name: random
+  - name: example-random
     selects:
       - ?release
-      - rng
+      - random

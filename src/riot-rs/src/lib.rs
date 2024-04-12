@@ -17,6 +17,9 @@ pub use riot_rs_debug as debug;
 #[doc(inline)]
 pub use riot_rs_embassy as embassy;
 pub use riot_rs_embassy::{define_peripherals, group_peripherals};
+#[cfg(feature = "random")]
+#[doc(inline)]
+pub use riot_rs_random as random;
 #[doc(inline)]
 pub use riot_rs_rt as rt;
 #[cfg(feature = "threading")]
