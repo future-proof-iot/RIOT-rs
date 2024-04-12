@@ -14,10 +14,14 @@ pub trait Sensor: Send + Sync {
     /// provide dispatchable async method in traits without an allocator.
     fn read(&self) -> ReadingResult<PhysicalValue>;
 
+    fn set_enabled(&self, enabled: bool);
+
     #[must_use]
     fn enabled(&self) -> bool;
 
-    fn set_lower_threshold(&self, value: PhysicalValue);
+    fn set_threshold(&self, kind: ThresholdKind, value: PhysicalValue);
+
+    fn set_threshold_enabled(&self, kind: ThresholdKind, enabled: bool);
 
     // TODO: tune the channel size
     #[must_use]
@@ -60,11 +64,18 @@ pub trait Reading {
     }
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum ThresholdKind {
+    Lower,
+    Higher,
+}
+
 // TODO: should we pass the value as well? that may be difficult because of the required generics
-#[derive(Debug)]
+#[derive(Debug, PartialEq, Eq)]
+#[non_exhaustive]
 pub enum Notification {
-    LowerThreshold,
-    HigherThreshold,
+    Threshold(ThresholdKind),
 }
 
 pub type NotificationReceiver<'a> = Receiver<'a, CriticalSectionRawMutex, Notification, 1>;

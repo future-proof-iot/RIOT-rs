@@ -11,20 +11,20 @@ use riot_rs::{
 use crate::{println, TEMP_SENSOR};
 
 pub async fn temp() -> impl IntoResponse {
-    let signal: Signal<CriticalSectionRawMutex, i32> = Signal::new();
+    // let signal: Signal<CriticalSectionRawMutex, i32> = Signal::new();
+    //
+    // fn read_temp(signal: &Signal<CriticalSectionRawMutex, i32>) {
+    //     // FIXME: handle this unwrap
+    //     let temp = TEMP_SENSOR.read().unwrap().value;
+    //     signal.signal(temp);
+    // }
+    //
+    // let mut stack = make_static!([0u8; 4096_usize]);
+    // thread::thread_create(read_temp, &signal, &mut stack, 1);
+    //
+    // let temp = signal.wait().await;
 
-    fn read_temp(signal: &Signal<CriticalSectionRawMutex, i32>) {
-        // FIXME: handle this unwrap
-        let temp = TEMP_SENSOR.read().unwrap().value;
-        signal.signal(temp);
-    }
-
-    let mut stack = [0u8; 4096_usize];
-    thread::thread_create(read_temp, &signal, &mut stack, 1);
-
-    let temp = signal.wait().await;
-
-    Json(JsonTemp { temp })
+    Json(JsonTemp { temp: 0 })
 }
 
 #[thread(autostart)]

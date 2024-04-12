@@ -65,7 +65,7 @@ pub fn init(config: Config) -> OptionalPeripherals {
 #[cfg(feature = "internal-temp")]
 pub mod internal_temp {
     // FIXME: maybe use portable_atomic's instead
-    use core::sync::atomic::{AtomicBool, Ordering};
+    use core::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 
     use embassy_nrf::{peripherals, temp};
     use embassy_sync::{
@@ -73,59 +73,73 @@ pub mod internal_temp {
     };
     use riot_rs_sensors::sensor::{
         Notification, NotificationReceiver, PhysicalUnit, PhysicalValue, Reading, ReadingError,
-        ReadingResult, Sensor,
+        ReadingResult, Sensor, ThresholdKind,
     };
+    use static_cell::StaticCell;
 
     embassy_nrf::bind_interrupts!(struct Irqs {
         TEMP => embassy_nrf::temp::InterruptHandler;
     });
 
     pub struct InternalTemp {
+        initialized: AtomicBool, // TODO: use an atomic bitset for initialized and enabled
         enabled: AtomicBool,
         temp: Mutex<CriticalSectionRawMutex, Option<temp::Temp<'static>>>,
         channel: Channel<CriticalSectionRawMutex, Notification, 1>,
+        stack: StaticCell<[u8; 4096_usize]>, // TODO: make this optional if the notification
+        // feature is not used
+        lower_threshold: AtomicI32,
+        lower_threshold_enabled: AtomicBool, // TODO: use an atomic bitset for handler other
+                                             // thresholds
     }
 
     impl InternalTemp {
         pub const fn new() -> Self {
             Self {
+                initialized: AtomicBool::new(false),
                 enabled: AtomicBool::new(false),
                 temp: Mutex::new(None),
                 channel: Channel::new(),
+                stack: StaticCell::new(),
+                lower_threshold: AtomicI32::new(0),
+                lower_threshold_enabled: AtomicBool::new(false),
             }
         }
 
         pub fn init(&self, peripheral: peripherals::TEMP) {
-            if !self.enabled.load(Ordering::Acquire) {
+            if !self.initialized.load(Ordering::Acquire) {
                 // FIXME: we use try_lock instead of lock to not make this function async, can we do
                 // better?
                 // FIXME: return an error when relevant
                 let mut temp = self.temp.try_lock().unwrap();
                 *temp = Some(temp::Temp::new(peripheral, Irqs));
 
-                fn thread_fn() {
-                    // riot_rs_debug::println!("Thread started");
+                fn thread_fn(sensor: &InternalTemp) {
+                    riot_rs_debug::println!("Thread started");
                     loop {
+                        if sensor.lower_threshold_enabled.load(Ordering::Acquire) {
+                            if let Ok(value) = sensor.read() {
+                                if value.value > sensor.lower_threshold.load(Ordering::Acquire) {
+                                    // FIXME: should this be Lower or Higher?
+                                    let _ =sensor
+                                        .channel
+                                        .try_send(Notification::Threshold(ThresholdKind::Lower));
+                                    riot_rs_debug::println!("Temp > lower threshold: {:?}", value);
+                                }
+                            }
+                        }
+
+                        // FIXME: do not busy loop, sleep for some time
                         riot_rs_threads::yield_same();
                     }
-                    // loop {
-                    //     if let Ok(value) = sensor.read() {
-                    //         // FIXME: use the value set with set_lower_threshold()
-                    //         if value.value > 22 {
-                    //             // FIXME: should this be LowerThreshold or HigherThreshold?
-                    //             let _ = sensor.channel.send(Notification::LowerThreshold);
-                    //             riot_rs_debug::println!("Test");
-                    //         }
-                    //     }
-                    //
-                    //     // FIXME: do not busy loop, sleep for some time
-                    // }
                 }
 
-                let mut stack = [0u8; 8192_usize];
-                riot_rs_threads::thread_create_noarg(thread_fn, &mut stack, 2);
-                riot_rs_debug::println!("Test",);
+                // FIXME: check whether this works with multiple instances of the sensor
+                let stack = static_cell::make_static!([0u8; 4096_usize]);
+                riot_rs_threads::thread_create(thread_fn, &self, stack, 1);
+                riot_rs_debug::println!("Spawned the sensor thread");
 
+                self.initialized.store(true, Ordering::Release);
                 self.enabled.store(true, Ordering::Release);
             }
         }
@@ -156,12 +170,32 @@ pub mod internal_temp {
             Ok(PhysicalValue { value: temp })
         }
 
+        fn set_enabled(&self, enabled: bool) {
+            self.enabled.store(enabled, Ordering::Release);
+        }
+
         fn enabled(&self) -> bool {
             self.enabled.load(Ordering::Acquire)
         }
 
-        fn set_lower_threshold(&self, value: PhysicalValue) {
-            // FIXME
+        fn set_threshold(&self, kind: ThresholdKind, value: PhysicalValue) {
+            match kind {
+                ThresholdKind::Lower => self.lower_threshold.store(value.value, Ordering::Release),
+                _ => {
+                    // TODO: should we return an error instead?
+                }
+            }
+        }
+
+        fn set_threshold_enabled(&self, kind: ThresholdKind, enabled: bool) {
+            match kind {
+                ThresholdKind::Lower => self
+                    .lower_threshold_enabled
+                    .store(enabled, Ordering::Release),
+                _ => {
+                    // TODO: should we return an error instead?
+                }
+            }
         }
 
         fn subscribe(&self) -> NotificationReceiver {

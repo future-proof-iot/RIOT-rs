@@ -136,7 +136,7 @@ jobs:
       - name: clippy
         uses: clechasseur/rs-clippy-check@v3
         with:
-          args: --verbose --locked --features no-boards -p riot-rs -p riot-rs-boards -p riot-rs-buildinfo -p riot-rs-chips -p riot-rs-debug -p riot-rs-embassy -p riot-rs-macros -p riot-rs-rt -p riot-rs-utils
+          args: --verbose --locked --features no-boards -p riot-rs -p riot-rs-boards -p riot-rs-buildinfo -p riot-rs-chips -p riot-rs-debug -p riot-rs-embassy -p riot-rs-macros -p riot-rs-rt -p riot-rs-sensors -p riot-rs-utils
 
       - name: "rustdoc"
         run: cargo rustdoc -p riot-rs --features no-boards,bench,threading -- -D warnings

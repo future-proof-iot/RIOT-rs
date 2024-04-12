@@ -116,10 +116,30 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
 
     #[cfg(context = "nrf52840")]
     {
-        use riot_rs::sensors::registry::REGISTRY;
+        use riot_rs::sensors::{
+            registry::REGISTRY,
+            sensor::{PhysicalValue, Sensor, ThresholdKind},
+        };
 
         let temp_peripheral = peripherals.temp.temp;
         TEMP_SENSOR.init(temp_peripheral);
+
+        TEMP_SENSOR.set_threshold(ThresholdKind::Lower, PhysicalValue { value: 2400 });
+        TEMP_SENSOR.set_threshold_enabled(ThresholdKind::Lower, true);
+
+        fn thread_fn() {
+            let rx = TEMP_SENSOR.subscribe();
+
+            loop {
+                if let Ok(notification) = rx.try_receive() {
+                    println!("{:#?}", notification);
+                }
+                riot_rs::thread::yield_same();
+            }
+        }
+
+        let stack = static_cell::make_static!([0u8; 4096_usize]);
+        riot_rs::thread::thread_create_noarg(thread_fn, stack, 1);
     }
 
     fn make_app() -> picoserve::Router<AppRouter, AppState> {
