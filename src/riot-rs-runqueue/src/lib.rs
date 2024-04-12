@@ -111,13 +111,13 @@ mod tests {
 
         // Advancing a runqueue shouldn't change any allocations
         // if all threads in the queue are already running.
-        assert_eq!(runqueue.advance(0), None);
+        assert_eq!(runqueue.advance_from(0, 0), None);
         assert_eq!(runqueue.get_next_for_core(0), Some(0));
         assert_eq!(runqueue.get_next_for_core(1), Some(1));
         assert!(runqueue.get_next_for_core(2).is_none());
 
         // Restores original order.
-        assert_eq!(runqueue.advance(0), None);
+        assert_eq!(runqueue.advance_from(1, 0), None);
 
         // Add more threads, which should be allocated to free
         // cores.
@@ -131,7 +131,7 @@ mod tests {
 
         // Advancing the runqueue now should change the mapping
         // on core 0, since the previous head was running there.
-        assert_eq!(runqueue.advance(0), Some(0));
+        assert_eq!(runqueue.advance_from(0, 0), Some(0));
         assert_eq!(runqueue.get_next_for_core(0), Some(4));
         // Other allocations shouldn't change.
         assert_eq!(runqueue.get_next_for_core(1), Some(1));
@@ -170,7 +170,7 @@ mod tests {
 
         // Advancing highest priority queue shouldn't change anything
         // because there are more cores than threads in this priority's queue.
-        assert_eq!(runqueue.advance(2), None);
+        assert_eq!(runqueue.advance_from(0, 2), None);
         assert_eq!(runqueue.get_next_for_core(0), Some(0));
         assert_eq!(runqueue.get_next_for_core(1), Some(1));
         assert_eq!(runqueue.get_next_for_core(2), Some(2));
@@ -181,7 +181,7 @@ mod tests {
         // but only one available core for them.
 
         // Core 3 was newly allocated.
-        assert_eq!(runqueue.advance(0), Some(3));
+        assert_eq!(runqueue.advance_from(3, 0), Some(3));
         assert_eq!(runqueue.get_next_for_core(3), Some(4));
         // Other allocations didn't change.
         assert_eq!(runqueue.get_next_for_core(0), Some(0));
@@ -189,7 +189,7 @@ mod tests {
         assert_eq!(runqueue.get_next_for_core(2), Some(2));
 
         // Restores original order.
-        runqueue.advance(0);
+        runqueue.advance_from(4, 0);
 
         // Delete one high-priority thread.
         // The waiting low-priority thread should be allocated
@@ -225,5 +225,32 @@ mod tests {
         assert_eq!(runqueue.get_next_for_core(0), Some(0));
         // Querying for n > `N_CORES` shouldn't cause a panic.
         assert_eq!(runqueue.get_next_for_core(1), None)
+    }
+
+    #[test]
+    fn multicore_advance() {
+        let mut runqueue: RunQueue<8, 32, 4> = RunQueue::new();
+        assert_eq!(runqueue.add(0, 0), Some(0));
+        assert_eq!(runqueue.add(1, 0), Some(1));
+        assert_eq!(runqueue.add(2, 0), Some(2));
+        assert_eq!(runqueue.add(3, 0), Some(3));
+        assert_eq!(runqueue.add(4, 0), None);
+        assert_eq!(runqueue.add(5, 0), None);
+
+        // Advance head.
+        assert_eq!(runqueue.advance_from(0, 0), Some(0));
+        assert_eq!(runqueue.get_next_for_core(0), Some(4));
+        // Other allocations didn't change.
+        assert_eq!(runqueue.get_next_for_core(1), Some(1));
+        assert_eq!(runqueue.get_next_for_core(2), Some(2));
+        assert_eq!(runqueue.get_next_for_core(3), Some(3));
+
+        // Advance from a thread that is not head.
+        assert_eq!(runqueue.advance_from(2, 0), Some(2));
+        assert_eq!(runqueue.get_next_for_core(2), Some(5));
+        // Other allocations didn't change.
+        assert_eq!(runqueue.get_next_for_core(0), Some(4));
+        assert_eq!(runqueue.get_next_for_core(1), Some(1));
+        assert_eq!(runqueue.get_next_for_core(3), Some(3));
     }
 }

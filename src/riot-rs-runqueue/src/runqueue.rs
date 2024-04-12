@@ -103,12 +103,30 @@ impl<const N_QUEUES: usize, const N_THREADS: usize, const N_CORES: usize>
         self.next[core as usize]
     }
 
-    /// Advances runqueue number `rq`.
+    /// Advances from thread `n` in runqueue number `rq`.
     ///
     /// This is used to "yield" to another thread of *the same* priority.
+    /// Compared to [`RunQueue::advance`], this method allows to advance from a thread that
+    /// is not necessarily the head of the runqueue.
     ///
     /// Returns a [`CoreId`] if the allocation for this core changed.
-    pub fn advance(&mut self, rq: RunqueueId) -> Option<CoreId> {
+    ///
+    /// **Warning: This changes the order of the runqueue because the thread is moved to the
+    /// tail of the queue.**
+    pub fn advance_from(&mut self, n: ThreadId, rq: RunqueueId) -> Option<CoreId> {
+        debug_assert!((rq as usize) < N_QUEUES);
+        if Some(n) == self.queues.peek_head(rq) {
+            self.queues.advance(rq);
+        } else {
+            // If the thread is not the head remove it
+            // from queue and re-insert it at tail.
+            self.queues.del(n, rq);
+            self.queues.push(n, rq);
+        }
+        self.reallocate()
+    }
+
+    pub fn advance_head(&mut self, rq: RunqueueId) -> Option<CoreId> {
         debug_assert!((rq as usize) < N_QUEUES);
         self.queues.advance(rq);
         self.reallocate()
@@ -204,6 +222,16 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<N_QUEUES, N_THREADS
     /// the runqueue with the highest index.
     pub fn get_next(&self) -> Option<ThreadId> {
         self.get_next_for_core(0)
+    }
+
+    /// Advances runqueue number `rq`.
+    ///
+    /// This is used to "yield" to another thread of *the same* priority.
+    ///
+    /// Returns a [`CoreId`] if the allocation for this core changed.
+    pub fn advance(&mut self, rq: RunqueueId) -> Option<ThreadId> {
+        self.queues.advance(rq);
+        self.reallocate()
     }
 }
 
