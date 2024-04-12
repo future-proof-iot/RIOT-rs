@@ -7,15 +7,16 @@ repository.workspace = true
 
 [dependencies]
 rand_core = "0.6.4"
-# Not making it optional during development b/c we don't have a small or fast one
-rand_chacha = { version = "0.3.1", default-features = false }
+
 embassy-sync.workspace = true
+
+rand_pcg = "0.3.1"
+rand_chacha = { version = "0.3.1", default-features = false, optional = true }
 
 [lints]
 workspace = true
 
 [features]
-## If set, the provided main RNG is also a cryptographically secure pseudo
-## random number generator (CSPRNG) and thusly annotated by the
-## rand_core::CryptoRngCore trait.
-main-is-csprng = []
+## If set, the one global RNG is also a cryptographically secure pseudo
+## random number generator (CSPRNG), and thus, a `CryptoRng` can be produced.
+csprng = ["dep:rand_chacha"]

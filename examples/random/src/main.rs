@@ -8,7 +8,7 @@ use riot_rs::debug::println;
 #[riot_rs::thread(autostart)]
 fn main() {
     use rand::Rng as _;
-    let mut rng = riot_rs::random::get_rng();
+    let mut rng = riot_rs::random::fast_rng();
 
     let value = rng.gen_range(1..=6);
 
