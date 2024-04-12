@@ -159,29 +159,40 @@ impl<const N_QUEUES: usize, const N_THREADS: usize, const N_CORES: usize>
     pub fn get_next_n(&self) -> [Option<ThreadId>; N_CORES] {
         let mut next_list = [None; N_CORES];
         let mut bitcache = self.bitcache;
-        let mut head = 0;
-        let mut next = 0;
-        for i in 0..N_CORES {
-            if next == head {
-                // Switch to highest priority runqueue remaining
-                // in the bitcache.
-                let rq = match RunqueueId::from_bitmap(bitcache) {
-                    Some(rq) => rq,
-                    None => break,
-                };
-                // Clear bit from bitcache so that after iterating through
-                // this runqueue we'll switch to the next one.
-                bitcache &= !(1 << rq);
-                head = match self.queues.peek_head(rq) {
-                    Some(t) => t,
-                    None => break,
-                };
-                next = head;
+        // Get head from highest priority queue.
+        let mut head = match self.peek_head(bitcache) {
+            Some(head) => {
+                next_list[0] = Some(head);
+                head
             }
-            next_list[i] = Some(next);
-            next = self.queues.peek_next(next);
+            None => return next_list,
+        };
+        let mut thread = head;
+        // Iterate through threads in the queue.
+        for i in 1..N_CORES {
+            thread = self.queues.peek_next(thread);
+            if thread == head {
+                // Switch to next runqueue.
+                bitcache &= !(1 << (ffs(bitcache) - 1));
+                head = match self.peek_head(bitcache) {
+                    Some(h) => h,
+                    None => break,
+                };
+                thread = head;
+            };
+            next_list[i] = Some(thread);
         }
         next_list
+    }
+
+    fn peek_head(&self, bitcache: usize) -> Option<ThreadId> {
+        // Switch to highest priority runqueue remaining
+        // in the bitcache.
+        let rq = match RunqueueId::from_bitmap(bitcache) {
+            Some(rq) => rq,
+            None => return None,
+        };
+        self.queues.peek_head(rq)
     }
 }
 
