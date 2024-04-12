@@ -1,15 +1,14 @@
 [package]
-name = "random"
+name = "example-random"
 version = "0.1.0"
 authors.workspace = true
 edition.workspace = true
 publish = false
 
 [dependencies]
-# not enabling riot-rs/hwrng even though it's currently needed -- laze takes
-# care of that.
-riot-rs = { path = "../../src/riot-rs", features = ["threading"] }
+# Enabling the feature "random" is somewhat redundant with laze.yml's selects:
+# random, but helps with interactive tools.
+riot-rs = { path = "../../src/riot-rs", features = ["threading", "random"] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 
-riot-rs-random = { version = "0.1.0", path = "../../src/riot-rs-random" }
 rand = { version = "0.8.5", default-features = false }

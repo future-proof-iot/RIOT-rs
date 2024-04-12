@@ -2375,6 +2375,7 @@ dependencies = [
  "riot-rs-debug",
  "riot-rs-embassy",
  "riot-rs-macros",
+ "riot-rs-random",
  "riot-rs-rt",
  "riot-rs-threads",
  "static_cell",
