@@ -46,8 +46,10 @@ impl picoserve::extract::FromRef<AppState> for ButtonInputs {
     }
 }
 
+#[cfg(context = "nrf52840")]
 static TEMP_SENSOR: arch::internal_temp::InternalTemp = arch::internal_temp::InternalTemp::new();
 // TODO: can we make this const?
+#[cfg(context = "nrf52840")]
 #[riot_rs::linkme::distributed_slice(riot_rs::sensors::registry::SENSOR_REFS)]
 #[linkme(crate = riot_rs::linkme)]
 static TEMP_SENSOR_REF: &'static dyn riot_rs::sensors::sensor::Sensor = &TEMP_SENSOR;

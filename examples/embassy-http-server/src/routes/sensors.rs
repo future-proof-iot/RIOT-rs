@@ -9,8 +9,6 @@ use riot_rs::sensors::{
     sensor::{Reading, Sensor},
 };
 
-use crate::arch::internal_temp::InternalTemp;
-
 pub async fn sensors() -> impl IntoResponse {
     // riot_rs::rt::println!("{:?}", REGISTRY.sensors()[0].type_id());
     // for sensor in REGISTRY.sensors() {
