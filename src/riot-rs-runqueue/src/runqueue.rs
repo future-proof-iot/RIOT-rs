@@ -9,6 +9,18 @@ pub type RunqueueId = u8;
 pub type ThreadId = u8;
 pub type CoreId = u8;
 
+trait FromBitmap: Sized {
+    fn from_bitmap(bitmap: usize) -> Option<Self>;
+}
+impl FromBitmap for u8 {
+    fn from_bitmap(bitmap: usize) -> Option<Self> {
+        if bitmap == 0 {
+            return None;
+        }
+        Some(ffs(bitmap) as ThreadId - 1)
+    }
+}
+
 /// Runqueue for `N_QUEUES`, supporting `N_THREADS` total.
 ///
 /// Assumptions:
@@ -83,10 +95,6 @@ impl<const N_QUEUES: usize, const N_THREADS: usize, const N_CORES: usize>
         self.reallocate()
     }
 
-    fn ffs(val: usize) -> u32 {
-        USIZE_BITS as u32 - val.leading_zeros()
-    }
-
     /// Returns the next thread that should run on this core.
     pub fn get_next_for_core(&self, core: CoreId) -> Option<ThreadId> {
         if core as usize >= N_CORES {
@@ -120,39 +128,32 @@ impl<const N_QUEUES: usize, const N_THREADS: usize, const N_CORES: usize>
     fn reallocate(&mut self) -> Option<CoreId> {
         let next = self.get_next_n();
         let mut bitmap_next = 0;
-        let mut bitmap_allocateed = 0;
+        let mut bitmap_allocated = 0;
         for i in 0..N_CORES {
             if let Some(id) = next[i] {
                 bitmap_next |= 1 << id
             }
             if let Some(id) = self.next[i] {
-                bitmap_allocateed |= 1 << id
+                bitmap_allocated |= 1 << id
             }
         }
-        if bitmap_next == bitmap_allocateed {
+        if bitmap_next == bitmap_allocated {
             return None;
         }
-        let diff = bitmap_next ^ bitmap_allocateed;
-        let prev_allocateed = bitmap_allocateed & diff;
-        let new_allocateed = bitmap_next & diff;
+        let diff = bitmap_next ^ bitmap_allocated;
+        let prev_allocated = ThreadId::from_bitmap(bitmap_allocated & diff);
+        let new_allocated = ThreadId::from_bitmap(bitmap_next & diff);
 
-        let changed_core = self
-            .next
-            .iter()
-            .position(|i| match prev_allocateed {
-                0 => i.is_none(),
-                id => *i == Some(Self::ffs(id) as ThreadId - 1),
-            })
-            .unwrap();
-        let new_allocation = match new_allocateed {
-            0 => None,
-            id => Some(Self::ffs(id) as CoreId - 1),
-        };
-        self.next[changed_core] = new_allocation;
+        let changed_core = self.next.iter().position(|i| *i == prev_allocated).unwrap();
+        self.next[changed_core] = new_allocated;
         return Some(changed_core as CoreId);
     }
 
     /// Returns the `n` highest priority threads in the [`Runqueue`].
+    ///
+    /// This iterates through all non-empty runqueues with descending
+    /// priority, until `N_CORES` threads have been found or all
+    /// queues have been checked.
     ///
     /// Complexity is O(n).
     pub fn get_next_n(&self) -> [Option<ThreadId>; N_CORES] {
@@ -162,16 +163,18 @@ impl<const N_QUEUES: usize, const N_THREADS: usize, const N_CORES: usize>
         let mut next = 0;
         for i in 0..N_CORES {
             if next == head {
-                let rq_ffs = Self::ffs(bitcache);
-                if rq_ffs == 0 {
-                    break;
-                }
-                let rq = (rq_ffs - 1) as RunqueueId;
-                // Clear bit from bitcache.
+                // Switch to highest priority runqueue remaining
+                // in the bitcache.
+                let rq = match RunqueueId::from_bitmap(bitcache) {
+                    Some(rq) => rq,
+                    None => break,
+                };
+                // Clear bit from bitcache so that after iterating through
+                // this runqueue we'll switch to the next one.
                 bitcache &= !(1 << rq);
                 head = match self.queues.peek_head(rq) {
                     Some(t) => t,
-                    None => return next_list,
+                    None => break,
                 };
                 next = head;
             }
@@ -190,6 +193,10 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<N_QUEUES, N_THREADS
     pub fn get_next(&self) -> Option<ThreadId> {
         self.get_next_for_core(0)
     }
+}
+
+fn ffs(val: usize) -> u32 {
+    USIZE_BITS as u32 - val.leading_zeros()
 }
 
 mod clist {
