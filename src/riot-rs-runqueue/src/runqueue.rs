@@ -283,7 +283,7 @@ mod clist {
                 let prev = self
                     .next_idxs
                     .iter()
-                    .position(|n| *n == next)
+                    .position(|next_idx| *next_idx == n)
                     .expect("List is circular.");
                 self.next_idxs[prev] = next as ThreadId;
 
