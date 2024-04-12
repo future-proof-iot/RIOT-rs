@@ -149,17 +149,22 @@ impl Threads {
     ///
     /// This function handles adding/ removing the thread to the Runqueue depending
     /// on its previous or new state.
-    pub(crate) fn set_state(&mut self, pid: ThreadId, state: ThreadState) -> ThreadState {
+    pub(crate) fn set_state(
+        &mut self,
+        pid: ThreadId,
+        state: ThreadState,
+    ) -> (ThreadState, Option<CoreId>) {
         let thread = &mut self.threads[pid as usize];
         let old_state = thread.state;
         thread.state = state;
-        if old_state != ThreadState::Running && state == ThreadState::Running {
-            self.runqueue.add(thread.pid, thread.prio);
-        } else if old_state == ThreadState::Running && state != ThreadState::Running {
-            self.runqueue.del(thread.pid, thread.prio);
-        }
 
-        old_state
+        let changed_id = match (old_state, state) {
+            (ThreadState::Running, ThreadState::Running) => None,
+            (_, ThreadState::Running) => self.runqueue.add(thread.pid, thread.prio),
+            (ThreadState::Running, _) => self.runqueue.del(thread.pid, thread.prio),
+            _ => None,
+        };
+        (old_state, changed_id)
     }
 
     pub fn get_state(&self, thread_id: ThreadId) -> Option<ThreadState> {
@@ -298,8 +303,9 @@ fn cleanup() -> ! {
 pub fn yield_same() {
     THREADS.with_mut(|mut threads| {
         let runqueue = threads.current().unwrap().prio;
-        threads.runqueue.advance(runqueue);
-        schedule();
+        if let Some(_cpuid) = threads.runqueue.advance(runqueue) {
+            schedule();
+        }
     })
 }
 
@@ -307,8 +313,9 @@ pub fn yield_same() {
 pub fn sleep() {
     THREADS.with_mut(|mut threads| {
         let pid = threads.current_pid().unwrap();
-        threads.set_state(pid, ThreadState::Paused);
-        schedule();
+        if let Some(_cpuid) = threads.set_state(pid, ThreadState::Paused).1 {
+            schedule();
+        }
     });
 }
 
@@ -317,17 +324,14 @@ pub fn sleep() {
 /// Returns `false` if no paused thread exists for `thread_id`.
 pub fn wakeup(thread_id: ThreadId) -> bool {
     THREADS.with_mut(|mut threads| {
-        if let Some(state) = threads.get_state(thread_id) {
-            if state == ThreadState::Paused {
-                threads.set_state(thread_id, ThreadState::Running);
-                schedule();
-                true
-            } else {
-                false
-            }
-        } else {
-            false
+        match threads.get_state(thread_id) {
+            Some(ThreadState::Paused) => {}
+            _ => return false,
         }
+        if let (_, Some(_cpuid)) = threads.set_state(thread_id, ThreadState::Running) {
+            schedule();
+        }
+        true
     })
 }
 
