@@ -21,6 +21,7 @@ pub trait Sensor: Send + Sync {
 
     fn set_threshold(&self, kind: ThresholdKind, value: PhysicalValue);
 
+    // TODO: merge this with set_threshold?
     fn set_threshold_enabled(&self, kind: ThresholdKind, enabled: bool);
 
     // TODO: tune the channel size
@@ -75,6 +76,7 @@ pub enum ThresholdKind {
 #[derive(Debug, PartialEq, Eq)]
 #[non_exhaustive]
 pub enum Notification {
+    ReadingAvailable,
     Threshold(ThresholdKind),
 }
 
