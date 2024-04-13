@@ -2500,6 +2500,7 @@ dependencies = [
  "cfg-if",
  "cortex-m",
  "cortex-m-rt",
+ "embassy-rp",
  "esp-hal",
  "linkme",
  "portable-atomic",
@@ -2523,9 +2524,12 @@ dependencies = [
  "cortex-m-rt",
  "cortex-m-semihosting",
  "critical-section",
+ "embassy-rp",
  "linkme",
  "panic-semihosting",
  "riot-rs-runqueue",
+ "rp-pac",
+ "static_cell",
 ]
 
 [[package]]
@@ -2951,6 +2955,14 @@ dependencies = [
 
 [[package]]
 name = "threading"
+version = "0.1.0"
+dependencies = [
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
+name = "threading-multicore"
 version = "0.1.0"
 dependencies = [
  "riot-rs",

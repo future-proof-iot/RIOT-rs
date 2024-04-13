@@ -2,14 +2,16 @@
 #![feature(inline_const)]
 #![feature(naked_functions)]
 #![feature(used_with_arg)]
+#![feature(type_alias_impl_trait)]
 
 use critical_section::CriticalSection;
 
 use riot_rs_runqueue::RunQueue;
-pub use riot_rs_runqueue::{RunqueueId, ThreadId};
+pub use riot_rs_runqueue::{CoreId, RunqueueId, ThreadId};
 
 mod arch;
 mod ensure_once;
+mod smp;
 mod thread;
 mod threadlist;
 
@@ -18,6 +20,7 @@ pub mod lock;
 pub mod thread_flags;
 
 pub use arch::schedule;
+use smp::Multicore;
 pub use thread::{Thread, ThreadState};
 pub use thread_flags as flags;
 pub use threadlist::ThreadList;
@@ -31,6 +34,8 @@ pub const SCHED_PRIO_LEVELS: usize = 12;
 /// a global defining the number of threads that can be created
 pub const THREADS_NUMOF: usize = 16;
 
+pub const CORES_NUMOF: usize = smp::Chip::CORES as usize;
+
 pub(crate) static THREADS: EnsureOnce<Threads> = EnsureOnce::new(Threads::new());
 
 pub type ThreadFn = fn();
@@ -41,14 +46,14 @@ pub static THREAD_FNS: [ThreadFn] = [..];
 /// Struct holding all scheduler state
 pub struct Threads {
     /// Global thread runqueue.
-    runqueue: RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF>,
+    runqueue: RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF, CORES_NUMOF>,
     /// The actual TCBs.
     threads: [Thread; THREADS_NUMOF],
     /// `Some` when a thread is blocking another thread due to conflicting
     /// resource access.
     thread_blocklist: [Option<ThreadId>; THREADS_NUMOF],
     /// The currently running thread.
-    current_thread: Option<ThreadId>,
+    current_threads: [Option<ThreadId>; CORES_NUMOF],
 }
 
 impl Threads {
@@ -57,7 +62,7 @@ impl Threads {
             runqueue: RunQueue::new(),
             threads: [const { Thread::default() }; THREADS_NUMOF],
             thread_blocklist: [const { None }; THREADS_NUMOF],
-            current_thread: None,
+            current_threads: [None; CORES_NUMOF],
         }
     }
 
@@ -70,12 +75,16 @@ impl Threads {
     ///
     /// Returns `None` if there is no current thread.
     pub(crate) fn current(&mut self) -> Option<&mut Thread> {
-        self.current_thread
+        self.current_pid()
             .map(|tid| &mut self.threads[tid as usize])
     }
 
     pub fn current_pid(&self) -> Option<ThreadId> {
-        self.current_thread
+        self.current_threads[cpuid() as usize]
+    }
+
+    pub fn current_pid_mut(&mut self) -> &mut Option<ThreadId> {
+        &mut self.current_threads[cpuid() as usize]
     }
 
     /// Creates a new thread.
@@ -140,17 +149,22 @@ impl Threads {
     ///
     /// This function handles adding/ removing the thread to the Runqueue depending
     /// on its previous or new state.
-    pub(crate) fn set_state(&mut self, pid: ThreadId, state: ThreadState) -> ThreadState {
+    pub(crate) fn set_state(
+        &mut self,
+        pid: ThreadId,
+        state: ThreadState,
+    ) -> (ThreadState, Option<CoreId>) {
         let thread = &mut self.threads[pid as usize];
         let old_state = thread.state;
         thread.state = state;
-        if old_state != ThreadState::Running && state == ThreadState::Running {
-            self.runqueue.add(thread.pid, thread.prio);
-        } else if old_state == ThreadState::Running && state != ThreadState::Running {
-            self.runqueue.del(thread.pid, thread.prio);
-        }
 
-        old_state
+        let changed_id = match (old_state, state) {
+            (ThreadState::Running, ThreadState::Running) => None,
+            (_, ThreadState::Running) => self.runqueue.add(thread.pid, thread.prio),
+            (ThreadState::Running, _) => self.runqueue.del(thread.pid, thread.prio),
+            _ => None,
+        };
+        (old_state, changed_id)
     }
 
     pub fn get_state(&self, thread_id: ThreadId) -> Option<ThreadState> {
@@ -178,10 +192,11 @@ pub unsafe fn start_threading() {
     // SAFETY: caller ensures invariants
     let cs = unsafe { CriticalSection::new() };
     let next_sp = THREADS.with_mut_cs(cs, |mut threads| {
-        let next_pid = threads.runqueue.get_next().unwrap();
-        threads.current_thread = Some(next_pid);
+        let next_pid = threads.runqueue.get_next_for_core(cpuid()).unwrap();
+        *threads.current_pid_mut() = Some(next_pid);
         threads.threads[next_pid as usize].sp
     });
+    smp::Chip::startup_cores();
     Cpu::start_threading(next_sp);
 }
 
@@ -263,6 +278,11 @@ pub fn current_pid() -> Option<ThreadId> {
     THREADS.with(|threads| threads.current_pid())
 }
 
+/// Returns the id of the CPU that this thread is running on.
+pub fn cpuid() -> CoreId {
+    smp::Chip::cpuid() as CoreId
+}
+
 /// Checks if a given [`ThreadId`] is valid
 pub fn is_valid_pid(thread_id: ThreadId) -> bool {
     THREADS.with(|threads| threads.is_valid_pid(thread_id))
@@ -288,8 +308,9 @@ fn cleanup() -> ! {
 pub fn yield_same() {
     THREADS.with_mut(|mut threads| {
         let runqueue = threads.current().unwrap().prio;
-        threads.runqueue.advance(runqueue);
-        schedule();
+        if let Some(_cpuid) = threads.runqueue.advance(runqueue) {
+            schedule();
+        }
     })
 }
 
@@ -297,8 +318,9 @@ pub fn yield_same() {
 pub fn sleep() {
     THREADS.with_mut(|mut threads| {
         let pid = threads.current_pid().unwrap();
-        threads.set_state(pid, ThreadState::Paused);
-        schedule();
+        if let Some(_cpuid) = threads.set_state(pid, ThreadState::Paused).1 {
+            schedule();
+        }
     });
 }
 
@@ -307,17 +329,14 @@ pub fn sleep() {
 /// Returns `false` if no paused thread exists for `thread_id`.
 pub fn wakeup(thread_id: ThreadId) -> bool {
     THREADS.with_mut(|mut threads| {
-        if let Some(state) = threads.get_state(thread_id) {
-            if state == ThreadState::Paused {
-                threads.set_state(thread_id, ThreadState::Running);
-                schedule();
-                true
-            } else {
-                false
-            }
-        } else {
-            false
+        match threads.get_state(thread_id) {
+            Some(ThreadState::Paused) => {}
+            _ => return false,
         }
+        if let (_, Some(_cpuid)) = threads.set_state(thread_id, ThreadState::Running) {
+            schedule();
+        }
+        true
     })
 }
 

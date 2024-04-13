@@ -105,8 +105,9 @@ impl Threads {
             },
             _ => false,
         } {
-            self.set_state(thread_id, ThreadState::Running);
-            crate::schedule();
+            if let Some(_cpuid) = self.set_state(thread_id, ThreadState::Running).1 {
+                crate::schedule();
+            }
         }
     }
 
@@ -117,8 +118,12 @@ impl Threads {
             Some(mask)
         } else {
             let thread_id = thread.pid;
-            self.set_state(thread_id, ThreadState::FlagBlocked(WaitMode::All(mask)));
-            crate::schedule();
+            if let Some(_cpuid) = self
+                .set_state(thread_id, ThreadState::FlagBlocked(WaitMode::All(mask)))
+                .1
+            {
+                crate::schedule();
+            }
             None
         }
     }
@@ -131,8 +136,12 @@ impl Threads {
             Some(res)
         } else {
             let thread_id = thread.pid;
-            self.set_state(thread_id, ThreadState::FlagBlocked(WaitMode::Any(mask)));
-            crate::schedule();
+            if let Some(_cpuid) = self
+                .set_state(thread_id, ThreadState::FlagBlocked(WaitMode::Any(mask)))
+                .1
+            {
+                crate::schedule();
+            }
             None
         }
     }
@@ -147,8 +156,12 @@ impl Threads {
             Some(res)
         } else {
             let thread_id = thread.pid;
-            self.set_state(thread_id, ThreadState::FlagBlocked(WaitMode::Any(mask)));
-            crate::schedule();
+            if let Some(_cpuid) = self
+                .set_state(thread_id, ThreadState::FlagBlocked(WaitMode::Any(mask)))
+                .1
+            {
+                crate::schedule();
+            }
             None
         }
     }
