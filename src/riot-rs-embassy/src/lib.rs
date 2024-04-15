@@ -95,20 +95,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     println!("riot-rs-embassy::init_task()");
 
     #[cfg(feature = "hwrng")]
-    {
-        // The union of all contexts that wind up in a construct_rng should be synchronized with
-        // laze-project.yml's hwrng module.
-        #[cfg(any(context = "nrf51", context = "nrf52"))]
-        let rng = embassy_nrf::rng::Rng::new(
-            peripherals
-                .RNG
-                // We don't even have to take it out, just use it to seed the RNG
-                .as_mut()
-                .expect("RNG has not been previously used"),
-            arch::hwrng::Irqs,
-        );
-        riot_rs_random::construct_rng(rng);
-    }
+    arch::hwrng::construct_rng(&mut peripherals);
     // Clock startup and entropy collection may lend themselves to parallelization, provided that
     // doesn't impact runtime RAM or flash use.
 

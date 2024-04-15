@@ -10,6 +10,7 @@ workspace = true
 critical-section.workspace = true
 linkme.workspace = true
 static_cell.workspace = true
+cfg-if.workspace = true
 
 embassy-executor = { workspace = true, features = ["nightly"] }
 

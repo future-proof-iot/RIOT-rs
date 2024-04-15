@@ -195,3 +195,12 @@ pub mod usb {
         }
     }
 }
+
+#[cfg(feature = "hwrng")]
+pub mod hwrng {
+    use super::OptionalPeripherals;
+
+    pub fn construct_rng(_peripherals: &mut OptionalPeripherals) {
+        unimplemented!();
+    }
+}

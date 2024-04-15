@@ -2444,6 +2444,7 @@ dependencies = [
 name = "riot-rs-embassy"
 version = "0.1.0"
 dependencies = [
+ "cfg-if",
  "critical-section",
  "cyw43",
  "cyw43-pio",
