@@ -125,10 +125,8 @@ mod csprng {
     impl rand_core::CryptoRng for super::CryptoRng {}
 
     /// Asserts that SelectedRng is CryptoRng, justifying the implementation above.
-    fn static_assert_is_cryptorng() -> impl rand_core::CryptoRng {
-        let result: super::SelectedRng = unreachable!("This function is for type checking only");
-        result
-    }
+    trait _AssertCryptoRng: rand_core::CryptoRng {}
+    impl _AssertCryptoRng for SelectedRng {}
 }
 
 /// Populates the global RNG from a seed value.
