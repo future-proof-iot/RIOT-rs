@@ -45,9 +45,9 @@ threading = [
 ## Enables support for timeouts in the internal executor---required to use
 ## `embassy_time::Timer`.
 time = ["riot-rs-embassy/time"]
-## Enables the `random` module.
+## Enables the [`random`] module.
 random = ["riot-rs-random"]
-## Enables a cryptographically seucre random number generator in the `random` module.
+## Enables a cryptographically secure random number generator in the [`random`] module.
 csprng = ["riot-rs-random/csprng"]
 ## Enables seeding the random number generator from hardware.
 hwrng = ["riot-rs-embassy/hwrng"]
