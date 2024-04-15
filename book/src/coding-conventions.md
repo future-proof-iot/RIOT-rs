@@ -52,6 +52,9 @@ write:
 
 More generally, use the [`std` docs](https://doc.rust-lang.org/stable/std/) as inspiration.
 
+When possible—i.e., when items are in scope—items mentioned in the documentation MUST be linked to (see [C-LINK](https://rust-lang.github.io/api-guidelines/documentation.html#prose-contains-hyperlinks-to-relevant-things-c-link)).
+This is useful for readers, to quickly access the mentioned item, but it also helps prevent the docs from lagging behind, as broken links are tested for in CI, making it easy to spot renamed or removed items.
+
 ## `unsafe` Code
 
 When `unsafe` is used, a `SAFETY` comment MUST be added, in the style [supported by Clippy](https://rust-lang.github.io/rust-clippy/master/index.html#/undocumented_unsafe_blocks).
