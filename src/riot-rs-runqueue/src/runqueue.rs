@@ -126,12 +126,6 @@ impl<const N_QUEUES: usize, const N_THREADS: usize, const N_CORES: usize>
         self.reallocate()
     }
 
-    pub fn advance_head(&mut self, rq: RunqueueId) -> Option<CoreId> {
-        debug_assert!((rq as usize) < N_QUEUES);
-        self.queues.advance(rq);
-        self.reallocate()
-    }
-
     /// Update `self.next` so that the highest `N_CORES` threads
     /// are allocated.
     ///
@@ -230,6 +224,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<N_QUEUES, N_THREADS
     ///
     /// Returns a [`CoreId`] if the allocation for this core changed.
     pub fn advance(&mut self, rq: RunqueueId) -> Option<ThreadId> {
+        debug_assert!((rq as usize) < N_QUEUES);
         self.queues.advance(rq);
         self.reallocate()
     }
