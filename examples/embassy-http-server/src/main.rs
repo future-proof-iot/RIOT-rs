@@ -54,7 +54,7 @@ impl picoserve::extract::FromRef<AppState> for ButtonInputs {
 static TEMP_SENSOR: arch::internal_temp::InternalTemp = arch::internal_temp::InternalTemp::new();
 // TODO: can we make this const?
 #[cfg(context = "nrf52840")]
-#[riot_rs::linkme::distributed_slice(riot_rs::sensors::registry::SENSOR_REFS)]
+#[riot_rs::linkme::distributed_slice(riot_rs::sensors::SENSOR_REFS)]
 #[linkme(crate = riot_rs::linkme)]
 static TEMP_SENSOR_REF: &'static dyn riot_rs::sensors::sensor::Sensor = &TEMP_SENSOR;
 
@@ -121,14 +121,15 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
     #[cfg(context = "nrf52840")]
     {
         use riot_rs::sensors::{
-            registry::REGISTRY,
-            sensor::{PhysicalValue, Sensor, ThresholdKind},
+            sensor::{PhysicalValue, ThresholdKind},
+            Sensor,
         };
 
         let temp_peripheral = peripherals.temp.temp;
         TEMP_SENSOR.init(spawner, temp_peripheral);
 
-        TEMP_SENSOR.set_threshold(ThresholdKind::Lower, PhysicalValue { value: 2300 });
+        let threshold = PhysicalValue::new(2300);
+        TEMP_SENSOR.set_threshold(ThresholdKind::Lower, threshold);
         TEMP_SENSOR.set_threshold_enabled(ThresholdKind::Lower, true);
     }
 

@@ -77,7 +77,6 @@ pub mod internal_temp {
         Notification, NotificationReceiver, PhysicalUnit, PhysicalValue, Reading, ReadingError,
         ReadingResult, Sensor, ThresholdKind,
     };
-    use static_cell::StaticCell;
 
     embassy_nrf::bind_interrupts!(struct Irqs {
         TEMP => embassy_nrf::temp::InterruptHandler;
@@ -88,7 +87,6 @@ pub mod internal_temp {
         enabled: AtomicBool,
         temp: Mutex<CriticalSectionRawMutex, Option<temp::Temp<'static>>>,
         channel: Channel<CriticalSectionRawMutex, Notification, 1>,
-        stack: StaticCell<[u8; 4096_usize]>, // TODO: make this optional if the notification
         // feature is not used
         lower_threshold: AtomicI32,
         lower_threshold_enabled: AtomicBool, // TODO: use an atomic bitset for handler other
@@ -102,7 +100,6 @@ pub mod internal_temp {
                 enabled: AtomicBool::new(false),
                 temp: Mutex::new(None),
                 channel: Channel::new(),
-                stack: StaticCell::new(),
                 lower_threshold: AtomicI32::new(0),
                 lower_threshold_enabled: AtomicBool::new(false),
             }
@@ -121,7 +118,7 @@ pub mod internal_temp {
                     loop {
                         if sensor.lower_threshold_enabled.load(Ordering::Acquire) {
                             if let Ok(value) = sensor.read().await {
-                                if value.value().value
+                                if value.value().value()
                                     > sensor.lower_threshold.load(Ordering::Acquire)
                                 {
                                     // FIXME: should this be Lower or Higher?
@@ -165,7 +162,7 @@ pub mod internal_temp {
             let reading = self.temp.lock().await.as_mut().unwrap().read().await;
             let temp: i32 = (100 * reading).lossy_into();
 
-            Ok(TemperatureReading(PhysicalValue { value: temp }))
+            Ok(TemperatureReading(PhysicalValue::new(temp)))
         }
 
         fn set_enabled(&self, enabled: bool) {
@@ -181,7 +178,9 @@ pub mod internal_temp {
 
         fn set_threshold(&self, kind: ThresholdKind, value: PhysicalValue) {
             match kind {
-                ThresholdKind::Lower => self.lower_threshold.store(value.value, Ordering::Release),
+                ThresholdKind::Lower => {
+                    self.lower_threshold.store(value.value(), Ordering::Release)
+                }
                 _ => {
                     // TODO: should we return an error instead?
                 }

@@ -1,49 +1,29 @@
-use core::future::Future;
+//! Provides a sensor registry, allowing to register sensors and access them in a centralized
+//! location.
 
-use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
-use heapless::Vec;
-use static_cell::StaticCell;
+use crate::Sensor;
 
-use crate::sensor::{PhysicalUnit, PhysicalValue, ReadingResult, Sensor};
-
+/// Stores references to registered sensors.
+///
+/// To register a sensor, insert it to this [distributed slice](linkme).
+/// The sensor will need to be statically allocated, to be able to obtain a `'static` reference to
+/// it.
 #[linkme::distributed_slice]
 pub static SENSOR_REFS: [&'static dyn Sensor] = [..];
 
-// static SENSORS: Mutex<CriticalSectionRawMutex, Vec<&'static dyn Sensor, 8>> =
-// Mutex::new(Vec::new());
-
+/// The sensor registry instance.
 pub static REGISTRY: Registry = Registry::new();
 
-pub struct Registry {
-    // sensors:
-    //     Mutex<CriticalSectionRawMutex, [StaticCell<dyn Sensor>; 8]>, // FIXME: use an env var or something
-}
+/// The sensor registry.
+pub struct Registry {}
 
 impl Registry {
+    // The constructor is private to make the registry a singleton.
     const fn new() -> Self {
-        Self {
-            // sensors: Mutex::new(Vec::new()),
-        }
+        Self {}
     }
 
-    // pub fn register(&self, sensor: impl Sensor) -> &'static impl Sensor {
-    //     for slot in self.sensors.try_lock().unwrap() {
-    //         let Some(sensor_ref) = slot.try_init(sensor) else {
-    //             // TODO: return an error if already full
-    //             unimplemented!()
-    //         };
-    //         // FIXME: do not unwrap in case the mutex is locked
-    //         // FIXME: do something
-    //         let _ = self.sensors.try_lock().unwrap().push(sensor_ref);
-    //         return sensor_ref;
-    //     }
-    //     unreachable!();
-    // }
-
-    // pub async fn sensors(&self) -> &[&'static Mutex<CriticalSectionRawMutex, dyn Sensor>] {
-    //     self.sensors.lock().await
-    // }
-
+    /// Returns an iterator over registered sensors.
     pub fn sensors(&self) -> impl Iterator<Item = &'static dyn Sensor> {
         // Returning an iterator instead of the distributed slice directly would allow us to chain
         // another source of sensors in the future, if we decided to support dynamically-allocated

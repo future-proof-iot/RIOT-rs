@@ -1,3 +1,5 @@
+//! Provides a [`Sensor`] trait abstracting over implementation details of a sensor.
+
 use core::{any::Any, future::Future};
 
 // TODO: use a zero-copy channel instead?
@@ -5,20 +7,16 @@ use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel::Receiv
 
 /// Represents a device providing sensor readings.
 // TODO: introduce a trait currently deferring to Any
-// FIXME: add a test to make sure this trait is object-safe
 pub trait Sensor: Any + Send + Sync {
-    // FIXME: allow to return multiple PhysicalValue (with Reading?, but keep it object-safe)
     /// Returns a sensor reading.
-    ///
-    /// Blocks until the reading is ready.
-    /// In the future, we may provide an async version of this method, when it becomes possible to
-    /// provide dispatchable async method in traits without an allocator.
-    async fn read(&self) -> ReadingResult<impl Reading>
+    fn read(&self) -> impl Future<Output = ReadingResult<impl Reading>>
     where
         Self: Sized;
 
+    /// Enables or disables the sensor driver.
     fn set_enabled(&self, enabled: bool);
 
+    /// Returns whether the sensor driver is enabled.
     #[must_use]
     fn enabled(&self) -> bool;
 
@@ -28,33 +26,46 @@ pub trait Sensor: Any + Send + Sync {
     // TODO: merge this with set_threshold?
     fn set_threshold_enabled(&self, kind: ThresholdKind, enabled: bool);
 
-    // TODO: tune the channel size
     #[must_use]
     fn subscribe(&self) -> NotificationReceiver;
 
-    // TODO: can we make this a trait const instead? may cause object safety issues
+    /// The base-10 exponent used for all readings returned by the sensor.
+    ///
+    /// The actual physical value is [`value()`](PhysicalValue::value) ×
+    /// 10^[`value_scale()`](Sensor::value_scale).
+    /// For instance, in the case of a temperature sensor, if [`value()`](PhysicalValue::value)
+    /// returns `2225` and [`value_scale()`](Sensor::value_scale) returns `-2`, it means that the
+    /// temperature measured and returned by the hardware sensor is `22.25` (the sensor accuracy
+    /// and precision must additionally be taken into account).
+    ///
+    /// This is required to avoid handling floats.
+    // FIXME: how to handle sensors measuring different physical values?
+    // TODO: rename this?
     #[must_use]
     fn value_scale() -> i8
     where
         Self: Sized;
 
-    // TODO: can we make this a trait const instead? may cause object safety issues
+    /// Returns the unit of measurement in which readings are returned.
     #[must_use]
     fn unit() -> PhysicalUnit
     where
         Self: Sized;
 
+    /// Returns a human-readable name of the sensor.
     // TODO: i18n?
     #[must_use]
     fn display_name() -> Option<&'static str>
     where
         Self: Sized;
 
+    /// Returns the hardware sensor part number.
     #[must_use]
     fn part_number() -> &'static str
     where
         Self: Sized;
 
+    /// Returns the sensor driver version number.
     #[must_use]
     fn version() -> u8
     where
@@ -69,13 +80,40 @@ pub trait Reading {
     }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq, Eq)]
-#[non_exhaustive]
-pub enum ThresholdKind {
-    Lower,
-    Higher,
+/// Represents a value obtained from a sensor.
+// TODO: add a timestamp?
+#[derive(Debug, Copy, Clone)]
+pub struct PhysicalValue {
+    value: i32,
 }
 
+impl PhysicalValue {
+    /// Creates a new value.
+    #[must_use]
+    pub const fn new(value: i32) -> Self {
+        Self { value }
+    }
+
+    /// Returns the value.
+    #[must_use]
+    pub fn value(&self) -> i32 {
+        self.value
+    }
+}
+
+/// Represents a unit of measurement.
+// Built upon https://doc.riot-os.org/phydat_8h_source.html
+// and https://bthome.io/format/#sensor-data
+// and https://www.rfc-editor.org/rfc/rfc8798.html
+#[derive(Debug, Copy, Clone)]
+#[non_exhaustive]
+pub enum PhysicalUnit {
+    /// Degree Celsius.
+    Celsius,
+    // TODO: add other units
+}
+
+/// A notification provided by a sensor driver.
 // TODO: should we pass the value as well? that may be difficult because of the required generics
 #[derive(Debug, PartialEq, Eq)]
 #[non_exhaustive]
@@ -84,12 +122,21 @@ pub enum Notification {
     Threshold(ThresholdKind),
 }
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[non_exhaustive]
+pub enum ThresholdKind {
+    Lower,
+    Higher,
+}
+
+// TODO: tune the channel size
 pub type NotificationReceiver<'a> = Receiver<'a, CriticalSectionRawMutex, Notification, 1>;
 
+/// Represents errors happening when accessing a sensor reading.
 // TODO: is it more useful to indicate the error nature or whether it is temporary or permanent?
 #[derive(Debug)]
 pub enum ReadingError {
-    // The sensor is disabled.
+    /// The sensor is disabled.
     Disabled,
 }
 
@@ -104,19 +151,10 @@ impl core::error::Error for ReadingError {}
 
 pub type ReadingResult<R> = Result<R, ReadingError>;
 
-// TODO: add a timestamp?
-// TODO: provide new() + getters instead of making fields public?
-#[derive(Debug, Copy, Clone)]
-pub struct PhysicalValue {
-    pub value: i32,
-}
+#[cfg(test)]
+mod tests {
+    use super::*;
 
-// Built upon https://doc.riot-os.org/phydat_8h_source.html
-// and https://bthome.io/format/#sensor-data
-// and https://www.rfc-editor.org/rfc/rfc8798.html
-#[derive(Debug, Copy, Clone)]
-#[non_exhaustive]
-pub enum PhysicalUnit {
-    Celsius,
-    // TODO: add other units
+    // Assert that the Sensor trait is object-safe
+    static _SENSOR_REFS: &[&dyn Sensor] = &[];
 }
