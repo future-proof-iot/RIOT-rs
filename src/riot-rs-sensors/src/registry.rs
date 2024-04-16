@@ -44,35 +44,16 @@ impl Registry {
     //     self.sensors.lock().await
     // }
 
-    pub fn sensors(&self) -> &[&'static dyn Sensor] {
-        &SENSOR_REFS
+    pub fn sensors(&self) -> impl Iterator<Item = &'static dyn Sensor> {
+        // Returning an iterator instead of the distributed slice directly would allow us to chain
+        // another source of sensors in the future, if we decided to support dynamically-allocated
+        // sensors
+        SENSOR_REFS.iter().copied()
     }
 
     // TODO: returns an iterator returning async values, do we want to asynchronously return an
     // iterator instead, which would ready every sensor concurrently?
-    pub async fn read_all(&self) -> ReadAll {
-        ReadAll { sensor_index: 0 }
-    }
-}
-
-pub struct ReadAll {
-    sensor_index: usize,
-}
-
-impl Iterator for ReadAll {
-    type Item = impl Future<Output = ReadingResult<PhysicalValue>>;
-
-    fn next(&mut self) -> Option<<ReadAll as Iterator>::Item> {
-        let sensor = *REGISTRY.sensors().get(self.sensor_index)?;
-        self.sensor_index += 1;
-
-        // As `read()` is non-dispatchable, we have to downcast
-        // if let Some(sensor) = (sensor as &dyn Any).downcast_ref::<InternalTemp>() {
-        //     return Some(sensor.read());
-        // }
-        //
-        // unimplemented!()
-
-        Some(async { sensor.read() })
-    }
+    // pub async fn read_all(&self) -> ReadAll {
+    //     ReadAll { sensor_index: 0 }
+    // }
 }

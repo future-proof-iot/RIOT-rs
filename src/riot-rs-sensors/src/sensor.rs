@@ -4,21 +4,25 @@ use core::{any::Any, future::Future};
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel::Receiver};
 
 /// Represents a device providing sensor readings.
+// TODO: introduce a trait currently deferring to Any
 // FIXME: add a test to make sure this trait is object-safe
-pub trait Sensor: Send + Sync {
+pub trait Sensor: Any + Send + Sync {
     // FIXME: allow to return multiple PhysicalValue (with Reading?, but keep it object-safe)
     /// Returns a sensor reading.
     ///
     /// Blocks until the reading is ready.
     /// In the future, we may provide an async version of this method, when it becomes possible to
     /// provide dispatchable async method in traits without an allocator.
-    fn read(&self) -> ReadingResult<PhysicalValue>;
+    async fn read(&self) -> ReadingResult<impl Reading>
+    where
+        Self: Sized;
 
     fn set_enabled(&self, enabled: bool);
 
     #[must_use]
     fn enabled(&self) -> bool;
 
+    // TODO: support some hysteresis
     fn set_threshold(&self, kind: ThresholdKind, value: PhysicalValue);
 
     // TODO: merge this with set_threshold?

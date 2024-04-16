@@ -2,6 +2,9 @@
 #![no_std]
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
+// Both of these are required for sensors
+#![feature(trait_upcasting)]
+#![feature(impl_trait_in_assoc_type)]
 
 mod pins;
 mod routes;
@@ -9,6 +12,7 @@ mod routes;
 use riot_rs::{
     debug::println,
     embassy::{arch, network, Spawner},
+    sensors::Sensor,
 };
 
 use embassy_net::tcp::TcpSocket;
@@ -122,24 +126,10 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
         };
 
         let temp_peripheral = peripherals.temp.temp;
-        TEMP_SENSOR.init(temp_peripheral);
+        TEMP_SENSOR.init(spawner, temp_peripheral);
 
-        TEMP_SENSOR.set_threshold(ThresholdKind::Lower, PhysicalValue { value: 2400 });
+        TEMP_SENSOR.set_threshold(ThresholdKind::Lower, PhysicalValue { value: 2300 });
         TEMP_SENSOR.set_threshold_enabled(ThresholdKind::Lower, true);
-
-        fn thread_fn() {
-            let rx = TEMP_SENSOR.subscribe();
-
-            loop {
-                if let Ok(notification) = rx.try_receive() {
-                    println!("{:#?}", notification);
-                }
-                riot_rs::thread::yield_same();
-            }
-        }
-
-        let stack = static_cell::make_static!([0u8; 4096_usize]);
-        riot_rs::thread::thread_create_noarg(thread_fn, stack, 1);
     }
 
     fn make_app() -> picoserve::Router<AppRouter, AppState> {
@@ -169,10 +159,13 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
     }
 }
 
-#[riot_rs::thread(autostart)]
-fn dummy() {
+#[riot_rs::task(autostart)]
+async fn temp_subscriber() {
+    let rx = TEMP_SENSOR.subscribe();
+
     loop {
-        riot_rs::thread::yield_same();
+        let notification = rx.receive().await;
+        println!("{:#?}", notification);
     }
 }
 

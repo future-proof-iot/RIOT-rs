@@ -10,3 +10,5 @@
 
 pub mod registry;
 pub mod sensor;
+
+pub use sensor::Sensor;

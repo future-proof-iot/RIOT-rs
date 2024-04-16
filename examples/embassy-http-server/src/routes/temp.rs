@@ -3,10 +3,7 @@ use picoserve::{
     extract::State,
     response::{IntoResponse, Json},
 };
-use riot_rs::{
-    sensors::sensor::{Reading, Sensor},
-    thread,
-};
+use riot_rs::sensors::sensor::{Reading, Sensor};
 
 use crate::{println, TEMP_SENSOR};
 
@@ -24,14 +21,9 @@ pub async fn temp() -> impl IntoResponse {
     //
     // let temp = signal.wait().await;
 
-    Json(JsonTemp { temp: 0 })
-}
+    let temp = TEMP_SENSOR.read().await.unwrap().value().value;
 
-#[thread(autostart)]
-fn _dummy() {
-    loop {
-        thread::yield_same();
-    }
+    Json(JsonTemp { temp })
 }
 
 #[derive(serde::Serialize)]

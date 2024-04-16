@@ -67,10 +67,12 @@ pub mod internal_temp {
     // FIXME: maybe use portable_atomic's instead
     use core::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 
+    use embassy_executor::Spawner;
     use embassy_nrf::{peripherals, temp};
     use embassy_sync::{
         blocking_mutex::raw::CriticalSectionRawMutex, channel::Channel, mutex::Mutex,
     };
+    use embassy_time::{Duration, Timer};
     use riot_rs_sensors::sensor::{
         Notification, NotificationReceiver, PhysicalUnit, PhysicalValue, Reading, ReadingError,
         ReadingResult, Sensor, ThresholdKind,
@@ -106,38 +108,36 @@ pub mod internal_temp {
             }
         }
 
-        pub fn init(&self, peripheral: peripherals::TEMP) {
+        pub fn init(&'static self, spawner: Spawner, peripheral: peripherals::TEMP) {
             if !self.initialized.load(Ordering::Acquire) {
-                // FIXME: we use try_lock instead of lock to not make this function async, can we do
-                // better?
-                // FIXME: return an error when relevant
+                // We use `try_lock()` instead of `lock()` to not make this function async.
+                // This mutex cannot be locked at this point as it is private and can only be
+                // locked when the sensor has been initialized successfully.
                 let mut temp = self.temp.try_lock().unwrap();
                 *temp = Some(temp::Temp::new(peripheral, Irqs));
 
-                fn thread_fn(sensor: &InternalTemp) {
-                    riot_rs_debug::println!("Thread started");
+                #[embassy_executor::task]
+                async fn temp_watcher(sensor: &'static InternalTemp) {
                     loop {
                         if sensor.lower_threshold_enabled.load(Ordering::Acquire) {
-                            if let Ok(value) = sensor.read() {
-                                if value.value > sensor.lower_threshold.load(Ordering::Acquire) {
+                            if let Ok(value) = sensor.read().await {
+                                if value.value().value
+                                    > sensor.lower_threshold.load(Ordering::Acquire)
+                                {
                                     // FIXME: should this be Lower or Higher?
-                                    let _ =sensor
+                                    let _ = sensor
                                         .channel
                                         .try_send(Notification::Threshold(ThresholdKind::Lower));
                                     riot_rs_debug::println!("Temp > lower threshold: {:?}", value);
                                 }
                             }
                         }
-
-                        // FIXME: do not busy loop, sleep for some time
-                        riot_rs_threads::yield_same();
+                        // TODO: make this duration configurable?
+                        // Avoid busy looping and allow other users to lock the mutex
+                        Timer::after(Duration::from_millis(100)).await;
                     }
                 }
-
-                // FIXME: check whether this works with multiple instances of the sensor
-                let stack = static_cell::make_static!([0u8; 4096_usize]);
-                riot_rs_threads::thread_create(thread_fn, &self, stack, 1);
-                riot_rs_debug::println!("Spawned the sensor thread");
+                spawner.spawn(temp_watcher(&self)).unwrap();
 
                 self.initialized.store(true, Ordering::Release);
                 self.enabled.store(true, Ordering::Release);
@@ -145,33 +145,34 @@ pub mod internal_temp {
         }
     }
 
-    // pub struct TemperatureReading(PhysicalValue);
-    //
-    // impl Reading for TemperatureReading {
-    //     fn value(&self) -> PhysicalValue {
-    //         self.0
-    //     }
-    // }
+    #[derive(Debug)]
+    pub struct TemperatureReading(PhysicalValue);
+
+    impl Reading for TemperatureReading {
+        fn value(&self) -> PhysicalValue {
+            self.0
+        }
+    }
 
     impl Sensor for InternalTemp {
-        fn read(&self) -> ReadingResult<PhysicalValue> {
+        async fn read(&self) -> ReadingResult<TemperatureReading> {
             use fixed::traits::LossyInto;
 
             if !self.enabled.load(Ordering::Acquire) {
                 return Err(ReadingError::Disabled);
             }
 
-            let reading = embassy_futures::block_on(async {
-                self.temp.lock().await.as_mut().unwrap().read().await
-            });
-
+            let reading = self.temp.lock().await.as_mut().unwrap().read().await;
             let temp: i32 = (100 * reading).lossy_into();
 
-            Ok(PhysicalValue { value: temp })
+            Ok(TemperatureReading(PhysicalValue { value: temp }))
         }
 
         fn set_enabled(&self, enabled: bool) {
-            self.enabled.store(enabled, Ordering::Release);
+            if self.initialized.load(Ordering::Acquire) {
+                self.enabled.store(enabled, Ordering::Release);
+            }
+            // TODO: return an error otherwise?
         }
 
         fn enabled(&self) -> bool {
