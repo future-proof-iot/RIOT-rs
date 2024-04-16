@@ -187,7 +187,6 @@ pub unsafe fn start_threading() {
     let cs = unsafe { CriticalSection::new() };
     let next_sp = THREADS.with_mut_cs(cs, |mut threads| {
         let next_pid = threads.runqueue.get_next().unwrap();
-        threads.current_thread = Some(next_pid);
         threads.threads[next_pid as usize].sp
     });
     Cpu::start_threading(next_sp);

@@ -259,6 +259,7 @@ unsafe fn sched(old_sp: usize) -> usize {
         threads.current_thread = Some(next_pid);
         current_high_regs = threads.threads[current_pid as usize].data.as_ptr();
     } else {
+        threads.current_thread = Some(next_pid);
         current_high_regs = core::ptr::null();
     }
 
