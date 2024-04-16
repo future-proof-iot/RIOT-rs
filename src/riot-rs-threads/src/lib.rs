@@ -195,7 +195,7 @@ pub unsafe fn start_threading() {
 
 /// Trait for types that fit into a single register.
 ///
-/// Currently implemented for references (`&T`) and usize.
+/// Currently implemented for static references (`&'static T`) and usize.
 pub trait Arguable {
     fn into_arg(self) -> usize;
 }
@@ -212,7 +212,9 @@ impl Arguable for () {
     }
 }
 
-impl<T> Arguable for &T {
+/// [`Arguable`] is only implemented on *static* references because the references passed to a
+/// thread must be valid for its entire lifetime.
+impl<T> Arguable for &'static T {
     fn into_arg(self) -> usize {
         self as *const T as usize
     }
