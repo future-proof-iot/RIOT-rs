@@ -9,12 +9,7 @@ riot_rs::define_peripherals!(Buttons {
     btn4: P0_25,
 });
 
-#[cfg(context = "nrf52840")]
-riot_rs::define_peripherals!(Temp { temp: TEMP });
-
 riot_rs::group_peripherals!(Peripherals {
     #[cfg(feature = "button-readings")]
     buttons: Buttons,
-    #[cfg(context = "nrf52840")]
-    temp: Temp,
 });

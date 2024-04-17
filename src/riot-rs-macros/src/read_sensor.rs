@@ -19,6 +19,9 @@ pub fn read_sensor(input: TokenStream) -> TokenStream {
 
     let riot_rs_crate = utils::riot_rs_crate();
 
+    // FIXME: we should generate the macro used by users in this macro, instead of doing the
+    // opposite, so that the hw config file only gets parsed once
+
     // The `_read_sensor` macro expects a trailing comma
     let expanded = quote! {
         #riot_rs_crate::sensors::_read_sensor!(#sensor_ident, #(#sensor_type_list),* ,)

@@ -4,7 +4,7 @@ sensors:
     on: nrf52
 
   # - name: BUTTONS
-  #   driver: PushButtons
+  #   driver: riot_rs::sensors::push_buttons::PushButtons
   #   on: nrf52840dk
   #   when: button-readings
   #   peripherals:

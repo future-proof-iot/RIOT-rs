@@ -8,10 +8,11 @@
 
 mod pins;
 mod routes;
+mod sensors;
 
 use riot_rs::{
     debug::println,
-    embassy::{arch, network, Spawner},
+    embassy::{network, Spawner},
     sensors::Sensor,
 };
 
@@ -49,14 +50,6 @@ impl picoserve::extract::FromRef<AppState> for ButtonInputs {
         state.buttons
     }
 }
-
-#[cfg(context = "nrf52840")]
-static TEMP_SENSOR: arch::internal_temp::InternalTemp = arch::internal_temp::InternalTemp::new();
-// TODO: can we make this const?
-#[cfg(context = "nrf52840")]
-#[riot_rs::linkme::distributed_slice(riot_rs::sensors::SENSOR_REFS)]
-#[linkme(crate = riot_rs::linkme)]
-static TEMP_SENSOR_REF: &'static dyn riot_rs::sensors::sensor::Sensor = &TEMP_SENSOR;
 
 type AppRouter = impl picoserve::routing::PathRouter<AppState>;
 
@@ -118,21 +111,6 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
         ButtonInputs(make_static!(Mutex::new(buttons)))
     };
 
-    #[cfg(context = "nrf52840")]
-    {
-        use riot_rs::sensors::{
-            sensor::{PhysicalValue, ThresholdKind},
-            Sensor,
-        };
-
-        let temp_peripheral = peripherals.temp.temp;
-        TEMP_SENSOR.init(spawner, temp_peripheral);
-
-        let threshold = PhysicalValue::new(2300);
-        TEMP_SENSOR.set_threshold(ThresholdKind::Lower, threshold);
-        TEMP_SENSOR.set_threshold_enabled(ThresholdKind::Lower, true);
-    }
-
     fn make_app() -> picoserve::Router<AppRouter, AppState> {
         let router = picoserve::Router::new().route("/", get(routes::index));
         #[cfg(feature = "button-readings")]
@@ -162,7 +140,7 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
 
 #[riot_rs::task(autostart)]
 async fn temp_subscriber() {
-    let rx = TEMP_SENSOR.subscribe();
+    let rx = sensors::TEMP_SENSOR.subscribe();
 
     loop {
         let notification = rx.receive().await;

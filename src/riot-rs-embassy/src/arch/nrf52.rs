@@ -64,11 +64,10 @@ pub fn init(config: Config) -> OptionalPeripherals {
 
 #[cfg(feature = "internal-temp")]
 pub mod internal_temp {
-    // FIXME: maybe use portable_atomic's instead
+    // FIXME: use portable_atomic's instead
     use core::sync::atomic::{AtomicBool, AtomicI32, Ordering};
 
     use embassy_executor::Spawner;
-    use embassy_nrf::{peripherals, temp};
     use embassy_sync::{
         blocking_mutex::raw::CriticalSectionRawMutex, channel::Channel, mutex::Mutex,
     };
@@ -85,7 +84,7 @@ pub mod internal_temp {
     pub struct InternalTemp {
         initialized: AtomicBool, // TODO: use an atomic bitset for initialized and enabled
         enabled: AtomicBool,
-        temp: Mutex<CriticalSectionRawMutex, Option<temp::Temp<'static>>>,
+        temp: Mutex<CriticalSectionRawMutex, Option<embassy_nrf::temp::Temp<'static>>>,
         channel: Channel<CriticalSectionRawMutex, Notification, 1>,
         // feature is not used
         lower_threshold: AtomicI32,
@@ -105,13 +104,17 @@ pub mod internal_temp {
             }
         }
 
-        pub fn init(&'static self, spawner: Spawner, peripheral: peripherals::TEMP) {
+        pub fn init(
+            &'static self,
+            spawner: Spawner,
+            temp_peripheral: crate::arch::peripherals::TEMP,
+        ) {
             if !self.initialized.load(Ordering::Acquire) {
                 // We use `try_lock()` instead of `lock()` to not make this function async.
                 // This mutex cannot be locked at this point as it is private and can only be
                 // locked when the sensor has been initialized successfully.
                 let mut temp = self.temp.try_lock().unwrap();
-                *temp = Some(temp::Temp::new(peripheral, Irqs));
+                *temp = Some(embassy_nrf::temp::Temp::new(temp_peripheral, Irqs));
 
                 #[embassy_executor::task]
                 async fn temp_watcher(sensor: &'static InternalTemp) {

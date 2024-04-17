@@ -164,10 +164,11 @@ pub type ReadingResult<R> = Result<R, ReadingError>;
 /// # Panics
 ///
 /// Panics if the concrete type of the sensor was not present in the list of types provided.
-// Should not be used by users directly, we will a higher-order macro
+// Should not be used by users directly, users should use the `riot_rs::read_sensor!()` proc-macro
+// instead.
 #[macro_export]
 macro_rules! _read_sensor {
-    ($sensor:ident, $first_sensor_type:path, $($sensor_type:path),*) => {
+    ($sensor:ident, $first_sensor_type:path, $($sensor_type:path),* $(,)?) => {
         // As `Sensor::read()` is non-dispatchable, we have to downcast
         if let Some($sensor) = ($sensor as &dyn core::any::Any)
             .downcast_ref::<$first_sensor_type>(
