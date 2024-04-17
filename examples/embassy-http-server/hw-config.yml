@@ -1,0 +1,14 @@
+sensors:
+  - name: TEMP_SENSOR
+    driver: riot_rs::embassy::arch::internal_temp::InternalTemp
+    on: nrf52
+
+  # - name: BUTTONS
+  #   driver: PushButtons
+  #   on: nrf52840dk
+  #   when: button-readings
+  #   peripherals:
+  #     btn1: P0_11
+  #     btn2: P0_12
+  #     btn3: P0_24
+  #     btn4: P0_25

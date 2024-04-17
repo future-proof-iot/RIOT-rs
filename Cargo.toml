@@ -67,6 +67,8 @@ document-features = "0.2.8"
 heapless = { version = "0.8.0", default-features = false }
 konst = { version = "0.3.8", default_features = false }
 ld-memory = { version = "0.2.9" }
+serde = { version = "1.0.198", default_features = false }
+serde_yaml = { version = "0.9.34+deprecated" } # Replace with a maintained crate?
 static_cell = { version = "2.0.0", features = ["nightly"] }
 
 [profile.dev]

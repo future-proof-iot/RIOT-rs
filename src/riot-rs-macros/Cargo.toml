@@ -14,6 +14,8 @@ enum-iterator = "1.5.0"
 proc-macro-crate = "3.1.0"
 proc-macro2 = "1.0.78"
 quote = "1.0.35"
+serde = { workspace = true, features = ["derive"] }
+serde_yaml = { workspace = true }
 syn = { version = "2.0.47", features = ["full"] }
 
 [dev-dependencies]
