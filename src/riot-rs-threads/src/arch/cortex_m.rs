@@ -62,63 +62,9 @@ impl Arch for Cpu {
     }
 
     #[inline(always)]
-    fn start_threading(next_sp: usize) {
-        cortex_m::interrupt::disable();
+    fn start_threading() {
         Self::schedule();
-        unsafe {
-            asm!(
-                "
-                msr psp, r1 // set new thread's SP to PSP
-                cpsie i     // enable interrupts, otherwise svc hard faults
-                svc 0       // SVC 0 handles switching
-                ",
-            in("r1")next_sp);
-        }
     }
-}
-
-#[cfg(any(armv7m, armv8m))]
-#[naked]
-#[no_mangle]
-#[allow(non_snake_case)]
-unsafe extern "C" fn SVCall() {
-    unsafe {
-        asm!(
-            "
-            movw LR, #0xFFFd
-            movt LR, #0xFFFF
-            bx lr
-            ",
-            options(noreturn)
-        )
-    };
-}
-
-#[cfg(armv6m)]
-#[naked]
-#[no_mangle]
-#[allow(non_snake_case)]
-unsafe extern "C" fn SVCall() {
-    unsafe {
-        asm!(
-            "
-            /* label rules:
-             * - number only
-             * - no combination of *only* [01]
-             * - add f or b for 'next matching forward/backward'
-             * so let's use '99' forward ('99f')
-             */
-            ldr r0, 99f
-            mov LR, r0
-            bx lr
-
-            .align 4
-            99:
-            .word 0xFFFFFFFD
-            ",
-            options(noreturn)
-        )
-    };
 }
 
 #[cfg(any(armv7m, armv8m))]
@@ -129,7 +75,6 @@ unsafe extern "C" fn PendSV() {
     unsafe {
         asm!(
             "
-            mrs r0, psp
             cpsid i
             bl {sched}
             cpsie i
@@ -163,7 +108,6 @@ unsafe extern "C" fn PendSV() {
     unsafe {
         asm!(
             "
-            mrs r0, psp
             cpsid i
             bl sched
             cpsie i
@@ -214,9 +158,6 @@ unsafe extern "C" fn PendSV() {
 /// It selects the next thread that should run from the runqueue.
 /// This may be current thread, or a new one.
 ///
-/// Input:
-/// - old_sp (`r0`): the stack pointer of the currently running thread.
-///
 /// Returns:
 /// - `0` in `r0` if the next thread in the runqueue is the currently running thread
 /// - Else it writes into the following registers:
@@ -227,7 +168,7 @@ unsafe extern "C" fn PendSV() {
 /// This function is called in PendSV.
 // TODO: make arch independent, or move to arch
 #[no_mangle]
-unsafe fn sched(old_sp: usize) -> usize {
+unsafe fn sched() -> usize {
     // SAFETY: interrupts are disabled by caller
     let cs = unsafe { CriticalSection::new() };
     let next_pid;
@@ -255,7 +196,7 @@ unsafe fn sched(old_sp: usize) -> usize {
             return 0;
         }
         //println!("current: {} next: {}", current_pid, next_pid);
-        threads.threads[current_pid as usize].sp = old_sp;
+        threads.threads[current_pid as usize].sp = cortex_m::register::psp::read() as usize;
         threads.current_thread = Some(next_pid);
         current_high_regs = threads.threads[current_pid as usize].data.as_ptr();
     } else {

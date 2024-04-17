@@ -19,7 +19,7 @@ pub trait Arch {
     fn schedule();
 
     /// Setup and initiate the first context switch.
-    fn start_threading(next_sp: usize);
+    fn start_threading();
 }
 
 cfg_if::cfg_if! {
@@ -36,7 +36,7 @@ cfg_if::cfg_if! {
             fn setup_stack(_: &mut [u8], _: usize, _: usize) -> usize {
                 unimplemented!()
             }
-            fn start_threading(_: usize) {
+            fn start_threading() {
                 unimplemented!()
             }
             fn schedule() {
