@@ -16,6 +16,7 @@ riot-rs-buildinfo = { path = "../riot-rs-buildinfo" }
 riot-rs-debug = { workspace = true }
 riot-rs-embassy = { path = "../riot-rs-embassy" }
 riot-rs-macros = { path = "../riot-rs-macros" }
+riot-rs-random = { path = "../riot-rs-random", optional = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 static_cell = { workspace = true }
@@ -44,6 +45,12 @@ threading = [
 ## Enables support for timeouts in the internal executor---required to use
 ## `embassy_time::Timer`.
 time = ["riot-rs-embassy/time"]
+## Enables the [`random`] module.
+random = ["riot-rs-random"]
+## Enables a cryptographically secure random number generator in the [`random`] module.
+csprng = ["riot-rs-random/csprng"]
+## Enables seeding the random number generator from hardware.
+hwrng = ["riot-rs-embassy/hwrng"]
 
 #! ## Wired communication
 ## Enables USB support.

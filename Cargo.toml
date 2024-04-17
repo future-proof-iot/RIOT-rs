@@ -13,6 +13,7 @@ members = [
   "src/riot-rs-chips",
   "src/riot-rs-debug",
   "src/riot-rs-macros",
+  "src/riot-rs-random",
   "tests/benchmarks/bench_sched_yield",
 ]
 
@@ -89,9 +90,9 @@ nrf52832-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-r
 nrf52840-pac = { git = "https://github.com/kaspar030/nrf-pacs", branch = "riot-rs" }
 
 # riot-rs embassy fork
-embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-140224" }
-embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-140224" }
-embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-140224" }
+embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-100424" }
+embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-100424" }
+embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-100424" }
 
 usbd-hid-macros = { git = "https://github.com/kaspar030/usbd-hid", branch = "for-riot-rs" }
 

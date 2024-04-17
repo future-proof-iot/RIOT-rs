@@ -94,6 +94,11 @@ fn init() -> ! {
 async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     println!("riot-rs-embassy::init_task()");
 
+    #[cfg(feature = "hwrng")]
+    arch::hwrng::construct_rng(&mut peripherals);
+    // Clock startup and entropy collection may lend themselves to parallelization, provided that
+    // doesn't impact runtime RAM or flash use.
+
     #[cfg(all(context = "nrf", feature = "usb"))]
     {
         // nrf52840

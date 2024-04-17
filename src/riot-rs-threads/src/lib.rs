@@ -2,8 +2,9 @@
 #![feature(inline_const)]
 #![feature(naked_functions)]
 #![feature(used_with_arg)]
-
-use critical_section::CriticalSection;
+// Disable indexing lints for now, possible panics are documented or rely on internally-enforced
+// invariants
+#![allow(clippy::indexing_slicing)]
 
 use riot_rs_runqueue::RunQueue;
 pub use riot_rs_runqueue::{RunqueueId, ThreadId};
@@ -87,7 +88,7 @@ impl Threads {
         &mut self,
         func: usize,
         arg: usize,
-        stack: &mut [u8],
+        stack: &'static mut [u8],
         prio: u8,
     ) -> Option<&mut Thread> {
         if let Some((thread, pid)) = self.get_unused() {
@@ -140,6 +141,10 @@ impl Threads {
     ///
     /// This function handles adding/ removing the thread to the Runqueue depending
     /// on its previous or new state.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `pid` is >= [`THREADS_NUMOF`].
     pub(crate) fn set_state(&mut self, pid: ThreadId, state: ThreadState) -> ThreadState {
         let thread = &mut self.threads[pid as usize];
         let old_state = thread.state;
@@ -153,6 +158,7 @@ impl Threads {
         old_state
     }
 
+    /// Returns the state of a thread.
     pub fn get_state(&self, thread_id: ThreadId) -> Option<ThreadState> {
         if self.is_valid_pid(thread_id) {
             Some(self.threads[thread_id as usize].state)
@@ -168,26 +174,18 @@ impl Threads {
 ///
 /// # Safety
 ///
-/// This may only be called once.
+/// This function is crafted to be called at a specific point in the RIOT-rs
+/// initialization, by `riot-rs-rt`. Don't call this unless you know you need to.
 ///
-/// # Panics
-///
-/// Panics if no thread exists.
+/// Currently it expects at least:
+/// - Cortex-M: to be called from the reset handler while MSP is active
 pub unsafe fn start_threading() {
-    // faking a critical section to get THREADS
-    // SAFETY: caller ensures invariants
-    let cs = unsafe { CriticalSection::new() };
-    let next_sp = THREADS.with_mut_cs(cs, |mut threads| {
-        let next_pid = threads.runqueue.get_next().unwrap();
-        threads.current_thread = Some(next_pid);
-        threads.threads[next_pid as usize].sp
-    });
-    Cpu::start_threading(next_sp);
+    Cpu::start_threading();
 }
 
 /// Trait for types that fit into a single register.
 ///
-/// Currently implemented for references (`&T`) and usize.
+/// Currently implemented for static references (`&'static T`) and usize.
 pub trait Arguable {
     fn into_arg(self) -> usize;
 }
@@ -204,7 +202,9 @@ impl Arguable for () {
     }
 }
 
-impl<T> Arguable for &T {
+/// [`Arguable`] is only implemented on *static* references because the references passed to a
+/// thread must be valid for its entire lifetime.
+impl<T> Arguable for &'static T {
     fn into_arg(self) -> usize {
         self as *const T as usize
     }
@@ -218,7 +218,7 @@ impl<T> Arguable for &T {
 pub fn thread_create<T: Arguable + Send>(
     func: fn(arg: T),
     arg: T,
-    stack: &mut [u8],
+    stack: &'static mut [u8],
     prio: u8,
 ) -> ThreadId {
     let arg = arg.into_arg();
@@ -226,7 +226,7 @@ pub fn thread_create<T: Arguable + Send>(
 }
 
 /// Low-level function to create a thread without argument
-pub fn thread_create_noarg(func: fn(), stack: &mut [u8], prio: u8) -> ThreadId {
+pub fn thread_create_noarg(func: fn(), stack: &'static mut [u8], prio: u8) -> ThreadId {
     unsafe { thread_create_raw(func as usize, 0, stack, prio) }
 }
 
@@ -234,7 +234,12 @@ pub fn thread_create_noarg(func: fn(), stack: &mut [u8], prio: u8) -> ThreadId {
 ///
 /// # Safety
 /// only use when you know what you are doing.
-pub unsafe fn thread_create_raw(func: usize, arg: usize, stack: &mut [u8], prio: u8) -> ThreadId {
+pub unsafe fn thread_create_raw(
+    func: usize,
+    arg: usize,
+    stack: &'static mut [u8],
+    prio: u8,
+) -> ThreadId {
     THREADS.with_mut(|mut threads| {
         let thread_id = threads.create(func, arg, stack, prio).unwrap().pid;
         threads.set_state(thread_id, ThreadState::Running);

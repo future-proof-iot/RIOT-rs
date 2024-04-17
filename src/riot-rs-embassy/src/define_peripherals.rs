@@ -81,7 +81,7 @@ macro_rules! group_peripherals {
                 $group {
                     $(
                         $(#[$inner])*
-                        $peripheral_name: self.take_peripherals(),
+                        $peripheral_name: self.take_peripherals()
                     ),*
                 }
             }

@@ -10,6 +10,7 @@ workspace = true
 critical-section.workspace = true
 linkme.workspace = true
 static_cell.workspace = true
+cfg-if.workspace = true
 
 embassy-executor = { workspace = true, features = ["nightly"] }
 
@@ -26,6 +27,7 @@ riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-debug = { workspace = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-utils = { path = "../riot-rs-utils" }
+riot-rs-random = { path = "../riot-rs-random", optional = true }
 
 heapless = "0.8.0"
 once_cell = { version = "1.19.0", default-features = false, features = [
@@ -96,6 +98,8 @@ usb = ["dep:embassy-usb"]
 # embassy-net requires embassy-time and support for timeouts in the executor
 net = ["dep:embassy-net", "time"]
 usb-ethernet = ["usb", "net"]
+## Use a hardware RNG to seed into the riot-rs-random system-wide RNG
+hwrng = ["dep:riot-rs-random"]
 
 wifi = []
 wifi-cyw43 = [
