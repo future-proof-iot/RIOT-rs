@@ -151,6 +151,42 @@ impl core::error::Error for ReadingError {}
 
 pub type ReadingResult<R> = Result<R, ReadingError>;
 
+/// Returns the result of calling [`Sensor::read()`] on the sensor concrete type.
+///
+/// Downcasts the provided sensor (which must be implementing the [`Sensor`] trait) to its concrete
+/// type, and calls the async, non-dispatchable [`Sensor::read()`] method on it.
+/// This is required to call [`Sensor::read()`] on a `dyn Sensor` trait object because
+/// [`Sensor::read()`] is non-dispatchable and can therefore only be called on a concrete type.
+///
+/// This macro needs to be provided with the sensor and with the list of existing sensor concrete
+/// types.
+///
+/// # Panics
+///
+/// Panics if the concrete type of the sensor was not present in the list of types provided.
+// Should not be used by users directly, we will a higher-order macro
+#[macro_export]
+macro_rules! read_sensor {
+    ($sensor:ident, $first_sensor_type:path, $($sensor_type:path),*) => {
+        // As `Sensor::read()` is non-dispatchable, we have to downcast
+        if let Some($sensor) = ($sensor as &dyn core::any::Any)
+            .downcast_ref::<$first_sensor_type>(
+        ) {
+            $sensor.read()
+        }
+        $(
+        else if let Some($sensor) = ($sensor as &dyn core::any::Any)
+            .downcast_ref::<$sensor_type>(
+        ) {
+            $sensor.read()
+        }
+        )*
+        else {
+            unreachable!();
+        }
+    };
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
