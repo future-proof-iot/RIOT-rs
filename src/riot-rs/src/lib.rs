@@ -27,6 +27,8 @@ pub use riot_rs_threads as thread;
 
 // Attribute macros
 pub use riot_rs_macros::config;
+// Ideally this would be namespaced to the `sensors` module
+pub use riot_rs_macros::read_sensor;
 pub use riot_rs_macros::spawner;
 pub use riot_rs_macros::task;
 #[cfg(any(feature = "threading", doc))]
