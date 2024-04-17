@@ -6,8 +6,6 @@
 // invariants
 #![allow(clippy::indexing_slicing)]
 
-use critical_section::CriticalSection;
-
 use riot_rs_runqueue::RunQueue;
 pub use riot_rs_runqueue::{RunqueueId, ThreadId};
 
@@ -176,20 +174,13 @@ impl Threads {
 ///
 /// # Safety
 ///
-/// This may only be called once.
+/// This function is crafted to be called at a specific point in the RIOT-rs
+/// initialization, by `riot-rs-rt`. Don't call this unless you know you need to.
 ///
-/// # Panics
-///
-/// Panics if no thread exists.
+/// Currently it expects at least:
+/// - Cortex-M: to be called from the reset handler while MSP is active
 pub unsafe fn start_threading() {
-    // faking a critical section to get THREADS
-    // SAFETY: caller ensures invariants
-    let cs = unsafe { CriticalSection::new() };
-    let next_sp = THREADS.with_mut_cs(cs, |mut threads| {
-        let next_pid = threads.runqueue.get_next().unwrap();
-        threads.threads[next_pid as usize].sp
-    });
-    Cpu::start_threading(next_sp);
+    Cpu::start_threading();
 }
 
 /// Trait for types that fit into a single register.
