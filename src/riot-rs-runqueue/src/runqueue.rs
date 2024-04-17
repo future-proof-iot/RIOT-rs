@@ -82,11 +82,16 @@ impl<const N_QUEUES: usize, const N_THREADS: usize, const N_CORES: usize>
         debug_assert!((n as usize) < N_THREADS);
         debug_assert!((rq as usize) < N_QUEUES);
 
-        if self.queues.peek_head(rq) == Some(n) {
+        if N_CORES == 1 {
             let popped = self.queues.pop_head(rq);
             assert_eq!(popped, Some(n));
         } else {
-            self.queues.del(n, rq);
+            if self.queues.peek_head(rq) == Some(n) {
+                let popped = self.queues.pop_head(rq);
+                assert_eq!(popped, Some(n));
+            } else {
+                self.queues.del(n, rq);
+            }
         }
 
         if self.queues.is_empty(rq) {
@@ -138,6 +143,14 @@ impl<const N_QUEUES: usize, const N_THREADS: usize, const N_CORES: usize>
     ///
     /// The complexity of this call is O(n).
     fn reallocate(&mut self) -> Option<CoreId> {
+        if N_CORES == 1 {
+            let next = self.peek_head(self.bitcache);
+            if next == self.next[0] {
+                return None;
+            }
+            self.next[0] = next;
+            return Some(0);
+        }
         let next = self.get_next_n();
         let mut bitmap_next = 0;
         let mut bitmap_allocated = 0;
