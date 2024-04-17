@@ -11,21 +11,10 @@ pub static TEMP_SENSOR: riot_rs::embassy::arch::internal_temp::InternalTemp =
 #[linkme(crate = riot_rs::linkme)]
 static TEMP_SENSOR_REF: &'static dyn riot_rs::sensors::sensor::Sensor = &TEMP_SENSOR;
 
+#[cfg(context = "nrf52")]
 #[riot_rs::spawner(autostart, peripherals)]
-fn sensor_init(spawner: Spawner, peripherals: SensorPeripherals) {
-    #[cfg(context = "nrf52840")]
-    {
-        use riot_rs::sensors::{
-            sensor::{PhysicalValue, ThresholdKind},
-            Sensor,
-        };
-
-        TEMP_SENSOR.init(spawner, peripherals.temp);
-
-        let threshold = PhysicalValue::new(2300);
-        TEMP_SENSOR.set_threshold(ThresholdKind::Lower, threshold);
-        TEMP_SENSOR.set_threshold_enabled(ThresholdKind::Lower, true);
-    }
+fn sensor_init(spawner: Spawner, peripherals: TempPeripherals) {
+    TEMP_SENSOR.init(spawner, peripherals.p);
 }
 
-riot_rs::define_peripherals!(SensorPeripherals { temp: TEMP });
+riot_rs::define_peripherals!(TempPeripherals { p: TEMP });

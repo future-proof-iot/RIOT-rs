@@ -111,6 +111,14 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
         ButtonInputs(make_static!(Mutex::new(buttons)))
     };
 
+    #[cfg(context = "nrf52")]
+    {
+        use riot_rs::sensors::sensor::{PhysicalValue, ThresholdKind};
+        let threshold = PhysicalValue::new(2300);
+        sensors::TEMP_SENSOR.set_threshold(ThresholdKind::Lower, threshold);
+        sensors::TEMP_SENSOR.set_threshold_enabled(ThresholdKind::Lower, true);
+    }
+
     fn make_app() -> picoserve::Router<AppRouter, AppState> {
         let router = picoserve::Router::new().route("/", get(routes::index));
         #[cfg(feature = "button-readings")]
