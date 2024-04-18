@@ -11,7 +11,7 @@ cfg_if::cfg_if! {
         #[path = "arch/nrf/mod.rs"]
         pub mod arch;
     } else if #[cfg(context = "rp2040")] {
-        #[path = "arch/rp2040.rs"]
+        #[path = "arch/rp2040/mod.rs"]
         pub mod arch;
     } else if #[cfg(context = "esp")] {
         #[path = "arch/esp.rs"]
