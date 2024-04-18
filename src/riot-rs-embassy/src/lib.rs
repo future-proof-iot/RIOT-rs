@@ -6,7 +6,7 @@
 
 pub mod define_peripherals;
 
-#[cfg_attr(context = "nrf", path = "arch/nrf52.rs")]
+#[cfg_attr(context = "nrf", path = "arch/nrf.rs")]
 #[cfg_attr(context = "rp2040", path = "arch/rp2040.rs")]
 #[cfg_attr(context = "esp", path = "arch/esp.rs")]
 #[cfg_attr(
