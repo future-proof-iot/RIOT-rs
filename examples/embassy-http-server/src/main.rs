@@ -21,35 +21,7 @@ use embassy_time::Duration;
 use picoserve::routing::get;
 use static_cell::make_static;
 
-#[cfg(feature = "button-readings")]
-use embassy_nrf::gpio::{Input, Pin, Pull};
-
-struct AppState {
-    #[cfg(feature = "button-readings")]
-    buttons: ButtonInputs,
-}
-
-#[cfg(feature = "button-readings")]
-use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
-
-#[cfg(feature = "button-readings")]
-#[derive(Copy, Clone)]
-struct ButtonInputs(&'static Mutex<CriticalSectionRawMutex, Buttons>);
-
-#[cfg(feature = "button-readings")]
-struct Buttons {
-    button1: Input<'static>,
-    button2: Input<'static>,
-    button3: Input<'static>,
-    button4: Input<'static>,
-}
-
-#[cfg(feature = "button-readings")]
-impl picoserve::extract::FromRef<AppState> for ButtonInputs {
-    fn from_ref(state: &AppState) -> Self {
-        state.buttons
-    }
-}
+struct AppState {}
 
 type AppRouter = impl picoserve::routing::PathRouter<AppState>;
 
@@ -93,24 +65,7 @@ async fn web_task(
 }
 
 #[riot_rs::spawner(autostart, peripherals)]
-fn main(spawner: Spawner, peripherals: pins::Peripherals) {
-    #[cfg(not(feature = "button-readings"))]
-    let _ = peripherals;
-
-    #[cfg(feature = "button-readings")]
-    let button_inputs = {
-        let buttons = peripherals.buttons;
-
-        let buttons = Buttons {
-            button1: Input::new(buttons.btn1.degrade(), Pull::Up),
-            button2: Input::new(buttons.btn2.degrade(), Pull::Up),
-            button3: Input::new(buttons.btn3.degrade(), Pull::Up),
-            button4: Input::new(buttons.btn4.degrade(), Pull::Up),
-        };
-
-        ButtonInputs(make_static!(Mutex::new(buttons)))
-    };
-
+fn main(spawner: Spawner, _peripherals: pins::Peripherals) {
     #[cfg(context = "nrf52")]
     {
         use riot_rs::sensors::sensor::{PhysicalValue, ThresholdKind};
@@ -122,7 +77,7 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
     fn make_app() -> picoserve::Router<AppRouter, AppState> {
         let router = picoserve::Router::new().route("/", get(routes::index));
         #[cfg(feature = "button-readings")]
-        let router = router.route("/buttons", get(routes::buttons));
+        let router = router.route("/api/buttons", get(routes::buttons));
         let router = router.route("/api/sensors", get(routes::sensors));
         #[cfg(context = "nrf52840")]
         let router = router.route("/api/temp", get(routes::temp));
@@ -138,10 +93,7 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
     }));
 
     for id in 0..WEB_TASK_POOL_SIZE {
-        let app_state = AppState {
-            #[cfg(feature = "button-readings")]
-            buttons: button_inputs,
-        };
+        let app_state = AppState {};
         spawner.spawn(web_task(id, app, config, app_state)).unwrap();
     }
 }

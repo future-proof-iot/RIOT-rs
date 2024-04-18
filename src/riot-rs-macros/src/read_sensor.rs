@@ -5,7 +5,7 @@
 /// This macro panics when the `riot-rs` crate cannot be found as a dependency of the crate where
 /// this macro is used.
 #[proc_macro]
-pub fn read_sensor(input: TokenStream) -> TokenStream {
+pub fn await_read_sensor_main(input: TokenStream) -> TokenStream {
     use quote::quote;
     use syn::Ident;
 
@@ -24,7 +24,7 @@ pub fn read_sensor(input: TokenStream) -> TokenStream {
 
     // The `_read_sensor` macro expects a trailing comma
     let expanded = quote! {
-        #riot_rs_crate::sensors::_read_sensor!(#sensor_ident, #(#sensor_type_list),* ,)
+        #riot_rs_crate::sensors::_await_read_sensor_main!(#sensor_ident, #(#sensor_type_list),* ,)
     };
 
     TokenStream::from(expanded)
@@ -32,7 +32,7 @@ pub fn read_sensor(input: TokenStream) -> TokenStream {
 
 // TODO: move this to a separate crate
 mod hwconfig {
-    use std::{collections::HashMap, fs};
+    use std::{collections::HashMap, env, fs, path::PathBuf};
 
     use serde::Deserialize;
 
@@ -44,7 +44,7 @@ mod hwconfig {
 
     impl HwConfig {
         pub fn read_from_file() -> Result<Self, Error> {
-            let root = std::path::PathBuf::from(std::env::var("CARGO_MANIFEST_DIR").unwrap());
+            let root = PathBuf::from(env::var("CARGO_MANIFEST_DIR").unwrap()); // FIXME: do something about this error?
             let file_path = root.join("hw-config.yml");
 
             let file = fs::File::open(file_path).unwrap(); // FIXME: handle the error

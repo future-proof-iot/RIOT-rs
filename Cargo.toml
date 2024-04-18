@@ -64,6 +64,7 @@ riot-rs-threads = { path = "src/riot-rs-threads" }
 
 const_panic = { version = "0.2.8", default_features = false }
 document-features = "0.2.8"
+embedded-hal = { version = "1.0.0", default_features = false }
 heapless = { version = "0.8.0", default-features = false }
 konst = { version = "0.3.8", default_features = false }
 ld-memory = { version = "0.2.9" }

@@ -11,6 +11,8 @@
 
 pub mod registry;
 pub mod sensor;
+// TODO: this should not be in this crate
+pub mod push_buttons;
 
 pub use registry::{REGISTRY, SENSOR_REFS};
 pub use sensor::{Reading, Sensor};

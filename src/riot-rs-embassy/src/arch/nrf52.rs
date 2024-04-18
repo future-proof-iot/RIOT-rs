@@ -155,6 +155,11 @@ pub mod internal_temp {
     }
 
     impl Sensor for InternalTemp {
+        async fn read_main(&self) -> ReadingResult<PhysicalValue> {
+            self.read().await.map(|v| v.value())
+        }
+
+        #[allow(refining_impl_trait)]
         async fn read(&self) -> ReadingResult<TemperatureReading> {
             use fixed::traits::LossyInto;
 
@@ -227,3 +232,6 @@ pub mod internal_temp {
         }
     }
 }
+
+pub type PushButtonNrf =
+    riot_rs_sensors::push_buttons::PushButton<embassy_nrf::gpio::Input<'static>>;

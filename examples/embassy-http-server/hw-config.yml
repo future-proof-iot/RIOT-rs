@@ -12,3 +12,10 @@ sensors:
   #     btn2: P0_12
   #     btn3: P0_24
   #     btn4: P0_25
+
+  - name: BUTTON_1
+    driver: riot_rs::embassy::arch::PushButtonNrf
+    on: nrf52840dk
+    when: button-readings
+    peripherals:
+      btn: P0_11 # FIXME: specify pull-up/down resistors

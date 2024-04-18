@@ -2470,6 +2470,7 @@ name = "riot-rs-sensors"
 version = "0.1.0"
 dependencies = [
  "embassy-sync 0.5.0",
+ "embedded-hal 1.0.0",
  "heapless 0.8.0",
  "linkme",
  "static_cell",

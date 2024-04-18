@@ -1,16 +1,15 @@
 use picoserve::response::IntoResponse;
-use riot_rs::sensors::{Reading, Sensor, REGISTRY};
+use riot_rs::sensors::{Sensor, REGISTRY};
 
 pub async fn sensors() -> impl IntoResponse {
     for sensor in REGISTRY.sensors() {
-        let reading = riot_rs::read_sensor!(sensor);
+        let reading = riot_rs::await_read_sensor_main!(sensor);
 
-        if let Ok(value) = reading.await {
+        if let Ok(value) = reading {
             riot_rs::debug::println!("{:?}", value.value());
-            return "";
+        } else {
+            return "Error reading sensor";
         }
-
-        return "Error reading internal temp sensor";
     }
 
     "No sensors"

@@ -12,6 +12,7 @@ workspace = true
 
 [dependencies]
 embassy-sync = { workspace = true }
+embedded-hal = { workspace = true }
 heapless = { workspace = true }
 linkme = { workspace = true }
 static_cell = { workspace = true }

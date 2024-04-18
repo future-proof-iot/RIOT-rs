@@ -8,6 +8,12 @@ use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel::Receiv
 /// Represents a device providing sensor readings.
 // TODO: introduce a trait currently deferring to Any
 pub trait Sensor: Any + Send + Sync {
+    // FIXME: return an enum instead?
+    /// Returns the main sensor reading.
+    fn read_main(&self) -> impl Future<Output = ReadingResult<PhysicalValue>>
+    where
+        Self: Sized;
+
     /// Returns a sensor reading.
     fn read(&self) -> impl Future<Output = ReadingResult<impl Reading>>
     where
@@ -72,7 +78,7 @@ pub trait Sensor: Any + Send + Sync {
         Self: Sized;
 }
 
-pub trait Reading {
+pub trait Reading: core::fmt::Debug {
     fn value(&self) -> PhysicalValue;
 
     fn values(&self) -> impl ExactSizeIterator<Item = PhysicalValue> {
@@ -108,6 +114,8 @@ impl PhysicalValue {
 #[derive(Debug, Copy, Clone)]
 #[non_exhaustive]
 pub enum PhysicalUnit {
+    /// Logic boolean.
+    Bool,
     /// Degree Celsius.
     Celsius,
     // TODO: add other units
@@ -167,23 +175,25 @@ pub type ReadingResult<R> = Result<R, ReadingError>;
 // Should not be used by users directly, users should use the `riot_rs::read_sensor!()` proc-macro
 // instead.
 #[macro_export]
-macro_rules! _read_sensor {
+macro_rules! _await_read_sensor_main {
     ($sensor:ident, $first_sensor_type:path, $($sensor_type:path),* $(,)?) => {
-        // As `Sensor::read()` is non-dispatchable, we have to downcast
-        if let Some($sensor) = ($sensor as &dyn core::any::Any)
-            .downcast_ref::<$first_sensor_type>(
-        ) {
-            $sensor.read()
-        }
-        $(
-        else if let Some($sensor) = ($sensor as &dyn core::any::Any)
-            .downcast_ref::<$sensor_type>(
-        ) {
-            $sensor.read()
-        }
-        )*
-        else {
-            unreachable!();
+        {
+            // As `Sensor::read()` is non-dispatchable, we have to downcast
+            if let Some($sensor) = ($sensor as &dyn core::any::Any)
+                .downcast_ref::<$first_sensor_type>(
+            ) {
+                $sensor.read_main().await
+            }
+            $(
+            else if let Some($sensor) = ($sensor as &dyn core::any::Any)
+                .downcast_ref::<$sensor_type>(
+            ) {
+                $sensor.read_main().await
+            }
+            )*
+            else {
+                unreachable!();
+            }
         }
     };
 }
