@@ -21,11 +21,9 @@ riot-rs-boards = { path = "../../src/riot-rs-boards" }
 serde = { version = "1.0", default-features = false }
 static_cell = { workspace = true }
 
-embassy-nrf = { workspace = true, optional = true }
-
 [target.'cfg(capability = "hw/usb-device-port")'.dependencies]
 riot-rs = { path = "../../src/riot-rs", features = ["override-usb-config"] }
 
 [features]
-button-readings = ["dep:embassy-nrf"]
+button-readings = []
 internal-temp = ["riot-rs/internal-temp"]

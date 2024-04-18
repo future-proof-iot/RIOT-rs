@@ -21,6 +21,7 @@ pub struct PushButton<I: InputPin> {
 }
 
 impl<I: InputPin> PushButton<I> {
+    #[allow(clippy::new_without_default)]
     pub const fn new() -> Self {
         Self {
             initialized: AtomicBool::new(false),

@@ -31,9 +31,9 @@ static BUTTON_1_REF: &'static dyn riot_rs::sensors::sensor::Sensor = &BUTTON_1;
 #[riot_rs::spawner(autostart, peripherals)]
 fn button_1_init(_spawner: Spawner, peripherals: Button1Peripherals) {
     // FIXME: how to codegen this?
-    BUTTON_1.init(embassy_nrf::gpio::Input::new(
+    BUTTON_1.init(riot_rs::embassy::arch::gpio::Input::new(
         peripherals.p,
-        embassy_nrf::gpio::Pull::Up,
+        riot_rs::embassy::arch::gpio::Pull::Up,
     ));
 }
 
