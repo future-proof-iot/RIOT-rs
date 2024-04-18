@@ -8,7 +8,7 @@ pub mod define_peripherals;
 
 cfg_if::cfg_if! {
     if #[cfg(context = "nrf")] {
-        #[path = "arch/nrf.rs"]
+        #[path = "arch/nrf/mod.rs"]
         pub mod arch;
     } else if #[cfg(context = "rp2040")] {
         #[path = "arch/rp2040.rs"]
