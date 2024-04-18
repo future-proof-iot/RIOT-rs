@@ -316,6 +316,16 @@ contexts:
       RUSTFLAGS:
         - --cfg context=\"stm32h7b0\"
 
+  - name: stm32f401retx
+    parent: stm32
+    selects:
+      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+    env:
+      PROBE_RS_CHIP: STM32F401RETx
+      PROBE_RS_PROTOCOL: swd
+      RUSTFLAGS:
+        - --cfg context=\"stm32f401retx\"
+
   - name: stm32h755zitx
     parent: stm32
     selects:
@@ -733,6 +743,14 @@ builders:
 
   - name: nintendo-game-and-watch-zelda
     parent: stm32h7b0
+
+  - name: st-nucleo-f401re
+    parent: stm32f401retx
+    #FLASH : ORIGIN = 0x08000000, LENGTH = 512K
+    #RAM : ORIGIN = 0x20000000, LENGTH = 96K
+    # rcc.cfgr.use_hse(8.mhz()).freeze();
+    selects:
+      - probe-rs-run
 
   - name: st-nucleo-h755zi-q
     parent: stm32h755zitx
