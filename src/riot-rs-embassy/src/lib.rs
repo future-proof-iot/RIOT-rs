@@ -6,14 +6,23 @@
 
 pub mod define_peripherals;
 
-#[cfg_attr(context = "nrf", path = "arch/nrf.rs")]
-#[cfg_attr(context = "rp2040", path = "arch/rp2040.rs")]
-#[cfg_attr(context = "esp", path = "arch/esp.rs")]
-#[cfg_attr(
-    not(any(context = "nrf", context = "rp2040", context = "esp")),
-    path = "arch/dummy.rs"
-)]
-pub mod arch;
+cfg_if::cfg_if! {
+    if #[cfg(context = "nrf")] {
+        #[path = "arch/nrf.rs"]
+        pub mod arch;
+    } else if #[cfg(context = "rp2040")] {
+        #[path = "arch/rp2040.rs"]
+        pub mod arch;
+    } else if #[cfg(context = "esp")] {
+        #[path = "arch/esp.rs"]
+        pub mod arch;
+    } else if #[cfg(context = "riot-rs")] {
+        compile_error!("this architecture is not supported");
+    } else {
+        #[path = "arch/dummy.rs"]
+        pub mod arch;
+    }
+}
 
 #[cfg(feature = "usb")]
 pub mod usb;
