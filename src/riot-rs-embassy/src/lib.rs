@@ -19,7 +19,7 @@ cfg_if::cfg_if! {
     } else if #[cfg(context = "riot-rs")] {
         compile_error!("this architecture is not supported");
     } else {
-        #[path = "arch/dummy.rs"]
+        #[path = "arch/dummy/mod.rs"]
         pub mod arch;
     }
 }
