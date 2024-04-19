@@ -2427,6 +2427,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "riot-rs-hwsetup"
+version = "0.1.0"
+dependencies = [
+ "serde",
+ "serde_yaml",
+]
+
+[[package]]
 name = "riot-rs-macros"
 version = "0.1.0"
 dependencies = [
@@ -2437,8 +2445,7 @@ dependencies = [
  "proc-macro2",
  "quote",
  "riot-rs",
- "serde",
- "serde_yaml",
+ "riot-rs-hwsetup",
  "syn 2.0.52",
  "trybuild",
 ]

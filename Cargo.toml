@@ -12,6 +12,7 @@ members = [
   "src/riot-rs-boards/nucleo-f401re",
   "src/riot-rs-chips",
   "src/riot-rs-debug",
+  "src/riot-rs-hwsetup",
   "src/riot-rs-macros",
   "src/riot-rs-sensors",
   "tests/benchmarks/bench_sched_yield",
@@ -57,6 +58,7 @@ riot-rs = { path = "src/riot-rs", default-features = false }
 riot-rs-bench = { path = "src/riot-rs-bench", default-features = false }
 riot-rs-boards = { path = "src/riot-rs-boards", default-features = false }
 riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
+riot-rs-hwsetup = { path = "src/riot-rs-hwsetup", default-features = false }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 riot-rs-sensors = { path = "src/riot-rs-sensors" }
