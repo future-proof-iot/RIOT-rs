@@ -175,7 +175,7 @@ unsafe fn sched() -> usize {
 
     loop {
         {
-            if let Some(pid) = (unsafe { &*THREADS.as_ptr(cs) }).runqueue.get_next() {
+            if let Some(pid) = (unsafe { &*THREADS.as_ptr(cs) }).runqueue.get_next(0) {
                 next_pid = pid;
                 break;
             }

@@ -6,7 +6,7 @@
 // invariants
 #![allow(clippy::indexing_slicing)]
 
-use riot_rs_runqueue::RunQueue;
+use riot_rs_runqueue::{GlobalRunqueue, RunQueue};
 pub use riot_rs_runqueue::{RunqueueId, ThreadId};
 
 mod arch;
@@ -287,8 +287,10 @@ fn cleanup() -> ! {
 /// "Yields" to another thread with the same priority.
 pub fn yield_same() {
     THREADS.with_mut(|mut threads| {
-        let runqueue = threads.current().unwrap().prio;
-        threads.runqueue.advance(runqueue);
+        let thread = threads.current().unwrap();
+        let runqueue = thread.prio;
+        let pid = thread.pid;
+        threads.runqueue.advance(pid, runqueue);
         schedule();
     })
 }

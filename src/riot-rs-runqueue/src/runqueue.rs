@@ -20,7 +20,7 @@ impl FromBitmap for u8 {
         if bitmap == 0 {
             return None;
         }
-        Some(ffs(bitmap) as ThreadId - 1)
+        Some(ffs(bitmap) as u8 - 1)
     }
 }
 
@@ -61,130 +61,22 @@ impl<const N_QUEUES: usize, const N_THREADS: usize, const N_CORES: usize>
         }
     }
 
-    /// Adds thread with pid `n` to runqueue number `rq`.
-    ///
-    /// Returns a [`CoreId`] if the allocation for this core changed.
-    ///
-    pub fn add(&mut self, n: ThreadId, rq: RunqueueId) -> Option<CoreId> {
-        debug_assert!((n as usize) < N_THREADS);
-        debug_assert!((rq as usize) < N_QUEUES);
-        self.bitcache |= 1 << rq;
-        self.queues.push(n, rq);
-        self.reallocate()
-    }
-
-    /// Removes thread with pid `n` from runqueue number `rq`.
-    ///
-    /// Returns a [`CoreId`] if the allocation for this core changed.
-    ///
-    /// # Panics
-    ///
-    /// Panics if `n` is not the queue's head.
-    /// This is fine, RIOT-rs only ever calls `del()` for the current thread.
-    pub fn del(&mut self, n: ThreadId, rq: RunqueueId) -> Option<CoreId> {
-        debug_assert!((n as usize) < N_THREADS);
-        debug_assert!((rq as usize) < N_QUEUES);
-
-        if N_CORES == 1 {
-            let popped = self.queues.pop_head(rq);
-            assert_eq!(popped, Some(n));
-        } else {
-            if self.queues.peek_head(rq) == Some(n) {
-                let popped = self.queues.pop_head(rq);
-                assert_eq!(popped, Some(n));
-            } else {
-                self.queues.del(n, rq);
-            }
-        }
-
-        if self.queues.is_empty(rq) {
-            self.bitcache &= !(1 << rq);
-        }
-        self.reallocate()
-    }
-
     /// Returns the next thread that should run on this core.
-    pub fn get_next_for_core(&self, core: CoreId) -> Option<ThreadId> {
+    pub fn get_next(&self, core: CoreId) -> Option<ThreadId> {
         if core as usize >= N_CORES {
             return None;
         }
         self.next[core as usize]
     }
 
-    /// Advances from thread `n` in runqueue number `rq`.
-    ///
-    /// This is used to "yield" to another thread of *the same* priority.
-    /// Compared to [`RunQueue::advance`], this method allows to advance from a thread that
-    /// is not necessarily the head of the runqueue.
-    ///
-    /// Returns a [`CoreId`] if the allocation for this core changed.
-    ///
-    /// **Warning: This changes the order of the runqueue because the thread is moved to the
-    /// tail of the queue.**
-    pub fn advance_from(&mut self, n: ThreadId, rq: RunqueueId) -> Option<CoreId> {
-        debug_assert!((rq as usize) < N_QUEUES);
-        if Some(n) == self.queues.peek_head(rq) {
-            self.queues.advance(rq);
-        } else {
-            // If the thread is not the head remove it
-            // from queue and re-insert it at tail.
-            self.queues.del(n, rq);
-            self.queues.push(n, rq);
-        }
-        self.reallocate()
-    }
-
-    /// Update `self.next` so that the highest `N_CORES` threads
-    /// are allocated.
-    ///
-    /// This only changes allocations if a thread was previously allocated
-    /// and is now not part of the new list anymore, or the other way around.
-    /// It assumes that there was maximum one change in the runqueue since the
-    /// last reallocation (only one add/ delete or a runqueue advancement)!
-    ///
-    /// Returns a [`CoreId`] if the allocation for this core changed.
-    ///
-    /// The complexity of this call is O(n).
-    fn reallocate(&mut self) -> Option<CoreId> {
-        if N_CORES == 1 {
-            let next = self.peek_head(self.bitcache);
-            if next == self.next[0] {
-                return None;
-            }
-            self.next[0] = next;
-            return Some(0);
-        }
-        let next = self.get_next_n();
-        let mut bitmap_next = 0;
-        let mut bitmap_allocated = 0;
-        for i in 0..N_CORES {
-            if let Some(id) = next[i] {
-                bitmap_next |= 1 << id
-            }
-            if let Some(id) = self.next[i] {
-                bitmap_allocated |= 1 << id
-            }
-        }
-        if bitmap_next == bitmap_allocated {
-            return None;
-        }
-        let diff = bitmap_next ^ bitmap_allocated;
-        let prev_allocated = ThreadId::from_bitmap(bitmap_allocated & diff);
-        let new_allocated = ThreadId::from_bitmap(bitmap_next & diff);
-
-        let changed_core = self.next.iter().position(|i| *i == prev_allocated).unwrap();
-        self.next[changed_core] = new_allocated;
-        return Some(changed_core as CoreId);
-    }
-
-    /// Returns the `n` highest priority threads in the [`Runqueue`].
+    /// Returns the `n` highest priority threads in the [`RunQueue`].
     ///
     /// This iterates through all non-empty runqueues with descending
     /// priority, until `N_CORES` threads have been found or all
     /// queues have been checked.
     ///
     /// Complexity is O(n).
-    pub fn get_next_n(&self) -> [Option<ThreadId>; N_CORES] {
+    fn get_next_n(&self) -> [Option<ThreadId>; N_CORES] {
         let mut next_list = [None; N_CORES];
         let mut bitcache = self.bitcache;
         // Get head from highest priority queue.
@@ -214,6 +106,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize, const N_CORES: usize>
         next_list
     }
 
+    #[inline]
     fn peek_head(&self, bitcache: usize) -> Option<ThreadId> {
         // Switch to highest priority runqueue remaining
         // in the bitcache.
@@ -225,23 +118,188 @@ impl<const N_QUEUES: usize, const N_THREADS: usize, const N_CORES: usize>
     }
 }
 
-impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<N_QUEUES, N_THREADS> {
-    /// Returns the pid that should run next.
+pub trait GlobalRunqueue<const N_QUEUES: usize, const N_THREADS: usize, const N_CORES: usize> {
+    /// Adds thread with pid `n` to runqueue number `rq`.
     ///
-    /// Returns the next runnable thread of
-    /// the runqueue with the highest index.
-    pub fn get_next(&self) -> Option<ThreadId> {
-        self.get_next_for_core(0)
+    /// Returns a [`CoreId`] if the allocation for this core changed.
+    ///
+    fn add(&mut self, n: ThreadId, rq: RunqueueId) -> Option<CoreId>;
+
+    /// Removes thread with pid `n` from runqueue number `rq`.
+    ///
+    /// Returns a [`CoreId`] if the allocation for this core changed.
+    ///
+    /// # Panics
+    ///
+    /// Panics for `N_CORES == 1`` if `n` is not the queue's head.
+    /// This is fine, RIOT-rs only ever calls `del()` for the current thread.
+    fn del(&mut self, n: ThreadId, rq: RunqueueId) -> Option<CoreId>;
+
+    /// Advances from thread `n` in runqueue number `rq`.
+    ///
+    /// This is used to "yield" to another thread of *the same* priority.
+    ///
+    /// Returns a [`CoreId`] if the allocation for this core changed.
+    ///
+    /// **Warning: If `n` it not head if the run queue, this changes
+    /// the order of the queue because the thread is moved to the
+    /// tail.**
+    fn advance(&mut self, n: ThreadId, rq: RunqueueId) -> Option<CoreId>;
+
+    /// Update `self.next` so that the highest `N_CORES` threads
+    /// are allocated.
+    ///
+    /// This only changes allocations if a thread was previously allocated
+    /// and is now not part of the new list anymore, or the other way around.
+    /// It assumes that there was maximum one change in the runqueue since the
+    /// last reallocation (only one add/ delete or a runqueue advancement)!
+    ///
+    /// Returns a [`CoreId`] if the allocation for this core changed.
+    fn reallocate(&mut self) -> Option<CoreId>;
+}
+
+impl<const N_QUEUES: usize, const N_THREADS: usize, const N_CORES: usize>
+    GlobalRunqueue<N_QUEUES, N_THREADS, N_CORES> for RunQueue<N_QUEUES, N_THREADS, N_CORES>
+{
+    default fn add(&mut self, n: ThreadId, rq: RunqueueId) -> Option<CoreId> {
+        debug_assert!((n as usize) < N_THREADS);
+        debug_assert!((rq as usize) < N_QUEUES);
+        self.bitcache |= 1 << rq;
+        self.queues.push(n, rq);
+        self.reallocate()
     }
 
+    default fn del(&mut self, n: ThreadId, rq: RunqueueId) -> Option<CoreId> {
+        debug_assert!((n as usize) < N_THREADS);
+        debug_assert!((rq as usize) < N_QUEUES);
+
+        if self.queues.peek_head(rq) == Some(n) {
+            let popped = self.queues.pop_head(rq);
+            assert_eq!(popped, Some(n));
+        } else {
+            self.queues.del(n, rq);
+        }
+
+        if self.queues.is_empty(rq) {
+            self.bitcache &= !(1 << rq);
+        }
+        self.reallocate()
+    }
+
+    default fn advance(&mut self, n: ThreadId, rq: RunqueueId) -> Option<CoreId> {
+        debug_assert!((rq as usize) < N_QUEUES);
+        if Some(n) == self.queues.peek_head(rq) {
+            self.queues.advance(rq);
+        } else {
+            // If the thread is not the head remove it
+            // from queue and re-insert it at tail.
+            self.queues.del(n, rq);
+            self.queues.push(n, rq);
+        }
+        self.reallocate()
+    }
+
+    default fn reallocate(&mut self) -> Option<CoreId> {
+        let next = self.get_next_n();
+        let mut bitmap_next = 0;
+        let mut bitmap_allocated = 0;
+        for i in 0..N_CORES {
+            if let Some(id) = next[i] {
+                bitmap_next |= 1 << id
+            }
+            if let Some(id) = self.next[i] {
+                bitmap_allocated |= 1 << id
+            }
+        }
+        if bitmap_next == bitmap_allocated {
+            return None;
+        }
+        let diff = bitmap_next ^ bitmap_allocated;
+        let prev_allocated = ThreadId::from_bitmap(bitmap_allocated & diff);
+        let new_allocated = ThreadId::from_bitmap(bitmap_next & diff);
+
+        let changed_core = self.next.iter().position(|i| *i == prev_allocated).unwrap();
+        self.next[changed_core] = new_allocated;
+        return Some(changed_core as CoreId);
+    }
+}
+
+impl<const N_QUEUES: usize, const N_THREADS: usize> GlobalRunqueue<N_QUEUES, N_THREADS, 1>
+    for RunQueue<N_QUEUES, N_THREADS>
+{
     /// Advances runqueue number `rq`.
     ///
     /// This is used to "yield" to another thread of *the same* priority.
     ///
     /// Returns a [`CoreId`] if the allocation for this core changed.
-    pub fn advance(&mut self, rq: RunqueueId) -> Option<ThreadId> {
+    fn advance(&mut self, _: ThreadId, rq: RunqueueId) -> Option<CoreId> {
         debug_assert!((rq as usize) < N_QUEUES);
         self.queues.advance(rq);
+        self.reallocate()
+    }
+
+    #[inline]
+    fn del(&mut self, n: ThreadId, rq: RunqueueId) -> Option<CoreId> {
+        debug_assert!((n as usize) < N_THREADS);
+        debug_assert!((rq as usize) < N_QUEUES);
+        let popped = self.queues.pop_head(rq);
+        assert_eq!(popped, Some(n));
+        if self.queues.is_empty(rq) {
+            self.bitcache &= !(1 << rq);
+        }
+        self.reallocate()
+    }
+
+    #[inline]
+    fn reallocate(&mut self) -> Option<CoreId> {
+        let next = self.peek_head(self.bitcache);
+        if next == self.next[0] {
+            return None;
+        }
+        self.next[0] = next;
+        return Some(0);
+    }
+}
+
+impl<const N_QUEUES: usize, const N_THREADS: usize> GlobalRunqueue<N_QUEUES, N_THREADS, 2>
+    for RunQueue<N_QUEUES, N_THREADS, 2>
+{
+    fn reallocate(&mut self) -> Option<CoreId> {
+        let next = self.get_next_n();
+
+        if self.next[0] == next[0] {
+            if self.next[1] == next[1] {
+                return None;
+            }
+            self.next[1] = next[1];
+            return Some(1);
+        }
+        if self.next[1] == next[0] {
+            if self.next[0] == next[1] {
+                return None;
+            }
+            self.next[0] = next[1];
+            return Some(0);
+        }
+        if self.next[1] == next[1] {
+            self.next[0] = next[0];
+            return Some(0);
+        } else {
+            self.next[1] = next[0];
+            Some(1)
+        }
+    }
+
+    fn advance(&mut self, n: ThreadId, rq: RunqueueId) -> Option<CoreId> {
+        debug_assert!((rq as usize) < N_QUEUES);
+        if Some(n) == self.queues.peek_head(rq) {
+            self.queues.advance(rq);
+        } else {
+            // If the thread is not the head remove it
+            // from queue and re-insert it at tail.
+            self.queues.pop_next(rq);
+            self.queues.push(n, rq);
+        }
         self.reallocate()
     }
 }
@@ -359,6 +417,7 @@ mod clist {
             }
         }
 
+        #[inline]
         pub fn peek_head(&self, rq: RunqueueId) -> Option<ThreadId> {
             if self.tail[rq as usize] == Self::sentinel() {
                 None
@@ -375,6 +434,18 @@ mod clist {
 
         pub fn peek_next(&self, curr: ThreadId) -> ThreadId {
             self.next_idxs[curr as usize]
+        }
+
+        /// Remove next thread after head in runqueue.
+        pub fn pop_next(&mut self, rq: RunqueueId) -> Option<ThreadId> {
+            let head = self.peek_head(rq)?;
+            let next = self.peek_next(head);
+            if next == head {
+                return None;
+            }
+            self.next_idxs[head as usize] = self.next_idxs[next as usize];
+            self.next_idxs[next as usize] = Self::sentinel();
+            Some(next)
         }
     }
 
