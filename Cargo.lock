@@ -1784,11 +1784,11 @@ dependencies = [
 [[package]]
 name = "nrf51-pac"
 version = "0.12.2"
-source = "git+https://github.com/kaspar030/nrf-pacs?branch=riot-rs#58ec00b7bd1691b2fd6f002705d2ffbe7d3204e0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "137f187dc6ee482e27312086bd3c3a83e1c273512782cf131a61957f72fc4219"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
- "critical-section",
  "vcell",
 ]
 
@@ -1850,11 +1850,11 @@ dependencies = [
 [[package]]
 name = "nrf52832-pac"
 version = "0.12.2"
-source = "git+https://github.com/kaspar030/nrf-pacs?branch=riot-rs#58ec00b7bd1691b2fd6f002705d2ffbe7d3204e0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "0242b685c9c15648fb803e155628f42ace457478b2cb930868f40cae2db925e0"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
- "critical-section",
  "vcell",
 ]
 
@@ -1883,11 +1883,11 @@ dependencies = [
 [[package]]
 name = "nrf52840-pac"
 version = "0.12.2"
-source = "git+https://github.com/kaspar030/nrf-pacs?branch=riot-rs#58ec00b7bd1691b2fd6f002705d2ffbe7d3204e0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "30713f36f1be02e5bc9abefa30eae4a1f943d810f199d4923d3ad062d1be1b3d"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
- "critical-section",
  "vcell",
 ]
 
