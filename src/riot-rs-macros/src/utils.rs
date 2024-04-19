@@ -23,3 +23,12 @@ pub fn riot_rs_crate() -> syn::Ident {
         proc_macro_crate::FoundCrate::Name(riot_rs_crate) => format_ident!("{riot_rs_crate}"),
     }
 }
+
+// TODO: is there a ready-made version of this function in the syn crate?
+pub fn parse_type_path(type_path: &str) -> proc_macro2::TokenStream {
+    let path_segments = type_path
+        .split("::")
+        .map(|seg| quote::format_ident!("{seg}"));
+
+    quote::quote! {#(#path_segments)::*}
+}

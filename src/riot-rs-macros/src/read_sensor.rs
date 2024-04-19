@@ -16,7 +16,8 @@ pub fn await_read_sensor_main(input: TokenStream) -> TokenStream {
     dbg!(&hwsetup);
 
     let sensor_type_list = hwsetup.sensors().iter().map(Sensor::driver);
-    let sensor_type_list = sensor_type_list.map(parse_type_path);
+    let sensor_type_list = sensor_type_list.map(utils::parse_type_path);
+    // FIXME: filter this type list based on context and enabled features
 
     let riot_rs_crate = utils::riot_rs_crate();
 
@@ -29,13 +30,4 @@ pub fn await_read_sensor_main(input: TokenStream) -> TokenStream {
     };
 
     TokenStream::from(expanded)
-}
-
-// TODO: is there a ready-made version of this function in the syn crate?
-fn parse_type_path(type_path: &str) -> proc_macro2::TokenStream {
-    let path_segments = type_path
-        .split("::")
-        .map(|seg| quote::format_ident!("{seg}"));
-
-    quote::quote! {#(#path_segments)::*}
 }

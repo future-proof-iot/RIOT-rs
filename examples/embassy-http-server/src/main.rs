@@ -8,7 +8,9 @@
 
 mod pins;
 mod routes;
-mod sensors;
+
+#[riot_rs::hw_setup]
+mod sensors {}
 
 use riot_rs::{
     debug::println,
