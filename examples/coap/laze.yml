@@ -1,0 +1,10 @@
+apps:
+  - name: coap
+    env:
+      global:
+        CARGO_ENV:
+          - CONFIG_ISR_STACKSIZE=16384
+    selects:
+      - ?release
+      - network
+      - random

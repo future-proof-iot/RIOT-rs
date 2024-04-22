@@ -6,6 +6,7 @@ defaults:
 subdirs:
   - benchmark
   - core-sizes
+  - coap
   - embassy
   - embassy-http-server
   - embassy-net-tcp
