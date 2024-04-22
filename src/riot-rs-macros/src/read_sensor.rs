@@ -5,7 +5,7 @@
 /// This macro panics when the `riot-rs` crate cannot be found as a dependency of the crate where
 /// this macro is used.
 #[proc_macro]
-pub fn await_read_sensor_main(input: TokenStream) -> TokenStream {
+pub fn await_read_sensor_main_value(input: TokenStream) -> TokenStream {
     use quote::quote;
     use riot_rs_hwsetup::{HwSetup, Sensor};
     use syn::Ident;
