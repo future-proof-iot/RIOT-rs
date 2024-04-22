@@ -54,7 +54,9 @@ jobs:
         with:
           toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
           targets: riscv32imc-unknown-none-elf,riscv32imac-unknown-none-elf,thumbv6m-none-eabi,thumbv7m-none-eabi,thumbv7em-none-eabi,thumbv8m.main-none-eabi
-          components: rust-src
+          # rust-src: Used for -Zbuild-std.
+          # rustfmt: Used by bindgen for liboscore
+          components: rust-src, rustfmt
 
       - name: rust cache
         if: steps.result-cache.outputs.cache-hit != 'true'
@@ -75,7 +77,7 @@ jobs:
           git config --global user.name "CI"
           cargo binstall --no-confirm --no-symlinks --force --no-discover-github-token laze
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          sudo apt-get install ninja-build
+          sudo apt-get install ninja-build gcc-arm-none-eabi
 
       - name: "limit build unless nightly build"
         if: github.event_name != 'schedule'
