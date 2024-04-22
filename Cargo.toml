@@ -89,8 +89,12 @@ opt-level = 3
 embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-100424" }
 embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-100424" }
 embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-100424" }
+embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-100424" }
 
 usbd-hid-macros = { git = "https://github.com/kaspar030/usbd-hid", branch = "for-riot-rs" }
+
+# version 0.12-to-be
+smoltcp = { git = "https://github.com/smoltcp-rs/smoltcp.git", rev = "125773e282bc2e0c914a49e9c75573926e26e558" }
 
 [workspace.lints.rust]
 unsafe_op_in_unsafe_fn = "warn"
