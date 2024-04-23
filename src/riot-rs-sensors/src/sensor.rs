@@ -81,7 +81,9 @@ pub trait Reading: core::fmt::Debug {
 
 /// Represents a value obtained from a sensor.
 // TODO: add a timestamp?
+// TODO: add measurement error here (how to define it?)
 #[derive(Debug, Copy, Clone)]
+#[derive(serde::Serialize)]
 pub struct PhysicalValue {
     value: i32,
 }
@@ -105,6 +107,7 @@ impl PhysicalValue {
 // and https://bthome.io/format/#sensor-data
 // and https://www.rfc-editor.org/rfc/rfc8798.html
 #[derive(Debug, Copy, Clone)]
+#[derive(serde::Serialize)]
 #[non_exhaustive]
 pub enum PhysicalUnit {
     /// Logic boolean.
@@ -114,9 +117,19 @@ pub enum PhysicalUnit {
     // TODO: add other units
 }
 
+impl core::fmt::Display for PhysicalUnit {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            Self::Bool => write!(f, ""),
+            Self::Celsius => write!(f, "°C"), // The Unicode Standard v15 recommends using U+00B0 + U+0043.
+        }
+    }
+}
+
 // Built upon https://doc.riot-os.org/group__drivers__saul.html#ga8f2dfec7e99562dbe5d785467bb71bbb
 // FIXME: rename this to class?
 #[derive(Debug)]
+#[derive(serde::Serialize)]
 pub enum Category {
     Temperature,
     PushButton
@@ -125,6 +138,7 @@ pub enum Category {
 /// A notification provided by a sensor driver.
 // TODO: should we pass the value as well? that may be difficult because of the required generics
 #[derive(Debug, PartialEq, Eq)]
+#[derive(serde::Serialize)]
 #[non_exhaustive]
 pub enum Notification {
     ReadingAvailable,
@@ -132,6 +146,7 @@ pub enum Notification {
 }
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[derive(serde::Serialize)]
 #[non_exhaustive]
 pub enum ThresholdKind {
     Lower,
@@ -179,17 +194,17 @@ pub type ReadingResult<R> = Result<R, ReadingError>;
 macro_rules! _await_read_sensor_main {
     ($sensor:ident, $first_sensor_type:path, $($sensor_type:path),* $(,)?) => {
         {
-            // As `Sensor::read()` is non-dispatchable, we have to downcast
+            // As sensor methods are non-dispatchable, we have to downcast
             if let Some($sensor) = ($sensor as &dyn core::any::Any)
                 .downcast_ref::<$first_sensor_type>(
             ) {
-                $sensor.read_main().await
+                ($sensor.read_main().await, $sensor.unit(), $sensor.display_name())
             }
             $(
             else if let Some($sensor) = ($sensor as &dyn core::any::Any)
                 .downcast_ref::<$sensor_type>(
             ) {
-                $sensor.read_main().await
+                ($sensor.read_main().await, $sensor.unit(), $sensor.display_name())
             }
             )*
             else {
