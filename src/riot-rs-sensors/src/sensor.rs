@@ -15,9 +15,9 @@ pub trait Sensor: Any + Send + Sync {
         Self: Sized;
 
     /// Returns a sensor reading.
-    fn read(&self) -> impl Future<Output = ReadingResult<impl Reading>>
-    where
-        Self: Sized;
+    // fn read(&self) -> impl Future<Output = ReadingResult<impl Reading>>
+    // where
+    //     Self: Sized;
 
     /// Enables or disables the sensor driver.
     fn set_enabled(&self, enabled: bool);
@@ -35,6 +35,9 @@ pub trait Sensor: Any + Send + Sync {
     #[must_use]
     fn subscribe(&self) -> NotificationReceiver;
 
+    #[must_use]
+    fn category(&self) -> Category;
+
     /// The base-10 exponent used for all readings returned by the sensor.
     ///
     /// The actual physical value is [`value()`](PhysicalValue::value) ×
@@ -48,34 +51,24 @@ pub trait Sensor: Any + Send + Sync {
     // FIXME: how to handle sensors measuring different physical values?
     // TODO: rename this?
     #[must_use]
-    fn value_scale() -> i8
-    where
-        Self: Sized;
+    fn value_scale(&self) -> i8;
 
     /// Returns the unit of measurement in which readings are returned.
     #[must_use]
-    fn unit() -> PhysicalUnit
-    where
-        Self: Sized;
+    fn unit(&self) -> PhysicalUnit;
 
     /// Returns a human-readable name of the sensor.
     // TODO: i18n?
     #[must_use]
-    fn display_name() -> Option<&'static str>
-    where
-        Self: Sized;
+    fn display_name(&self) -> Option<&'static str>;
 
     /// Returns the hardware sensor part number.
     #[must_use]
-    fn part_number() -> &'static str
-    where
-        Self: Sized;
+    fn part_number(&self) -> &'static str;
 
     /// Returns the sensor driver version number.
     #[must_use]
-    fn version() -> u8
-    where
-        Self: Sized;
+    fn version(&self) -> u8;
 }
 
 pub trait Reading: core::fmt::Debug {
@@ -119,6 +112,14 @@ pub enum PhysicalUnit {
     /// Degree Celsius.
     Celsius,
     // TODO: add other units
+}
+
+// Built upon https://doc.riot-os.org/group__drivers__saul.html#ga8f2dfec7e99562dbe5d785467bb71bbb
+// FIXME: rename this to class?
+#[derive(Debug)]
+pub enum Category {
+    Temperature,
+    PushButton
 }
 
 /// A notification provided by a sensor driver.

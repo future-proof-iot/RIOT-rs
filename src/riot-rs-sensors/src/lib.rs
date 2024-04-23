@@ -9,6 +9,7 @@
 #![feature(error_in_core)]
 #![deny(unused_must_use)]
 
+pub mod categories;
 pub mod registry;
 pub mod sensor;
 // TODO: this should not be in this crate

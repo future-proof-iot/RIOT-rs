@@ -1,9 +1,13 @@
 use picoserve::response::{IntoResponse, Json};
-use riot_rs::sensors::Sensor;
+use riot_rs::sensors::categories::push_button::PushButtonSensor;
 
 pub async fn buttons() -> impl IntoResponse {
     Json(JsonButtons {
-        button1: crate::sensors::BUTTON_1.read().await.unwrap().is_pressed(),
+        button1: crate::sensors::BUTTON_1
+            .read_press_state()
+            .await
+            .unwrap()
+            .is_pressed(),
     })
     // Json(JsonButtons {
     //     button1: buttons.button1.is_low(),

@@ -5,11 +5,12 @@ use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, channel::Channe
 use embedded_hal::digital::InputPin;
 
 use crate::{
+    categories::push_button::{PushButtonReading, PushButtonSensor},
     sensor::{
-        Notification, NotificationReceiver, PhysicalUnit, PhysicalValue, ReadingError,
+        Category, Notification, NotificationReceiver, PhysicalUnit, PhysicalValue, ReadingError,
         ReadingResult, ThresholdKind,
     },
-    Reading, Sensor,
+    Sensor,
 };
 
 pub struct PushButton<I: InputPin> {
@@ -46,28 +47,13 @@ impl<I: InputPin> PushButton<I> {
     }
 }
 
-#[derive(Debug)]
-pub struct PushButtonReading(PhysicalValue);
-
-impl Reading for PushButtonReading {
-    fn value(&self) -> PhysicalValue {
-        self.0
-    }
-}
-
-impl PushButtonReading {
-    pub fn is_pressed(&self) -> bool {
-        self.0.value() != 0
-    }
-}
-
 impl<I: 'static + InputPin + Send> Sensor for PushButton<I> {
     async fn read_main(&self) -> ReadingResult<PhysicalValue> {
-        self.read().await.map(|v| v.value())
-    }
-
-    #[allow(refining_impl_trait)]
-    async fn read(&self) -> ReadingResult<PushButtonReading> {
+        //     self.read().await.map(|v| v.value())
+        // }
+        //
+        // #[allow(refining_impl_trait)]
+        // async fn read(&self) -> ReadingResult<PushButtonReading> {
         if !self.enabled.load(Ordering::Acquire) {
             return Err(ReadingError::Disabled);
         }
@@ -78,7 +64,7 @@ impl<I: 'static + InputPin + Send> Sensor for PushButton<I> {
         // inputs
         let is_pressed = reading;
 
-        Ok(PushButtonReading(PhysicalValue::new(is_pressed as i32)))
+        Ok(PhysicalValue::new(is_pressed as i32))
     }
 
     fn set_enabled(&self, enabled: bool) {
@@ -101,23 +87,34 @@ impl<I: 'static + InputPin + Send> Sensor for PushButton<I> {
         self.channel.receiver()
     }
 
-    fn value_scale() -> i8 {
+    fn category(&self) -> Category {
+        Category::PushButton
+    }
+
+    fn value_scale(&self) -> i8 {
         0
     }
 
-    fn unit() -> PhysicalUnit {
+    fn unit(&self) -> PhysicalUnit {
         PhysicalUnit::Bool
     }
 
-    fn display_name() -> Option<&'static str> {
+    fn display_name(&self) -> Option<&'static str> {
         Some("Push button")
     }
 
-    fn part_number() -> &'static str {
+    fn part_number(&self) -> &'static str {
         "push button"
     }
 
-    fn version() -> u8 {
+    fn version(&self) -> u8 {
         0
+    }
+}
+
+impl<I: 'static + InputPin + Send> PushButtonSensor for PushButton<I> {
+    // FIXME: rename this
+    async fn read_press_state(&self) -> ReadingResult<PushButtonReading> {
+        self.read_main().await.map(PushButtonReading::new)
     }
 }

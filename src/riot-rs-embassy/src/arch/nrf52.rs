@@ -1,5 +1,7 @@
 pub(crate) use embassy_executor::InterruptExecutor as Executor;
 
+pub use embassy_nrf::gpio;
+
 #[cfg(context = "nrf52")]
 pub use embassy_nrf::interrupt::SWI0_EGU0 as SWI;
 
@@ -72,9 +74,12 @@ pub mod internal_temp {
         blocking_mutex::raw::CriticalSectionRawMutex, channel::Channel, mutex::Mutex,
     };
     use embassy_time::{Duration, Timer};
-    use riot_rs_sensors::sensor::{
-        Notification, NotificationReceiver, PhysicalUnit, PhysicalValue, Reading, ReadingError,
-        ReadingResult, Sensor, ThresholdKind,
+    use riot_rs_sensors::{
+        categories::temperature::{TemperatureReading, TemperatureSensor},
+        sensor::{
+            Category, Notification, NotificationReceiver, PhysicalUnit, PhysicalValue,
+            ReadingError, ReadingResult, Sensor, ThresholdKind,
+        },
     };
 
     embassy_nrf::bind_interrupts!(struct Irqs {
@@ -120,8 +125,8 @@ pub mod internal_temp {
                 async fn temp_watcher(sensor: &'static InternalTemp) {
                     loop {
                         if sensor.lower_threshold_enabled.load(Ordering::Acquire) {
-                            if let Ok(value) = sensor.read().await {
-                                if value.value().value()
+                            if let Ok(value) = sensor.read_temperature().await {
+                                if value.temperature().value()
                                     > sensor.lower_threshold.load(Ordering::Acquire)
                                 {
                                     // FIXME: should this be Lower or Higher?
@@ -145,22 +150,13 @@ pub mod internal_temp {
         }
     }
 
-    #[derive(Debug)]
-    pub struct TemperatureReading(PhysicalValue);
-
-    impl Reading for TemperatureReading {
-        fn value(&self) -> PhysicalValue {
-            self.0
-        }
-    }
-
     impl Sensor for InternalTemp {
         async fn read_main(&self) -> ReadingResult<PhysicalValue> {
-            self.read().await.map(|v| v.value())
-        }
-
-        #[allow(refining_impl_trait)]
-        async fn read(&self) -> ReadingResult<TemperatureReading> {
+            //     self.read().await.map(|v| v.value())
+            // }
+            //
+            // #[allow(refining_impl_trait)]
+            // async fn read(&self) -> ReadingResult<TemperatureReading> {
             use fixed::traits::LossyInto;
 
             if !self.enabled.load(Ordering::Acquire) {
@@ -170,7 +166,7 @@ pub mod internal_temp {
             let reading = self.temp.lock().await.as_mut().unwrap().read().await;
             let temp: i32 = (100 * reading).lossy_into();
 
-            Ok(TemperatureReading(PhysicalValue::new(temp)))
+            Ok(PhysicalValue::new(temp))
         }
 
         fn set_enabled(&self, enabled: bool) {
@@ -211,24 +207,34 @@ pub mod internal_temp {
             self.channel.receiver()
         }
 
-        fn value_scale() -> i8 {
+        fn category(&self) -> Category {
+            Category::Temperature
+        }
+
+        fn value_scale(&self) -> i8 {
             -2
         }
 
-        fn unit() -> PhysicalUnit {
+        fn unit(&self) -> PhysicalUnit {
             PhysicalUnit::Celsius
         }
 
-        fn display_name() -> Option<&'static str> {
+        fn display_name(&self) -> Option<&'static str> {
             Some("Internal temperature sensor")
         }
 
-        fn part_number() -> &'static str {
+        fn part_number(&self) -> &'static str {
             "nrf52 internal temperature sensor"
         }
 
-        fn version() -> u8 {
+        fn version(&self) -> u8 {
             0
+        }
+    }
+
+    impl TemperatureSensor for InternalTemp {
+        async fn read_temperature(&self) -> ReadingResult<TemperatureReading> {
+            self.read_main().await.map(TemperatureReading::new)
         }
     }
 }
