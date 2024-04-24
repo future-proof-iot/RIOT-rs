@@ -1,3 +1,5 @@
+pub mod gpio;
+
 use esp_hal::{clock::ClockControl, embassy, prelude::*, timer::TimerGroup};
 
 pub use esp_hal::{

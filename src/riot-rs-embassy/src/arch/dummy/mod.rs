@@ -1,6 +1,7 @@
 //! Dummy module used to satisfy platform-independent tooling.
 
 mod executor;
+pub mod gpio;
 
 #[cfg(feature = "hwrng")]
 pub mod hwrng;
