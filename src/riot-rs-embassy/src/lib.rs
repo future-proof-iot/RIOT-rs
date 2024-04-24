@@ -14,7 +14,7 @@ cfg_if::cfg_if! {
         #[path = "arch/rp2040/mod.rs"]
         pub mod arch;
     } else if #[cfg(context = "esp")] {
-        #[path = "arch/esp.rs"]
+        #[path = "arch/esp/mod.rs"]
         pub mod arch;
     } else if #[cfg(context = "riot-rs")] {
         compile_error!("this architecture is not supported");

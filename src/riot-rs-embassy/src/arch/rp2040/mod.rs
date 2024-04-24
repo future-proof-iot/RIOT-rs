@@ -1,3 +1,5 @@
+pub mod gpio;
+
 #[cfg(feature = "usb")]
 pub mod usb;
 
