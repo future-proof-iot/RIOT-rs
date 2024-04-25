@@ -7,7 +7,11 @@ edition = "2021"
 riot-rs-debug.workspace = true
 riot-rs-rt.workspace = true
 stm32 = { path = "../../riot-rs-chips/stm32" }
-embassy-stm32 = { workspace = true, features = ["stm32h7b0vb", "memory-x", "rt" ] }
+embassy-stm32 = { workspace = true, features = [
+  "stm32h7b0vb",
+  "memory-x",
+  "rt",
+] }
 
 [features]
 mario = []
