@@ -33,8 +33,14 @@ nintendo-game-and-watch = { optional = true, path = "nintendo-game-and-watch" }
 # Allows to have no boards selected, useful to run platform-independent tooling
 no-boards = []
 # both "rpi-pico" and "rpi-pico-w" are valid, so no "dep:rpi-pico"
-rpi-pico-w = [ "rpi-pico/rpi-pico-w" ]
+rpi-pico-w = ["rpi-pico/rpi-pico-w"]
 
 # just "nintendo-game-and-watch" is not valid.
-nintendo-game-and-watch-mario = [ "dep:nintendo-game-and-watch", "nintendo-game-and-watch/mario" ]
-nintendo-game-and-watch-zelda = [ "dep:nintendo-game-and-watch", "nintendo-game-and-watch/zelda" ]
+nintendo-game-and-watch-mario = [
+  "dep:nintendo-game-and-watch",
+  "nintendo-game-and-watch/mario",
+]
+nintendo-game-and-watch-zelda = [
+  "dep:nintendo-game-and-watch",
+  "nintendo-game-and-watch/zelda",
+]
