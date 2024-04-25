@@ -326,6 +326,16 @@ contexts:
       RUSTFLAGS:
         - --cfg context=\"stm32f401retx\"
 
+  - name: stm32wb55rgvx
+    parent: stm32
+    selects:
+      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+    env:
+      PROBE_RS_CHIP: STM32WB55RGVx
+      PROBE_RS_PROTOCOL: swd
+      RUSTFLAGS:
+        - --cfg context=\"stm32wb55rgvx\"
+
   - name: stm32h755zitx
     parent: stm32
     selects:
@@ -754,6 +764,14 @@ builders:
 
   - name: st-nucleo-h755zi-q
     parent: stm32h755zitx
+    selects:
+      - probe-rs-run
+
+  - name: st-nucleo-wb55
+    parent: stm32wb55rgvx
+    #FLASH : ORIGIN = 0x08000000, LENGTH = 512K
+    #RAM : ORIGIN = 0x20000000, LENGTH = 96K
+    # rcc.cfgr.use_hse(8.mhz()).freeze();
     selects:
       - probe-rs-run
 

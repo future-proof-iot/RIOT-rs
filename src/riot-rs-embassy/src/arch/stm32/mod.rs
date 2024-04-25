@@ -1,12 +1,12 @@
 pub(crate) use embassy_executor::InterruptExecutor as Executor;
 pub use embassy_stm32::interrupt;
-pub use embassy_stm32::interrupt::USART2 as SWI;
+pub use embassy_stm32::interrupt::LPUART1 as SWI;
 pub use embassy_stm32::{peripherals, Config, OptionalPeripherals, Peripherals};
 
 use embassy_stm32::interrupt::{InterruptExt, Priority};
 
 #[interrupt]
-unsafe fn USART2() {
+unsafe fn LPUART1() {
     // SAFETY:
     // - called from ISR
     // - not called before `start()`, as the interrupt is enabled by `start()`
@@ -41,8 +41,6 @@ pub fn init(_config: Config) -> OptionalPeripherals {
         // config.rcc.voltage_scale = VoltageScale::Scale1;
         // config.rcc.mux.usbsel = mux::Usbsel::HSI48;
     }
-    println!("{}{}", file!(), line!());
-    interrupt::USART2.set_priority(Priority::P7);
     println!("{}{}", file!(), line!());
     let peripherals = embassy_stm32::init(config);
     println!("{}{}", file!(), line!());
