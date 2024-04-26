@@ -161,6 +161,11 @@ jobs:
       # - name: Check item order of Cargo.toml files
       #   run: cargo sort --check --grouped --workspace --no-format
 
+      - name: Ruff
+        uses: chartboost/ruff-action@v1
+        with:
+          args: format --check  # Only check formatting for now
+
   CI-success:
     if: ${{ always() }}
     runs-on: ubuntu-latest
