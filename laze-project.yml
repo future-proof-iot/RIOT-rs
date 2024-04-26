@@ -317,7 +317,6 @@ modules:
         RUSTC_TARGET: thumbv7em-none-eabi
         CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV7EM_NONE_EABI
         RUSTFLAGS:
-          - "-Ctarget-cpu=cortex-m4"
           - --cfg armv7m
 
   - name: thumbv7m-none-eabi
