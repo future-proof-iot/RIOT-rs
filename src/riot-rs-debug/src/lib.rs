@@ -30,7 +30,7 @@ mod backend {
     pub use rtt_target::rprint as print;
     pub use rtt_target::rprintln as println;
     pub fn init() {
-        rtt_target::rtt_init_print!();
+        rtt_target::rtt_init_print!(NoBlockTrim);
     }
 }
 
