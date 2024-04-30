@@ -14,10 +14,10 @@ pub type ThreadId = u8;
 /// Runqueue for `N_QUEUES`, supporting `N_THREADS` total.
 ///
 /// Assumptions:
-/// - runqueue numbers (corresponding priorities) are 0..N_QUEUES (exclusive)
+/// - runqueue numbers (corresponding priorities) are `0..N_QUEUES` (exclusive)
 /// - higher runqueue number ([`RunqueueId`]) means higher priority
 /// - runqueue numbers fit in usize bits (supporting max 32 priority levels)
-/// - [`ThreadId`]s range from 0..N_THREADS
+/// - [`ThreadId`]s range from `0..N_THREADS`
 /// - `N_THREADS` is <255 (as u8 is used to store them, but 0xFF is used as
 ///   special value)
 ///
@@ -35,6 +35,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     // NOTE: we don't impl Default here because hax does not support it yet. When it does, we
     // should impl it.
     #[allow(clippy::new_without_default)]
+    #[must_use]
     pub const fn new() -> RunQueue<{ N_QUEUES }, { N_THREADS }> {
         // unfortunately we cannot assert!() on N_QUEUES and N_THREADS,
         // as panics in const fn's are not (yet) implemented.
@@ -70,7 +71,12 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     }
 
     fn ffs(val: usize) -> u32 {
-        USIZE_BITS as u32 - val.leading_zeros()
+        #[allow(
+            clippy::cast_possible_truncation,
+            reason = "all targeted platforms have 32-bit wide pointers at most"
+        )]
+        let ffs = USIZE_BITS as u32 - val.leading_zeros();
+        ffs
     }
 
     /// Returns the pid that should run next.
@@ -79,9 +85,14 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     /// the runqueue with the highest index.
     //
     // TODO: Return `ThreadId` instead of u8?
+    #[must_use]
     pub fn get_next(&self) -> Option<u8> {
         let rq_ffs = Self::ffs(self.bitcache);
         if rq_ffs > 0 {
+            #[allow(
+                clippy::cast_possible_truncation,
+                reason = "rq_ffs cannot be greater than 32"
+            )]
             let rq = (rq_ffs - 1) as RunqueueId;
             self.queues.peek_head(rq)
         } else {
@@ -94,7 +105,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     /// This is used to "yield" to another thread of *the same* priority.
     pub fn advance(&mut self, rq: RunqueueId) {
         debug_assert!((rq as usize) < N_QUEUES);
-        self.queues.advance(rq)
+        self.queues.advance(rq);
     }
 }
 
@@ -129,6 +140,7 @@ mod clist {
             self.tail[rq as usize] == Self::sentinel()
         }
 
+        #[allow(clippy::missing_panics_doc, reason = "only used internally")]
         pub fn push(&mut self, n: ThreadId, rq: RunqueueId) {
             assert!(n < Self::sentinel());
             if self.next_idxs[n as usize] == Self::sentinel() {

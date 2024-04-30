@@ -21,6 +21,7 @@ enum LockState {
 
 impl Lock {
     /// Creates new **unlocked** Lock
+    #[must_use]
     pub const fn new() -> Self {
         Self {
             state: UnsafeCell::new(LockState::Unlocked),
@@ -28,6 +29,7 @@ impl Lock {
     }
 
     /// Creates new **locked** Lock
+    #[must_use]
     pub const fn new_locked() -> Self {
         Self {
             state: UnsafeCell::new(LockState::Locked(ThreadList::new())),
@@ -60,7 +62,7 @@ impl Lock {
                     waiters.put_current(cs, ThreadState::LockBlocked);
                 }
             }
-        })
+        });
     }
 
     /// Get the lock (non-blocking)
@@ -93,11 +95,11 @@ impl Lock {
                 LockState::Unlocked => {}
                 LockState::Locked(waiters) => {
                     if waiters.pop(cs).is_none() {
-                        *state = LockState::Unlocked
+                        *state = LockState::Unlocked;
                     }
                 }
             }
-        })
+        });
     }
 }
 

@@ -100,3 +100,5 @@ unused_must_use = "deny"
 # Clippy lints are documented here: https://rust-lang.github.io/rust-clippy/master/index.html
 indexing_slicing = "warn"
 missing_safety_doc = { level = "warn" }
+pedantic = "deny"
+module_name_repetitions = "allow" # Part of pedantic

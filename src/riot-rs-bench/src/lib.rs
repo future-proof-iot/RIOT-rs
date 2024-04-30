@@ -2,7 +2,6 @@
 
 #![cfg_attr(not(test), no_std)]
 #![feature(error_in_core)]
-#![deny(clippy::pedantic)]
 #![deny(missing_docs)]
 
 cfg_if::cfg_if! {

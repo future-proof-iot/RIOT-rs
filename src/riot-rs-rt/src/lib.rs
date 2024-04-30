@@ -53,7 +53,9 @@ static ISR_STACK: [u8; ISR_STACKSIZE] = [0u8; ISR_STACKSIZE];
 fn panic(_info: &core::panic::PanicInfo) -> ! {
     #[cfg(not(feature = "silent-panic"))]
     {
-        println!("panic: {}\n", _info);
+        #[allow(clippy::used_underscore_binding)]
+        let info = _info;
+        println!("panic: {}\n", info);
         riot_rs_debug::exit(riot_rs_debug::EXIT_FAILURE);
     }
     #[allow(clippy::empty_loop)]

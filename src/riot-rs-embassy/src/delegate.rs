@@ -31,7 +31,7 @@ use crate::sendcell::SendCell;
 /// }
 /// ```
 ///
-/// TODO: this is a PoC implementation.
+/// TODO: this is a proof-of-concept implementation.
 /// - takes 24b for each delegate (on arm), which seems too much.
 /// - doesn't protect at all against calling [`lend()`](Delegate::lend) or
 /// [`with()`](Delegate::with) multiple times
@@ -45,6 +45,7 @@ pub struct Delegate<T> {
 
 impl<T> Delegate<T> {
     /// Creates a new [`Delegate`].
+    #[must_use]
     pub const fn new() -> Self {
         Self {
             send: Signal::new(),
@@ -58,14 +59,15 @@ impl<T> Delegate<T> {
     pub async fn lend(&self, something: &mut T) {
         let spawner = Spawner::for_current_executor().await;
         self.send
-            .signal(SendCell::new(something as *mut T, spawner));
+            .signal(SendCell::new(core::ptr::from_mut::<T>(something), spawner));
 
-        self.reply.wait().await
+        self.reply.wait().await;
     }
 
     /// Calls a closure on a lended object.
     ///
     /// This blocks until another task called [`lend(something)`](Delegate::lend).
+    #[allow(clippy::missing_panics_doc, reason = "see no-panic comment")]
     pub async fn with<U>(&self, func: impl FnOnce(&mut T) -> U) -> U {
         let data = self.send.wait().await;
         let spawner = Spawner::for_current_executor().await;
@@ -76,6 +78,11 @@ impl<T> Delegate<T> {
         //   This function waits for the `self.send` signal, uses the dereferenced only inside the
         //   closure, then signals `self.reply`
         //   => the mutable reference is never used more than once
+        // NOTE(no-panic):
+        // - The inner `SendCell` is guaranteed to be populated at this point, as we
+        // have waited for the `Signal`, so this `get()` call returns a `Some(_)`.
+        // - The pointer stored by the `SendCell` is not null as we created it from a reference in
+        // `lend()`, so `as_mut()` returns a `Some(_)` here.
         // TODO: it is actually possible to call `with()` twice, which breaks assumptions.
         let result = func(unsafe { data.get(spawner).unwrap().as_mut().unwrap() });
         self.reply.signal(());

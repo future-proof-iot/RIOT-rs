@@ -2,9 +2,12 @@
 #![feature(inline_const)]
 #![feature(naked_functions)]
 #![feature(used_with_arg)]
+#![feature(lint_reasons)]
 // Disable indexing lints for now, possible panics are documented or rely on internally-enforced
 // invariants
 #![allow(clippy::indexing_slicing)]
+// Disabling this for now, Panics doc will be added when refactoring
+#![allow(clippy::missing_panics_doc)]
 
 use riot_rs_runqueue::RunQueue;
 pub use riot_rs_runqueue::{RunqueueId, ThreadId};
@@ -75,6 +78,7 @@ impl Threads {
             .map(|tid| &mut self.threads[tid as usize])
     }
 
+    #[must_use]
     pub fn current_pid(&self) -> Option<ThreadId> {
         self.current_thread
     }
@@ -118,11 +122,16 @@ impl Threads {
         &mut self.threads[thread_id as usize]
     }
 
-    /// Returns an unused ThreadId / Thread slot.
+    /// Returns an unused [`ThreadId`] / [`Thread`] slot.
     fn get_unused(&mut self) -> Option<(&mut Thread, ThreadId)> {
         for i in 0..THREADS_NUMOF {
             if self.threads[i].state == ThreadState::Invalid {
-                return Some((&mut self.threads[i], i as ThreadId));
+                #[allow(
+                    clippy::cast_possible_truncation,
+                    reason = "all iteration indices are valid `ThreadId`s"
+                )]
+                let thread_id = i as ThreadId;
+                return Some((&mut self.threads[i], thread_id));
             }
         }
         None
@@ -159,6 +168,7 @@ impl Threads {
     }
 
     /// Returns the state of a thread.
+    #[must_use]
     pub fn get_state(&self, thread_id: ThreadId) -> Option<ThreadState> {
         if self.is_valid_pid(thread_id) {
             Some(self.threads[thread_id as usize].state)
@@ -206,7 +216,7 @@ impl Arguable for () {
 /// thread must be valid for its entire lifetime.
 impl<T> Arguable for &'static T {
     fn into_arg(self) -> usize {
-        self as *const T as usize
+        core::ptr::from_ref::<T>(self) as usize
     }
 }
 
@@ -290,7 +300,7 @@ pub fn yield_same() {
         let runqueue = threads.current().unwrap().prio;
         threads.runqueue.advance(runqueue);
         schedule();
-    })
+    });
 }
 
 /// Suspends/ pauses the current thread's execution.

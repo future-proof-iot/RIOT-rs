@@ -28,6 +28,8 @@ impl From<Peripherals> for OptionalPeripherals {
 #[derive(Default)]
 pub struct Config;
 
+#[allow(clippy::needless_pass_by_value, reason = "dummy implementation")]
+#[must_use]
 pub fn init(_config: Config) -> OptionalPeripherals {
     unimplemented!();
 }

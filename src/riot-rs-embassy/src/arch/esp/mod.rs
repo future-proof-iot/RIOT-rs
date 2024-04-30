@@ -10,6 +10,7 @@ pub use esp_hal::{
 #[derive(Default)]
 pub struct Config {}
 
+#[must_use]
 pub fn init(_config: Config) -> OptionalPeripherals {
     let mut peripherals = OptionalPeripherals::from(Peripherals::take());
     let system = peripherals.SYSTEM.take().unwrap().split();

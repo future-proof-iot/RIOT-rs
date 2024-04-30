@@ -17,6 +17,7 @@ unsafe fn SWI_IRQ_1() {
     unsafe { crate::EXECUTOR.on_interrupt() }
 }
 
+#[must_use]
 pub fn init(config: Config) -> OptionalPeripherals {
     // SWI & DMA priority need to match. DMA is hard-coded to P3 by upstream.
     use embassy_rp::interrupt::{InterruptExt, Priority};

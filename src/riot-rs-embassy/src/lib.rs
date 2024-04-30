@@ -3,6 +3,7 @@
 #![no_std]
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
+#![feature(lint_reasons)]
 
 pub mod define_peripherals;
 

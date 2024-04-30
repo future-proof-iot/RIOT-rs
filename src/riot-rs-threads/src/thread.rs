@@ -45,6 +45,7 @@ pub enum ThreadState {
 
 impl Thread {
     /// Creates an empty [`Thread`] object with [`ThreadState::Invalid`].
+    #[must_use]
     pub const fn default() -> Thread {
         Thread {
             sp: 0,
