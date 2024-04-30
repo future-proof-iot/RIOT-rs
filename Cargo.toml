@@ -86,10 +86,10 @@ opt-level = 3
 
 [patch.crates-io]
 # riot-rs embassy fork
-embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-100424" }
-embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-100424" }
-embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-100424" }
-embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-100424" }
+embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-300424" }
+embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-300424" }
+embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-300424" }
+embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-300424" }
 
 usbd-hid-macros = { git = "https://github.com/kaspar030/usbd-hid", branch = "for-riot-rs" }
 
