@@ -11,6 +11,7 @@ pub struct ThreadList {
 
 impl ThreadList {
     /// Creates a new empty [`ThreadList`]
+    #[must_use]
     pub const fn new() -> Self {
         Self { head: None }
     }
@@ -47,6 +48,7 @@ impl ThreadList {
     }
 
     /// Determines if this [`ThreadList`] is empty.
+    #[must_use]
     pub fn is_empty(&self, _cs: CriticalSection) -> bool {
         self.head.is_none()
     }

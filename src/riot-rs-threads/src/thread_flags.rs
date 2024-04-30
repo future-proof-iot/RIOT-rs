@@ -20,7 +20,7 @@ pub enum WaitMode {
 ///
 /// Panics if `thread_id` is >= [`THREADS_NUMOF`](crate::THREADS_NUMOF).
 pub fn set(thread_id: ThreadId, mask: ThreadFlags) {
-    THREADS.with_mut(|mut threads| threads.flag_set(thread_id, mask))
+    THREADS.with_mut(|mut threads| threads.flag_set(thread_id, mask));
 }
 
 /// Waits until all flags in `mask` are set for the current thread.

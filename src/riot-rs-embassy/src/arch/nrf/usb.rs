@@ -23,6 +23,7 @@ bind_interrupts!(struct Irqs {
 
 pub type UsbDriver = Driver<'static, peripherals::USBD, HardwareVbusDetect>;
 
+#[must_use]
 pub fn driver(peripherals: &mut arch::OptionalPeripherals) -> UsbDriver {
     let usbd = peripherals.USBD.take().unwrap();
     Driver::new(usbd, Irqs, HardwareVbusDetect::new(Irqs))

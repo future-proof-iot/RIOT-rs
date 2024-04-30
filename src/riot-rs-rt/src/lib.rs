@@ -50,10 +50,13 @@ static ISR_STACK: [u8; ISR_STACKSIZE] = [0u8; ISR_STACKSIZE];
 
 #[cfg(feature = "_panic-handler")]
 #[panic_handler]
-fn panic(_info: &core::panic::PanicInfo) -> ! {
+fn panic(info: &core::panic::PanicInfo) -> ! {
+    #[cfg(feature = "silent-panic")]
+    let _ = info;
+
     #[cfg(not(feature = "silent-panic"))]
     {
-        println!("panic: {}\n", _info);
+        println!("panic: {}\n", info);
         riot_rs_debug::exit(riot_rs_debug::EXIT_FAILURE);
     }
     #[allow(clippy::empty_loop)]

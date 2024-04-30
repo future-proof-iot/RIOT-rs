@@ -1,4 +1,5 @@
 #![cfg_attr(not(test), no_std)]
+#![feature(lint_reasons)]
 
 mod runqueue;
 pub use runqueue::{RunQueue, RunqueueId, ThreadId};

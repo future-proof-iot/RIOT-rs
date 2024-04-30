@@ -32,6 +32,7 @@ unsafe fn EGU0() {
     unsafe { crate::EXECUTOR.on_interrupt() }
 }
 
+#[must_use]
 pub fn init(config: Config) -> OptionalPeripherals {
     let peripherals = embassy_nrf::init(config);
     OptionalPeripherals::from(peripherals)
