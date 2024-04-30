@@ -101,4 +101,6 @@ unused_must_use = "deny"
 indexing_slicing = "warn"
 missing_safety_doc = { level = "warn" }
 pedantic = "deny"
-module_name_repetitions = "allow"       # Part of pedantic
+# Part of pedantic but not relevant to us, mostly because we sometimes erase
+# module names when re-exporting types
+module_name_repetitions = "allow"
