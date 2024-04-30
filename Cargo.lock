@@ -455,6 +455,7 @@ dependencies = [
 name = "coap"
 version = "0.1.0"
 dependencies = [
+ "arrayvec",
  "coap-handler",
  "coap-handler-implementations",
  "coap-message",
@@ -464,6 +465,7 @@ dependencies = [
  "coap-numbers",
  "coap-request",
  "coap-request-implementations",
+ "coap-scroll-ring-server",
  "embassy-executor",
  "embassy-futures",
  "embassy-net",
@@ -480,6 +482,7 @@ dependencies = [
  "minicbor 0.23.0",
  "riot-rs",
  "riot-rs-boards",
+ "scroll-ring",
  "smoltcp",
  "static-alloc",
 ]
@@ -590,6 +593,20 @@ dependencies = [
  "coap-message-utils",
  "coap-numbers",
  "coap-request",
+]
+
+[[package]]
+name = "coap-scroll-ring-server"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "54221724caa364079527fcd8be89bc401f25921f0927e6574c934a8ecb9778a0"
+dependencies = [
+ "coap-handler",
+ "coap-handler-implementations",
+ "coap-message",
+ "coap-message-utils",
+ "coap-numbers",
+ "scroll-ring",
 ]
 
 [[package]]
@@ -730,6 +747,12 @@ name = "critical-section"
 version = "1.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7059fff8937831a9ae6f0fe4d658ffabf58f2ca96aa9dec1c889f936f705f216"
+
+[[package]]
+name = "crossbeam-utils"
+version = "0.8.19"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "248e3bacc7dc6baa3b21e405ee045c3047101a49145e7e9eca583ab4c2ca5345"
 
 [[package]]
 name = "crunchy"
@@ -3179,6 +3202,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "adad44e29e4c806119491a7f06f03de4d1af22c3a680dd47f1e6e179439d1f56"
 
 [[package]]
+name = "ringbuf"
+version = "0.3.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "79abed428d1fd2a128201cec72c5f6938e2da607c6f3745f769fabea399d950a"
+dependencies = [
+ "crossbeam-utils",
+]
+
+[[package]]
 name = "ringbuffer"
 version = "0.1.0"
 dependencies = [
@@ -3490,6 +3522,16 @@ name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
+
+[[package]]
+name = "scroll-ring"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5eda0dff67036ba3b032aa68eb47ceb9b53b6e848445f53d10bf93e033b17df2"
+dependencies = [
+ "ringbuf",
+ "try-lock",
+]
 
 [[package]]
 name = "sec1"
@@ -3944,6 +3986,12 @@ dependencies = [
  "toml_datetime",
  "winnow 0.6.6",
 ]
+
+[[package]]
+name = "try-lock"
+version = "0.2.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
 
 [[package]]
 name = "trybuild"

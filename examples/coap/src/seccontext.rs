@@ -3,7 +3,7 @@ use coap_message::{
     MutableWritableMessage, ReadableMessage,
 };
 use coap_message_utils::{Error as CoAPError, OptionsExt as _};
-use core::borrow::Borrow;
+use core::fmt::Write;
 
 extern crate alloc;
 use static_alloc::Bump;
@@ -19,34 +19,7 @@ const MAX_CONTEXTS: usize = 4;
 type LakersCrypto = lakers_crypto_rustcrypto::Crypto<riot_rs::random::CryptoRng>;
 
 /// A pool of security contexts sharable by several users inside a thread.
-///
-/// Access through the inner RefCell always happens with panicking errors, because all accessors
-/// (in this module, given it's a private member) promise to not call code would cause double
-/// locking. (And it's !Sync, so accessors will not be preempted).
-#[derive(Default)]
-pub struct SecContextPool(core::cell::RefCell<[SecContextState; MAX_CONTEXTS]>);
-
-impl SecContextPool {
-    /// Place a non-empty state in a slot and return its index, or return a 5.03 Service
-    /// Unavailable error
-    fn place_in_empty_slot(&self, new: SecContextState) -> Result<usize, CoAPError> {
-        for (index, place) in self.0.borrow_mut().iter_mut().enumerate() {
-            if matches!(place, SecContextState::Empty) {
-                *place = new;
-                return Ok(index);
-            }
-        }
-        for (index, place) in self.0.borrow_mut().iter_mut().enumerate() {
-            // As a possible improvement, define a "keep value" in 0..n, and find the slot withthe
-            // minimum keep value.
-            if place.is_gc_eligible() {
-                *place = new;
-                return Ok(index);
-            }
-        }
-        Err(CoAPError::service_unavailable())
-    }
-}
+pub type SecContextPool = crate::oluru::OrderedPool<SecContextState, MAX_CONTEXTS, LEVEL_COUNT>;
 
 /// An own identifier for a security context
 ///
@@ -93,7 +66,7 @@ impl COwn {
         if neg_to < 24 {
             return Self(0x20 | neg_to as u8);
         }
-        unreachable!("Iterator is not long enough ");
+        unreachable!("Iterator is not long enough to set this many bits.");
     }
 
     /// Given an OSCORE Key ID (kid), find the corresponding context identifier value
@@ -119,9 +92,14 @@ enum SecContextState {
     // roll-over is a topic, that'd be a no-go. An alternative is to both store the message and the
     // ResponderWaitM3 state -- but that'll make our SecContextPool slots larger; best evaluate
     // that once the states are ready and we see which ones are the big ones. Possible outcomes are
-    // to just do it, to store the message in the handler's RequestData, or to have one or a few
-    // slots in parallel to this in the SecContextPool.
-    EdhocResponderProcessedM1(lakers::EdhocResponderProcessedM1<'static, LakersCrypto>),
+    // to just do it, to store the message in the handler's `RequestData`, or to have one or a few
+    // slots in parallel to this in the [`SecContextPool`].
+    EdhocResponderProcessedM1 {
+        responder: lakers::EdhocResponderProcessedM1<'static, LakersCrypto>,
+        // May be removed if lakers keeps access to those around if they are set at this point at
+        // all
+        c_r: COwn,
+    },
     //
     EdhocResponderSentM2 {
         responder: lakers::EdhocResponderWaitM3<LakersCrypto>,
@@ -132,30 +110,52 @@ enum SecContextState {
     Oscore(liboscore::PrimitiveContext),
 }
 
-impl SecContextState {
-    fn corresponding_cown(&self) -> Option<COwn> {
+impl core::fmt::Display for SecContextState {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
+        use SecContextState::*;
         match self {
-            SecContextState::Empty => None,
-            SecContextState::EdhocResponderProcessedM1(_) => None, // yet
-            SecContextState::EdhocResponderSentM2 { c_r, .. } => Some(*c_r),
-            SecContextState::Oscore(ctx) => COwn::from_kid(ctx.recipient_id()),
+            Empty => f.write_str("empty"),
+            EdhocResponderProcessedM1 { c_r, .. } => write!(f, "ProcessedM1, C_R = {:?}", c_r),
+            EdhocResponderSentM2 { c_r, .. } => write!(f, "SentM3, C_R = {:?}", c_r),
+            Oscore(ctx) => write!(f, "OSCORE, C_R = {:?}", COwn::from_kid(ctx.recipient_id()).unwrap()),
         }
     }
+}
 
-    fn is_gc_eligible(&self) -> bool {
+const LEVEL_ADMIN: usize = 0;
+const LEVEL_AUTHENTICATED: usize = 1;
+const LEVEL_ONGOING: usize = 2;
+const LEVEL_EMTPY: usize = 3;
+const LEVEL_COUNT: usize = 4;
+
+impl crate::oluru::PriorityLevel for SecContextState {
+    fn level(&self) -> usize {
         match self {
-            SecContextState::Empty => true, // but won't come to it
-            SecContextState::EdhocResponderProcessedM1(_) => {
+            SecContextState::Empty => LEVEL_EMTPY,
+            SecContextState::EdhocResponderProcessedM1 { .. } => {
                 // If this is ever tested, means we're outbound message limited, so let's try to
                 // get one through rather than pointlessly sending errors
-                false
+                LEVEL_ONGOING
             }
             SecContextState::EdhocResponderSentM2 { .. } => {
                 // So far, the peer didn't prove they have anything other than entropy (maybe not
                 // even that)
-                true
+                LEVEL_ONGOING
             }
-            SecContextState::Oscore(_) => false,
+            SecContextState::Oscore(_) => LEVEL_AUTHENTICATED,
+        }
+    }
+}
+
+impl SecContextState {
+    fn corresponding_cown(&self) -> Option<COwn> {
+        match self {
+            SecContextState::Empty => None,
+            // We're keeping a c_r in there assigned early so that we can find the context when
+            // building the response; nothing in the responder is tied to c_r yet.
+            SecContextState::EdhocResponderProcessedM1 { c_r, .. } => Some(*c_r),
+            SecContextState::EdhocResponderSentM2 { c_r, .. } => Some(*c_r),
+            SecContextState::Oscore(ctx) => COwn::from_kid(ctx.recipient_id()),
         }
     }
 }
@@ -165,7 +165,10 @@ impl SecContextState {
 /// While the EDHOC part could be implemented as a handler that is to be added into the tree, the
 /// OSCORE part needs to wrap the inner handler anyway, and EDHOC and OSCORE are intertwined rather
 /// strongly in processing the EDHOC option.
-pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler> {
+pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler, L: Write> {
+    // It'd be tempted to have sharing among multiple handlers for multiple CoAP stacks, but
+    // locks for such sharing could still be acquired in a factory (at which point it may make
+    // sense to make this a &mut).
     pool: SecContextPool,
     // FIXME: That 'static is going to bite us -- but EdhocResponderProcessedM1 holds a reference
     // to it -- see SecContextState::EdhocResponderProcessedM1
@@ -176,25 +179,28 @@ pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler> {
     // or a single item that has two AsMut<impl Handler> accessors for separate encrypted and
     // unencrypted tree.
     inner: H,
+
+    log: L,
 }
 
-impl<'a, H: coap_handler::Handler> OscoreEdhocHandler<'a, H> {
-    pub fn new(own_identity: (&'a lakers::CredentialRPK, &'static [u8]), inner: H) -> Self {
+impl<'a, H: coap_handler::Handler, L: Write> OscoreEdhocHandler<'a, H, L> {
+    pub fn new(own_identity: (&'a lakers::CredentialRPK, &'static [u8]), inner: H, log: L) -> Self {
         Self {
             pool: Default::default(),
             own_identity,
             inner,
+            log,
         }
     }
 }
 
 pub enum EdhocResponse<I> {
     // Taking a small state here: We already have a slot in the pool, storing the big data there
-    OkSend2(usize),
+    OkSend2(COwn),
     // Could have a state Message3Processed -- but do we really want to implement that? (like, just
     // use the EDHOC option)
     OscoreRequest {
-        slot: usize,
+        kid: COwn,
         correlation: liboscore::raw::oscore_requestid_t,
         extracted: I,
     },
@@ -252,7 +258,7 @@ impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrI
     }
 }
 
-impl<'a, H: coap_handler::Handler> coap_handler::Handler for OscoreEdhocHandler<'a, H> {
+impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdhocHandler<'a, H, L> {
     type RequestData =
         OrInner<EdhocResponse<Result<H::RequestData, H::ExtractRequestError>>, H::RequestData>;
 
@@ -361,26 +367,56 @@ impl<'a, H: coap_handler::Handler> coap_handler::Handler for OscoreEdhocHandler<
                         return Err(Own(CoAPError::bad_request()));
                     }
 
-                    Ok(Own(EdhocResponse::OkSend2(self.pool.place_in_empty_slot(
-                        SecContextState::EdhocResponderProcessedM1(responder),
-                    )?)))
+                    // Let's pick one now already: this allows us to use the identifier in our
+                    // request data.
+                    let c_r = COwn::not_in_iter(
+                        self.pool
+                            .iter()
+                            .filter_map(|entry| entry.corresponding_cown()),
+                    );
+
+                    writeln!(self.log, "Entries in pool:");
+                    for (i, e) in self.pool.entries.iter().enumerate() {
+                        writeln!(self.log, "{i}. {e}");
+                    }
+                    write!(self.log, "Sequence: ");
+                    for index in self.pool.sorted.iter() {
+                        write!(self.log, "{index},");
+                    }
+                    writeln!(self.log, "");
+                    let evicted =
+                        self.pool
+                            .force_insert(SecContextState::EdhocResponderProcessedM1 {
+                                c_r,
+                                responder,
+                            });
+                    if let Some(evicted) = evicted {
+                        writeln!(self.log, "To insert new EDHOC, evicted {}", evicted);
+                    } else {
+                        writeln!(self.log, "To insert new EDHOC, evicted none");
+                    }
+
+                    Ok(Own(EdhocResponse::OkSend2(c_r)))
                 } else {
                     // for the time being we'll only take the EDHOC option
                     Err(Own(CoAPError::bad_request()))
                 }
             }
             Edhoc { kid } | Oscore { kid } => {
-                use crate::println;
                 let payload = request.payload();
 
                 // This whole loop-and-tree could become a single take_responder_wait3 method?
-                let cown = COwn::from_kid(&[kid]);
-                let mut pool_lock = self.pool.0.borrow_mut();
-                let (slot, matched) = pool_lock
-                    .iter_mut()
-                    .enumerate()
-                    .filter(|(slot, c)| c.corresponding_cown() == cown)
-                    .next()
+                let kid = COwn::from_kid(&[kid]).unwrap();
+                // If we don't make progress, we're dropping it altogether. Unless we use the
+                // responder we might legally continue (because we didn't send data to EDHOC), but
+                // once we've received something that (as we now know) looks like a message 3 and
+                // isn't processable, it's unlikely that another one would come up and be.
+                let mut taken = self
+                    .pool
+                    .lookup(
+                        |c| c.corresponding_cown() == Some(kid),
+                        |matched| core::mem::replace(matched, Default::default()),
+                    )
                     // following RFC8613 Section 8.2 item 2.2
                     // FIXME unauthorized (unreleased in coap-message-utils)
                     .ok_or_else(CoAPError::bad_request)?;
@@ -396,13 +432,8 @@ impl<'a, H: coap_handler::Handler> coap_handler::Handler for OscoreEdhocHandler<
                         .map_err(|_| Own(CoAPError::bad_request()))?;
                     let cutoff = decoder.position();
 
-                    // If we don't make progress, we're dropping it altogether. Unless we use the
-                    // responder we might legally continue (because we didn't send data to EDHOC), but
-                    // once we've received something that (as we now know) looks like a message 3 and
-                    // isn't processable, it's unlikely that another one would come up and be.
-                    let mut taken = core::mem::replace(matched, Default::default());
-
                     if let SecContextState::EdhocResponderSentM2 { responder, c_r } = taken {
+                        debug_assert_eq!(c_r, kid, "State was looked up by KID");
                         let msg_3 = lakers::EdhocMessageBuffer::new_from_slice(&payload[..cutoff])
                             .map_err(|e| Own(too_small(e)))?;
 
@@ -416,9 +447,9 @@ impl<'a, H: coap_handler::Handler> coap_handler::Handler for OscoreEdhocHandler<
 
                         // FIXME: Right now this can only do credential-by-value
                         if id_cred_i.reference_only() {
-                            println!("Got reference only, need to upgrade");
+                            writeln!(self.log, "Got reference only, need to upgrade");
                         } else {
-                            println!("Got full credential, need to evaluate")
+                            writeln!(self.log, "Got full credential, need to evaluate");
                         }
 
                         use hexlit::hex;
@@ -435,11 +466,11 @@ impl<'a, H: coap_handler::Handler> coap_handler::Handler for OscoreEdhocHandler<
                         let oscore_salt = responder.edhoc_exporter(1u8, &[], 8); // label is 1
                         let oscore_secret = &oscore_secret[..16];
                         let oscore_salt = &oscore_salt[..8];
-                        println!("OSCORE secret: {:?}...", &oscore_secret[..5]);
-                        println!("OSCORE salt: {:?}", &oscore_salt);
+                        writeln!(self.log, "OSCORE secret: {:?}...", &oscore_secret[..5]);
+                        writeln!(self.log, "OSCORE salt: {:?}", &oscore_salt);
 
                         let sender_id = 0x08; // FIXME: lakers can't export that?
-                        let recipient_id = kid;
+                        let recipient_id = kid.0;
 
                         // FIXME probe cipher suite
                         let hkdf = liboscore::HkdfAlg::from_number(5).unwrap();
@@ -461,13 +492,12 @@ impl<'a, H: coap_handler::Handler> coap_handler::Handler for OscoreEdhocHandler<
                         let context =
                             liboscore::PrimitiveContext::new_from_fresh_material(immutables);
 
-                        *matched = SecContextState::Oscore(context);
+                        taken = SecContextState::Oscore(context);
                     } else {
                         // Return the state. Best bet is that it was already advanced to an OSCORE
                         // state, and the peer sent message 3 with multiple concurrent in-flight
                         // messages. We're ignoring the EDHOC value and continue with OSCORE
                         // processing.
-                        *matched = taken;
                     }
 
                     cutoff
@@ -475,8 +505,10 @@ impl<'a, H: coap_handler::Handler> coap_handler::Handler for OscoreEdhocHandler<
                     0
                 };
 
-                let SecContextState::Oscore(oscore_context) = matched else {
+                let SecContextState::Oscore(mut oscore_context) = taken else {
                     // FIXME: How'd we even get there?
+                    //
+                    // ... and return taken
                     return Err(Own(CoAPError::bad_request()));
                 };
 
@@ -513,19 +545,28 @@ impl<'a, H: coap_handler::Handler> coap_handler::Handler for OscoreEdhocHandler<
                     .set_payload(&payload[front_trim_payload..])
                     .unwrap();
 
-                let Ok((correlation, extracted)) = liboscore::unprotect_request(
+                let decrypted = liboscore::unprotect_request(
                     allocated_message,
                     oscore_option,
-                    oscore_context,
+                    &mut oscore_context,
                     |request| self.inner.extract_request_data(request),
-                ) else {
-                    // FIXME is that the righ tcode?
-                    println!("Decryption failure");
+                );
+
+                // With any luck, this never moves out.
+                //
+                // Storing it even on decryption failure to avoid DoS from the first message (but
+                // FIXME, should we increment an error count and lower priority?)
+                let evicted = self.pool.force_insert(SecContextState::Oscore(oscore_context));
+                debug_assert!(matches!(evicted, Some(SecContextState::Empty) | None), "A Default (Empty) was placed when an item was taken, which should have the lowest priority");
+
+                let Ok((correlation, extracted)) = decrypted else {
+                    // FIXME is that the right code?
+                    writeln!(self.log, "Decryption failure");
                     return Err(Own(CoAPError::unauthorized()));
                 };
 
                 Ok(Own(EdhocResponse::OscoreRequest {
-                    slot,
+                    kid,
                     correlation,
                     extracted,
                 }))
@@ -546,40 +587,59 @@ impl<'a, H: coap_handler::Handler> coap_handler::Handler for OscoreEdhocHandler<
         use OrInner::{Inner, Own};
 
         Ok(match req {
-            Own(EdhocResponse::OkSend2(slot)) => {
+            Own(EdhocResponse::OkSend2(c_r)) => {
                 // FIXME: Why does the From<O> not do the map_err?
                 response.set_code(
                     M::Code::new(coap_numbers::code::CHANGED).map_err(|x| Own(x.into()))?,
                 );
 
-                let pool = &mut self.pool.0.borrow_mut();
-                let SecContextState::EdhocResponderProcessedM1(responder) =
-                    core::mem::replace(&mut pool[slot], SecContextState::Empty)
-                else {
+                let message_2 = self.pool.lookup(
+                    |c| c.corresponding_cown() == Some(c_r),
+                    |matched| {
+                        // temporary default will not live long (and may be only constructed if
+                        // prepare_message_2 fails)
+                        let taken = core::mem::replace(matched, Default::default());
+                        let SecContextState::EdhocResponderProcessedM1 {
+                            c_r: matched_c_r,
+                            responder: taken,
+                        } = taken
+                        else {
+                            todo!();
+                        };
+                        debug_assert_eq!(
+                            matched_c_r, c_r,
+                            "The first lookup function ensured this property"
+                        );
+                        let (responder, message_2) = taken
+                            // We're sending our ID by reference: we have a CCS and don't expect anyone to
+                            // run EDHOC with us who can not verify who we are (and from the CCS there is
+                            // no better way). Also, conveniently, this covers our privacy well.
+                            // (Sending ByValue would still work)
+                            .prepare_message_2(
+                                lakers::CredentialTransfer::ByReference,
+                                Some(c_r.0),
+                                &None,
+                            )
+                            // FIXME error handling
+                            .unwrap();
+                        *matched = SecContextState::EdhocResponderSentM2 { responder, c_r };
+                        message_2
+                    },
+                );
+
+                let Some(message_2) = message_2 else {
                     // FIXME render late error (it'd help if CoAPError also offered a type that unions it
                     // with an arbitrary other error). As it is, depending on the CoAP stack, there may be
                     // DoS if a peer can send many requests before the server starts rendering responses.
                     panic!("State vanished before respone was built.");
                 };
 
-                // We have a lock, let's pick one now
-                let c_r =
-                    COwn::not_in_iter(pool.iter().filter_map(|entry| entry.corresponding_cown()));
-
-                let (responder, message_2) = responder
-                    // We're sending our ID by reference: we have a CCS and don't expect anyone to
-                    // run EDHOC with us who can not verify who we are (and from the CCS there is
-                    // no better way). Also, conveniently, this covers our privacy well.
-                    // (Sending ByValue would still work)
-                    .prepare_message_2(lakers::CredentialTransfer::ByReference, Some(c_r.0), &None)
-                    .unwrap();
-                pool[slot] = SecContextState::EdhocResponderSentM2 { responder, c_r };
                 response
                     .set_payload(message_2.as_slice())
                     .map_err(|x| Own(x.into()))?;
             }
             Own(EdhocResponse::OscoreRequest {
-                slot,
+                kid,
                 mut correlation,
                 extracted,
             }) => {
@@ -587,86 +647,86 @@ impl<'a, H: coap_handler::Handler> coap_handler::Handler for OscoreEdhocHandler<
                     M::Code::new(coap_numbers::code::CHANGED).map_err(|x| Own(x.into()))?,
                 );
 
-                let pool = &mut self.pool.0.borrow_mut();
-                let SecContextState::Oscore(ref mut oscore_context) = &mut pool[slot] else {
-                    // FIXME render late error (it'd help if CoAPError also offered a type that unions it
-                    // with an arbitrary other error). As it is, depending on the CoAP stack, there may be
-                    // DoS if a peer can send many requests before the server starts rendering responses.
-                    panic!("State vanished before respone was built.");
-                };
+                self.pool
+                    .lookup(|c| c.corresponding_cown() == Some(kid), |matched| {
+                        let SecContextState::Oscore(ref mut oscore_context) = matched else {
+                            // FIXME render late error (it'd help if CoAPError also offered a type that unions it
+                            // with an arbitrary other error). As it is, depending on the CoAP stack, there may be
+                            // DoS if a peer can send many requests before the server starts rendering responses.
+                            panic!("State vanished before respone was built.");
+                        };
 
-                // Almost-but-not: This'd require 'static on Message which we can't have b/c the
-                // type may be shortlived for good reason.
-                /*
-                let response: &mut dyn core::any::Any = response;
-                let response: &mut coap_message_implementations::inmemory_write::Message = response.downcast_mut()
-                    .expect("libOSCORE currently only works with CoAP stacks whose response messages are inmemory_write");
-                */
-                // FIXME!
-                let response: &mut M = response;
-                let response: &mut coap_message_implementations::inmemory_write::Message =
-                    unsafe { core::mem::transmute(response) };
+                        // Almost-but-not: This'd require 'static on Message which we can't have b/c the
+                        // type may be shortlived for good reason.
+                        /*
+                        let response: &mut dyn core::any::Any = response;
+                        let response: &mut coap_message_implementations::inmemory_write::Message = response.downcast_mut()
+                            .expect("libOSCORE currently only works with CoAP stacks whose response messages are inmemory_write");
+                        */
+                        // FIXME!
+                        let response: &mut M = response;
+                        let response: &mut coap_message_implementations::inmemory_write::Message =
+                            unsafe { core::mem::transmute(response) };
 
-                response.set_code(coap_numbers::code::CHANGED);
+                        response.set_code(coap_numbers::code::CHANGED);
 
-                use crate::println;
-
-                if liboscore::protect_response(
-                    response,
-                    // SECURITY BIG FIXME: How do we make sure that our correlation is really for
-                    // what we find in the pool and not for what wound up there by the time we send
-                    // the response? (Can't happen with the current stack, but conceptually there
-                    // should be a tie; carry the OSCORE context in an owned way?).
-                    oscore_context,
-                    &mut correlation,
-                    |response| match extracted {
-                        Ok(extracted) => match self.inner.build_response(response, extracted) {
-                            Ok(()) => {
-                                println!("All fine");
-                            },
-                            // One attempt to render rendering errors
-                            // FIXME rewind message
-                            Err(e) => match e.render(response) {
-                                Ok(()) => {
-                                    println!("Rendering error to successful extraction shown");
-                                },
-                                Err(_) => {
-                                    println!("Rendering error to successful extraction failed");
+                        if liboscore::protect_response(
+                            response,
+                            // SECURITY BIG FIXME: How do we make sure that our correlation is really for
+                            // what we find in the pool and not for what wound up there by the time we send
+                            // the response? (Can't happen with the current stack, but conceptually there
+                            // should be a tie; carry the OSCORE context in an owned way?).
+                            oscore_context,
+                            &mut correlation,
+                            |response| match extracted {
+                                Ok(extracted) => match self.inner.build_response(response, extracted) {
+                                    Ok(()) => {
+                                        // All fine, response was built
+                                    },
+                                    // One attempt to render rendering errors
                                     // FIXME rewind message
-                                    response.set_code(coap_numbers::code::INTERNAL_SERVER_ERROR);
-                                }
-                            },
-                        },
-                        Err(inner_request_error) => {
-                            match inner_request_error.render(response) {
-                                Ok(()) => {
-                                    println!("Extraction failed, inner error rendered successfully");
-                                },
-                                Err(e) => {
-                                    // Two attempts to render extraction errors
-                                    // FIXME rewind message
-                                    match e.render(response) {
+                                    Err(e) => match e.render(response) {
                                         Ok(()) => {
-                                            println!("Extraction failed, inner error rendered through fallback");
+                                            writeln!(self.log, "Rendering error to successful extraction shown");
                                         },
                                         Err(_) => {
-                                            println!("Extraction failed, inner error rendering failed");
+                                            writeln!(self.log, "Rendering error to successful extraction failed");
                                             // FIXME rewind message
-                                            response.set_code(
-                                                coap_numbers::code::INTERNAL_SERVER_ERROR,
-                                            );
+                                            response.set_code(coap_numbers::code::INTERNAL_SERVER_ERROR);
+                                        }
+                                    },
+                                },
+                                Err(inner_request_error) => {
+                                    match inner_request_error.render(response) {
+                                        Ok(()) => {
+                                            writeln!(self.log, "Extraction failed, inner error rendered successfully");
+                                        },
+                                        Err(e) => {
+                                            // Two attempts to render extraction errors
+                                            // FIXME rewind message
+                                            match e.render(response) {
+                                                Ok(()) => {
+                                                    writeln!(self.log, "Extraction failed, inner error rendered through fallback");
+                                                },
+                                                Err(_) => {
+                                                    writeln!(self.log, "Extraction failed, inner error rendering failed");
+                                                    // FIXME rewind message
+                                                    response.set_code(
+                                                        coap_numbers::code::INTERNAL_SERVER_ERROR,
+                                                    );
+                                                }
+                                            }
                                         }
                                     }
                                 }
-                            }
+                            },
+                        )
+                        .is_err()
+                        {
+                            writeln!(self.log, "Oups, responding with weird state");
+                            // todo!("Thanks to the protect API we've lost access to our response");
                         }
-                    },
-                )
-                .is_err()
-                {
-                    println!("Oups, responding with weird state");
-                    // todo!("Thanks to the protect API we've lost access to our response");
-                }
+                    });
             }
             Inner(i) => self.inner.build_response(response, i).map_err(Inner)?,
         })

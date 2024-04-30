@@ -44,6 +44,9 @@ liboscore-msgbackend = { git = "https://gitlab.com/oscore/liboscore/", features 
 ], rev = "e7a4ecd037cbb9c7f085047fec5896f4bdc68d50" }
 coap-message-implementations = "0.1.1"
 static-alloc = "0.2.5"
+arrayvec = { version = "0.7.4", default-features = false }
+coap-scroll-ring-server = "0.2.0"
+scroll-ring = "0.1.1"
 
 [features]
 default = ["proto-ipv4"] # shame

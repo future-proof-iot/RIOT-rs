@@ -9,6 +9,8 @@ use embassy_net::udp::{PacketMetadata, UdpSocket};
 
 // Moving work from https://github.com/embassy-rs/embassy/pull/2519 in here for the time being
 mod udp_nal;
+// Might warrant a standalone crate at some point
+mod oluru;
 
 mod seccontext;
 
@@ -63,11 +65,22 @@ async fn run<S>(mut sock: S)
 where
     S: embedded_nal_async::UnconnectedUdp,
 {
-    use coap_handler_implementations::HandlerBuilder;
+    use coap_handler_implementations::{HandlerBuilder, ReportingHandlerBuilder};
 
     let log = None;
-
-    let mut secpool: seccontext::SecContextPool = Default::default();
+    let buffer = scroll_ring::Buffer::<512>::default();
+    // FIXME: Why doesn't scroll_ring provide that?
+    struct Stdout<'a>(&'a scroll_ring::Buffer<512>);
+    impl<'a> core::fmt::Write for Stdout<'a> {
+        fn write_str(&mut self, s: &str) -> Result<(), core::fmt::Error> {
+            self.0.write(s.as_bytes());
+            Ok(())
+        }
+    }
+    let mut stdout = Stdout(&buffer);
+    use core::fmt::Write;
+    writeln!(stdout, "We have our own stdout now.");
+    writeln!(stdout, "With rings and atomics.");
 
     use hexlit::hex;
     const R: &[u8] = &hex!("72cc4761dbd4c78f758931aa589d348d1ef874a7e303ede2f140dcf3e6aa4aac");
@@ -76,9 +89,14 @@ where
         R,
         );
 
-    let mut handler = coap_message_demos::full_application_tree(log);
+    let mut handler = coap_message_demos::full_application_tree(log)
+        .at(
+            &["stdout"],
+            coap_scroll_ring_server::BufferHandler::new(&buffer),
+        )
+        .with_wkc();
 
-    let mut handler = seccontext::OscoreEdhocHandler::new(own_identity, handler);
+    let mut handler = seccontext::OscoreEdhocHandler::new(own_identity, handler, stdout);
 
     println!("Server is ready.");
 
