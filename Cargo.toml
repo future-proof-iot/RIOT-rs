@@ -101,4 +101,4 @@ unused_must_use = "deny"
 indexing_slicing = "warn"
 missing_safety_doc = { level = "warn" }
 pedantic = "deny"
-module_name_repetitions = "allow" # Part of pedantic
+module_name_repetitions = "allow"       # Part of pedantic
