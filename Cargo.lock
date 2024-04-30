@@ -241,6 +241,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "cobs"
+version = "0.2.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "67ba02a97a2bd10f4b59b25c7973101c79642302776489e030cd13cdab09ed15"
+
+[[package]]
 name = "codespan-reporting"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1449,6 +1455,7 @@ dependencies = [
  "atomic-polyfill",
  "hash32 0.2.1",
  "rustc_version 0.4.0",
+ "serde",
  "spin",
  "stable_deref_trait",
 ]
@@ -2203,6 +2210,29 @@ dependencies = [
 ]
 
 [[package]]
+name = "postcard"
+version = "1.0.8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a55c51ee6c0db07e68448e336cf8ea4131a620edefebf9893e759b2d793420f8"
+dependencies = [
+ "cobs",
+ "heapless 0.7.17",
+ "postcard-derive",
+ "serde",
+]
+
+[[package]]
+name = "postcard-derive"
+version = "0.1.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "fc4b01218787dd4420daf63875163a787a78294ad48a24e9f6fa8c6507759a79"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 1.0.109",
+]
+
+[[package]]
 name = "ppv-lite86"
 version = "0.2.17"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -2385,6 +2415,7 @@ dependencies = [
  "riot-rs-macros",
  "riot-rs-random",
  "riot-rs-rt",
+ "riot-rs-storage",
  "riot-rs-threads",
  "static_cell",
 ]
@@ -2514,6 +2545,19 @@ dependencies = [
 [[package]]
 name = "riot-rs-runqueue"
 version = "0.1.2"
+
+[[package]]
+name = "riot-rs-storage"
+version = "0.1.0"
+dependencies = [
+ "arrayvec",
+ "embassy-embedded-hal",
+ "embedded-storage-async",
+ "postcard",
+ "riot-rs-debug",
+ "sequential-storage",
+ "serde",
+]
 
 [[package]]
 name = "riot-rs-threads"
@@ -2683,19 +2727,28 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
 
 [[package]]
+name = "sequential-storage"
+version = "2.0.0"
+source = "git+https://github.com/tweedegolf/sequential-storage#5f4fa19b8d366565aaadc1a8308d8901cbbf837e"
+dependencies = [
+ "arrayvec",
+ "embedded-storage-async",
+]
+
+[[package]]
 name = "serde"
-version = "1.0.197"
+version = "1.0.199"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3fb1c873e1b9b056a4dc4c0c198b24c3ffa059243875552b2bd0933b1aee4ce2"
+checksum = "0c9f6e76df036c77cd94996771fb40db98187f096dd0b9af39c6c6e452ba966a"
 dependencies = [
  "serde_derive",
 ]
 
 [[package]]
 name = "serde_derive"
-version = "1.0.197"
+version = "1.0.199"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7eb0b34b42edc17f6b7cac84a52a1c5f0e1bb2227e997ca9011ea3dd34e8610b"
+checksum = "11bd257a6541e141e42ca6d24ae26f7714887b47e89aa739099104c7e4d3b7fc"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -2826,6 +2879,20 @@ dependencies = [
  "rtcc",
  "stm32f4",
  "void",
+]
+
+[[package]]
+name = "storage"
+version = "0.1.0"
+dependencies = [
+ "arrayvec",
+ "embassy-embedded-hal",
+ "embassy-executor",
+ "embassy-nrf",
+ "heapless 0.8.0",
+ "riot-rs",
+ "riot-rs-boards",
+ "serde",
 ]
 
 [[package]]
