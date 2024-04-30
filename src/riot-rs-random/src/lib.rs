@@ -23,6 +23,9 @@
 //! [`rand_pcg::Pcg32`] is decided yet for the fast one. Neither the algorithm nor the size of
 //! [`FastRng`] or [`CryptoRng`] is guaranteed.
 #![no_std]
+#![feature(lint_reasons)]
+
+use core::marker::PhantomData;
 
 use rand_core::{RngCore, SeedableRng};
 
@@ -85,7 +88,7 @@ impl RngCore for FastRng {
         self.inner.next_u64()
     }
     fn fill_bytes(&mut self, dest: &mut [u8]) {
-        self.inner.fill_bytes(dest)
+        self.inner.fill_bytes(dest);
     }
     fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand_core::Error> {
         self.inner.try_fill_bytes(dest)
@@ -98,7 +101,7 @@ impl RngCore for FastRng {
 #[cfg(feature = "csprng")]
 pub struct CryptoRng {
     // Make the type not Send to later allow using thread-locals
-    pub(crate) _private: core::marker::PhantomData<*const ()>,
+    pub(crate) _private: PhantomData<*const ()>,
 }
 
 #[cfg(feature = "csprng")]
@@ -132,6 +135,10 @@ mod csprng {
 /// Populates the global RNG from a seed value.
 ///
 /// This is called by RIOT-rs's initialization functions.
+///
+/// # Panics
+///
+/// Panics if the underlying RNG returns an error.
 pub fn construct_rng(hwrng: impl RngCore) {
     RNG.lock(|r| {
         r.replace(Some(
@@ -141,11 +148,13 @@ pub fn construct_rng(hwrng: impl RngCore) {
 }
 
 /// Returns a suitably initialized fast random number generator.
+#[allow(clippy::missing_panics_doc, reason = "does not panic")]
+#[must_use]
 #[inline]
 pub fn fast_rng() -> FastRng {
     FastRng {
         inner: with_global(|i| rand_pcg::Pcg32::from_rng(i).expect("Global RNG is infallible")),
-        _private: Default::default(),
+        _private: PhantomData,
     }
 }
 
