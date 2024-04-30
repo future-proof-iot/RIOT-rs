@@ -14,4 +14,5 @@ subdirs:
   - hello-world
   - minimal
   - random
+  - storage
   - threading
