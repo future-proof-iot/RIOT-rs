@@ -7,7 +7,7 @@ const THREAD_FLAG_WAKER: ThreadFlags = 1; // TODO: find more appropriate value
 
 fn wake(ptr: *const ()) {
     // wake
-    let thread_id = ThreadId(ptr as usize as u8);
+    let thread_id = ThreadId::new(ptr as usize as u8);
     flags::set(thread_id, THREAD_FLAG_WAKER);
 }
 

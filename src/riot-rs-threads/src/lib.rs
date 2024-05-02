@@ -119,7 +119,7 @@ impl Threads {
     fn get_unused(&mut self) -> Option<(&mut Thread, ThreadId)> {
         for i in 0..THREADS_NUMOF {
             if self.threads[i].state == ThreadState::Invalid {
-                return Some((&mut self.threads[i], ThreadId(i as u8)));
+                return Some((&mut self.threads[i], ThreadId::new(i as u8)));
             }
         }
         None
@@ -239,7 +239,7 @@ pub unsafe fn thread_create_raw(
 ) -> ThreadId {
     THREADS.with_mut(|mut threads| {
         let thread_id = threads
-            .create(func, arg, stack, RunqueueId(prio))
+            .create(func, arg, stack, RunqueueId::new(prio))
             .unwrap()
             .pid;
         threads.set_state(thread_id, ThreadState::Running);

@@ -9,7 +9,13 @@ const USIZE_BITS: usize = mem::size_of::<usize>() * 8;
 
 /// Runqueue number.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct RunqueueId(pub u8);
+pub struct RunqueueId(u8);
+
+impl RunqueueId {
+    pub const fn new(value: u8) -> Self {
+        Self(value)
+    }
+}
 
 impl From<RunqueueId> for usize {
     fn from(value: RunqueueId) -> Self {
@@ -18,7 +24,13 @@ impl From<RunqueueId> for usize {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-pub struct ThreadId(pub u8);
+pub struct ThreadId(u8);
+
+impl ThreadId {
+    pub const fn new(value: u8) -> Self {
+        Self(value)
+    }
+}
 
 impl From<ThreadId> for usize {
     fn from(value: ThreadId) -> Self {
@@ -97,9 +109,9 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         if rq_ffs == 0 {
             return None;
         }
-        let rq = RunqueueId(rq_ffs as u8 - 1);
+        let rq = RunqueueId::new(rq_ffs as u8 - 1);
         match self.queues.peek_head(rq.0) {
-            Some(id) => Some(ThreadId(id)),
+            Some(id) => Some(ThreadId::new(id)),
             None => None,
         }
     }
