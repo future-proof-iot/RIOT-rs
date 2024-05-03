@@ -78,6 +78,12 @@ impl COwn {
     }
 }
 
+impl Into<lakers::ConnId> for COwn {
+    fn into(self) -> lakers::ConnId {
+        lakers::ConnId::from_int_raw(self.0)
+    }
+}
+
 /// A representation of an RFC9237 using the REST-specific model in a CRI variation (Toid =
 /// [*path], Tperm = u32).
 ///
@@ -152,11 +158,13 @@ enum SecContextStage {
         // May be removed if lakers keeps access to those around if they are set at this point at
         // all
         c_r: COwn,
+        c_i: lakers::ConnId,
     },
     //
     EdhocResponderSentM2 {
         responder: lakers::EdhocResponderWaitM3<LakersCrypto>,
         c_r: COwn,
+        c_i: lakers::ConnId,
     },
 
     // FIXME: Also needs a flag for whether M4 was received; if not, it's GC'able
@@ -459,7 +467,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                         &lakers::EdhocMessageBuffer::new_from_slice(&request.payload()[1..])
                             .map_err(too_small)?;
 
-                    let (responder, ead_1) = lakers::EdhocResponder::new(
+                    let (responder, c_i, ead_1) = lakers::EdhocResponder::new(
                         lakers_crypto_rustcrypto::Crypto::new(riot_rs::random::crypto_rng()),
                         &self.own_identity.1,
                         self.own_identity.0.clone(),
@@ -492,6 +500,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                     let evicted = self.pool.force_insert(SecContextState {
                         protocol_stage: SecContextStage::EdhocResponderProcessedM1 {
                             c_r,
+                            c_i,
                             responder,
                         },
                         authorization: self.unauthenticated_edhoc_user_authorization(),
@@ -539,7 +548,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                     let cutoff = decoder.position();
 
                     if let SecContextState {
-                        protocol_stage: SecContextStage::EdhocResponderSentM2 { responder, c_r },
+                        protocol_stage: SecContextStage::EdhocResponderSentM2 { responder, c_r, c_i },
                         .. // discarding authorization: We learn in message 3 what the real
                            // credential is
                     } = taken
@@ -583,7 +592,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                         writeln!(self.log, "OSCORE secret: {:?}...", &oscore_secret[..5]);
                         writeln!(self.log, "OSCORE salt: {:?}", &oscore_salt);
 
-                        let sender_id = 0x08; // FIXME: lakers can't export that?
+                        let sender_id = c_i.as_slice();
                         let recipient_id = kid.0;
 
                         // FIXME probe cipher suite
@@ -596,8 +605,8 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                             &oscore_salt,
                             None,
                             aead,
+                            sender_id,
                             // FIXME need KID form (but for all that's supported that works still)
-                            &[sender_id],
                             &[recipient_id],
                         )
                         // FIXME convert error
@@ -732,6 +741,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                             protocol_stage:
                                 SecContextStage::EdhocResponderProcessedM1 {
                                     c_r: matched_c_r,
+                                    c_i,
                                     responder: taken,
                                 },
                             authorization,
@@ -750,7 +760,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                             // (Sending ByValue would still work)
                             .prepare_message_2(
                                 lakers::CredentialTransfer::ByReference,
-                                Some(c_r.0),
+                                Some(c_r.into()),
                                 &None,
                             )
                             // FIXME error handling
@@ -758,6 +768,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                         *matched = SecContextState {
                             protocol_stage: SecContextStage::EdhocResponderSentM2 {
                                 responder,
+                                c_i,
                                 c_r,
                             },
                             authorization,

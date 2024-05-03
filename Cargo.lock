@@ -328,9 +328,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.0.95"
+version = "1.0.96"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d32a725bc159af97c3e629873bb9f88fb8cf8a4867175f76dc987815ea07c83b"
+checksum = "065a29261d53ba54260972629f9ca6bffa69bac13cd1fed61420f7fa68b9f8bd"
 
 [[package]]
 name = "ccm"
@@ -461,7 +461,7 @@ dependencies = [
  "coap-message",
  "coap-message-demos",
  "coap-message-implementations",
- "coap-message-utils",
+ "coap-message-utils 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "coap-numbers",
  "coap-request",
  "coap-request-implementations",
@@ -506,7 +506,7 @@ dependencies = [
  "ciborium-io",
  "coap-handler",
  "coap-message",
- "coap-message-utils",
+ "coap-message-utils 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "coap-numbers",
  "crc",
  "document-features",
@@ -520,8 +520,7 @@ dependencies = [
 [[package]]
 name = "coap-message"
 version = "0.3.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ae18782d02e6afdfcfaf48eb7ec591b0cae57b67b637441a490752d4a57db02f"
+source = "git+https://gitlab.com/chrysn/coap-message/?branch=enable-downcasts#e86c7503a563e87c2b2b9b21e4f24303b2556286"
 dependencies = [
  "num-traits",
 ]
@@ -535,7 +534,7 @@ dependencies = [
  "coap-handler",
  "coap-handler-implementations",
  "coap-message",
- "coap-message-utils",
+ "coap-message-utils 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "coap-numbers",
  "coap-request",
  "heapless 0.7.17",
@@ -545,11 +544,10 @@ dependencies = [
 [[package]]
 name = "coap-message-implementations"
 version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "65b11a790471777e78eb68d908d300034b07a98bc43378a6b81159948c1361cd"
+source = "git+https://codeberg.org/chrysn/coap-tools?branch=downcast#58e6267c661ed62ec94a73438c0042c716d16d1b"
 dependencies = [
  "coap-message",
- "coap-message-utils",
+ "coap-message-utils 0.3.2 (git+https://codeberg.org/chrysn/coap-tools?branch=downcast)",
  "coap-numbers",
  "document-features",
  "heapless 0.5.6",
@@ -560,6 +558,18 @@ name = "coap-message-utils"
 version = "0.3.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d57c1e386dfabcc211aefd8d0cc64e8fa6ebc799736ee639a888e0e2af2734ea"
+dependencies = [
+ "coap-message",
+ "coap-numbers",
+ "document-features",
+ "heapless 0.5.6",
+ "minicbor 0.19.1",
+]
+
+[[package]]
+name = "coap-message-utils"
+version = "0.3.2"
+source = "git+https://codeberg.org/chrysn/coap-tools?branch=downcast#58e6267c661ed62ec94a73438c0042c716d16d1b"
 dependencies = [
  "coap-message",
  "coap-numbers",
@@ -590,7 +600,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cc15c3be00d32fe7c2b58a7546eff18fb1f3e7d2dea74d91eaacd4346960851f"
 dependencies = [
  "coap-message",
- "coap-message-utils",
+ "coap-message-utils 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "coap-numbers",
  "coap-request",
 ]
@@ -604,7 +614,7 @@ dependencies = [
  "coap-handler",
  "coap-handler-implementations",
  "coap-message",
- "coap-message-utils",
+ "coap-message-utils 0.3.2 (registry+https://github.com/rust-lang/crates.io-index)",
  "coap-numbers",
  "scroll-ring",
 ]
@@ -720,9 +730,9 @@ dependencies = [
 
 [[package]]
 name = "crc-any"
-version = "2.4.4"
+version = "2.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c01a5e1f881f6fb6099a7bdf949e946719fd4f1fefa56264890574febf0eb6d0"
+checksum = "a62ec9ff5f7965e4d7280bd5482acd20aadb50d632cf6c1d74493856b011fa73"
 dependencies = [
  "debug-helper",
 ]
@@ -858,9 +868,9 @@ dependencies = [
 
 [[package]]
 name = "data-encoding"
-version = "2.5.0"
+version = "2.6.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "7e962a19be5cfc3f3bf6dd8f61eb50107f356ad6270fbb3ed41476571db78be5"
+checksum = "e8566979429cf69b49a5c740c60791108e86440e8be149bbea4fe54d2c32d6e2"
 
 [[package]]
 name = "debug-helper"
@@ -1468,9 +1478,9 @@ dependencies = [
 
 [[package]]
 name = "enum-iterator-derive"
-version = "1.3.1"
+version = "1.4.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c19cbb53d33b57ac4df1f0af6b92c38c107cded663c4aea9fae1189dcfc17cf5"
+checksum = "a1ab991c1362ac86c61ab6f556cff143daa22e5a15e4e189df818b2fd19fe65b"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1737,9 +1747,9 @@ dependencies = [
 
 [[package]]
 name = "fastrand"
-version = "2.0.2"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "658bd65b1cf4c852a3cc96f18a8ce7b5640f6b703f905c7d74532294c2a63984"
+checksum = "9fc0510504f03c51ada170672ac806f1f105a88aa97a5281117e1ddc3368e51a"
 
 [[package]]
 name = "ff"
@@ -1771,9 +1781,9 @@ checksum = "0ce7134b9999ecaf8bcd65542e436736ef32ddca1b3e06094cb6ec5755203b80"
 
 [[package]]
 name = "flate2"
-version = "1.0.29"
+version = "1.0.30"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4556222738635b7a3417ae6130d8f52201e45a0c4d1a907f0826383adb5f85e7"
+checksum = "5f54427cfd1c7829e2a139fcefea601bf088ebca651d2bf53ebc600eac295dae"
 dependencies = [
  "crc32fast",
  "miniz_oxide",
@@ -2003,9 +2013,9 @@ dependencies = [
 
 [[package]]
 name = "hashbrown"
-version = "0.14.3"
+version = "0.14.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "290f1a1d9242c78d09ce40a5e87e7554ee637af1351968159f4952f028f75604"
+checksum = "e5274423e17b7c9fc20b6e7e208532f9b19825d82dfd615708b70edd83df41f1"
 
 [[package]]
 name = "heapless"
@@ -2136,7 +2146,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "168fb715dda47215e360912c096649d23d58bf392ac62f73919e831745e40f26"
 dependencies = [
  "equivalent",
- "hashbrown 0.14.3",
+ "hashbrown 0.14.5",
 ]
 
 [[package]]
@@ -2197,8 +2207,7 @@ dependencies = [
 [[package]]
 name = "lakers"
 version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "905e14c2e72626a749cfe6e0b64454ac2e51de3e36cc2ba077b0abc5af5fa535"
+source = "git+https://github.com/openwsn-berkeley/lakers/#c0d74ac59b2fc68ebedf7882975ef0ce546cc2c5"
 dependencies = [
  "lakers-shared",
 ]
@@ -2206,8 +2215,7 @@ dependencies = [
 [[package]]
 name = "lakers-crypto-rustcrypto"
 version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6523b65ffa787062edf5907ce9e8500bde82eb3880d3c5d01e2119da12c4653a"
+source = "git+https://github.com/openwsn-berkeley/lakers/#c0d74ac59b2fc68ebedf7882975ef0ce546cc2c5"
 dependencies = [
  "aead",
  "aes",
@@ -2222,8 +2230,7 @@ dependencies = [
 [[package]]
 name = "lakers-shared"
 version = "0.5.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a2ddf0b16bd9c88daa047e2ac190ff90fd685990a14ab8b47dfa6ecc28b43247"
+source = "git+https://github.com/openwsn-berkeley/lakers/#c0d74ac59b2fc68ebedf7882975ef0ce546cc2c5"
 
 [[package]]
 name = "lalrpop"
@@ -2282,9 +2289,9 @@ checksum = "744a4c881f502e98c2241d2e5f50040ac73b30194d64452bb6260393b53f0dc9"
 
 [[package]]
 name = "libc"
-version = "0.2.153"
+version = "0.2.154"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9c198f91728a82281a64e1f4f9eeb25d82cb32a5de251c6bd1b5154d63a8e7bd"
+checksum = "ae743338b92ff9146ce83992f766a31066a91a8c84a45e0e9f21e7cf6de6d346"
 
 [[package]]
 name = "libloading"
@@ -3569,9 +3576,9 @@ checksum = "388a1df253eca08550bef6c72392cfe7c30914bf41df5269b68cbd6ff8f570a3"
 
 [[package]]
 name = "serde"
-version = "1.0.198"
+version = "1.0.200"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9846a40c979031340571da2545a4e5b7c4163bdae79b301d5f86d03979451fcc"
+checksum = "ddc6f9cc94d67c0e21aaf7eda3a010fd3af78ebf6e096aa6e2e13c79749cce4f"
 dependencies = [
  "serde_derive",
 ]
@@ -3588,9 +3595,9 @@ dependencies = [
 
 [[package]]
 name = "serde_derive"
-version = "1.0.198"
+version = "1.0.200"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e88edab869b01783ba905e7d0153f9fc1a6505a96e4ad3018011eedb838566d9"
+checksum = "856f046b9400cee3c8c94ed572ecdb752444c24528c035cd35882aad6f492bcb"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -3700,9 +3707,9 @@ checksum = "a2eb9349b6444b326872e140eb1cf5e7c522154d69e7a0ffb0fb81c06b37543f"
 
 [[package]]
 name = "static_cell"
-version = "2.0.0"
+version = "2.1.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "fa6ba4cf83bf80d3eb25f098ea5e790a0a1fcb5e357442259b231e412c2d3ca0"
+checksum = "d89b0684884a883431282db1e4343f34afc2ff6996fe1f4a1664519b66e14c1e"
 dependencies = [
  "portable-atomic",
 ]
@@ -3984,7 +3991,7 @@ dependencies = [
  "serde",
  "serde_spanned",
  "toml_datetime",
- "winnow 0.6.6",
+ "winnow 0.6.7",
 ]
 
 [[package]]
@@ -4053,9 +4060,9 @@ checksum = "3354b9ac3fae1ff6755cb6db53683adb661634f67557942dea4facebec0fee4b"
 
 [[package]]
 name = "unicode-width"
-version = "0.1.11"
+version = "0.1.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e51733f11c9c4f72aa0c160008246859e340b00807569a0da0e7a1079b27ba85"
+checksum = "68f5e5f3158ecfd4b8ff6fe086db7c8467a2dfdac97fe420f2b7c4aa97af66d6"
 
 [[package]]
 name = "unicode-xid"
@@ -4289,9 +4296,9 @@ dependencies = [
 
 [[package]]
 name = "winnow"
-version = "0.6.6"
+version = "0.6.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0c976aaaa0e1f90dbb21e9587cdaf1d9679a1cde8875c0d6bd83ab96a208352"
+checksum = "14b9415ee827af173ebb3f15f9083df5a122eb93572ec28741fb153356ea2578"
 dependencies = [
  "memchr",
 ]
