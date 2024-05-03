@@ -78,9 +78,62 @@ impl COwn {
     }
 }
 
-#[derive(Default, Debug)]
-enum SecContextState {
-    #[default]
+/// A representation of an RFC9237 using the REST-specific model in a CRI variation (Toid =
+/// [*path], Tperm = u32).
+///
+/// FIXME: At the moment, this always represents an authorization that allows everything, and only
+/// has runtime information about whether or not stdout is allowd. On the long run, this will
+/// likely be a CBOR item with pre-verified structure.
+#[derive(Debug)]
+struct AifStaticRest {
+    may_use_stdout: bool,
+}
+
+impl AifStaticRest {
+    fn request_is_allowed<M: ReadableMessage>(&self, request: &M) -> bool {
+        // BIG FIXME: We're iterating over options without checking for critical options. If the
+        // resource handler router consumes any different set of options, that disagreement might
+        // give us a security issue.
+        //
+        // and FIXME this is using block-lists, but at this point it should be obvious that this is
+        // just a stupid stand-in.
+
+        let mut uri_path_options = request
+            .options()
+            .filter(|o| o.number() == coap_numbers::option::URI_PATH);
+        if uri_path_options
+            .next()
+            .is_some_and(|o| o.value() == b"stdout")
+            && uri_path_options.next().is_none()
+        {
+            return self.may_use_stdout;
+        } else {
+            return true;
+        }
+    }
+}
+
+#[derive(Debug)]
+struct SecContextState {
+    // FIXME: Should also include timeout. How do? Store expiry, do raytime in not-even-RTC mode,
+    // and whenever there is a new time stamp from AS, remove old ones?
+    authorization: AifStaticRest,
+    protocol_stage: SecContextStage,
+}
+
+impl Default for SecContextState {
+    fn default() -> Self {
+        Self {
+            authorization: AifStaticRest {
+                may_use_stdout: false,
+            },
+            protocol_stage: SecContextStage::Empty,
+        }
+    }
+}
+
+#[derive(Debug)]
+enum SecContextStage {
     Empty,
 
     // if we have time to spare, we can have empty-but-prepared-with-single-use-random-key entries
@@ -112,13 +165,23 @@ enum SecContextState {
 
 impl core::fmt::Display for SecContextState {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
-        use SecContextState::*;
-        match self {
+        use SecContextStage::*;
+        match &self.protocol_stage {
             Empty => f.write_str("empty"),
             EdhocResponderProcessedM1 { c_r, .. } => write!(f, "ProcessedM1, C_R = {:?}", c_r),
             EdhocResponderSentM2 { c_r, .. } => write!(f, "SentM3, C_R = {:?}", c_r),
-            Oscore(ctx) => write!(f, "OSCORE, C_R = {:?}", COwn::from_kid(ctx.recipient_id()).unwrap()),
-        }
+            Oscore(ctx) => write!(
+                f,
+                "OSCORE, C_R = {:?}",
+                COwn::from_kid(ctx.recipient_id()).unwrap()
+            ),
+        }?;
+        write!(
+            f,
+            " authorized to read stdin? {}",
+            self.authorization.may_use_stdout
+        )?;
+        Ok(())
     }
 }
 
@@ -130,32 +193,38 @@ const LEVEL_COUNT: usize = 4;
 
 impl crate::oluru::PriorityLevel for SecContextState {
     fn level(&self) -> usize {
-        match self {
-            SecContextState::Empty => LEVEL_EMTPY,
-            SecContextState::EdhocResponderProcessedM1 { .. } => {
+        match &self.protocol_stage {
+            SecContextStage::Empty => LEVEL_EMTPY,
+            SecContextStage::EdhocResponderProcessedM1 { .. } => {
                 // If this is ever tested, means we're outbound message limited, so let's try to
                 // get one through rather than pointlessly sending errors
                 LEVEL_ONGOING
             }
-            SecContextState::EdhocResponderSentM2 { .. } => {
+            SecContextStage::EdhocResponderSentM2 { .. } => {
                 // So far, the peer didn't prove they have anything other than entropy (maybe not
                 // even that)
                 LEVEL_ONGOING
             }
-            SecContextState::Oscore(_) => LEVEL_AUTHENTICATED,
+            SecContextStage::Oscore(_) => {
+                if self.authorization.may_use_stdout {
+                    LEVEL_ADMIN
+                } else {
+                    LEVEL_AUTHENTICATED
+                }
+            }
         }
     }
 }
 
 impl SecContextState {
     fn corresponding_cown(&self) -> Option<COwn> {
-        match self {
-            SecContextState::Empty => None,
+        match &self.protocol_stage {
+            SecContextStage::Empty => None,
             // We're keeping a c_r in there assigned early so that we can find the context when
             // building the response; nothing in the responder is tied to c_r yet.
-            SecContextState::EdhocResponderProcessedM1 { c_r, .. } => Some(*c_r),
-            SecContextState::EdhocResponderSentM2 { c_r, .. } => Some(*c_r),
-            SecContextState::Oscore(ctx) => COwn::from_kid(ctx.recipient_id()),
+            SecContextStage::EdhocResponderProcessedM1 { c_r, .. } => Some(*c_r),
+            SecContextStage::EdhocResponderSentM2 { c_r, .. } => Some(*c_r),
+            SecContextStage::Oscore(ctx) => COwn::from_kid(ctx.recipient_id()),
         }
     }
 }
@@ -171,13 +240,18 @@ pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler, L: Write> {
     // sense to make this a &mut).
     pool: SecContextPool,
     // FIXME: That 'static is going to bite us -- but EdhocResponderProcessedM1 holds a reference
-    // to it -- see SecContextState::EdhocResponderProcessedM1
+    // to it -- see SecContextStage::EdhocResponderProcessedM1
     own_identity: (&'a lakers::CredentialRPK, &'static [u8]),
 
     // FIXME: This currently bakes in the assumption that there is a single tree both for
     // unencrypted and encrypted resources. We may later generalize this by making this a factory,
     // or a single item that has two AsMut<impl Handler> accessors for separate encrypted and
     // unencrypted tree.
+
+    // FIXME That assumption could be easily violated by code changes that don't take the big
+    // picture into account. It might make sense to wrap the inner into some
+    // zero-cost/build-time-only wrapper that verifies that either request_is_allowed() has been
+    // called, or an AuthorizationChecked::Allowed is around.
     inner: H,
 
     log: L,
@@ -192,6 +266,28 @@ impl<'a, H: coap_handler::Handler, L: Write> OscoreEdhocHandler<'a, H, L> {
             log,
         }
     }
+
+    // FIXME: this should be configurable
+    fn unauthenticated_edhoc_user_authorization(&self) -> AifStaticRest {
+        AifStaticRest {
+            may_use_stdout: false,
+        }
+    }
+
+    // FIXME: this should be configurable
+    fn nosec_authorization(&self) -> AifStaticRest {
+        AifStaticRest {
+            may_use_stdout: false,
+        }
+    }
+}
+
+/// Wrapper around for a handler's inner RequestData
+pub enum AuthorizationChecked<I> {
+    /// Middleware checks were successful, data was extracted
+    Allowed(I),
+    /// Middleware checks failed, return an encrypted 4.03
+    NotAllowed,
 }
 
 pub enum EdhocResponse<I> {
@@ -202,7 +298,7 @@ pub enum EdhocResponse<I> {
     OscoreRequest {
         kid: COwn,
         correlation: liboscore::raw::oscore_requestid_t,
-        extracted: I,
+        extracted: AuthorizationChecked<I>,
     },
 }
 
@@ -258,9 +354,13 @@ impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrI
     }
 }
 
-impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdhocHandler<'a, H, L> {
-    type RequestData =
-        OrInner<EdhocResponse<Result<H::RequestData, H::ExtractRequestError>>, H::RequestData>;
+impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
+    for OscoreEdhocHandler<'a, H, L>
+{
+    type RequestData = OrInner<
+        EdhocResponse<Result<H::RequestData, H::ExtractRequestError>>,
+        AuthorizationChecked<H::RequestData>,
+    >;
 
     type ExtractRequestError = OrInner<CoAPError, H::ExtractRequestError>;
     type BuildResponseError<M: MinimalWritableMessage> =
@@ -333,11 +433,16 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
         }
 
         match state {
-            Start | WellKnown | Unencrypted => self
-                .inner
-                .extract_request_data(request)
-                .map(Inner)
-                .map_err(Inner),
+            Start | WellKnown | Unencrypted => {
+                if self.nosec_authorization().request_is_allowed(request) {
+                    self.inner
+                        .extract_request_data(request)
+                        .map(|extracted| Inner(AuthorizationChecked::Allowed(extracted)))
+                        .map_err(Inner)
+                } else {
+                    Ok(Inner(AuthorizationChecked::NotAllowed))
+                }
+            }
             WellKnownEdhoc => {
                 if request.code().into() != coap_numbers::code::POST {
                     return Err(Own(CoAPError::method_not_allowed()));
@@ -384,12 +489,13 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
                         write!(self.log, "{index},");
                     }
                     writeln!(self.log, "");
-                    let evicted =
-                        self.pool
-                            .force_insert(SecContextState::EdhocResponderProcessedM1 {
-                                c_r,
-                                responder,
-                            });
+                    let evicted = self.pool.force_insert(SecContextState {
+                        protocol_stage: SecContextStage::EdhocResponderProcessedM1 {
+                            c_r,
+                            responder,
+                        },
+                        authorization: self.unauthenticated_edhoc_user_authorization(),
+                    });
                     if let Some(evicted) = evicted {
                         writeln!(self.log, "To insert new EDHOC, evicted {}", evicted);
                     } else {
@@ -432,7 +538,12 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
                         .map_err(|_| Own(CoAPError::bad_request()))?;
                     let cutoff = decoder.position();
 
-                    if let SecContextState::EdhocResponderSentM2 { responder, c_r } = taken {
+                    if let SecContextState {
+                        protocol_stage: SecContextStage::EdhocResponderSentM2 { responder, c_r },
+                        .. // discarding authorization: We learn in message 3 what the real
+                           // credential is
+                    } = taken
+                    {
                         debug_assert_eq!(c_r, kid, "State was looked up by KID");
                         let msg_3 = lakers::EdhocMessageBuffer::new_from_slice(&payload[..cutoff])
                             .map_err(|e| Own(too_small(e)))?;
@@ -461,6 +572,9 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
 
                         let (mut responder, _prk_out) =
                             responder.verify_message_3(cred_i).map_err(render_error)?;
+
+                        // FIXME: learn from CRED_I
+                        let authorization = AifStaticRest { may_use_stdout: true };
 
                         let oscore_secret = responder.edhoc_exporter(0u8, &[], 16); // label is 0
                         let oscore_salt = responder.edhoc_exporter(1u8, &[], 8); // label is 1
@@ -492,7 +606,8 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
                         let context =
                             liboscore::PrimitiveContext::new_from_fresh_material(immutables);
 
-                        taken = SecContextState::Oscore(context);
+                        taken = SecContextState {
+                            protocol_stage: SecContextStage::Oscore(context), authorization };
                     } else {
                         // Return the state. Best bet is that it was already advanced to an OSCORE
                         // state, and the peer sent message 3 with multiple concurrent in-flight
@@ -505,7 +620,11 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
                     0
                 };
 
-                let SecContextState::Oscore(mut oscore_context) = taken else {
+                let SecContextState {
+                    protocol_stage: SecContextStage::Oscore(mut oscore_context),
+                    authorization,
+                } = taken
+                else {
                     // FIXME: How'd we even get there?
                     //
                     // ... and return taken
@@ -549,15 +668,24 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
                     allocated_message,
                     oscore_option,
                     &mut oscore_context,
-                    |request| self.inner.extract_request_data(request),
+                    |request| {
+                        if authorization.request_is_allowed(request) {
+                            AuthorizationChecked::Allowed(self.inner.extract_request_data(request))
+                        } else {
+                            AuthorizationChecked::NotAllowed
+                        }
+                    },
                 );
 
                 // With any luck, this never moves out.
                 //
                 // Storing it even on decryption failure to avoid DoS from the first message (but
                 // FIXME, should we increment an error count and lower priority?)
-                let evicted = self.pool.force_insert(SecContextState::Oscore(oscore_context));
-                debug_assert!(matches!(evicted, Some(SecContextState::Empty) | None), "A Default (Empty) was placed when an item was taken, which should have the lowest priority");
+                let evicted = self.pool.force_insert(SecContextState {
+                    protocol_stage: SecContextStage::Oscore(oscore_context),
+                    authorization,
+                });
+                debug_assert!(matches!(evicted, Some(SecContextState { protocol_stage: SecContextStage::Empty, .. }) | None), "A Default (Empty) was placed when an item was taken, which should have the lowest priority");
 
                 let Ok((correlation, extracted)) = decrypted else {
                     // FIXME is that the right code?
@@ -576,7 +704,8 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
     fn estimate_length(&mut self, req: &Self::RequestData) -> usize {
         match req {
             OrInner::Own(_) => 2 + lakers::MAX_BUFFER_LEN,
-            OrInner::Inner(i) => self.inner.estimate_length(i),
+            OrInner::Inner(AuthorizationChecked::Allowed(i)) => self.inner.estimate_length(i),
+            OrInner::Inner(AuthorizationChecked::NotAllowed) => 1,
         }
     }
     fn build_response<M: MutableWritableMessage>(
@@ -599,9 +728,13 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
                         // temporary default will not live long (and may be only constructed if
                         // prepare_message_2 fails)
                         let taken = core::mem::replace(matched, Default::default());
-                        let SecContextState::EdhocResponderProcessedM1 {
-                            c_r: matched_c_r,
-                            responder: taken,
+                        let SecContextState {
+                            protocol_stage:
+                                SecContextStage::EdhocResponderProcessedM1 {
+                                    c_r: matched_c_r,
+                                    responder: taken,
+                                },
+                            authorization,
                         } = taken
                         else {
                             todo!();
@@ -622,7 +755,13 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
                             )
                             // FIXME error handling
                             .unwrap();
-                        *matched = SecContextState::EdhocResponderSentM2 { responder, c_r };
+                        *matched = SecContextState {
+                            protocol_stage: SecContextStage::EdhocResponderSentM2 {
+                                responder,
+                                c_r,
+                            },
+                            authorization,
+                        };
                         message_2
                     },
                 );
@@ -649,7 +788,9 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
 
                 self.pool
                     .lookup(|c| c.corresponding_cown() == Some(kid), |matched| {
-                        let SecContextState::Oscore(ref mut oscore_context) = matched else {
+                        // Not checking authorization any more: we don't even have access to the
+                        // request any more, that check was done.
+                        let SecContextState { protocol_stage: SecContextStage::Oscore(ref mut oscore_context), .. } = matched else {
                             // FIXME render late error (it'd help if CoAPError also offered a type that unions it
                             // with an arbitrary other error). As it is, depending on the CoAP stack, there may be
                             // DoS if a peer can send many requests before the server starts rendering responses.
@@ -670,7 +811,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
                             oscore_context,
                             &mut correlation,
                             |response| match extracted {
-                                Ok(extracted) => match self.inner.build_response(response, extracted) {
+                                AuthorizationChecked::Allowed(Ok(extracted)) => match self.inner.build_response(response, extracted) {
                                     Ok(()) => {
                                         // All fine, response was built
                                     },
@@ -687,7 +828,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
                                         }
                                     },
                                 },
-                                Err(inner_request_error) => {
+                                AuthorizationChecked::Allowed(Err(inner_request_error)) => {
                                     match inner_request_error.render(response) {
                                         Ok(()) => {
                                             writeln!(self.log, "Extraction failed, inner error rendered successfully");
@@ -710,6 +851,11 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
                                         }
                                     }
                                 }
+                                AuthorizationChecked::NotAllowed => {
+                                    response.set_code(
+                                        coap_numbers::code::UNAUTHORIZED,
+                                    );
+                                }
                             },
                         )
                         .is_err()
@@ -719,7 +865,14 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
                         }
                     });
             }
-            Inner(i) => self.inner.build_response(response, i).map_err(Inner)?,
+            Inner(AuthorizationChecked::Allowed(i)) => {
+                self.inner.build_response(response, i).map_err(Inner)?
+            }
+            Inner(AuthorizationChecked::NotAllowed) => {
+                response.set_code(
+                    M::Code::new(coap_numbers::code::UNAUTHORIZED).map_err(|x| Own(x.into()))?,
+                );
+            }
         })
     }
 }
