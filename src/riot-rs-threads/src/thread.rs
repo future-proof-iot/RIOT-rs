@@ -40,7 +40,6 @@ pub enum ThreadState {
     ChannelRxBlocked(usize),
     /// Waiting to send on a [`super::channel::Channel`], i.e. waiting for the receiver.
     ChannelTxBlocked(usize),
-    Zombie,
 }
 
 impl Thread {
