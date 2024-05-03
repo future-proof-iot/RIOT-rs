@@ -1,3 +1,13 @@
+#!/usr/bin/env -S pipx run
+# /// script
+# requires-python = ">= 3.10"
+# dependencies = [
+#   "lakers-python == 0.3.0",
+#   "aiocoap[oscore] == 0.4.8",
+#   "cbor2",
+#   "coap_console == 0.0.1",
+# ]
+# ///
 """
 fake-it-until-you-make-it wrapper for sending an EDHOC+OSCORE request
 
@@ -14,11 +24,15 @@ Now it does EDHOC using lakers to a point where the name doesn't fit any more…
 """
 
 import asyncio
+import random
+
 import cbor2
 from aiocoap import *
 from aiocoap import numbers, oscore
 
 import lakers
+
+import coap_console
 
 # Someone told us that these are the credentials of devices that are our legitimate peers
 eligible_responders_ccs = {
@@ -67,8 +81,8 @@ class EdhocSecurityContext(
         master_salt = initiator.edhoc_exporter(1, [], oscore_salt_length)
         print(f"Derived {master_secret=} {master_salt=}")
 
-        self.sender_id = cbor2.dumps(c_theirs)
-        self.recipient_id = cbor2.dumps(c_ours)
+        self.sender_id = c_theirs
+        self.recipient_id = c_ours
         if self.sender_id == self.recipient_id:
             raise ValueError("Bad IDs: identical ones were picked")
 
@@ -96,9 +110,10 @@ async def main():
 
     priv, pub = lakers.p256_generate_key_pair()
 
-    c_i = 0x08
+    # We only run one connection so we don't care, but let's spread it
+    c_i = bytes([random.randint(0, 23)])
     initiator = lakers.EdhocInitiator()
-    message_1 = initiator.prepare_message_1(c_i=c_i)
+    message_1 = initiator.prepare_message_1(c_i)
 
     msg1 = Message(
         code=POST,
@@ -130,13 +145,16 @@ async def main():
         uri="coap://10.42.0.61/.well-known/core",
     )
 
-    print((await ctx.request(msg3).response_raising).payload)
+    print((await ctx.request(msg3).response_raising).payload.decode('utf8'))
 
     normalrequest = Message(
         code=GET,
         uri="coap://10.42.0.61/poem",
     )
-    print((await ctx.request(normalrequest).response).payload)
+    print((await ctx.request(normalrequest).response_raising).payload.decode('utf8'))
+
+    print("Reading stdiout through OSCORE:")
+    await coap_console.read_stream_to_console(ctx, "coap://10.42.0.61/stdout")
 
     await ctx.shutdown()
 
