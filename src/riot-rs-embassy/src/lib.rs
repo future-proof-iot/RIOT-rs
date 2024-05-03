@@ -6,6 +6,9 @@
 
 pub mod define_peripherals;
 
+#[cfg(context = "cortex-m")]
+pub mod executor_swi;
+
 cfg_if::cfg_if! {
     if #[cfg(context = "nrf")] {
         #[path = "arch/nrf/mod.rs"]
