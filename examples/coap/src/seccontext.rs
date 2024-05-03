@@ -656,17 +656,8 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler for OscoreEdh
                             panic!("State vanished before respone was built.");
                         };
 
-                        // Almost-but-not: This'd require 'static on Message which we can't have b/c the
-                        // type may be shortlived for good reason.
-                        /*
-                        let response: &mut dyn core::any::Any = response;
-                        let response: &mut coap_message_implementations::inmemory_write::Message = response.downcast_mut()
-                            .expect("libOSCORE currently only works with CoAP stacks whose response messages are inmemory_write");
-                        */
-                        // FIXME!
-                        let response: &mut M = response;
-                        let response: &mut coap_message_implementations::inmemory_write::Message =
-                            unsafe { core::mem::transmute(response) };
+                        let response = coap_message_implementations::inmemory_write::Message::downcast_from(response)
+                            .expect("OSCORE handler currently requires a response message implementation that is of fixed type");
 
                         response.set_code(coap_numbers::code::CHANGED);
 
