@@ -310,6 +310,12 @@ pub fn wakeup(thread_id: ThreadId) -> bool {
     })
 }
 
+/// Returns the size of the internal structure that holds the
+/// a thread's data.
+pub fn thread_struct_size() -> usize {
+    core::mem::size_of::<Thread>()
+}
+
 #[cfg(test)]
 mod tests {
     #[test]
