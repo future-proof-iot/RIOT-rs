@@ -261,6 +261,8 @@ contexts:
 
   - name: esp
     parent: riot-rs
+    selects:
+      - ?debug-console
     env:
       RUSTFLAGS:
         - --cfg context=\"esp\"
