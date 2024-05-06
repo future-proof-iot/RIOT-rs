@@ -50,8 +50,8 @@ impl Thread {
             state: ThreadState::Invalid,
             data: Cpu::DEFAULT_THREAD_DATA,
             flags: 0,
-            prio: 0,
-            pid: 0,
+            prio: RunqueueId(0),
+            pid: ThreadId(0),
         }
     }
 }

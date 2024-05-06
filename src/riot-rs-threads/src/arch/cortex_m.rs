@@ -182,16 +182,17 @@ unsafe fn sched() -> u128 {
                     return Some(0);
                 }
 
-                threads.threads[current_pid as usize].sp = cortex_m::register::psp::read() as usize;
+                threads.threads[usize::from(current_pid)].sp =
+                    cortex_m::register::psp::read() as usize;
                 threads.current_thread = Some(next_pid);
 
-                current_high_regs = threads.threads[current_pid as usize].data.as_ptr();
+                current_high_regs = threads.threads[usize::from(current_pid)].data.as_ptr();
             } else {
                 threads.current_thread = Some(next_pid);
                 current_high_regs = core::ptr::null();
             };
 
-            let next = &threads.threads[next_pid as usize];
+            let next = &threads.threads[usize::from(next_pid)];
             let next_sp = next.sp as usize;
             let next_high_regs = next.data.as_ptr() as usize;
 
