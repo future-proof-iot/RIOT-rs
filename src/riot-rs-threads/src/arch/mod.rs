@@ -1,3 +1,5 @@
+use crate::Thread;
+
 /// Arch-specific implementations for the scheduler.
 pub trait Arch {
     const DEFAULT_THREAD_DATA: Self::ThreadData;
@@ -13,7 +15,7 @@ pub trait Arch {
     /// it starts executing `func` with argument `arg`.
     /// Furthermore, it sets up the link-register with the [`crate::cleanup`] function that
     /// will be executed after the thread function returned.
-    fn setup_stack(stack: &mut [u8], func: usize, arg: usize) -> usize;
+    fn setup_stack(thread: &mut Thread, stack: &mut [u8], func: usize, arg: usize);
 
     /// Trigger a context switch.
     fn schedule();
@@ -27,13 +29,17 @@ cfg_if::cfg_if! {
         mod cortex_m;
         pub use cortex_m::Cpu;
     }
+    else if #[cfg(any(context = "esp32c3", context = "esp32c6"))] {
+        mod riscv;
+        pub use riscv::Cpu;
+    }
     else {
         pub struct Cpu;
         impl Arch for Cpu {
             type ThreadData = ();
             const DEFAULT_THREAD_DATA: Self::ThreadData = ();
 
-            fn setup_stack(_: &mut [u8], _: usize, _: usize) -> usize {
+            fn setup_stack( _: &mut Thread, _: &mut [u8], _: usize, _: usize) {
                 unimplemented!()
             }
             fn start_threading() {

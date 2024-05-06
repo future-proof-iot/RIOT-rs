@@ -3334,6 +3334,7 @@ dependencies = [
  "cortex-m-rt",
  "cortex-m-semihosting",
  "critical-section",
+ "esp-hal",
  "linkme",
  "panic-semihosting",
  "riot-rs-runqueue",
