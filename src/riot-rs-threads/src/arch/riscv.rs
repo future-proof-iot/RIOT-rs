@@ -120,23 +120,27 @@ fn FROM_CPU_INTR3(trap_frame: &mut TrapFrame) {
 /// It should only be called from inside the trap handler that is responsible for
 /// context switching.
 unsafe fn sched(trap_frame: &mut TrapFrame) {
-    unsafe {
-        let cs = CriticalSection::new();
-        let next_pid = if let Some(pid) = (&*THREADS.as_ptr(cs)).runqueue.get_next() {
-            pid
-        } else {
-            todo!();
-        };
+    loop {
+        if THREADS.with_mut(|mut threads| {
+            let next_pid = match threads.runqueue.get_next() {
+                Some(pid) => pid,
+                None => {
+                    riscv::asm::wfi();
+                    return false;
+                }
+            };
 
-        let threads = &mut *THREADS.as_ptr(cs);
-
-        if let Some(current_pid) = threads.current_pid() {
-            if next_pid == current_pid {
-                return;
+            if let Some(current_pid) = threads.current_pid() {
+                if next_pid == current_pid {
+                    return true;
+                }
+                copy_registers(trap_frame, &mut threads.threads[current_pid as usize].data);
             }
-            copy_registers(trap_frame, &mut threads.threads[current_pid as usize].data);
+            threads.current_thread = Some(next_pid);
+            copy_registers(&threads.threads[next_pid as usize].data, trap_frame);
+            true
+        }) {
+            break;
         }
-        threads.current_thread = Some(next_pid);
-        copy_registers(&threads.threads[next_pid as usize].data, trap_frame);
     }
 }
