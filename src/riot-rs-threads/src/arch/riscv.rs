@@ -1,8 +1,11 @@
 use crate::{cleanup, Arch, Thread, THREADS};
-use critical_section::CriticalSection;
+#[cfg(context = "esp32c6")]
+use esp_hal::peripherals::INTPRI as SYSTEM;
+#[cfg(context = "esp32c3")]
+use esp_hal::peripherals::SYSTEM;
 use esp_hal::{
     interrupt::{self, TrapFrame},
-    peripherals::{Interrupt, SYSTEM},
+    peripherals::Interrupt,
     prelude::*,
     riscv, Cpu as EspHalCpu,
 };

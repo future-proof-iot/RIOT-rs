@@ -29,7 +29,7 @@ cfg_if::cfg_if! {
         mod cortex_m;
         pub use cortex_m::Cpu;
     }
-    else if #[cfg(context = "esp32c3")] {
+    else if #[cfg(any(context = "esp32c3", context = "esp32c6"))] {
         mod riscv;
         pub use riscv::Cpu;
     }
