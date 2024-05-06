@@ -157,6 +157,8 @@ contexts:
   - name: nrf
     help: Nordic MCU support (based on embassy-nrf)
     parent: riot-rs
+    selects:
+      - ?probe-rs
     env:
       RUSTFLAGS:
         - --cfg context=\"nrf\"
@@ -202,7 +204,6 @@ contexts:
     parent: nrf
     selects:
       - thumbv8m.main-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
-      - probe-rs-run
     env:
       PROBE_RS_CHIP: nrf5340_xxAA
       RUSTFLAGS:
@@ -243,6 +244,8 @@ contexts:
 
   - name: rp2040
     parent: rp
+    selects:
+      - ?probe-rs
     env:
       RUSTFLAGS:
         - --cfg context=\"rp2040\"
@@ -258,6 +261,8 @@ contexts:
 
   - name: esp
     parent: riot-rs
+    selects:
+      - ?debug-console
     env:
       RUSTFLAGS:
         - --cfg context=\"esp\"
@@ -358,7 +363,6 @@ modules:
 
   - name: release
     selects:
-      - ?silent-panic
       - ?lto
 
   - name: debug-console
@@ -458,12 +462,18 @@ modules:
           - NRF52840_FLASH_SLOT_OFFSET=${FLASH_SLOT_OFFSET}
           - NRF52840_FLASH_SLOT=0
 
-  - name: probe-rs-run
+  - name: probe-rs
+    help: use probe-rs as runner
     selects:
       - ?debug-console
     env:
       global:
         CARGO_RUNNER: "'probe-rs run --chip ${PROBE_RS_CHIP}'"
+
+  - name: probe-rs-run
+    help: "deprecated alias for `probe-rs`"
+    selects:
+      - probe-rs
 
   - name: network
     selects:

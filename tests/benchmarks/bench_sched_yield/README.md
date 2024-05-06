@@ -8,4 +8,4 @@ This benchmark tests basic context switch performance.
 
 In this folder, run
 
-    laze build -b nrf52840dk -s probe-rs-run run
+    laze build -b nrf52840dk run
