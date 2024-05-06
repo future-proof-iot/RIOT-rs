@@ -16,3 +16,4 @@ subdirs:
   - minimal
   - random
   - threading
+  - threading-channel
