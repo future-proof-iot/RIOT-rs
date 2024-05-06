@@ -325,6 +325,8 @@ contexts:
       PROBE_RS_PROTOCOL: swd
       RUSTFLAGS:
         - --cfg context=\"stm32f401retx\"
+      CARGO_ENV:
+        - CONFIG_SWI=USART2
 
   - name: stm32wb55rgvx
     parent: stm32
@@ -335,6 +337,8 @@ contexts:
       PROBE_RS_PROTOCOL: swd
       RUSTFLAGS:
         - --cfg context=\"stm32wb55rgvx\"
+      CARGO_ENV:
+        - CONFIG_SWI=LPUART1
 
   - name: stm32h755zitx
     parent: stm32

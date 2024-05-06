@@ -1,24 +1,15 @@
 pub(crate) use embassy_executor::InterruptExecutor as Executor;
-pub use embassy_stm32::interrupt;
-pub use embassy_stm32::interrupt::LPUART1 as SWI;
-pub use embassy_stm32::{peripherals, Config, OptionalPeripherals, Peripherals};
+pub use embassy_stm32::{interrupt, peripherals, Config, OptionalPeripherals, Peripherals};
 
 use embassy_stm32::interrupt::{InterruptExt, Priority};
 
-#[interrupt]
-unsafe fn LPUART1() {
-    // SAFETY:
-    // - called from ISR
-    // - not called before `start()`, as the interrupt is enabled by `start()`
-    //   itself
-    unsafe { crate::EXECUTOR.on_interrupt() }
-}
+include!(concat!(env!("OUT_DIR"), "/swi.rs"));
 
 use riot_rs_debug::println;
 pub fn init(_config: Config) -> OptionalPeripherals {
     let mut config = Config::default();
     {
-        use embassy_stm32::rcc::*;
+        //use embassy_stm32::rcc::*;
         // config.rcc.hsi = Some(HSIPrescaler::DIV1);
         // config.rcc.csi = true;
         // config.rcc.hsi48 = Some(Hsi48Config {
