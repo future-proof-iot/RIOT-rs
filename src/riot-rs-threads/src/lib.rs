@@ -69,7 +69,7 @@ impl Threads {
     /// Returns `None` if there is no current thread.
     fn current(&mut self) -> Option<&mut Thread> {
         self.current_thread
-            .map(|tid| &mut self.threads[tid as usize])
+            .map(|tid| &mut self.threads[usize::from(tid)])
     }
 
     fn current_pid(&self) -> Option<ThreadId> {
@@ -86,7 +86,7 @@ impl Threads {
         func: usize,
         arg: usize,
         stack: &'static mut [u8],
-        prio: u8,
+        prio: RunqueueId,
     ) -> Option<&mut Thread> {
         if let Some((thread, pid)) = self.get_unused() {
             Cpu::setup_stack(thread, stack, func, arg);
@@ -112,14 +112,14 @@ impl Threads {
     /// If the thread for this `thread_id` is in an invalid state, the
     /// data in the returned [`Thread`] is undefined, i.e. empty or outdated.
     fn get_unchecked_mut(&mut self, thread_id: ThreadId) -> &mut Thread {
-        &mut self.threads[thread_id as usize]
+        &mut self.threads[usize::from(thread_id)]
     }
 
     /// Returns an unused ThreadId / Thread slot.
     fn get_unused(&mut self) -> Option<(&mut Thread, ThreadId)> {
         for i in 0..THREADS_NUMOF {
             if self.threads[i].state == ThreadState::Invalid {
-                return Some((&mut self.threads[i], i as ThreadId));
+                return Some((&mut self.threads[i], ThreadId::new(i as u8)));
             }
         }
         None
@@ -127,10 +127,10 @@ impl Threads {
 
     /// Checks if a thread with valid state exists for this `thread_id`.
     fn is_valid_pid(&self, thread_id: ThreadId) -> bool {
-        if thread_id as usize >= THREADS_NUMOF {
+        if usize::from(thread_id) >= THREADS_NUMOF {
             false
         } else {
-            self.threads[thread_id as usize].state != ThreadState::Invalid
+            self.threads[usize::from(thread_id)].state != ThreadState::Invalid
         }
     }
 
@@ -143,7 +143,7 @@ impl Threads {
     ///
     /// Panics if `pid` is >= [`THREADS_NUMOF`].
     fn set_state(&mut self, pid: ThreadId, state: ThreadState) -> ThreadState {
-        let thread = &mut self.threads[pid as usize];
+        let thread = &mut self.threads[usize::from(pid)];
         let old_state = thread.state;
         thread.state = state;
         if old_state != ThreadState::Running && state == ThreadState::Running {
@@ -158,7 +158,7 @@ impl Threads {
     /// Returns the state of a thread.
     fn get_state(&self, thread_id: ThreadId) -> Option<ThreadState> {
         if self.is_valid_pid(thread_id) {
-            Some(self.threads[thread_id as usize].state)
+            Some(self.threads[usize::from(thread_id)].state)
         } else {
             None
         }
@@ -238,7 +238,10 @@ pub unsafe fn thread_create_raw(
     prio: u8,
 ) -> ThreadId {
     THREADS.with_mut(|mut threads| {
-        let thread_id = threads.create(func, arg, stack, prio).unwrap().pid;
+        let thread_id = threads
+            .create(func, arg, stack, RunqueueId::new(prio))
+            .unwrap()
+            .pid;
         threads.set_state(thread_id, ThreadState::Running);
         thread_id
     })

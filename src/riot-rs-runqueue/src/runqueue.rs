@@ -8,8 +8,35 @@ use self::clist::CList;
 const USIZE_BITS: usize = mem::size_of::<usize>() * 8;
 
 /// Runqueue number.
-pub type RunqueueId = u8;
-pub type ThreadId = u8;
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct RunqueueId(u8);
+
+impl RunqueueId {
+    pub const fn new(value: u8) -> Self {
+        Self(value)
+    }
+}
+
+impl From<RunqueueId> for usize {
+    fn from(value: RunqueueId) -> Self {
+        usize::from(value.0)
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+pub struct ThreadId(u8);
+
+impl ThreadId {
+    pub const fn new(value: u8) -> Self {
+        Self(value)
+    }
+}
+
+impl From<ThreadId> for usize {
+    fn from(value: ThreadId) -> Self {
+        usize::from(value.0)
+    }
+}
 
 /// Runqueue for `N_QUEUES`, supporting `N_THREADS` total.
 ///
@@ -46,10 +73,10 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
 
     /// Adds thread with pid `n` to runqueue number `rq`.
     pub fn add(&mut self, n: ThreadId, rq: RunqueueId) {
-        debug_assert!((n as usize) < N_THREADS);
-        debug_assert!((rq as usize) < N_QUEUES);
-        self.bitcache |= 1 << rq;
-        self.queues.push(n, rq);
+        debug_assert!(usize::from(n) < N_THREADS);
+        debug_assert!(usize::from(rq) < N_QUEUES);
+        self.bitcache |= 1 << rq.0;
+        self.queues.push(n.0, rq.0);
     }
 
     /// Removes thread with pid `n` from runqueue number `rq`.
@@ -59,33 +86,33 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     /// Panics if `n` is not the queue's head.
     /// This is fine, RIOT-rs only ever calls `del()` for the current thread.
     pub fn del(&mut self, n: ThreadId, rq: RunqueueId) {
-        debug_assert!((n as usize) < N_THREADS);
-        debug_assert!((rq as usize) < N_QUEUES);
-        let popped = self.queues.pop_head(rq);
+        debug_assert!(usize::from(n) < N_THREADS);
+        debug_assert!(usize::from(rq) < N_QUEUES);
+        let popped = self.queues.pop_head(rq.0);
         //
-        assert_eq!(popped, Some(n));
-        if self.queues.is_empty(rq) {
-            self.bitcache &= !(1 << rq);
+        assert_eq!(popped, Some(n.0));
+        if self.queues.is_empty(rq.0) {
+            self.bitcache &= !(1 << rq.0);
         }
     }
 
     fn ffs(val: usize) -> u32 {
-        USIZE_BITS as u32 - val.leading_zeros()
+        (USIZE_BITS as u32 - val.leading_zeros()) as u32
     }
 
     /// Returns the pid that should run next.
     ///
     /// Returns the next runnable thread of
     /// the runqueue with the highest index.
-    //
-    // TODO: Return `ThreadId` instead of u8?
-    pub fn get_next(&self) -> Option<u8> {
+    pub fn get_next(&self) -> Option<ThreadId> {
         let rq_ffs = Self::ffs(self.bitcache);
-        if rq_ffs > 0 {
-            let rq = (rq_ffs - 1) as RunqueueId;
-            self.queues.peek_head(rq)
-        } else {
-            None
+        if rq_ffs == 0 {
+            return None;
+        }
+        let rq = RunqueueId::new(rq_ffs as u8 - 1);
+        match self.queues.peek_head(rq.0) {
+            Some(id) => Some(ThreadId::new(id)),
+            None => None,
         }
     }
 
@@ -93,8 +120,8 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     ///
     /// This is used to "yield" to another thread of *the same* priority.
     pub fn advance(&mut self, rq: RunqueueId) {
-        debug_assert!((rq as usize) < N_QUEUES);
-        self.queues.advance(rq)
+        debug_assert!((usize::from(rq)) < N_QUEUES);
+        self.queues.advance(rq.0)
     }
 }
 
@@ -103,8 +130,6 @@ mod clist {
     //! array of size `N_THREADS`.
     //! The array is used for "next" pointers, so each integer value in the array
     //! corresponds to one element, which can only be in one of the lists.
-    use super::{RunqueueId, ThreadId};
-
     #[derive(Debug, Copy, Clone)]
     pub struct CList<const N_QUEUES: usize, const N_THREADS: usize> {
         tail: [u8; N_QUEUES],
@@ -125,11 +150,11 @@ mod clist {
             0xFF
         }
 
-        pub fn is_empty(&self, rq: RunqueueId) -> bool {
+        pub fn is_empty(&self, rq: u8) -> bool {
             self.tail[rq as usize] == Self::sentinel()
         }
 
-        pub fn push(&mut self, n: ThreadId, rq: RunqueueId) {
+        pub fn push(&mut self, n: u8, rq: u8) {
             assert!(n < Self::sentinel());
             if self.next_idxs[n as usize] == Self::sentinel() {
                 if self.tail[rq as usize] == Self::sentinel() {
@@ -148,7 +173,7 @@ mod clist {
             }
         }
 
-        pub fn pop_head(&mut self, rq: RunqueueId) -> Option<u8> {
+        pub fn pop_head(&mut self, rq: u8) -> Option<u8> {
             if self.tail[rq as usize] == Self::sentinel() {
                 // rq is empty, do nothing
                 None
@@ -171,7 +196,7 @@ mod clist {
             }
         }
 
-        pub fn peek_head(&self, rq: RunqueueId) -> Option<u8> {
+        pub fn peek_head(&self, rq: u8) -> Option<u8> {
             if self.tail[rq as usize] == Self::sentinel() {
                 None
             } else {
@@ -179,7 +204,7 @@ mod clist {
             }
         }
 
-        pub fn advance(&mut self, rq: RunqueueId) {
+        pub fn advance(&mut self, rq: u8) {
             if self.tail[rq as usize] != Self::sentinel() {
                 self.tail[rq as usize] = self.next_idxs[self.tail[rq as usize] as usize];
             }

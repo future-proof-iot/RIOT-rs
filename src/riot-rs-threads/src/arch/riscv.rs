@@ -137,10 +137,13 @@ unsafe fn sched(trap_frame: &mut TrapFrame) {
                 if next_pid == current_pid {
                     return true;
                 }
-                copy_registers(trap_frame, &mut threads.threads[current_pid as usize].data);
+                copy_registers(
+                    trap_frame,
+                    &mut threads.threads[usize::from(current_pid)].data,
+                );
             }
             threads.current_thread = Some(next_pid);
-            copy_registers(&threads.threads[next_pid as usize].data, trap_frame);
+            copy_registers(&threads.threads[usize::from(next_pid)].data, trap_frame);
             true
         }) {
             break;
