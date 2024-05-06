@@ -6,9 +6,6 @@
 // invariants
 #![allow(clippy::indexing_slicing)]
 
-use riot_rs_runqueue::RunQueue;
-pub use riot_rs_runqueue::{RunqueueId, ThreadId};
-
 mod arch;
 mod ensure_once;
 mod thread;
@@ -18,13 +15,13 @@ pub mod channel;
 pub mod lock;
 pub mod thread_flags;
 
-pub use arch::schedule;
-pub use thread::{Thread, ThreadState};
+pub use riot_rs_runqueue::{RunqueueId, ThreadId};
 pub use thread_flags as flags;
-pub use threadlist::ThreadList;
 
-use arch::{Arch, Cpu, ThreadData};
+use arch::{schedule, Arch, Cpu, ThreadData};
 use ensure_once::EnsureOnce;
+use riot_rs_runqueue::RunQueue;
+use thread::{Thread, ThreadState};
 
 /// a global defining the number of possible priority levels
 pub const SCHED_PRIO_LEVELS: usize = 12;
@@ -32,7 +29,7 @@ pub const SCHED_PRIO_LEVELS: usize = 12;
 /// a global defining the number of threads that can be created
 pub const THREADS_NUMOF: usize = 16;
 
-pub(crate) static THREADS: EnsureOnce<Threads> = EnsureOnce::new(Threads::new());
+static THREADS: EnsureOnce<Threads> = EnsureOnce::new(Threads::new());
 
 pub type ThreadFn = fn();
 
@@ -40,7 +37,7 @@ pub type ThreadFn = fn();
 pub static THREAD_FNS: [ThreadFn] = [..];
 
 /// Struct holding all scheduler state
-pub struct Threads {
+struct Threads {
     /// Global thread runqueue.
     runqueue: RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF>,
     /// The actual TCBs.
@@ -70,12 +67,12 @@ impl Threads {
     /// running thread.
     ///
     /// Returns `None` if there is no current thread.
-    pub(crate) fn current(&mut self) -> Option<&mut Thread> {
+    fn current(&mut self) -> Option<&mut Thread> {
         self.current_thread
             .map(|tid| &mut self.threads[tid as usize])
     }
 
-    pub fn current_pid(&self) -> Option<ThreadId> {
+    fn current_pid(&self) -> Option<ThreadId> {
         self.current_thread
     }
 
@@ -84,7 +81,7 @@ impl Threads {
     /// This sets up the stack and TCB for this thread.
     ///
     /// Returns `None` if there is no free thread slot.
-    pub(crate) fn create(
+    fn create(
         &mut self,
         func: usize,
         arg: usize,
@@ -145,7 +142,7 @@ impl Threads {
     /// # Panics
     ///
     /// Panics if `pid` is >= [`THREADS_NUMOF`].
-    pub(crate) fn set_state(&mut self, pid: ThreadId, state: ThreadState) -> ThreadState {
+    fn set_state(&mut self, pid: ThreadId, state: ThreadState) -> ThreadState {
         let thread = &mut self.threads[pid as usize];
         let old_state = thread.state;
         thread.state = state;
@@ -159,7 +156,7 @@ impl Threads {
     }
 
     /// Returns the state of a thread.
-    pub fn get_state(&self, thread_id: ThreadId) -> Option<ThreadState> {
+    fn get_state(&self, thread_id: ThreadId) -> Option<ThreadState> {
         if self.is_valid_pid(thread_id) {
             Some(self.threads[thread_id as usize].state)
         } else {
@@ -247,14 +244,6 @@ pub unsafe fn thread_create_raw(
     })
 }
 
-/// Returns the [`ThreadState`] for this `thread_id`.
-///
-/// Returns `None` if `thread_id` is out of bound or no thread with
-/// valid state exists.
-pub fn get_state(thread_id: ThreadId) -> Option<ThreadState> {
-    THREADS.with(|threads| threads.get_state(thread_id))
-}
-
 /// Returns the [`ThreadId`] of the currently active thread.
 ///
 /// Note: when called from ISRs, this will return the thread id of the thread
@@ -319,6 +308,12 @@ pub fn wakeup(thread_id: ThreadId) -> bool {
             false
         }
     })
+}
+
+/// Returns the size of the internal structure that holds the
+/// a thread's data.
+pub fn thread_struct_size() -> usize {
+    core::mem::size_of::<Thread>()
 }
 
 #[cfg(test)]

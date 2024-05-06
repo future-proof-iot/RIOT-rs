@@ -13,7 +13,7 @@ fn main() {
     );
     println!(
         "riot_rs::thread::Thread: {}",
-        core::mem::size_of::<riot_rs::thread::Thread>(),
+        riot_rs::thread::thread_struct_size()
     );
 
     exit(EXIT_SUCCESS);
