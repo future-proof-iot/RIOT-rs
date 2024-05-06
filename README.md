@@ -82,7 +82,7 @@ example](https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/hello-wo
 
 1. Compile, flash and the hello-world example using `probe-rs run`
 
-        laze -C examples/hello-world build -b nrf52840dk -s probe-rs-run run
+        laze -C examples/hello-world build -b nrf52840dk run
 
 ![Example](./doc/hello-world_render.svg)
 
