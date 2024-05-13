@@ -297,6 +297,8 @@ contexts:
   - name: stm32
     help: STM32 support (based on embassy-stm32)
     parent: riot-rs
+    selects:
+      - ?probe-rs
     env:
       OPENOCD_ARGS: foo
       RUSTFLAGS:
@@ -569,6 +571,7 @@ modules:
       - rpi-pico
       - rpi-pico-w
       - particle-xenon
+      - st-nucleo-wb55
     env:
       global:
         RUSTFLAGS:
@@ -763,21 +766,15 @@ builders:
     #FLASH : ORIGIN = 0x08000000, LENGTH = 512K
     #RAM : ORIGIN = 0x20000000, LENGTH = 96K
     # rcc.cfgr.use_hse(8.mhz()).freeze();
-    selects:
-      - probe-rs-run
 
   - name: st-nucleo-h755zi-q
     parent: stm32h755zitx
-    selects:
-      - probe-rs-run
 
   - name: st-nucleo-wb55
     parent: stm32wb55rgvx
     #FLASH : ORIGIN = 0x08000000, LENGTH = 512K
     #RAM : ORIGIN = 0x20000000, LENGTH = 96K
     # rcc.cfgr.use_hse(8.mhz()).freeze();
-    selects:
-      - probe-rs-run
 
 apps:
   # define a dummy host application so the host tasks work
