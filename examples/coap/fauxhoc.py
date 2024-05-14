@@ -27,8 +27,7 @@ import asyncio
 import random
 
 import cbor2
-from aiocoap import *
-from aiocoap import numbers, oscore
+from aiocoap import oscore, Message, POST, Context, GET
 
 import lakers
 
@@ -145,13 +144,13 @@ async def main():
         uri="coap://10.42.0.61/.well-known/core",
     )
 
-    print((await ctx.request(msg3).response_raising).payload.decode('utf8'))
+    print((await ctx.request(msg3).response_raising).payload.decode("utf8"))
 
     normalrequest = Message(
         code=GET,
         uri="coap://10.42.0.61/poem",
     )
-    print((await ctx.request(normalrequest).response_raising).payload.decode('utf8'))
+    print((await ctx.request(normalrequest).response_raising).payload.decode("utf8"))
 
     print("Reading stdiout through OSCORE:")
     await coap_console.read_stream_to_console(ctx, "coap://10.42.0.61/stdout")
