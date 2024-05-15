@@ -2207,7 +2207,7 @@ dependencies = [
 [[package]]
 name = "lakers"
 version = "0.5.1"
-source = "git+https://github.com/openwsn-berkeley/lakers/#c0d74ac59b2fc68ebedf7882975ef0ce546cc2c5"
+source = "git+https://github.com/openwsn-berkeley/lakers/#7c54187adedb607392435eb0ab832af68403a356"
 dependencies = [
  "lakers-shared",
 ]
@@ -2215,7 +2215,7 @@ dependencies = [
 [[package]]
 name = "lakers-crypto-rustcrypto"
 version = "0.5.1"
-source = "git+https://github.com/openwsn-berkeley/lakers/#c0d74ac59b2fc68ebedf7882975ef0ce546cc2c5"
+source = "git+https://github.com/openwsn-berkeley/lakers/#7c54187adedb607392435eb0ab832af68403a356"
 dependencies = [
  "aead",
  "aes",
@@ -2230,7 +2230,7 @@ dependencies = [
 [[package]]
 name = "lakers-shared"
 version = "0.5.1"
-source = "git+https://github.com/openwsn-berkeley/lakers/#c0d74ac59b2fc68ebedf7882975ef0ce546cc2c5"
+source = "git+https://github.com/openwsn-berkeley/lakers/#7c54187adedb607392435eb0ab832af68403a356"
 
 [[package]]
 name = "lalrpop"

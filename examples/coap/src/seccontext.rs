@@ -565,25 +565,47 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                             return Err(Own(CoAPError::bad_request()));
                         }
 
-                        // FIXME: Right now this can only do credential-by-value
-                        if id_cred_i.reference_only() {
-                            writeln!(self.log, "Got reference only, need to upgrade");
-                        } else {
-                            writeln!(self.log, "Got full credential, need to evaluate");
-                        }
 
-                        use hexlit::hex;
-                        const CRED_I: &[u8] = &hex!("A2027734322D35302D33312D46462D45462D33372D33322D333908A101A5010202412B2001215820AC75E9ECE3E50BFC8ED60399889522405C47BF16DF96660A41298CB4307F7EB62258206E5DE611388A4B8A8211334AC7D37ECB52A387D257E6DB3C2A93DF21FF3AFFC8");
-                        let cred_i = lakers::CredentialRPK::new(
-                            CRED_I.try_into().expect("Static credential is too large"),
-                        )
-                        .expect("Static credential is not processable");
+                        let cred_i;
+                        let authorization;
+
+                        if id_cred_i.reference_only() {
+                            match id_cred_i.kid {
+                                43 => {
+                                    writeln!(self.log, "Peer indicates use of the one preconfigured key");
+
+                                    use hexlit::hex;
+                                    const CRED_I: &[u8] = &hex!("A2027734322D35302D33312D46462D45462D33372D33322D333908A101A5010202412B2001215820AC75E9ECE3E50BFC8ED60399889522405C47BF16DF96660A41298CB4307F7EB62258206E5DE611388A4B8A8211334AC7D37ECB52A387D257E6DB3C2A93DF21FF3AFFC8");
+
+                                    cred_i = lakers::CredentialRPK::new(
+                                        CRED_I.try_into().expect("Static credential is too large"),
+                                    )
+                                        .expect("Static credential is not processable");
+
+                                    // FIXME: learn from CRED_I
+                                    authorization = AifStaticRest { may_use_stdout: true };
+                                }
+                                _ => {
+                                    // FIXME: send better message
+                                    return Err(Own(CoAPError::bad_request()));
+                                },
+                            }
+                        } else {
+                            writeln!(self.log, "Got credential by value: {:?}..", &id_cred_i.value.get_slice(0, 5));
+
+                            cred_i = lakers::CredentialRPK::new(id_cred_i.value)
+                                // FIXME What kind of error do we send here?
+                                .map_err(|_| Own(CoAPError::bad_request()))?;
+
+                            // FIXME: Do we want to continue at all? At least we don't allow
+                            // stdout, but let's otherwise continue with the privileges of an
+                            // unencrypted peer (allowing opportunistic encryption b/c we have
+                            // enough slots to spare for some low-priority connections)
+                            authorization = AifStaticRest { may_use_stdout: false };
+                        }
 
                         let (mut responder, _prk_out) =
                             responder.verify_message_3(cred_i).map_err(render_error)?;
-
-                        // FIXME: learn from CRED_I
-                        let authorization = AifStaticRest { may_use_stdout: true };
 
                         let oscore_secret = responder.edhoc_exporter(0u8, &[], 16); // label is 0
                         let oscore_salt = responder.edhoc_exporter(1u8, &[], 8); // label is 1
