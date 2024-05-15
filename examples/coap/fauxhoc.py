@@ -2,8 +2,7 @@
 # /// script
 # requires-python = ">= 3.10"
 # dependencies = [
-#   # 0.3.0 is insufficient for --random-identity, but works for the default case
-#   "lakers-python == 0.3.0",
+#   "lakers-python == 0.3.1",
 #   "aiocoap[oscore] == 0.4.8",
 #   "cbor2",
 #   "coap_console == 0.0.1",
@@ -51,7 +50,7 @@ args = p.parse_args()
 
 if args.peer.count("/") != 2:
     p.error(
-        "Peer should be given as 'coap://[2001:db8:;1]' or similar, without trailing slash."
+        "Peer should be given as 'coap://[2001:db8::1]' or similar, without trailing slash."
     )
 
 # Someone told us that these are the credentials of devices that are our legitimate peers
@@ -146,12 +145,12 @@ class EdhocSecurityContext(
 async def main():
     ctx = await Context.create_client_context()
 
-    priv, pub = lakers.p256_generate_key_pair()
-
     # We only run one connection so we don't care, but let's spread it
     c_i = bytes([random.randint(0, 23)])
     initiator = lakers.EdhocInitiator()
     message_1 = initiator.prepare_message_1(c_i)
+
+    print(f"Initiating EDHOC session with the device at {args.peer}")
 
     msg1 = Message(
         code=POST,
@@ -162,17 +161,13 @@ async def main():
     msg2 = await ctx.request(msg1).response_raising
 
     (c_r, id_cred_r, ead_2) = initiator.parse_message_2(msg2.payload)
-    # https://github.com/openwsn-berkeley/lakers/issues/256 -- conveniently,
-    # after it is fixed, the line becomes a no-op, so this can stay in until a
-    # Lakers release to PyPI happened.
-    id_cred_r = bytes(id_cred_r)
-
-    print(f"Received MSG2 with {c_r=} {id_cred_r=} {ead_2=}")
 
     cred_r = eligible_responders[id_cred_r]
     initiator.verify_message_2(
         KEY_I, CRED_I, cred_r
     )  # odd that we provide that here rather than in the next function
+
+    print(f"EDHOC setup in progress. Message 2 has been received, and we verified that the device is who we expect it to be. Sending actual requests now, along with the final message 3 that tells the device that we are authorized to do that.")
 
     oscore_context = EdhocSecurityContext(initiator, c_i, c_r)
 
@@ -183,29 +178,38 @@ async def main():
         uri=args.peer + "/.well-known/core",
     )
 
-    print((await ctx.request(msg3).response_raising).payload.decode("utf8"))
+    wkc = (await ctx.request(msg3).response_raising).payload.decode("utf8")
+    print("Success: As a response was received, we know that encrypted communication was established.")
+    print()
+    print("Received /.well-known/core (discovery information):")
+    print(wkc)
+    print()
 
     normalrequest = Message(
         code=GET,
         uri=args.peer + "/poem",
     )
-    print((await ctx.request(normalrequest).response_raising).payload.decode("utf8"))
+    poem = (await ctx.request(normalrequest).response_raising).payload.decode("utf8")
+    print("Received /poem (a resource transported in multiple blocks):")
+    print(poem)
+    print()
 
-    print("Reading stdout through OSCORE:")
+    print(f"Requesting additional diagnostic data (success is {'not expected' if args.random_identity else 'expected'})")
     try:
         # pre-flight b/c read_stream_to_console has bad error reporting
         await ctx.request(Message(code=GET, uri=args.peer + "/stdout")).response_raising
     except error.ResponseWrappingError as e:
         print(
-            "Received response but no success:",
+            "Received encrypted response but no success:",
             e.coapmessage.code,
             e.coapmessage.payload.decode("utf8"),
         )
     else:
+        print("The remaining output is diagnostic output from the device, and will be updated continuously:")
         await coap_console.read_stream_to_console(ctx, args.peer + "/stdout")
 
     await ctx.shutdown()
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    asyncio.run(coap_console.aiocoap_errors_are_pretty(main()))
