@@ -485,7 +485,15 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                     let c_r = COwn::not_in_iter(
                         self.pool
                             .iter()
-                            .filter_map(|entry| entry.corresponding_cown()),
+                            .filter_map(|entry| entry.corresponding_cown())
+                            // C_R does not only need to be unique, it also must not be identical
+                            // to C_I
+                            .chain(
+                                COwn::from_kid(c_i.as_slice())
+                                    .as_slice()
+                                    .into_iter()
+                                    .cloned(),
+                            ),
                     );
 
                     writeln!(self.log, "Entries in pool:");
