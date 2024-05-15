@@ -22,5 +22,6 @@ pub fn init() -> OptionalPeripherals {
     }
 
     let peripherals = embassy_rp::init(embassy_rp::config::Config::default());
+
     OptionalPeripherals::from(peripherals)
 }
