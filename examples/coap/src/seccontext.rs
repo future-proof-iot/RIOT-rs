@@ -266,6 +266,8 @@ pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler, L: Write> {
 }
 
 impl<'a, H: coap_handler::Handler, L: Write> OscoreEdhocHandler<'a, H, L> {
+    // FIXME: Apart from an own identity, this will also need a function to convert ID_CRED_I into
+    // a (CRED_I, AifStaticRest) pair.
     pub fn new(own_identity: (&'a lakers::CredentialRPK, &'static [u8]), inner: H, log: L) -> Self {
         Self {
             pool: Default::default(),
@@ -557,8 +559,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
 
                     if let SecContextState {
                         protocol_stage: SecContextStage::EdhocResponderSentM2 { responder, c_r, c_i },
-                        .. // discarding authorization: We learn in message 3 what the real
-                           // credential is
+                        authorization: original_authorization // So far, this is self.unauthenticated_edhoc_user_authorization()
                     } = taken
                     {
                         debug_assert_eq!(c_r, kid, "State was looked up by KID");
@@ -609,7 +610,10 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                             // stdout, but let's otherwise continue with the privileges of an
                             // unencrypted peer (allowing opportunistic encryption b/c we have
                             // enough slots to spare for some low-priority connections)
-                            authorization = AifStaticRest { may_use_stdout: false };
+                            //
+                            // The original_authorization may even have a hint (like, we might
+                            // continue if it is not completely empty)
+                            authorization = original_authorization;
                         }
 
                         let (mut responder, _prk_out) =
