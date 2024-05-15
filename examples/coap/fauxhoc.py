@@ -36,12 +36,23 @@ import lakers
 import coap_console
 
 p = argparse.ArgumentParser()
-p.add_argument("--random-identity", help="Instead of using the known credential, make one up. Chances are the server will not accept this for privileged operations.", action="store_true")
-p.add_argument("peer", help="URI (scheme and host); defaults to the current RIOT-rs default {default}", default="coap://10.42.0.61", nargs="?")
+p.add_argument(
+    "--random-identity",
+    help="Instead of using the known credential, make one up. Chances are the server will not accept this for privileged operations.",
+    action="store_true",
+)
+p.add_argument(
+    "peer",
+    help="URI (scheme and host); defaults to the current RIOT-rs default {default}",
+    default="coap://10.42.0.61",
+    nargs="?",
+)
 args = p.parse_args()
 
 if args.peer.count("/") != 2:
-    p.error("Peer should be given as 'coap://[2001:db8:;1]' or similar, without trailing slash.")
+    p.error(
+        "Peer should be given as 'coap://[2001:db8:;1]' or similar, without trailing slash."
+    )
 
 # Someone told us that these are the credentials of devices that are our legitimate peers
 eligible_responders_ccs = {
@@ -64,7 +75,7 @@ if args.random_identity:
     # b/c it doesn't need it for key derivation, which is fortunate because the
     # generator doesn't produce one either. (It's not like this key is going to
     # be used for signing or encryption).
-    cred_i_data = {2: "me", 8: {1: {1: 2, 2: b'\x2b', -1: 1, -2: public, -3: b'0'}}}
+    cred_i_data = {2: "me", 8: {1: {1: 2, 2: b"\x2b", -1: 1, -2: public, -3: b"0"}}}
     # We could slim it down to
     # >>> cred_i_data = {8: {1: {1: 2, -1: 1, -2: public}}}
     # but even if the peer had the code to process that into a valid
@@ -77,7 +88,9 @@ else:
     CRED_I = bytes.fromhex(
         "A2027734322D35302D33312D46462D45462D33372D33322D333908A101A5010202412B2001215820AC75E9ECE3E50BFC8ED60399889522405C47BF16DF96660A41298CB4307F7EB62258206E5DE611388A4B8A8211334AC7D37ECB52A387D257E6DB3C2A93DF21FF3AFFC8"
     )
-    KEY_I = bytes.fromhex("fb13adeb6518cee5f88417660841142e830a81fe334380a953406a1305e8706b")
+    KEY_I = bytes.fromhex(
+        "fb13adeb6518cee5f88417660841142e830a81fe334380a953406a1305e8706b"
+    )
     # Because the peer knows, but also because it's just a bit too long to pass around by value
     cred_i_mode = lakers.CredentialTransfer.ByReference
 
@@ -88,9 +101,7 @@ class EdhocSecurityContext(
     def __init__(self, initiator, c_ours, c_theirs):
         # initiator could also be responder, and only this line would need to change
         # FIXME Only ByReference implemented in edhoc.rs so far
-        self.message_3, _i_prk_out = initiator.prepare_message_3(
-            cred_i_mode, None
-        )
+        self.message_3, _i_prk_out = initiator.prepare_message_3(cred_i_mode, None)
 
         if initiator.selected_cipher_suite() == 2:
             self.alg_aead = oscore.algorithms["AES-CCM-16-64-128"]
@@ -185,7 +196,11 @@ async def main():
         # pre-flight b/c read_stream_to_console has bad error reporting
         await ctx.request(Message(code=GET, uri=args.peer + "/stdout")).response_raising
     except error.ResponseWrappingError as e:
-        print("Received response but no success:", e.coapmessage.code, e.coapmessage.payload.decode('utf8'))
+        print(
+            "Received response but no success:",
+            e.coapmessage.code,
+            e.coapmessage.payload.decode("utf8"),
+        )
     else:
         await coap_console.read_stream_to_console(ctx, args.peer + "/stdout")
 
