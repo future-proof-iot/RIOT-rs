@@ -1,16 +1,38 @@
 pub(crate) use embassy_executor::InterruptExecutor as Executor;
-pub use embassy_stm32::{interrupt, peripherals, Config, OptionalPeripherals, Peripherals};
+pub use embassy_stm32::{interrupt, peripherals, OptionalPeripherals, Peripherals};
 
-use embassy_stm32::interrupt::{InterruptExt, Priority};
+use embassy_stm32::Config;
 
 #[cfg(feature = "usb")]
-pub mod usb;
+cfg_if::cfg_if! {
+    if #[cfg(feature = "stm32_usb")] {
+        #[path = "usb.rs"]
+        pub mod usb;
+    } else if #[cfg(feature = "stm32_usb_synopsis")] {
+        #[path = "usb_synopsis_otg.rs"]
+        pub mod usb;
+    } else {
+        compile_error!("stm32: usb enabled but no flavor selected. Choose `stm32_usb` or `stm32_usb_synopsis`.");
+    }
+}
 
 include!(concat!(env!("OUT_DIR"), "/swi.rs"));
 
-use riot_rs_debug::println;
-pub fn init(_config: Config) -> OptionalPeripherals {
+pub fn init() -> OptionalPeripherals {
     let mut config = Config::default();
+
+    board_config(&mut config);
+
+    let peripherals = embassy_stm32::init(config);
+
+    riot_rs_debug::println!("there!");
+
+    OptionalPeripherals::from(peripherals)
+}
+
+// TODO: find better place for this
+fn board_config(config: &mut Config) {
+    #[cfg(builder = "st-nucleo-wb55")]
     {
         use embassy_stm32::rcc::*;
         config.rcc.hsi48 = Some(Hsi48Config {
@@ -31,31 +53,36 @@ pub fn init(_config: Config) -> OptionalPeripherals {
             divr: Some(PllRDiv::DIV2), // sysclk 80Mhz (32 / 2 * 10 / 2)
         });
         config.rcc.mux.clk48sel = mux::Clk48sel::HSI48;
-        //use embassy_stm32::rcc::*;
-        // config.rcc.hsi = Some(HSIPrescaler::DIV1);
-        // config.rcc.csi = true;
-        // config.rcc.hsi48 = Some(Hsi48Config {
-        //     sync_from_usb: true,
-        // }); // needed for USB
-        // config.rcc.pll1 = Some(Pll {
-        //     source: PllSource::HSI,
-        //     prediv: PllPreDiv::DIV4,
-        //     mul: PllMul::MUL50,
-        //     divp: Some(PllDiv::DIV2),
-        //     divq: None,
-        //     divr: None,
-        // });
-        // config.rcc.sys = Sysclk::PLL1_P; // 400 Mhz
-        // config.rcc.ahb_pre = AHBPrescaler::DIV2; // 200 Mhz
-        // config.rcc.apb1_pre = APBPrescaler::DIV2; // 100 Mhz
-        // config.rcc.apb2_pre = APBPrescaler::DIV2; // 100 Mhz
-        // config.rcc.apb3_pre = APBPrescaler::DIV2; // 100 Mhz
-        // config.rcc.apb4_pre = APBPrescaler::DIV2; // 100 Mhz
-        // config.rcc.voltage_scale = VoltageScale::Scale1;
-        // config.rcc.mux.usbsel = mux::Usbsel::HSI48;
     }
-    println!("{}{}", file!(), line!());
-    let peripherals = embassy_stm32::init(config);
-    println!("{}{}", file!(), line!());
-    OptionalPeripherals::from(peripherals)
+
+    #[cfg(context = "stm32h755zitx")]
+    {
+        use riot_rs_debug::println;
+        println!("here!");
+        use embassy_stm32::rcc::*;
+        config.rcc.hsi = Some(HSIPrescaler::DIV1);
+        config.rcc.csi = true;
+        config.rcc.hsi48 = Some(Hsi48Config {
+            sync_from_usb: true,
+        }); // needed for USB
+        config.rcc.pll1 = Some(Pll {
+            source: PllSource::HSI,
+            prediv: PllPreDiv::DIV4,
+            mul: PllMul::MUL50,
+            divp: Some(PllDiv::DIV2),
+            divq: None,
+            divr: None,
+        });
+        config.rcc.sys = Sysclk::PLL1_P; // 400 Mhz
+        config.rcc.ahb_pre = AHBPrescaler::DIV2; // 200 Mhz
+        config.rcc.apb1_pre = APBPrescaler::DIV2; // 100 Mhz
+        config.rcc.apb2_pre = APBPrescaler::DIV2; // 100 Mhz
+        config.rcc.apb3_pre = APBPrescaler::DIV2; // 100 Mhz
+        config.rcc.apb4_pre = APBPrescaler::DIV2; // 100 Mhz
+        config.rcc.voltage_scale = VoltageScale::Scale1;
+        config.rcc.mux.usbsel = mux::Usbsel::HSI48;
+    }
+
+    // mark used
+    let _ = config;
 }

@@ -1,7 +1,4 @@
-use embassy_stm32::{
-    bind_interrupts, peripherals, usb,
-    usb::{Driver, InterruptHandler},
-};
+use embassy_stm32::{bind_interrupts, peripherals, usb, usb::Driver};
 
 use crate::arch;
 
@@ -12,11 +9,11 @@ bind_interrupts!(struct Irqs {
 pub type UsbDriver = Driver<'static, peripherals::USB_OTG_FS>;
 
 pub fn driver(peripherals: &mut arch::OptionalPeripherals) -> UsbDriver {
-    let usb = peripherals.USB.take().unwrap();
+    let usb = peripherals.USB_OTG_FS.take().unwrap();
     let dp = peripherals.PA12.take().unwrap();
-    let dm = peripherals.PA12.take().unwrap();
+    let dm = peripherals.PA11.take().unwrap();
 
-    let mut ep_out_buffer = crate::make_static!([0u8; 256]);
+    let ep_out_buffer = crate::make_static!([0u8; 256]);
     let mut config = embassy_stm32::usb::Config::default();
 
     // Enable vbus_detection
@@ -27,5 +24,9 @@ pub fn driver(peripherals: &mut arch::OptionalPeripherals) -> UsbDriver {
     // for more information
     config.vbus_detection = true;
 
-    Driver::new_fs(usb, Irqs, dp, dm, &mut ep_out_buffer, config)
+    use embassy_stm32::interrupt::InterruptExt;
+    use embassy_stm32::interrupt::Priority;
+    crate::arch::SWI.set_priority(Priority::P0);
+    embassy_stm32::interrupt::OTG_FS.set_priority(Priority::P0);
+    Driver::new_fs(usb, Irqs, dp, dm, ep_out_buffer, config)
 }

@@ -136,3 +136,6 @@ executor-single-thread = [
 executor-interrupt = ["embassy-executor/executor-interrupt"]
 executor-thread = ["threading"]
 executor-none = []
+
+stm32_usb = []
+stm32_usb_synopsis = []

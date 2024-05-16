@@ -57,6 +57,7 @@ riot-rs = { path = "src/riot-rs", default-features = false }
 riot-rs-bench = { path = "src/riot-rs-bench", default-features = false }
 riot-rs-boards = { path = "src/riot-rs-boards", default-features = false }
 riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
+riot-rs-embassy = { path = "src/riot-rs-embassy", default-features = false }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 riot-rs-utils = { path = "src/riot-rs-utils", default-features = false }

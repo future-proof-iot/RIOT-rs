@@ -3704,6 +3704,7 @@ version = "0.1.0"
 dependencies = [
  "embassy-stm32",
  "riot-rs-debug",
+ "riot-rs-embassy",
  "riot-rs-rt",
  "stm32",
 ]
@@ -3714,6 +3715,7 @@ version = "0.1.0"
 dependencies = [
  "embassy-stm32",
  "riot-rs-debug",
+ "riot-rs-embassy",
  "riot-rs-rt",
 ]
 

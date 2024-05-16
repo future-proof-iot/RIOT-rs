@@ -351,6 +351,8 @@ contexts:
       PROBE_RS_PROTOCOL: swd
       RUSTFLAGS:
         - --cfg context=\"stm32h755zitx\"
+      CARGO_ENV:
+        - CONFIG_SWI=UART5
 
 modules:
   - name: cortex-m
@@ -571,6 +573,7 @@ modules:
       - rpi-pico
       - rpi-pico-w
       - particle-xenon
+      - st-nucleo-h755zi-q
       - st-nucleo-wb55
     env:
       global:

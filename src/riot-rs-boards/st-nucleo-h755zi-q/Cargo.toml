@@ -5,6 +5,7 @@ edition = "2021"
 
 [dependencies]
 riot-rs-debug = { workspace = true, features = ["rtt-target"] }
+riot-rs-embassy = { workspace = true, features = ["stm32_usb_synopsis"] }
 riot-rs-rt.workspace = true
 stm32 = { path = "../../riot-rs-chips/stm32" }
 embassy-stm32 = { workspace = true, features = [
