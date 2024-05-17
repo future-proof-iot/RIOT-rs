@@ -17,7 +17,7 @@ pub fn init(_config: Config) -> OptionalPeripherals {
 
     #[cfg(feature = "wifi-esp")]
     {
-        use esp_hal::Rng;
+        use esp_hal::rng::Rng;
         use esp_wifi::{initialize, EspWifiInitFor};
 
         riot_rs_debug::println!("riot-rs-embassy::arch::esp::init(): wifi");
@@ -37,7 +37,7 @@ pub fn init(_config: Config) -> OptionalPeripherals {
         crate::wifi::esp_wifi::WIFI_INIT.set(init).unwrap();
     }
 
-    let timer_group0 = TimerGroup::new(peripherals.TIMG0.take().unwrap(), &clocks);
+    let timer_group0 = TimerGroup::new_async(peripherals.TIMG0.take().unwrap(), &clocks);
     embassy::init(&clocks, timer_group0);
 
     peripherals
