@@ -877,31 +877,36 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                                     },
                                     // One attempt to render rendering errors
                                     // FIXME rewind message
-                                    Err(e) => match e.render(response) {
-                                        Ok(()) => {
-                                            writeln!(self.log, "Rendering error to successful extraction shown");
-                                        },
-                                        Err(_) => {
-                                            writeln!(self.log, "Rendering error to successful extraction failed");
-                                            // FIXME rewind message
-                                            response.set_code(coap_numbers::code::INTERNAL_SERVER_ERROR);
-                                        }
+                                    Err(e) => {
+                                        write!(self.log, "Rendering successful extraction failed with {e:?}, ");
+                                        match e.render(response) {
+                                            Ok(()) => {
+                                                writeln!(self.log, "error rendered");
+                                            },
+                                            Err(e2) => {
+                                                writeln!(self.log, "error could not be rendered: {e2:?}");
+                                                // FIXME rewind message
+                                                response.set_code(coap_numbers::code::INTERNAL_SERVER_ERROR);
+                                            }
+                                        };
                                     },
                                 },
                                 AuthorizationChecked::Allowed(Err(inner_request_error)) => {
+                                    write!(self.log, "Extraction failed with {inner_request_error:?}, ");
                                     match inner_request_error.render(response) {
                                         Ok(()) => {
-                                            writeln!(self.log, "Extraction failed, inner error rendered successfully");
+                                            writeln!(self.log, "rendered successfully");
                                         },
                                         Err(e) => {
+                                            write!(self.log, "could not be rendered due to {e:?}, ");
                                             // Two attempts to render extraction errors
                                             // FIXME rewind message
                                             match e.render(response) {
                                                 Ok(()) => {
-                                                    writeln!(self.log, "Extraction failed, inner error rendered through fallback");
+                                                    writeln!(self.log, "which was rendered fine");
                                                 },
-                                                Err(_) => {
-                                                    writeln!(self.log, "Extraction failed, inner error rendering failed");
+                                                Err(e2) => {
+                                                    writeln!(self.log, "rendering which caused {e2:?}");
                                                     // FIXME rewind message
                                                     response.set_code(
                                                         coap_numbers::code::INTERNAL_SERVER_ERROR,
