@@ -2206,16 +2206,18 @@ dependencies = [
 
 [[package]]
 name = "lakers"
-version = "0.5.1"
-source = "git+https://github.com/openwsn-berkeley/lakers/#7c54187adedb607392435eb0ab832af68403a356"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "acd7276632cbe7fc48754dbcec6c90ab661c6250750bd32bc012b05055a361a6"
 dependencies = [
  "lakers-shared",
 ]
 
 [[package]]
 name = "lakers-crypto-rustcrypto"
-version = "0.5.1"
-source = "git+https://github.com/openwsn-berkeley/lakers/#7c54187adedb607392435eb0ab832af68403a356"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b20d2bb7e5af271894a5cbb40750270cd1e9448c8111936435c017b58b06e9fa"
 dependencies = [
  "aead",
  "aes",
@@ -2229,8 +2231,9 @@ dependencies = [
 
 [[package]]
 name = "lakers-shared"
-version = "0.5.1"
-source = "git+https://github.com/openwsn-berkeley/lakers/#7c54187adedb607392435eb0ab832af68403a356"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b1650ca95e087f6bb426a1f31476b1973d193edccb4731a400356f0b21888a67"
 
 [[package]]
 name = "lalrpop"
