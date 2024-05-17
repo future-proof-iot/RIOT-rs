@@ -558,8 +558,13 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                     let cutoff = decoder.position();
 
                     if let SecContextState {
-                        protocol_stage: SecContextStage::EdhocResponderSentM2 { responder, c_r, c_i },
-                        authorization: original_authorization // So far, this is self.unauthenticated_edhoc_user_authorization()
+                        protocol_stage:
+                            SecContextStage::EdhocResponderSentM2 {
+                                responder,
+                                c_r,
+                                c_i,
+                            },
+                        authorization: original_authorization, // So far, this is self.unauthenticated_edhoc_user_authorization()
                     } = taken
                     {
                         debug_assert_eq!(c_r, kid, "State was looked up by KID");
@@ -574,14 +579,16 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                             return Err(Own(CoAPError::bad_request()));
                         }
 
-
                         let cred_i;
                         let authorization;
 
                         if id_cred_i.reference_only() {
                             match id_cred_i.kid {
                                 43 => {
-                                    writeln!(self.log, "Peer indicates use of the one preconfigured key");
+                                    writeln!(
+                                        self.log,
+                                        "Peer indicates use of the one preconfigured key"
+                                    );
 
                                     use hexlit::hex;
                                     const CRED_I: &[u8] = &hex!("A2027734322D35302D33312D46462D45462D33372D33322D333908A101A5010202412B2001215820AC75E9ECE3E50BFC8ED60399889522405C47BF16DF96660A41298CB4307F7EB62258206E5DE611388A4B8A8211334AC7D37ECB52A387D257E6DB3C2A93DF21FF3AFFC8");
@@ -589,18 +596,24 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                                     cred_i = lakers::CredentialRPK::new(
                                         CRED_I.try_into().expect("Static credential is too large"),
                                     )
-                                        .expect("Static credential is not processable");
+                                    .expect("Static credential is not processable");
 
                                     // FIXME: learn from CRED_I
-                                    authorization = AifStaticRest { may_use_stdout: true };
+                                    authorization = AifStaticRest {
+                                        may_use_stdout: true,
+                                    };
                                 }
                                 _ => {
                                     // FIXME: send better message
                                     return Err(Own(CoAPError::bad_request()));
-                                },
+                                }
                             }
                         } else {
-                            writeln!(self.log, "Got credential by value: {:?}..", &id_cred_i.value.get_slice(0, 5));
+                            writeln!(
+                                self.log,
+                                "Got credential by value: {:?}..",
+                                &id_cred_i.value.get_slice(0, 5)
+                            );
 
                             cred_i = lakers::CredentialRPK::new(id_cred_i.value)
                                 // FIXME What kind of error do we send here?
@@ -650,7 +663,9 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                             liboscore::PrimitiveContext::new_from_fresh_material(immutables);
 
                         taken = SecContextState {
-                            protocol_stage: SecContextStage::Oscore(context), authorization };
+                            protocol_stage: SecContextStage::Oscore(context),
+                            authorization,
+                        };
                     } else {
                         // Return the state. Best bet is that it was already advanced to an OSCORE
                         // state, and the peer sent message 3 with multiple concurrent in-flight
