@@ -167,7 +167,9 @@ async def main():
         KEY_I, CRED_I, cred_r
     )  # odd that we provide that here rather than in the next function
 
-    print(f"EDHOC setup in progress. Message 2 has been received, and we verified that the device is who we expect it to be. Sending actual requests now, along with the final message 3 that tells the device that we are authorized to do that.")
+    print(
+        f"EDHOC setup in progress. Message 2 has been received, and we verified that the device is who we expect it to be. Sending actual requests now, along with the final message 3 that tells the device that we are authorized to do that."
+    )
 
     oscore_context = EdhocSecurityContext(initiator, c_i, c_r)
 
@@ -179,7 +181,9 @@ async def main():
     )
 
     wkc = (await ctx.request(msg3).response_raising).payload.decode("utf8")
-    print("Success: As a response was received, we know that encrypted communication was established.")
+    print(
+        "Success: As a response was received, we know that encrypted communication was established."
+    )
     print()
     print("Received /.well-known/core (discovery information):")
     print(wkc)
@@ -194,7 +198,9 @@ async def main():
     print(poem)
     print()
 
-    print(f"Requesting additional diagnostic data (success is {'not expected' if args.random_identity else 'expected'})")
+    print(
+        f"Requesting additional diagnostic data (success is {'not expected' if args.random_identity else 'expected'})"
+    )
     try:
         # pre-flight b/c read_stream_to_console has bad error reporting
         await ctx.request(Message(code=GET, uri=args.peer + "/stdout")).response_raising
@@ -205,7 +211,9 @@ async def main():
             e.coapmessage.payload.decode("utf8"),
         )
     else:
-        print("The remaining output is diagnostic output from the device, and will be updated continuously:")
+        print(
+            "The remaining output is diagnostic output from the device, and will be updated continuously:"
+        )
         await coap_console.read_stream_to_console(ctx, args.peer + "/stdout")
 
     await ctx.shutdown()
