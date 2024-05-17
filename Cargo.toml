@@ -49,7 +49,7 @@ embassy-usb = { version = "0.1", default-features = false }
 esp-hal = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-06-14", default-features = false }
 esp-hal-embassy = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-06-14", default-features = false }
 esp-println = { version = "0.9.0" }
-esp-wifi = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-06-14" }
+esp-wifi = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-06-14", default-features = false }
 
 linkme = { version = "0.3.21", features = ["used_linker"] }
 
@@ -62,6 +62,7 @@ riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 riot-rs-utils = { path = "src/riot-rs-utils", default-features = false }
 
 const_panic = { version = "0.2.8", default-features = false }
+defmt = { version = "0.3.7" }
 document-features = "0.2.8"
 heapless = { version = "0.8.0", default-features = false }
 konst = { version = "0.3.8", default-features = false }
