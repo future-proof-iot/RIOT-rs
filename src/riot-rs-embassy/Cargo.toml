@@ -75,8 +75,6 @@ esp-hal = { workspace = true, features = [
   "embassy-executor-thread",
   "embassy-time-driver",
   "embassy-time-timg0",
-  "rt",
-  "vectored",
 ] }
 esp-wifi = { workspace = true, features = [
   "async",
