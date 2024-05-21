@@ -91,7 +91,7 @@ embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = 
 embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-300424" }
 embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-300424" }
 
-usbd-hid-macros = { git = "https://github.com/kaspar030/usbd-hid", branch = "for-riot-rs" }
+usbd-hid-macros = { git = "https://github.com/twitchyliquid64/usbd-hid", rev = "76bea16537e1a347df2ebced5b9e1d48f71c9859" }
 
 # version 0.12-to-be
 smoltcp = { git = "https://github.com/smoltcp-rs/smoltcp.git", rev = "125773e282bc2e0c914a49e9c75573926e26e558" }
