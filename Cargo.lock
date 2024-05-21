@@ -4046,7 +4046,7 @@ dependencies = [
 [[package]]
 name = "usbd-hid-descriptors"
 version = "0.1.2"
-source = "git+https://github.com/kaspar030/usbd-hid?branch=for-riot-rs#1dfc36bf4241e1088a29ebae308868d271ad70be"
+source = "git+https://github.com/twitchyliquid64/usbd-hid?rev=76bea16537e1a347df2ebced5b9e1d48f71c9859#76bea16537e1a347df2ebced5b9e1d48f71c9859"
 dependencies = [
  "bitfield 0.14.0",
 ]
@@ -4054,7 +4054,7 @@ dependencies = [
 [[package]]
 name = "usbd-hid-macros"
 version = "0.6.0"
-source = "git+https://github.com/kaspar030/usbd-hid?branch=for-riot-rs#1dfc36bf4241e1088a29ebae308868d271ad70be"
+source = "git+https://github.com/twitchyliquid64/usbd-hid?rev=76bea16537e1a347df2ebced5b9e1d48f71c9859#76bea16537e1a347df2ebced5b9e1d48f71c9859"
 dependencies = [
  "byteorder",
  "hashbrown 0.13.2",
