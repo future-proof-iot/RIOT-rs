@@ -79,8 +79,8 @@ where
     }
     let mut stdout = Stdout(&buffer);
     use core::fmt::Write;
-    writeln!(stdout, "We have our own stdout now.");
-    writeln!(stdout, "With rings and atomics.");
+    writeln!(stdout, "We have our own stdout now.").unwrap();
+    writeln!(stdout, "With rings and atomics.").unwrap();
 
     use hexlit::hex;
     const R: &[u8] = &hex!("72cc4761dbd4c78f758931aa589d348d1ef874a7e303ede2f140dcf3e6aa4aac");

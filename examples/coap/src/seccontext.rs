@@ -498,15 +498,15 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                             ),
                     );
 
-                    writeln!(self.log, "Entries in pool:");
+                    writeln!(self.log, "Entries in pool:").unwrap();
                     for (i, e) in self.pool.entries.iter().enumerate() {
-                        writeln!(self.log, "{i}. {e}");
+                        writeln!(self.log, "{i}. {e}").unwrap();
                     }
-                    write!(self.log, "Sequence: ");
+                    write!(self.log, "Sequence: ").unwrap();
                     for index in self.pool.sorted.iter() {
-                        write!(self.log, "{index},");
+                        write!(self.log, "{index},").unwrap();
                     }
-                    writeln!(self.log, "");
+                    writeln!(self.log, "").unwrap();
                     let evicted = self.pool.force_insert(SecContextState {
                         protocol_stage: SecContextStage::EdhocResponderProcessedM1 {
                             c_r,
@@ -516,9 +516,9 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                         authorization: self.unauthenticated_edhoc_user_authorization(),
                     });
                     if let Some(evicted) = evicted {
-                        writeln!(self.log, "To insert new EDHOC, evicted {}", evicted);
+                        writeln!(self.log, "To insert new EDHOC, evicted {}", evicted).unwrap();
                     } else {
-                        writeln!(self.log, "To insert new EDHOC, evicted none");
+                        writeln!(self.log, "To insert new EDHOC, evicted none").unwrap();
                     }
 
                     Ok(Own(EdhocResponse::OkSend2(c_r)))
@@ -588,7 +588,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                                     writeln!(
                                         self.log,
                                         "Peer indicates use of the one preconfigured key"
-                                    );
+                                    ).unwrap();
 
                                     use hexlit::hex;
                                     const CRED_I: &[u8] = &hex!("A2027734322D35302D33312D46462D45462D33372D33322D333908A101A5010202412B2001215820AC75E9ECE3E50BFC8ED60399889522405C47BF16DF96660A41298CB4307F7EB62258206E5DE611388A4B8A8211334AC7D37ECB52A387D257E6DB3C2A93DF21FF3AFFC8");
@@ -636,8 +636,8 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                         let oscore_salt = responder.edhoc_exporter(1u8, &[], 8); // label is 1
                         let oscore_secret = &oscore_secret[..16];
                         let oscore_salt = &oscore_salt[..8];
-                        writeln!(self.log, "OSCORE secret: {:?}...", &oscore_secret[..5]);
-                        writeln!(self.log, "OSCORE salt: {:?}", &oscore_salt);
+                        writeln!(self.log, "OSCORE secret: {:?}...", &oscore_secret[..5]).unwrap();
+                        writeln!(self.log, "OSCORE salt: {:?}", &oscore_salt).unwrap();
 
                         let sender_id = c_i.as_slice();
                         let recipient_id = kid.0;
@@ -747,7 +747,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
 
                 let Ok((correlation, extracted)) = decrypted else {
                     // FIXME is that the right code?
-                    writeln!(self.log, "Decryption failure");
+                    writeln!(self.log, "Decryption failure").unwrap();
                     return Err(Own(CoAPError::unauthorized()));
                 };
 
@@ -878,13 +878,13 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                                     // One attempt to render rendering errors
                                     // FIXME rewind message
                                     Err(e) => {
-                                        write!(self.log, "Rendering successful extraction failed with {e:?}, ");
+                                        write!(self.log, "Rendering successful extraction failed with {e:?}, ").unwrap();
                                         match e.render(response) {
                                             Ok(()) => {
-                                                writeln!(self.log, "error rendered");
+                                                writeln!(self.log, "error rendered").unwrap();
                                             },
                                             Err(e2) => {
-                                                writeln!(self.log, "error could not be rendered: {e2:?}");
+                                                writeln!(self.log, "error could not be rendered: {e2:?}").unwrap();
                                                 // FIXME rewind message
                                                 response.set_code(coap_numbers::code::INTERNAL_SERVER_ERROR);
                                             }
@@ -892,21 +892,21 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                                     },
                                 },
                                 AuthorizationChecked::Allowed(Err(inner_request_error)) => {
-                                    write!(self.log, "Extraction failed with {inner_request_error:?}, ");
+                                    write!(self.log, "Extraction failed with {inner_request_error:?}, ").unwrap();
                                     match inner_request_error.render(response) {
                                         Ok(()) => {
-                                            writeln!(self.log, "rendered successfully");
+                                            writeln!(self.log, "rendered successfully").unwrap();
                                         },
                                         Err(e) => {
-                                            write!(self.log, "could not be rendered due to {e:?}, ");
+                                            write!(self.log, "could not be rendered due to {e:?}, ").unwrap();
                                             // Two attempts to render extraction errors
                                             // FIXME rewind message
                                             match e.render(response) {
                                                 Ok(()) => {
-                                                    writeln!(self.log, "which was rendered fine");
+                                                    writeln!(self.log, "which was rendered fine").unwrap();
                                                 },
                                                 Err(e2) => {
-                                                    writeln!(self.log, "rendering which caused {e2:?}");
+                                                    writeln!(self.log, "rendering which caused {e2:?}").unwrap();
                                                     // FIXME rewind message
                                                     response.set_code(
                                                         coap_numbers::code::INTERNAL_SERVER_ERROR,
@@ -925,7 +925,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                         )
                         .is_err()
                         {
-                            writeln!(self.log, "Oups, responding with weird state");
+                            writeln!(self.log, "Oups, responding with weird state").unwrap();
                             // todo!("Thanks to the protect API we've lost access to our response");
                         }
                     });
