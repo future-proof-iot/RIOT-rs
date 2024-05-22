@@ -72,7 +72,7 @@ impl<T: Copy + Send> Channel<T> {
                     );
                 }
             }
-        })
+        });
     }
 
     /// Try to send on the channel (non-blocking).

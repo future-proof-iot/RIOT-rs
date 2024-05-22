@@ -40,7 +40,6 @@ impl ThreadList {
                 _ => self.head = Some(pid),
             }
             threads.set_state(pid, state);
-            crate::schedule();
         });
     }
 
@@ -51,17 +50,12 @@ impl ThreadList {
     ///
     /// Returns the thread's [`ThreadId`] and its previous [`ThreadState`].
     pub fn pop(&mut self, cs: CriticalSection) -> Option<(ThreadId, ThreadState)> {
-        if let Some(head) = self.head {
-            let old_state = THREADS.with_mut_cs(cs, |mut threads| {
-                self.head = threads.thread_blocklist[usize::from(head)].take();
-                let old_state = threads.set_state(head, ThreadState::Running);
-                crate::schedule();
-                old_state
-            });
+        let head = self.head?;
+        THREADS.with_mut_cs(cs, |mut threads| {
+            self.head = threads.thread_blocklist[usize::from(head)].take();
+            let old_state = threads.set_state(head, ThreadState::Running);
             Some((head, old_state))
-        } else {
-            None
-        }
+        })
     }
 
     /// Determines if this [`ThreadList`] is empty.

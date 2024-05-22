@@ -22,6 +22,10 @@ pub trait Arch {
 
     /// Setup and initiate the first context switch.
     fn start_threading();
+
+    /// Prompts the CPU to enter deep sleep until an interrupt occurs.
+    #[allow(dead_code, reason = "used in scheduler implementation")]
+    fn wfi();
 }
 
 cfg_if::cfg_if! {
@@ -47,6 +51,9 @@ cfg_if::cfg_if! {
                 unimplemented!()
             }
             fn schedule() {
+                unimplemented!()
+            }
+            fn wfi() {
                 unimplemented!()
             }
         }

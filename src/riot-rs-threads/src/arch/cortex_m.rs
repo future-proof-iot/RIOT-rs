@@ -1,10 +1,7 @@
-use super::Arch;
-use crate::Thread;
+use crate::{cleanup, Arch, Thread, THREADS};
 use core::arch::asm;
 use core::ptr::write_volatile;
-use cortex_m::peripheral::SCB;
-
-use crate::{cleanup, THREADS};
+use cortex_m::peripheral::{scb::SystemHandler, SCB};
 
 #[cfg(not(any(armv6m, armv7m, armv8m)))]
 compile_error!("no supported ARM variant selected");
@@ -63,7 +60,20 @@ impl Arch for Cpu {
 
     #[inline(always)]
     fn start_threading() {
+        unsafe {
+            // Make sure PendSV has a low priority.
+            let mut p = cortex_m::Peripherals::steal();
+            p.SCB.set_priority(SystemHandler::PendSV, 0xFF);
+        }
         Self::schedule();
+    }
+
+    fn wfi() {
+        cortex_m::asm::wfi();
+
+        // see https://cliffle.com/blog/stm32-wfi-bug/
+        #[cfg(context = "stm32")]
+        cortex_m::asm::isb();
     }
 }
 
@@ -119,15 +129,6 @@ unsafe extern "C" fn PendSV() {
             cmp r0, #0
             beq 99f
 
-            msr.n psp, r0
-
-            // r1 == 0 means that there was no previous thread.
-            // This is only the case if the scheduler was triggered for the first time,
-            // which also means that next thread has no stored context yet.
-            // Storing and loading of r4-r11 therefore can be skipped.
-            cmp r1, #0
-            beq 99f
-
             //stmia r1!, {{r4-r7}}
             str r4, [r1, #16]
             str r5, [r1, #20]
@@ -152,6 +153,7 @@ unsafe extern "C" fn PendSV() {
             mov r8,  r4
             ldmia r2!, {{r4-r7}}
 
+            msr.n psp, r0
             99:
             ldr r0, 999f
             mov LR, r0
@@ -175,54 +177,44 @@ unsafe extern "C" fn PendSV() {
 /// - `0` in `r0` if the next thread in the runqueue is the currently running thread
 /// - Else it writes into the following registers:
 ///   - `r1`: pointer to [`Thread::high_regs`] from old thread (to store old register state)
-///           or null pointer if there was no previously running thread.
 ///   - `r2`: pointer to [`Thread::high_regs`] from new thread (to load new register state)
 ///   - `r0`: stack-pointer for new thread
 ///
 /// This function is called in PendSV.
-// TODO: make arch independent, or move to arch
 #[no_mangle]
 unsafe fn sched() -> u128 {
+    THREADS.with_mut(|mut threads| {
+        let Some(thread) = threads.current() else {
+            return;
+        };
+        if thread.state == crate::ThreadState::Running {
+            let prio = thread.prio;
+            let pid = thread.pid;
+            threads.runqueue.add(pid, prio);
+        }
+    });
     loop {
-        if let Some(res) = critical_section::with(|cs| {
-            let threads = unsafe { &mut *THREADS.as_ptr(cs) };
-            let next_pid = match threads.runqueue.get_next() {
-                Some(pid) => pid,
-                None => {
-                    cortex_m::asm::wfi();
+        if let Some(res) = THREADS.with_mut(|mut threads| {
 
-                    // see https://cliffle.com/blog/stm32-wfi-bug/
-                    #[cfg(context = "stm32")]
-                    cortex_m::asm::isb();
+            let next_pid = threads.runqueue.pop_next()?;
 
-                    // this fence seems necessary, see #310.
-                    core::sync::atomic::fence(core::sync::atomic::Ordering::Acquire);
-                    return None;
-                }
-            };
-
-            // `current_high_regs` will be null if there is no current thread.
-            // This is only the case once, when the very first thread starts running.
-            // The returned `r1` therefore will be null, and saving/ restoring
-            // the context is skipped.
             let mut current_high_regs = core::ptr::null();
             if let Some(current_pid) = threads.current_pid() {
                 if next_pid == current_pid {
                     return Some(0);
                 }
-
-                let current = &mut threads.threads[usize::from(current_pid)];
-                current.sp = cortex_m::register::psp::read() as usize;
-                current_high_regs = current.data.as_ptr();
+                let thread = threads.get_unchecked_mut(current_pid);
+                thread.sp = cortex_m::register::psp::read() as usize;
+                current_high_regs = thread.data.as_ptr();
             }
 
-            threads.current_thread = Some(next_pid);
+            *threads.current_pid_mut() =  Some(next_pid);
 
-            let next = &threads.threads[usize::from(next_pid)];
-            let next_sp = next.sp;
+            let next = threads.get_unchecked(next_pid);
             let next_high_regs = next.data.as_ptr();
+            let next_sp = next.sp;
 
-            // The caller (`PendSV`) expects these three pointers in r0, r1 and r2:
+            // PendSV expects these three pointers in r0, r1 and r2:
             // r0 = &next.sp
             // r1 = &current.high_regs
             // r2 = &next.high_regs
@@ -235,5 +227,6 @@ unsafe fn sched() -> u128 {
         }) {
             break res;
         }
+        Cpu::wfi();
     }
 }

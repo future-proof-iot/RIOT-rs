@@ -99,16 +99,12 @@ impl Threads {
     fn flag_set(&mut self, thread_id: ThreadId, mask: ThreadFlags) {
         let thread = self.get_unchecked_mut(thread_id);
         thread.flags |= mask;
-        if match thread.state {
-            ThreadState::FlagBlocked(mode) => match mode {
-                WaitMode::Any(bits) => thread.flags & bits != 0,
-                WaitMode::All(bits) => thread.flags & bits == bits,
-            },
-            _ => false,
-        } {
-            self.set_state(thread_id, ThreadState::Running);
-            crate::schedule();
-        }
+        match thread.state {
+            ThreadState::FlagBlocked(WaitMode::Any(bits)) if thread.flags & bits != 0 => {}
+            ThreadState::FlagBlocked(WaitMode::All(bits)) if thread.flags & bits == bits => {}
+            _ => return,
+        };
+        self.set_state(thread_id, ThreadState::Running);
     }
 
     fn flag_wait_all(&mut self, mask: ThreadFlags) -> Option<ThreadFlags> {
@@ -119,7 +115,6 @@ impl Threads {
         } else {
             let thread_id = thread.pid;
             self.set_state(thread_id, ThreadState::FlagBlocked(WaitMode::All(mask)));
-            crate::schedule();
             None
         }
     }
@@ -133,7 +128,6 @@ impl Threads {
         } else {
             let thread_id = thread.pid;
             self.set_state(thread_id, ThreadState::FlagBlocked(WaitMode::Any(mask)));
-            crate::schedule();
             None
         }
     }
@@ -149,7 +143,6 @@ impl Threads {
         } else {
             let thread_id = thread.pid;
             self.set_state(thread_id, ThreadState::FlagBlocked(WaitMode::Any(mask)));
-            crate::schedule();
             None
         }
     }
