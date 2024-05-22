@@ -1260,7 +1260,7 @@ dependencies = [
  "pio",
  "pio-proc",
  "rand_core",
- "rp-pac",
+ "rp-pac 6.0.0 (git+https://github.com/embassy-rs/rp-pac.git?rev=a7f42d25517f7124ad3b4ed492dec8b0f50a0e6c)",
  "rp2040-boot2",
  "sha2-const-stable",
 ]
@@ -3806,6 +3806,7 @@ dependencies = [
  "cfg-if",
  "cortex-m",
  "cortex-m-rt",
+ "embassy-rp",
  "esp-hal",
  "linkme",
  "portable-atomic",
@@ -3851,11 +3852,13 @@ dependencies = [
  "cortex-m-semihosting",
  "critical-section",
  "defmt",
+ "embassy-rp",
  "esp-hal",
  "linkme",
  "panic-semihosting",
  "paste",
  "riot-rs-runqueue",
+ "rp-pac 6.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "static_cell",
 ]
 
@@ -3886,6 +3889,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "rp-pac"
+version = "6.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f30f6c4c846269293db805e9c77864ff7b923395b480550df44f0868e3765337"
+dependencies = [
+ "cortex-m",
 ]
 
 [[package]]

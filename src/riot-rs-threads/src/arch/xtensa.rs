@@ -51,6 +51,10 @@ impl Arch for Cpu {
         // which isn't the case.
         interrupt::enable(Interrupt::FROM_CPU_INTR0, interrupt::Priority::min()).unwrap();
     }
+
+    fn wfi() {
+        unsafe { core::arch::asm!("waiti 0") };
+    }
 }
 
 const fn default_trap_frame() -> TrapFrame {
@@ -92,7 +96,7 @@ unsafe fn sched(trap_frame: &mut TrapFrame) {
                 }
                 threads.threads[usize::from(current_pid)].data = *trap_frame;
             }
-            threads.current_thread = Some(next_pid);
+            *threads.current_pid_mut() = Some(next_pid);
             *trap_frame = threads.threads[usize::from(next_pid)].data;
             true
         }) {
@@ -101,6 +105,6 @@ unsafe fn sched(trap_frame: &mut TrapFrame) {
         // The esp-hal implementation of critical-section doesn't disable all interrupts.
         // Thus we should release our hold on `THREADS` before we `waiti`, to prevent
         // that another interrupt handler will try to borrow it while we still have it borrowed.
-        unsafe { core::arch::asm!("waiti 0") };
+        Cpu::wfi()
     }
 }

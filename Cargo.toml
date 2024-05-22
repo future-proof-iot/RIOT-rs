@@ -104,6 +104,7 @@ once_cell = { version = "=1.19.0", default-features = false, features = [
   "critical-section",
 ] }
 paste = { version = "1.0" }
+rp-pac = { version = "6.0", default-features = false }
 static_cell = { version = "2.0.0", features = ["nightly"] }
 
 [profile.dev]

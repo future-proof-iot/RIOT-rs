@@ -140,6 +140,23 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         self.iter_from(next, prio).find(predicate)
     }
 
+    /// Pop the thread that should run next.
+    ///
+    /// Pops the next runnable thread of
+    /// the runqueue with the highest index.
+    pub fn pop_next(&mut self) -> Option<ThreadId> {
+        let rq_ffs = ffs(self.bitcache);
+        if rq_ffs == 0 {
+            return None;
+        }
+        let rq = (rq_ffs - 1) as u8;
+        let head = self.queues.pop_head(rq).map(ThreadId::new);
+        if self.queues.is_empty(rq) {
+            self.bitcache &= !(1 << rq);
+        }
+        head
+    }
+
     /// Advances runqueue number `rq`.
     ///
     /// This is used to "yield" to another thread of *the same* priority.
@@ -149,6 +166,12 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     pub fn advance(&mut self, rq: RunqueueId) -> bool {
         debug_assert!((usize::from(rq)) < N_QUEUES);
         self.queues.advance(rq.0)
+    }
+
+    /// Checks if a runqueue is empty.
+    pub fn is_empty(&mut self, rq: RunqueueId) -> bool {
+        debug_assert!((rq.0 as usize) < N_QUEUES);
+        self.queues.is_empty(rq.0)
     }
 
     /// Returns an iterator over the [`RunQueue`], starting after thread `start` in runqueue `rq`.
