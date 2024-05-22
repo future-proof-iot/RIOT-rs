@@ -5,8 +5,6 @@
 // - const_generics
 
 // features
-#![feature(naked_functions)]
-#![feature(fn_traits)]
 // linkme
 #![feature(used_with_arg)]
 // testing

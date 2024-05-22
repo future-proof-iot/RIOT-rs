@@ -1,5 +1,4 @@
 #![cfg_attr(not(test), no_std)]
-#![feature(inline_const)]
 #![feature(naked_functions)]
 #![feature(used_with_arg)]
 // Disable indexing lints for now, possible panics are documented or rely on internally-enforced
