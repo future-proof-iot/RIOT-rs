@@ -41,6 +41,11 @@ p.add_argument(
     action="store_true",
 )
 p.add_argument(
+    "--no-demo",
+    help="Forego illustrative examples, just start the terminal application",
+    action="store_true",
+)
+p.add_argument(
     "peer",
     help="URI (scheme and host); defaults to the current RIOT-rs default {default}",
     default="coap://10.42.0.61",
@@ -175,28 +180,29 @@ async def main():
 
     ctx.client_credentials[args.peer + "/*"] = oscore_context
 
-    msg3 = Message(
-        code=GET,
-        uri=args.peer + "/.well-known/core",
-    )
+    if not args.no_demo:
+        msg3 = Message(
+            code=GET,
+            uri=args.peer + "/.well-known/core",
+        )
 
-    wkc = (await ctx.request(msg3).response_raising).payload.decode("utf8")
-    print(
-        "Success: As a response was received, we know that encrypted communication was established."
-    )
-    print()
-    print("Received /.well-known/core (discovery information):")
-    print(wkc)
-    print()
+        wkc = (await ctx.request(msg3).response_raising).payload.decode("utf8")
+        print(
+            "Success: As a response was received, we know that encrypted communication was established."
+        )
+        print()
+        print("Received /.well-known/core (discovery information):")
+        print(wkc)
+        print()
 
-    normalrequest = Message(
-        code=GET,
-        uri=args.peer + "/poem",
-    )
-    poem = (await ctx.request(normalrequest).response_raising).payload.decode("utf8")
-    print("Received /poem (a resource transported in multiple blocks):")
-    print(poem)
-    print()
+        normalrequest = Message(
+            code=GET,
+            uri=args.peer + "/poem",
+        )
+        poem = (await ctx.request(normalrequest).response_raising).payload.decode("utf8")
+        print("Received /poem (a resource transported in multiple blocks):")
+        print(poem)
+        print()
 
     print(
         f"Requesting additional diagnostic data (success is {'not expected' if args.random_identity else 'expected'})"
