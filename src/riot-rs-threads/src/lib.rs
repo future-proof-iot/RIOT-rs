@@ -32,6 +32,7 @@
 mod arch;
 mod autostart_thread;
 mod ensure_once;
+mod smp;
 mod thread;
 mod threadlist;
 
@@ -47,11 +48,14 @@ pub mod macro_reexports {
 }
 
 pub use riot_rs_runqueue::{RunqueueId, ThreadId};
+pub use smp::CoreId;
 pub use thread_flags as flags;
 
 use arch::{schedule, Arch, Cpu, ThreadData};
 use ensure_once::EnsureOnce;
 use riot_rs_runqueue::RunQueue;
+use smp::{sev, Multicore};
+use static_cell::ConstStaticCell;
 use thread::{Thread, ThreadState};
 
 /// The number of possible priority levels.
@@ -59,6 +63,9 @@ pub const SCHED_PRIO_LEVELS: usize = 12;
 
 /// The maximum number of concurrent threads that can be created.
 pub const THREADS_NUMOF: usize = 16;
+
+pub const CORES_NUMOF: usize = smp::Chip::CORES as usize;
+pub const IDLE_THREAD_STACK_SIZE: usize = smp::Chip::IDLE_THREAD_STACK_SIZE;
 
 static THREADS: EnsureOnce<Threads> = EnsureOnce::new(Threads::new());
 
@@ -77,7 +84,7 @@ struct Threads {
     /// resource access.
     thread_blocklist: [Option<ThreadId>; THREADS_NUMOF],
     /// The currently running thread.
-    current_thread: Option<ThreadId>,
+    current_threads: [Option<ThreadId>; CORES_NUMOF],
 }
 
 impl Threads {
@@ -86,7 +93,7 @@ impl Threads {
             runqueue: RunQueue::new(),
             threads: [const { Thread::default() }; THREADS_NUMOF],
             thread_blocklist: [const { None }; THREADS_NUMOF],
-            current_thread: None,
+            current_threads: [None; CORES_NUMOF],
         }
     }
 
@@ -99,12 +106,19 @@ impl Threads {
     ///
     /// Returns `None` if there is no current thread.
     fn current(&mut self) -> Option<&mut Thread> {
-        self.current_thread
-            .map(|tid| &mut self.threads[usize::from(tid)])
+        self.current_threads[usize::from(core_id())].map(|tid| &mut self.threads[usize::from(tid)])
     }
 
     fn current_pid(&self) -> Option<ThreadId> {
-        self.current_thread
+        self.current_threads[usize::from(core_id())]
+    }
+
+    #[allow(
+        dead_code,
+        reason = "used in context-specific scheduler implementation"
+    )]
+    fn current_pid_mut(&mut self) -> &mut Option<ThreadId> {
+        &mut self.current_threads[usize::from(core_id())]
     }
 
     /// Creates a new thread.
@@ -189,10 +203,8 @@ impl Threads {
             // if it itself initiated it.
             debug_assert_eq!(Some(pid), self.current_pid());
 
-            self.runqueue.pop_head(pid, prio);
             schedule();
         }
-
         old_state
     }
 
@@ -227,21 +239,24 @@ impl Threads {
             return;
         }
 
-        if self.runqueue.peek_head(old_prio) == Some(thread_id) {
-            self.runqueue.pop_head(thread_id, old_prio);
-        } else {
-            self.runqueue.del(thread_id);
-        }
-        self.runqueue.add(thread_id, prio);
-
         // Check if the thread is currently running and trigger the scheduler if
         // its prio decreased and another thread might have a higher prio now.
+        // This has to be done on multicore **before the runqueue changes below**, because
+        // a currently running thread is not in the runqueue and therefore the runqueue changes
+        // should not be applied.
         if self.is_running(thread_id) {
             if prio < old_prio {
                 schedule();
             }
             return;
         }
+
+        if self.runqueue.peek_head(old_prio) == Some(thread_id) {
+            self.runqueue.pop_head(thread_id, old_prio);
+        } else {
+            self.runqueue.del(thread_id);
+        }
+        self.runqueue.add(thread_id, prio);
 
         // Thread isn't running.
         // Only schedule if the thread has a higher priority than the running one.
@@ -253,7 +268,10 @@ impl Threads {
     /// Triggers the scheduler if the thread has a higher priority than the currently running thread.
     fn schedule_if_higher_prio(&mut self, _thread_id: ThreadId, prio: RunqueueId) {
         match self.current().map(|t| t.prio) {
-            Some(curr_prio) if curr_prio < prio => schedule(),
+            Some(curr_prio) if curr_prio < prio => {
+                sev();
+                schedule();
+            }
             _ => {}
         }
     }
@@ -276,6 +294,25 @@ impl Threads {
 /// Currently it expects at least:
 /// - Cortex-M: to be called from the reset handler while MSP is active
 pub unsafe fn start_threading() {
+    // Idle thread that prompts the core to enter deep sleep.
+    fn idle_thread() {
+        loop {
+            Cpu::wfi();
+        }
+    }
+
+    // Stacks for the idle threads.
+    // Creating them inside the below for-loop is not possible because it would result in
+    // duplicate identifiers for the created `static`.
+    static STACKS: [ConstStaticCell<[u8; IDLE_THREAD_STACK_SIZE]>; CORES_NUMOF] =
+        [const { ConstStaticCell::new([0u8; IDLE_THREAD_STACK_SIZE]) }; CORES_NUMOF];
+
+    // Create one idle thread for each core with lowest priority.
+    for stack in &STACKS {
+        thread_create_noarg(idle_thread, stack.take(), 0);
+    }
+
+    smp::Chip::startup_other_cores();
     Cpu::start_threading();
 }
 
@@ -362,6 +399,11 @@ pub fn current_pid() -> Option<ThreadId> {
     THREADS.with(|threads| threads.current_pid())
 }
 
+/// Returns the id of the CPU that this thread is running on.
+pub fn core_id() -> CoreId {
+    smp::Chip::core_id()
+}
+
 /// Checks if a given [`ThreadId`] is valid.
 pub fn is_valid_pid(thread_id: ThreadId) -> bool {
     THREADS.with(|threads| threads.is_valid_pid(thread_id))
@@ -391,7 +433,7 @@ pub fn yield_same() {
         let Some(prio) = threads.current().map(|t| t.prio) else {
             return;
         };
-        if threads.runqueue.advance(prio) {
+        if !threads.runqueue.is_empty(prio) {
             schedule();
         }
     })

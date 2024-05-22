@@ -121,8 +121,25 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         if rq_ffs == 0 {
             return None;
         }
-        let rq = RunqueueId::new(rq_ffs as u8 - 1);
-        self.queues.peek_head(rq.0).map(ThreadId::new)
+        let rq = rq_ffs as u8 - 1;
+        self.queues.peek_head(rq).map(ThreadId::new)
+    }
+
+    /// Pop the thread that should run next.
+    ///
+    /// Pops the next runnable thread of
+    /// the runqueue with the highest index.
+    pub fn pop_next(&mut self) -> Option<ThreadId> {
+        let rq_ffs = Self::ffs(self.bitcache);
+        if rq_ffs == 0 {
+            return None;
+        }
+        let rq = (rq_ffs - 1) as u8;
+        let head = self.queues.pop_head(rq).map(ThreadId::new);
+        if self.queues.is_empty(rq) {
+            self.bitcache &= !(1 << rq);
+        }
+        head
     }
 
     /// Advances runqueue number `rq`.
@@ -134,6 +151,12 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     pub fn advance(&mut self, rq: RunqueueId) -> bool {
         debug_assert!((usize::from(rq)) < N_QUEUES);
         self.queues.advance(rq.0)
+    }
+
+    /// Checks if a runqueue is empty.
+    pub fn is_empty(&mut self, rq: RunqueueId) -> bool {
+        debug_assert!((rq.0 as usize) < N_QUEUES);
+        self.queues.is_empty(rq.0)
     }
 }
 
