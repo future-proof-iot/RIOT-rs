@@ -6,6 +6,7 @@
 #![allow(clippy::indexing_slicing)]
 
 mod arch;
+mod autostart_thread;
 mod ensure_once;
 mod thread;
 mod threadlist;
@@ -13,6 +14,14 @@ mod threadlist;
 pub mod channel;
 pub mod lock;
 pub mod thread_flags;
+
+#[doc(hidden)]
+pub mod macro_reexports {
+    // Used by `autostart_thread`
+    pub use linkme;
+    pub use paste;
+    pub use static_cell;
+}
 
 pub use riot_rs_runqueue::{RunqueueId, ThreadId};
 pub use thread_flags as flags;

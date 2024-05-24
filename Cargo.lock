@@ -3291,7 +3291,9 @@ dependencies = [
  "esp-hal",
  "linkme",
  "panic-semihosting",
+ "paste",
  "riot-rs-runqueue",
+ "static_cell",
 ]
 
 [[package]]
