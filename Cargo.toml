@@ -65,6 +65,7 @@ document-features = "0.2.8"
 heapless = { version = "0.8.0", default-features = false }
 konst = { version = "0.3.8", default_features = false }
 ld-memory = { version = "0.2.9" }
+paste = { version = "1.0" }
 static_cell = { version = "2.0.0", features = ["nightly"] }
 
 [profile.dev]

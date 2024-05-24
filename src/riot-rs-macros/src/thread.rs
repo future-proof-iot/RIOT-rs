@@ -37,7 +37,7 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
     #[allow(clippy::wildcard_imports)]
     use thread::*;
 
-    use quote::{format_ident, quote};
+    use quote::quote;
 
     let mut attrs = Attributes::default();
     let thread_parser = syn::meta::parser(|meta| attrs.parse(&meta));
@@ -57,7 +57,6 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     let fn_name = thread_function.sig.ident.clone();
-    let slice_fn_name_ident = format_ident!("__start_thread_{fn_name}");
     let Parameters {
         stack_size,
         priority,
@@ -69,12 +68,7 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
         #no_mangle_attr
         #thread_function
 
-        #[#riot_rs_crate::linkme::distributed_slice(#riot_rs_crate::thread::THREAD_FNS)]
-        #[linkme(crate = #riot_rs_crate::linkme)]
-        fn #slice_fn_name_ident() {
-            let stack = #riot_rs_crate::static_cell::make_static!([0u8; #stack_size as usize]);
-            #riot_rs_crate::thread::thread_create_noarg(#fn_name, stack, #priority);
-        }
+        #riot_rs_crate::thread::autostart_thread!(#fn_name, stacksize = #stack_size, priority = #priority);
     };
 
     TokenStream::from(expanded)
