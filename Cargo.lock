@@ -1997,6 +1997,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "hello-world-async"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
 name = "hermit-abi"
 version = "0.1.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"

@@ -13,6 +13,7 @@ subdirs:
   - embassy-net-udp
   - embassy-usb-keyboard
   - hello-world
+  - hello-world-async
   - minimal
   - random
   - threading
