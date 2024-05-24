@@ -78,7 +78,7 @@ pub static EXECUTOR: arch::Executor = arch::Executor::new();
 #[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
     println!("riot-rs-embassy::init()");
-    let p = arch::init(Default::default());
+    let p = arch::init();
 
     #[cfg(any(context = "nrf", context = "rp2040"))]
     {
@@ -94,7 +94,7 @@ pub(crate) fn init() {
 #[export_name = "riot_rs_embassy_init"]
 fn init() -> ! {
     println!("riot-rs-embassy::init()");
-    let p = arch::init(Default::default());
+    let p = arch::init();
 
     println!("riot-rs-embassy::init() done");
 

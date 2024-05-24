@@ -7,10 +7,7 @@ pub use esp_hal::{
     peripherals::{OptionalPeripherals, Peripherals},
 };
 
-#[derive(Default)]
-pub struct Config {}
-
-pub fn init(_config: Config) -> OptionalPeripherals {
+pub fn init() -> OptionalPeripherals {
     let mut peripherals = OptionalPeripherals::from(Peripherals::take());
     let system = peripherals.SYSTEM.take().unwrap().split();
     let clocks = ClockControl::max(system.clock_control).freeze();
