@@ -14,7 +14,7 @@ pub fn riot_rs_crate() -> syn::Ident {
         .unwrap_or_else(|| panic!("{RIOT_RS_CRATE_NAME} should be present in `Cargo.toml`"))
 }
 
-/// Returns a [`struct@syn::Ident`] identifying the `name` dependency (or None).
+/// Returns a [`struct@syn::Ident`] identifying the `name` dependency (or `None`).
 ///
 /// # Panics
 ///
@@ -23,10 +23,7 @@ pub fn find_crate(name: &str) -> Option<syn::Ident> {
     if let Ok(crate_) = proc_macro_crate::crate_name(name) {
         match crate_ {
             proc_macro_crate::FoundCrate::Itself => {
-                panic!(
-                    "{} cannot be used as a dependency of itself",
-                    env!("CARGO_CRATE_NAME"),
-                );
+                panic!("{name} cannot be used as a dependency of itself");
             }
             proc_macro_crate::FoundCrate::Name(crate_) => Some(format_ident!("{crate_}")),
         }
