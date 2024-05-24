@@ -39,6 +39,8 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
 
     use quote::quote;
 
+    use crate::utils::find_crate;
+
     let mut attrs = Attributes::default();
     let thread_parser = syn::meta::parser(|meta| attrs.parse(&meta));
     syn::parse_macro_input!(args with thread_parser);
@@ -62,13 +64,19 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
         priority,
     } = Parameters::from(attrs);
 
-    let riot_rs_crate = utils::riot_rs_crate();
+    let thread_crate = {
+        match (find_crate("riot-rs"), find_crate("riot-rs-threads")) {
+            (Some(riot_rs), _) => quote! { #riot_rs::thread },
+            (None, Some(riot_rs_threads)) => quote! { #riot_rs_threads },
+            _ => panic!(r#"neither "riot-rs" nor "riot-rs-threads" found in dependencies!"#),
+        }
+    };
 
     let expanded = quote! {
         #no_mangle_attr
         #thread_function
 
-        #riot_rs_crate::thread::autostart_thread!(#fn_name, stacksize = #stack_size, priority = #priority);
+        #thread_crate::autostart_thread!(#fn_name, stacksize = #stack_size, priority = #priority);
     };
 
     TokenStream::from(expanded)
