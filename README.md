@@ -47,7 +47,7 @@ The following list of hardware is currently supported:
 If you are not so adventurous, but nevertheless looking for a way 
 to run your Rust module on a microcontroller, you could try to 
 glue it directly on top of [embassy](https://github.com/embassy-rs/embassy), 
-or instead, run your module in a [riot-wrappers](https://gitlab.com/etonomy/riot-wrappers).
+or instead, run your module in a [riot-wrappers](https://github.com/RIOT-OS/rust-riot-wrappers).
 
 ## Quickstart
 
