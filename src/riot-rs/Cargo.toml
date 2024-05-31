@@ -90,6 +90,10 @@ silent-panic = ["riot-rs-rt/silent-panic"]
 no-boards = ["riot-rs-boards/no-boards"]
 
 # Enables developer docs, shows items that are otherwise hidden from users.
-_dev-doc = ["riot-rs-embassy/_dev-doc", "riot-rs-rt/_dev-doc", "riot-rs-threads/_dev-doc"]
+_dev-doc = [
+  "riot-rs-embassy/_dev-doc",
+  "riot-rs-rt/_dev-doc",
+  "riot-rs-threads/_dev-doc",
+]
 
 net = ["riot-rs-embassy/net"]
