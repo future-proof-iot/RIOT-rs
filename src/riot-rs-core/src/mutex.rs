@@ -1,6 +1,6 @@
 //! Data-carrying mutex
 //!
-//! This roughly mimicks [std::sync::Mutex]. Aims for compatibility with
+//! This roughly mimics [std::sync::Mutex]. Aims for compatibility with
 //! [riot-wrappers::mutex::Mutex].
 
 use core::ops::{Deref, DerefMut};
@@ -15,7 +15,7 @@ use crate::lock::Lock;
 /// A mutual exclusion primitive useful for protecting shared data
 ///
 /// Unlike the [std::sync::Mutex], this has no concept of poisoning, so waiting for mutexes in
-/// paniced (and thus locked) threads will lock the accessing thread as well. This is because RIOT
+/// panicked (and thus locked) threads will lock the accessing thread as well. This is because RIOT
 /// threads don't unwind Rust code. As a consequence, the mutex interface is different from the
 /// standard library's.
 ///

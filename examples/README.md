@@ -37,7 +37,7 @@ and debugging, the USB device port is also connected to the host computer with
 a second cable.
 
 For *WiFi* (default on `rpi-pico-w` and the esp32 based boards), the actual WiFi
-network credentials have to be suppplied via environment variables:
+network credentials have to be supplied via environment variables:
 
     $ CONFIG_WIFI_NETWORK=<ssid> CONFIG_WIFI_PASSWORD=<pwd> laze build ...
 
