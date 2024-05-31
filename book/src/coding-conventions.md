@@ -32,7 +32,13 @@ Imports from the same crate with the same visibility MUST be [merged into a sing
 
 ### Doc Comments
 
-All public items listed in the documentation—i.e., not marked with [`#[doc(hidden)]`](https://doc.rust-lang.org/rustdoc/write-documentation/the-doc-attribute.html#hidden)—SHOULD be documented.
+Items that need to be exported by a crate but that should not be used by users SHOULD be marked using
+
+```rust
+#[cfg_attr(not(feature = "_dev-doc"), doc(hidden))]
+```
+
+All public items visible to users SHOULD be documented.
 
 Doc comments MUST use the [line comment style](https://doc.rust-lang.org/reference/comments.html#doc-comments), not the block style.
 

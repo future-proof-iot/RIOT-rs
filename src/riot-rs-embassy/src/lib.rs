@@ -63,14 +63,20 @@ pub use network::NetworkStack;
 
 #[cfg(feature = "threading")]
 pub mod blocker;
+
+#[cfg_attr(not(feature = "_dev-doc"), doc(hidden))]
 pub mod delegate;
+#[cfg_attr(not(feature = "_dev-doc"), doc(hidden))]
 pub mod sendcell;
 
+#[cfg_attr(not(feature = "_dev-doc"), doc(hidden))]
 pub type Task = fn(Spawner, &mut arch::OptionalPeripherals);
 
+#[cfg_attr(not(feature = "_dev-doc"), doc(hidden))]
 #[distributed_slice]
 pub static EMBASSY_TASKS: [Task] = [..];
 
+#[cfg_attr(not(feature = "_dev-doc"), doc(hidden))]
 #[cfg(feature = "executor-interrupt")]
 pub static EXECUTOR: arch::Executor = arch::Executor::new();
 
