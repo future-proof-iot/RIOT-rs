@@ -41,3 +41,19 @@ macro_rules! str_from_env_or {
         }
     };
 }
+
+#[macro_export]
+macro_rules! str_from_env {
+    ($env_var:literal, $doc:literal) => {
+        if let Some(str_value) = option_env!($env_var) {
+            str_value
+        } else {
+            $crate::env::const_panic::concat_panic!(
+                "`",
+                $env_var,
+                "` environment variable was expected to provide the ",
+                $doc,
+            );
+        }
+    };
+}

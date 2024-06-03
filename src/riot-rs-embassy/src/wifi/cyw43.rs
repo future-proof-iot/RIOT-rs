@@ -8,7 +8,6 @@ use embassy_rp::{
 };
 
 use riot_rs_debug::println;
-use riot_rs_utils::str_from_env_or;
 
 use self::rpi_pico_w::{Cyw43Periphs, CywSpi, Irqs};
 use crate::{arch::OptionalPeripherals, make_static};
