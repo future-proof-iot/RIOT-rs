@@ -122,8 +122,10 @@ mod wifi_thread {
         }
 
         loop {
+            interrupt::disable(esp_hal::Cpu::ProCpu, Interrupt::SYSTIMER_TARGET0);
             // Yield to the esp-wifi scheduler tasks, so that they get a chance to run.
             yield_to_esp_wifi_scheduler();
+            interrupt::enable(Interrupt::SYSTIMER_TARGET0, interrupt::Priority::Priority2).unwrap();
             // Sleep until the systimer alarm 0 interrupts again.
             riot_rs_threads::sleep()
         }
