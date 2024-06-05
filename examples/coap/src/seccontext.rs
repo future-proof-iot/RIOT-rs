@@ -18,7 +18,7 @@ const MAX_CONTEXTS: usize = 4;
 // implementations that work well for us.
 type LakersCrypto = lakers_crypto_rustcrypto::Crypto<riot_rs::random::CryptoRng>;
 
-/// A pool of security contexts sharable by several users inside a thread.
+/// A pool of security contexts shareable by several users inside a thread.
 ///
 /// Access through the inner RefCell always happens with panicking errors, because all accessors
 /// (in this module, given it's a private member) promise to not call code would cause double
@@ -37,7 +37,7 @@ impl SecContextPool {
             }
         }
         for (index, place) in self.0.borrow_mut().iter_mut().enumerate() {
-            // As a possible improvement, define a "keep value" in 0..n, and find the slot withthe
+            // As a possible improvement, define a "keep value" in 0..n, and find the slot with the
             // minimum keep value.
             if place.is_gc_eligible() {
                 *place = new;
@@ -519,7 +519,7 @@ impl<'a, H: coap_handler::Handler> coap_handler::Handler for OscoreEdhocHandler<
                     oscore_context,
                     |request| self.inner.extract_request_data(request),
                 ) else {
-                    // FIXME is that the righ tcode?
+                    // FIXME is that the right code?
                     println!("Decryption failure");
                     return Err(Own(CoAPError::unauthorized()));
                 };
@@ -559,7 +559,7 @@ impl<'a, H: coap_handler::Handler> coap_handler::Handler for OscoreEdhocHandler<
                     // FIXME render late error (it'd help if CoAPError also offered a type that unions it
                     // with an arbitrary other error). As it is, depending on the CoAP stack, there may be
                     // DoS if a peer can send many requests before the server starts rendering responses.
-                    panic!("State vanished before respone was built.");
+                    panic!("State vanished before response was built.");
                 };
 
                 // We have a lock, let's pick one now
@@ -592,7 +592,7 @@ impl<'a, H: coap_handler::Handler> coap_handler::Handler for OscoreEdhocHandler<
                     // FIXME render late error (it'd help if CoAPError also offered a type that unions it
                     // with an arbitrary other error). As it is, depending on the CoAP stack, there may be
                     // DoS if a peer can send many requests before the server starts rendering responses.
-                    panic!("State vanished before respone was built.");
+                    panic!("State vanished before response was built.");
                 };
 
                 // Almost-but-not: This'd require 'static on Message which we can't have b/c the

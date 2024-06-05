@@ -168,6 +168,9 @@ jobs:
         with:
           args: format --check  # Only check formatting for now
 
+      - name: typos
+        uses: crate-ci/typos@v1.22.0
+
   CI-success:
     if: ${{ always() }}
     runs-on: ubuntu-latest
