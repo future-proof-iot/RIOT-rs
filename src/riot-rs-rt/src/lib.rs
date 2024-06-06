@@ -90,6 +90,7 @@ fn startup() -> ! {
         extern "Rust" {
             fn riot_rs_embassy_init() -> !;
         }
+        println!("riot_rs_rt::startup() launching single thread executor");
         unsafe { riot_rs_embassy_init() };
     }
 

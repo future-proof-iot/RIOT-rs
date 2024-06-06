@@ -313,9 +313,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.0.98"
+version = "1.0.99"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "41c270e7540d725e65ac7f1b212ac8ce349719624d7bcff99f8e2e488e8cf03f"
+checksum = "96c51067fd44124faa7f870b4b1c969379ad32b2ba805aa959430ceaa384f695"
 
 [[package]]
 name = "ccm"
@@ -1502,7 +1502,7 @@ dependencies = [
 [[package]]
 name = "esp-build"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#f612c820265fe8cee2a9693ec8c2032143ca1403"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
 dependencies = [
  "quote",
  "syn 2.0.66",
@@ -1512,7 +1512,7 @@ dependencies = [
 [[package]]
 name = "esp-hal"
 version = "0.18.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#f612c820265fe8cee2a9693ec8c2032143ca1403"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
 dependencies = [
  "basic-toml",
  "bitfield 0.15.0",
@@ -1555,7 +1555,7 @@ dependencies = [
 [[package]]
 name = "esp-hal-embassy"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#f612c820265fe8cee2a9693ec8c2032143ca1403"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -1571,7 +1571,7 @@ dependencies = [
 [[package]]
 name = "esp-hal-procmacros"
 version = "0.11.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#f612c820265fe8cee2a9693ec8c2032143ca1403"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
 dependencies = [
  "darling",
  "document-features",
@@ -1587,7 +1587,7 @@ dependencies = [
 [[package]]
 name = "esp-metadata"
 version = "0.1.1"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#f612c820265fe8cee2a9693ec8c2032143ca1403"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
 dependencies = [
  "basic-toml",
  "lazy_static",
@@ -1608,7 +1608,7 @@ dependencies = [
 [[package]]
 name = "esp-riscv-rt"
 version = "0.8.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#f612c820265fe8cee2a9693ec8c2032143ca1403"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
 dependencies = [
  "document-features",
  "riscv",
@@ -1618,7 +1618,7 @@ dependencies = [
 [[package]]
 name = "esp-wifi"
 version = "0.6.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#f612c820265fe8cee2a9693ec8c2032143ca1403"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
 dependencies = [
  "atomic-waker",
  "cfg-if",
@@ -2080,9 +2080,9 @@ dependencies = [
 
 [[package]]
 name = "httparse"
-version = "1.8.0"
+version = "1.9.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d897f394bad6a705d5f4104762e116a75639e470d80901eed05a860a95cb1904"
+checksum = "d0e7a4dd27b9476dc40cb050d3632d3bba3a70ddbff012285f7f8559a1e7e545"
 
 [[package]]
 name = "ident_case"
@@ -2392,9 +2392,9 @@ checksum = "0ca88d725a0a943b096803bd34e73a4437208b6077654cc4ecb2947a5f91618d"
 
 [[package]]
 name = "memchr"
-version = "2.7.2"
+version = "2.7.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6c8640c5d730cb13ebd907d8d04b52f55ac9a2eec55b440c8892f40d56c76c1d"
+checksum = "78ca9ab1a0babb1e7d5695e3530886289c18cf2f87ec19a575a0abdce112e3a3"
 
 [[package]]
 name = "memoffset"
@@ -3113,9 +3113,9 @@ version = "0.1.1"
 
 [[package]]
 name = "redox_syscall"
-version = "0.5.1"
+version = "0.5.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "469052894dcb553421e483e4209ee581a45100d31b4018de03e5a7ad86374a7e"
+checksum = "c82cf8cff14456045f55ec4241383baeff27af886adb72ffb2162f99911de0fd"
 dependencies = [
  "bitflags 2.5.0",
 ]
@@ -3133,25 +3133,25 @@ dependencies = [
 
 [[package]]
 name = "regex"
-version = "1.10.4"
+version = "1.10.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c117dbdfde9c8308975b6a18d71f3f385c89461f7b3fb054288ecf2a2058ba4c"
+checksum = "b91213439dad192326a0d7c6ee3955910425f441d7038e0d6933b0aec5c4517f"
 dependencies = [
  "aho-corasick",
  "memchr",
  "regex-automata",
- "regex-syntax 0.8.3",
+ "regex-syntax 0.8.4",
 ]
 
 [[package]]
 name = "regex-automata"
-version = "0.4.6"
+version = "0.4.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "86b83b8b9847f9bf95ef68afb0b8e6cdb80f498442f5179a29fad448fcc1eaea"
+checksum = "38caf58cc5ef2fed281f89292ef23f6365465ed9a41b7a7754eb4e26496c92df"
 dependencies = [
  "aho-corasick",
  "memchr",
- "regex-syntax 0.8.3",
+ "regex-syntax 0.8.4",
 ]
 
 [[package]]
@@ -3162,9 +3162,9 @@ checksum = "f162c6dd7b008981e4d40210aca20b4bd0f9b60ca9271061b07f78537722f2e1"
 
 [[package]]
 name = "regex-syntax"
-version = "0.8.3"
+version = "0.8.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "adad44e29e4c806119491a7f06f03de4d1af22c3a680dd47f1e6e179439d1f56"
+checksum = "7a66a03ae7c801facd77a29370b4faec201768915ac14a721ba36f20bc9c209b"
 
 [[package]]
 name = "ringbuffer"
@@ -3261,6 +3261,7 @@ dependencies = [
  "linkme",
  "once_cell",
  "riot-rs-debug",
+ "riot-rs-macros",
  "riot-rs-random",
  "riot-rs-rt",
  "riot-rs-threads",
@@ -3939,7 +3940,7 @@ dependencies = [
  "serde",
  "serde_spanned",
  "toml_datetime",
- "winnow 0.6.11",
+ "winnow 0.6.13",
 ]
 
 [[package]]
@@ -4237,9 +4238,9 @@ dependencies = [
 
 [[package]]
 name = "winnow"
-version = "0.6.11"
+version = "0.6.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "56c52728401e1dc672a56e81e593e912aa54c78f40246869f78359a2bf24d29d"
+checksum = "59b5e5f6c299a3c7890b876a2a587f3115162487e704907d9b6cd29473052ba1"
 dependencies = [
  "memchr",
 ]

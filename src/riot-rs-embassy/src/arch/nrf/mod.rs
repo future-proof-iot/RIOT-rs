@@ -6,11 +6,14 @@ pub mod hwrng;
 #[cfg(feature = "usb")]
 pub mod usb;
 
+#[cfg(feature = "executor-interrupt")]
 pub(crate) use embassy_executor::InterruptExecutor as Executor;
 
+#[cfg(feature = "executor-interrupt")]
 #[cfg(context = "nrf52")]
 crate::executor_swi!(SWI0_EGU0);
 
+#[cfg(feature = "executor-interrupt")]
 #[cfg(context = "nrf5340")]
 crate::executor_swi!(EGU0);
 
