@@ -87,10 +87,18 @@ opt-level = 3
 
 [patch.crates-io]
 # riot-rs embassy fork
-embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-300424" }
-embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-300424" }
-embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-300424" }
-embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-300424" }
+embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-rp = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-net-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-net-driver-channel = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-time-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-time-queue-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-usb-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+cyw43 = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+cyw43-pio = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 
 usbd-hid-macros = { git = "https://github.com/twitchyliquid64/usbd-hid", rev = "76bea16537e1a347df2ebced5b9e1d48f71c9859" }
 
