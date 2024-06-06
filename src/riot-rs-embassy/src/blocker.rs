@@ -1,14 +1,12 @@
 use core::future::Future;
 use core::pin::Pin;
 use core::task::{Context, Poll, RawWaker, RawWakerVTable, Waker};
-use riot_rs_threads::{current_pid, flags, flags::ThreadFlags, ThreadId};
-
-const THREAD_FLAG_WAKER: ThreadFlags = 1; // TODO: find more appropriate value
+use riot_rs_threads::{current_pid, flags, flags::THREAD_FLAG_WAKEUP, ThreadId};
 
 fn wake(ptr: *const ()) {
     // wake
     let thread_id = ThreadId::new(ptr as usize as u8);
-    flags::set(thread_id, THREAD_FLAG_WAKER);
+    flags::set(thread_id, THREAD_FLAG_WAKEUP);
 }
 
 static VTABLE: RawWakerVTable = RawWakerVTable::new(
@@ -31,6 +29,6 @@ pub fn block_on<F: Future>(mut fut: F) -> F::Output {
         if let Poll::Ready(res) = fut.as_mut().poll(&mut cx) {
             return res;
         }
-        flags::wait_any(THREAD_FLAG_WAKER);
+        flags::wait_any(THREAD_FLAG_WAKEUP);
     }
 }

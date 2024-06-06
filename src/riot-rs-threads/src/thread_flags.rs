@@ -1,8 +1,16 @@
 //! Thread flags.
+//!
+//! Every thread in RIOT-rs has a set of 16 flags that can be set and waited on.
+//!
+//! Note: The highest 4 bits (`1<<15, 1<<14, 1<<13, 1<<12`) are used inside
+//!       RIOT-rs and should not be used for applications.
 use crate::{ThreadId, ThreadState, Threads, THREADS};
 
 /// Bitmask that represent the flags that are set for a thread.
 pub type ThreadFlags = u16;
+
+/// Thread flag used to kick thread loops.
+pub const THREAD_FLAG_WAKEUP: ThreadFlags = 1 << 15;
 
 /// Possible waiting modes for [`ThreadFlags`].
 #[derive(Copy, Clone, PartialEq, Debug)]
