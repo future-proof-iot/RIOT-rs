@@ -172,6 +172,8 @@ unsafe fn sched() -> u128 {
                 Some(pid) => pid,
                 None => {
                     cortex_m::asm::wfi();
+                    // this fence seems necessary, see #310.
+                    core::sync::atomic::fence(core::sync::atomic::Ordering::Acquire);
                     return None;
                 }
             };
