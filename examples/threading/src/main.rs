@@ -10,6 +10,7 @@ fn thread0() {
     println!("Hello from thread 0");
 }
 
+// `stacksize` and `priority` can be arbitrary expressions.
 #[riot_rs::thread(autostart, stacksize = 4096, priority = 2)]
 fn thread1() {
     println!("Hello from thread 1");

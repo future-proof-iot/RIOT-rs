@@ -3,7 +3,7 @@
 /// The thread is given a `stacksize`-byte stack, and has priority `priority`.
 #[macro_export]
 macro_rules! autostart_thread {
-    ($fn_name:ident, stacksize = $stacksize:literal, priority = $priority:literal) => {
+    ($fn_name:ident, stacksize = $stacksize:expr, priority = $priority:expr) => {
         $crate::macro_reexports::paste::paste! {
             #[$crate::macro_reexports::linkme::distributed_slice($crate::THREAD_FNS)]
             #[linkme(crate = $crate::macro_reexports::linkme)]
