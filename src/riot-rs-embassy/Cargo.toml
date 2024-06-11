@@ -11,7 +11,9 @@ critical-section.workspace = true
 linkme.workspace = true
 static_cell.workspace = true
 cfg-if.workspace = true
+paste.workspace = true
 
+embassy-embedded-hal = { workspace = true }
 embassy-executor = { workspace = true, features = ["nightly"] }
 
 embassy-net = { workspace = true, optional = true, features = [
@@ -22,6 +24,8 @@ embassy-net-driver-channel = { workspace = true, optional = true }
 embassy-sync = { workspace = true }
 embassy-time = { workspace = true, optional = true }
 embassy-usb = { workspace = true, optional = true }
+
+embedded-hal-async = { workspace = true }
 
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-debug = { workspace = true }
