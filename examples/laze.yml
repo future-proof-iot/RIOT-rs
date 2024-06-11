@@ -5,6 +5,7 @@ defaults:
 
 subdirs:
   - benchmark
+  - spi-bus
   - core-sizes
   - coap
   - embassy
