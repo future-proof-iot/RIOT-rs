@@ -12,8 +12,14 @@ critical-section.workspace = true
 linkme.workspace = true
 static_cell.workspace = true
 cfg-if.workspace = true
+<<<<<<< HEAD
 portable-atomic.workspace = true
+||||||| parent of 6f11c8fa (feat(embassy-arch): support sharing I2C and SPI buses)
+=======
+paste.workspace = true
+>>>>>>> 6f11c8fa (feat(embassy-arch): support sharing I2C and SPI buses)
 
+embassy-embedded-hal = { workspace = true }
 embassy-executor = { workspace = true, features = ["nightly"] }
 
 embassy-hal-internal = { workspace = true }
@@ -26,7 +32,11 @@ embassy-sync = { workspace = true }
 embassy-time = { workspace = true, optional = true }
 embassy-usb = { workspace = true, optional = true }
 
+<<<<<<< HEAD
 embedded-hal = { workspace = true }
+||||||| parent of 6f11c8fa (feat(embassy-arch): support sharing I2C and SPI buses)
+=======
+>>>>>>> 6f11c8fa (feat(embassy-arch): support sharing I2C and SPI buses)
 embedded-hal-async = { workspace = true }
 
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }

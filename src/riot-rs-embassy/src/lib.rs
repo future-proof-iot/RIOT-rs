@@ -7,6 +7,9 @@
 #![feature(lint_reasons)]
 #![feature(trait_alias)]
 
+mod i2c;
+mod spi;
+
 pub mod define_peripherals;
 pub mod gpio;
 
