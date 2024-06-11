@@ -47,9 +47,7 @@ riot-rs-random = { path = "../riot-rs-random", optional = true }
 riot-rs-utils = { workspace = true }
 
 heapless = "0.8.0"
-once_cell = { version = "1.19.0", default-features = false, features = [
-  "critical-section",
-] }
+once_cell = { workspace = true }
 
 # rpi-pico-w cyw43
 cyw43 = { version = "0.2.0", features = ["firmware-logs"], optional = true }
