@@ -120,6 +120,7 @@ contexts:
       flash-riotboot:
         required_vars:
           - FLASH_OFFSET
+          - FLASH_SLOT_OFFSET
         cmd:
           - riotboot-genhdr generate ${out} $$(date +%s) $(${FLASH_OFFSET} + ${FLASH_SLOT_OFFSET}) ${FLASH_SLOT_OFFSET} - > ${out}.hdr.bin
           - ${OBJCOPY} -Obinary ${out} ${out}.bin
@@ -557,6 +558,17 @@ modules:
         FEATURES:
           - riot-rs/wifi-esp
 
+  - name: runner-riotboot-dfu
+    required_vars:
+      - FLASH_OFFSET
+      - FLASH_SLOT_OFFSET
+      - FLASH_SIZE_TOTAL
+      - FLASH_SLOT
+      - FLASH_NUM_SLOTS
+    env:
+      global:
+        CARGO_RUNNER: "${SCRIPTS}/runner-riotboot.sh\\ ${FLASH_OFFSET}\\ ${FLASH_SLOT_OFFSET}\\ ${FLASH_SIZE_TOTAL}\\ ${FLASH_SLOT}\\ ${FLASH_NUM_SLOTS}"
+
 builders:
   # host builder (for housekeeping tasks)
   - name: host
@@ -630,6 +642,38 @@ builders:
 
   - name: particle-xenon
     parent: nrf52840
+
+  - name: _particle-xenon-riotboot-dfu
+    parent: particle-xenon
+    env:
+      # Bootloader size. This is why the board is riotboot-dfu: The version
+      # without DFU needs less flash for the bootloader.
+      FLASH_OFFSET: "0x4000"
+      # Size of image header
+      FLASH_SLOT_OFFSET: "0x400"
+      # This is default for nrf52/build.rs anyway, but runner-riotbuild needs
+      # the information explicitly.
+      FLASH_NUM_SLOTS: "2"
+      # FIXME: This information ("The nrf52840 has 1024KiB of flash") is
+      # duplicated between here and src/riot-rs-boards/nrf52/build.rs.
+      FLASH_SIZE_TOTAL: "1048576"
+      CARGO_ENV:
+        - NRF52_FLASH_OFFSET=${FLASH_OFFSET}
+        - NRF52_FLASH_SLOT_OFFSET=${FLASH_SLOT_OFFSET}
+        - NRF52_FLASH_SLOT=${FLASH_SLOT}
+        - NRF52_FLASH_NUM_SLOTS=${FLASH_NUM_SLOTS}
+    selects:
+      - runner-riotboot-dfu
+
+  - name: particle-xenon-riotboot-dfu-slot0
+    parent: _particle-xenon-riotboot-dfu
+    env:
+      FLASH_SLOT: "0"
+
+  - name: particle-xenon-riotboot-dfu-slot1
+    parent: _particle-xenon-riotboot-dfu
+    env:
+      FLASH_SLOT: "1"
 
   - name: rpi-pico
     parent: rp2040
