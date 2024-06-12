@@ -1,3 +1,12 @@
+use embassy_embedded_hal::shared_bus::asynch::spi::SpiDevice as InnerSpiDevice;
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+
+use crate::arch;
+
+// TODO: do we actually need a CriticalSectionRawMutex here?
+pub type SpiDevice =
+    InnerSpiDevice<'static, CriticalSectionRawMutex, arch::spi::Spi, arch::gpio::Output<'static>>;
+
 macro_rules! impl_async_spibus_for_driver_enum {
     ($driver_enum:ident, $( $peripheral:ident ),*) => {
         impl embedded_hal_async::spi::SpiBus for $driver_enum {

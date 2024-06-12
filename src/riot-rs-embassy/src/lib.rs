@@ -11,6 +11,8 @@ mod i2c;
 mod spi;
 
 pub mod define_peripherals;
+
+pub mod define_peripherals;
 pub mod gpio;
 
 #[cfg(feature = "external-interrupts")]

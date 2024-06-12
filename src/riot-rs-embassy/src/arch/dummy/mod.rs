@@ -2,6 +2,8 @@
 
 mod executor;
 pub mod gpio;
+pub mod i2c;
+pub mod spi;
 
 pub mod peripheral {
     pub use embassy_hal_internal::Peripheral;

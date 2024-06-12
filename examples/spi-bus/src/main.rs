@@ -10,10 +10,13 @@
 #![feature(used_with_arg)]
 
 use embassy_sync::mutex::Mutex;
-use embedded_hal_async::spi::{Operation, SpiDevice};
+use embedded_hal_async::spi::{Operation, SpiDevice as _};
 use riot_rs::{
     debug::{exit, println, EXIT_SUCCESS},
-    embassy::arch::{gpio, peripherals, spi},
+    embassy::{
+        arch::{gpio, peripherals, spi},
+        spi::SpiDevice,
+    },
 };
 
 // WHO_AM_I register of the LIS3DH sensor
@@ -56,7 +59,7 @@ async fn main(peripherals: Peripherals) {
     #[cfg(context = "rp")]
     let cs_output = gpio::Output::new(peripherals.spi_cs, gpio::Level::High);
 
-    let mut spi_device = spi::SpiDevice::new(SPI_BUS.get().unwrap(), cs_output);
+    let mut spi_device = SpiDevice::new(SPI_BUS.get().unwrap(), cs_output);
 
     let mut id = [0];
     spi_device

@@ -1,3 +1,11 @@
+use embassy_embedded_hal::shared_bus::asynch::i2c::I2cDevice as InnerI2cDevice;
+use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
+
+use crate::arch;
+
+// TODO: do we actually need a CriticalSectionRawMutex here?
+pub type I2cDevice = InnerI2cDevice<'static, CriticalSectionRawMutex, arch::i2c::I2c>;
+
 macro_rules! impl_async_i2c_for_driver_enum {
     ($driver_enum:ident, $( $peripheral:ident ),*) => {
         impl embedded_hal_async::i2c::I2c for $driver_enum {

@@ -1,20 +1,14 @@
-use embassy_embedded_hal::shared_bus::asynch::i2c::I2cDevice as InnerI2cDevice;
 use embassy_nrf::{
     bind_interrupts,
     gpio::Pin as GpioPin,
     peripherals,
     twim::{InterruptHandler, Twim},
 };
-use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embedded_hal_async::i2c::Operation;
 
 use crate::i2c::impl_async_i2c_for_driver_enum;
 
 pub use embassy_nrf::twim::Frequency;
-
-// TODO: factor this out (across archs)?
-// TODO: do we need a CriticalSectionRawMutex here?
-pub type I2cDevice = InnerI2cDevice<'static, CriticalSectionRawMutex, I2c>;
 
 #[non_exhaustive]
 #[derive(Clone)]

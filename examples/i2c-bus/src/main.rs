@@ -10,10 +10,13 @@
 #![feature(used_with_arg)]
 
 use embassy_sync::mutex::Mutex;
-use embedded_hal_async::i2c::I2c as I2cDevice;
+use embedded_hal_async::i2c::I2c as _;
 use riot_rs::{
     debug::{exit, println, EXIT_SUCCESS},
-    embassy::arch::{i2c, peripherals},
+    embassy::{
+        arch::{i2c, peripherals},
+        i2c::I2cDevice,
+    },
 };
 
 const LIS3DH_I2C_ADDR: u8 = 0x19;
@@ -47,7 +50,7 @@ async fn main(peripherals: Peripherals) {
 
     let _ = I2C_BUS.set(Mutex::new(i2c_bus));
 
-    let mut i2c_device = i2c::I2cDevice::new(I2C_BUS.get().unwrap());
+    let mut i2c_device = I2cDevice::new(I2C_BUS.get().unwrap());
 
     let mut id = [0];
     i2c_device
