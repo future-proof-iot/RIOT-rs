@@ -1,0 +1,8 @@
+apps:
+  - name: i2c-bus
+    env:
+      global:
+        CARGO_ENV:
+          - CONFIG_ISR_STACKSIZE=16384
+    selects:
+      - ?release

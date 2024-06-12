@@ -5,6 +5,7 @@ defaults:
 
 subdirs:
   - benchmark
+  - spi-bus
   - core-sizes
   - coap
   - embassy
@@ -14,6 +15,7 @@ subdirs:
   - embassy-usb-keyboard
   - hello-world
   - hello-world-async
+  - i2c-bus
   - minimal
   - random
   - threading

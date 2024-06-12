@@ -2046,6 +2046,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d897f394bad6a705d5f4104762e116a75639e470d80901eed05a860a95cb1904"
 
 [[package]]
+name = "i2c-bus"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embassy-sync 0.5.0",
+ "embedded-hal-async",
+ "once_cell",
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
 name = "ident_case"
 version = "1.0.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3207,7 +3219,9 @@ dependencies = [
  "critical-section",
  "cyw43",
  "cyw43-pio",
+ "embassy-embedded-hal",
  "embassy-executor",
+ "embassy-hal-internal",
  "embassy-net",
  "embassy-net-driver-channel",
  "embassy-nrf",
@@ -3215,11 +3229,13 @@ dependencies = [
  "embassy-sync 0.5.0",
  "embassy-time",
  "embassy-usb",
+ "embedded-hal-async",
  "esp-hal",
  "esp-wifi",
  "heapless 0.8.0",
  "linkme",
  "once_cell",
+ "paste",
  "riot-rs-debug",
  "riot-rs-random",
  "riot-rs-rt",
@@ -3565,6 +3581,18 @@ dependencies = [
  "cfg-if",
  "heapless 0.8.0",
  "managed",
+]
+
+[[package]]
+name = "spi-bus"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embassy-sync 0.5.0",
+ "embedded-hal-async",
+ "once_cell",
+ "riot-rs",
+ "riot-rs-boards",
 ]
 
 [[package]]
