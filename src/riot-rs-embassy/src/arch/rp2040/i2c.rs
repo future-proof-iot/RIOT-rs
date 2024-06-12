@@ -1,17 +1,11 @@
-use embassy_embedded_hal::shared_bus::asynch::i2c::I2cDevice as InnerI2cDevice;
 use embassy_rp::{
     bind_interrupts,
     i2c::{InterruptHandler, SclPin, SdaPin},
     peripherals,
 };
-use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use embedded_hal_async::i2c::Operation;
 
 use crate::i2c::impl_async_i2c_for_driver_enum;
-
-// TODO: factor this out (across archs)?
-// TODO: do we need a CriticalSectionRawMutex here?
-pub type I2cDevice = InnerI2cDevice<'static, CriticalSectionRawMutex, I2c>;
 
 // We do not provide configuration for internal pull-ups as the RP2040 datasheet mentions in
 // section 4.3.1.3 that the GPIO used should have pull-ups enabled.

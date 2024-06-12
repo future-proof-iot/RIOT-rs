@@ -5,8 +5,8 @@
 #![feature(used_with_arg)]
 
 pub mod define_peripherals;
-mod i2c;
-mod spi;
+pub mod i2c;
+pub mod spi;
 
 #[cfg(context = "cortex-m")]
 pub mod executor_swi;

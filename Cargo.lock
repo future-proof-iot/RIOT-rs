@@ -3221,6 +3221,7 @@ dependencies = [
  "cyw43-pio",
  "embassy-embedded-hal",
  "embassy-executor",
+ "embassy-hal-internal",
  "embassy-net",
  "embassy-net-driver-channel",
  "embassy-nrf",
