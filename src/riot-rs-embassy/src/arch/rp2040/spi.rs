@@ -1,14 +1,9 @@
-use embassy_embedded_hal::shared_bus::asynch::spi::SpiDevice as InnerSpiDevice;
 use embassy_rp::{
-    dma, gpio, peripherals,
+    dma, peripherals,
     spi::{Async, ClkPin, MisoPin, MosiPin, Phase, Polarity, Spi as InnerSpi},
 };
-use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 
 use crate::spi::impl_async_spibus_for_driver_enum;
-
-// TODO: factor this out across archs?
-pub type SpiDevice = InnerSpiDevice<'static, CriticalSectionRawMutex, Spi, gpio::Output<'static>>;
 
 #[derive(Clone)]
 #[non_exhaustive]

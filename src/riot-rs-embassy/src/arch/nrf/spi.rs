@@ -1,18 +1,13 @@
-use embassy_embedded_hal::shared_bus::asynch::spi::SpiDevice as InnerSpiDevice;
 use embassy_nrf::{
     bind_interrupts,
     gpio::{self, Pin as GpioPin},
     peripherals,
     spim::{InterruptHandler, Spim, MODE_0, MODE_1, MODE_2, MODE_3},
 };
-use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 
 use crate::spi::impl_async_spibus_for_driver_enum;
 
 pub use embassy_nrf::spim::Frequency;
-
-// TODO: factor this out across archs?
-pub type SpiDevice = InnerSpiDevice<'static, CriticalSectionRawMutex, Spi, gpio::Output<'static>>;
 
 #[derive(Clone)]
 #[non_exhaustive]
