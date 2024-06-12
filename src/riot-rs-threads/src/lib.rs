@@ -49,7 +49,10 @@ pub mod macro_reexports {
 pub use riot_rs_runqueue::{RunqueueId, ThreadId};
 pub use thread_flags as flags;
 
-use arch::{schedule, Arch, Cpu, ThreadData};
+#[doc(hidden)]
+pub use arch::schedule;
+
+use arch::{Arch, Cpu, ThreadData};
 use ensure_once::EnsureOnce;
 use riot_rs_runqueue::RunQueue;
 use thread::{Thread, ThreadState};

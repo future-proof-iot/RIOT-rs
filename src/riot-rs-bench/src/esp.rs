@@ -6,7 +6,7 @@ use esp_hal::{
 use crate::Error;
 
 #[allow(missing_docs)]
-pub fn benchmark<F: Fn() -> ()>(iterations: usize, f: F) -> Result<usize, Error> {
+pub fn benchmark<F: FnMut() -> ()>(iterations: usize, mut f: F) -> Result<usize, Error> {
     let mut systimer_periph = unsafe { peripherals::SYSTIMER::steal() };
     let timer = SystemTimer::new(&mut systimer_periph);
 
