@@ -1,0 +1,17 @@
+[package]
+name = "i2c-bus"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+embassy-executor = { workspace = true }
+embassy-sync = { workspace = true }
+embedded-hal-async = { workspace = true }
+once_cell = { workspace = true }
+riot-rs = { path = "../../src/riot-rs", features = [] }
+riot-rs-boards = { path = "../../src/riot-rs-boards" }
