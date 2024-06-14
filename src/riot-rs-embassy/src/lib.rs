@@ -116,7 +116,22 @@ fn init() -> ! {
 }
 
 #[cfg(feature = "executor-thread")]
-#[riot_rs_macros::thread(autostart, stacksize = 65536, priority = 8)]
+mod executor_thread {
+    pub(crate) const STACKSIZE: usize = riot_rs_utils::usize_from_env_or!(
+        "CONFIG_EXECUTOR_THREAD_STACKSIZE",
+        16384,
+        "executor thread stack size"
+    );
+
+    pub(crate) const PRIORITY: u8 = riot_rs_utils::u8_from_env_or!(
+        "CONFIG_EXECUTOR_THREAD_PRIORITY",
+        8,
+        "executor thread priority"
+    );
+}
+
+#[cfg(feature = "executor-thread")]
+#[riot_rs_macros::thread(autostart, stacksize = executor_thread::STACKSIZE, priority = executor_thread::PRIORITY)]
 fn init() {
     println!("riot-rs-embassy::init(): using thread executor");
     let p = arch::init();
