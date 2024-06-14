@@ -1,10 +1,6 @@
 pub mod gpio;
 
-use esp_hal::{
-    clock::ClockControl,
-    system::SystemControl,
-    timer::{systimer::SystemTimer, timg::TimerGroup},
-};
+use esp_hal::{clock::ClockControl, system::SystemControl, timer::timg::TimerGroup};
 
 pub use esp_hal::peripherals::{OptionalPeripherals, Peripherals};
 pub use esp_hal_embassy::Executor;
@@ -16,7 +12,7 @@ pub fn init() -> OptionalPeripherals {
 
     #[cfg(feature = "wifi-esp")]
     {
-        use esp_hal::rng::Rng;
+        use esp_hal::{rng::Rng, timer::systimer::SystemTimer};
         use esp_wifi::{initialize, EspWifiInitFor};
 
         riot_rs_debug::println!("riot-rs-embassy::arch::esp::init(): wifi");
