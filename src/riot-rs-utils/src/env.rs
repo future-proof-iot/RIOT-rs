@@ -28,6 +28,7 @@ macro_rules! define_env_with_default_macro {
 }
 
 define_env_with_default_macro!(usize_from_env_or, parse_usize, "a usize");
+define_env_with_default_macro!(u8_from_env_or, parse_u8, "a u8");
 
 #[macro_export]
 macro_rules! str_from_env_or {
