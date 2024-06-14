@@ -46,9 +46,10 @@ embassy-sync = { version = "0.5", default-features = false }
 embassy-time = { version = "0.3", default-features = false }
 embassy-usb = { version = "0.1", default-features = false }
 
-esp-hal = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-240517", default-features = false }
+esp-hal = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-06-14", default-features = false }
+esp-hal-embassy = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-06-14", default-features = false }
 esp-println = { version = "0.9.0" }
-esp-wifi = { git = "https://github.com/kaspar030/esp-wifi", branch = "for-riot-rs-240517" }
+esp-wifi = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-06-14" }
 
 linkme = { version = "0.3.21", features = ["used_linker"] }
 

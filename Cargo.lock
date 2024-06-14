@@ -830,6 +830,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "f578e8e2c440e7297e008bb5486a3a8a194775224bbc23729b0dbdfaeebf162e"
 
 [[package]]
+name = "delegate"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "4e018fccbeeb50ff26562ece792ed06659b9c2dae79ece77c4456bb10d9bf79b"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.66",
+]
+
+[[package]]
 name = "der"
 version = "0.7.9"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1257,6 +1268,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "embassy-usb-synopsys-otg"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d46be92e72bcf39e623ff74d739a8ab29b02f4909a9b05986ca81c2157ac254a"
+dependencies = [
+ "critical-section",
+ "embassy-sync 0.5.0",
+ "embassy-usb-driver",
+]
+
+[[package]]
 name = "embedded-can"
 version = "0.4.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1480,7 +1502,7 @@ dependencies = [
 [[package]]
 name = "esp-build"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-240517#9f358c89c695829504543cce4b8ed838c6a82aef"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#f612c820265fe8cee2a9693ec8c2032143ca1403"
 dependencies = [
  "quote",
  "syn 2.0.66",
@@ -1489,19 +1511,20 @@ dependencies = [
 
 [[package]]
 name = "esp-hal"
-version = "0.17.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-240517#9f358c89c695829504543cce4b8ed838c6a82aef"
+version = "0.18.0"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#f612c820265fe8cee2a9693ec8c2032143ca1403"
 dependencies = [
  "basic-toml",
  "bitfield 0.15.0",
  "bitflags 2.5.0",
  "cfg-if",
  "critical-section",
+ "delegate",
  "document-features",
- "embassy-executor",
  "embassy-futures",
- "embassy-sync 0.5.0",
- "embassy-time-driver",
+ "embassy-sync 0.6.0",
+ "embassy-usb-driver",
+ "embassy-usb-synopsys-otg",
  "embedded-can",
  "embedded-dma 0.2.0",
  "embedded-hal 1.0.0",
@@ -1530,9 +1553,25 @@ dependencies = [
 ]
 
 [[package]]
+name = "esp-hal-embassy"
+version = "0.1.0"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#f612c820265fe8cee2a9693ec8c2032143ca1403"
+dependencies = [
+ "cfg-if",
+ "critical-section",
+ "document-features",
+ "embassy-executor",
+ "embassy-time-driver",
+ "esp-build",
+ "esp-hal",
+ "esp-metadata",
+ "portable-atomic",
+]
+
+[[package]]
 name = "esp-hal-procmacros"
-version = "0.10.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-240517#9f358c89c695829504543cce4b8ed838c6a82aef"
+version = "0.11.0"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#f612c820265fe8cee2a9693ec8c2032143ca1403"
 dependencies = [
  "darling",
  "document-features",
@@ -1547,8 +1586,8 @@ dependencies = [
 
 [[package]]
 name = "esp-metadata"
-version = "0.1.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-240517#9f358c89c695829504543cce4b8ed838c6a82aef"
+version = "0.1.1"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#f612c820265fe8cee2a9693ec8c2032143ca1403"
 dependencies = [
  "basic-toml",
  "lazy_static",
@@ -1569,7 +1608,7 @@ dependencies = [
 [[package]]
 name = "esp-riscv-rt"
 version = "0.8.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-240517#9f358c89c695829504543cce4b8ed838c6a82aef"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#f612c820265fe8cee2a9693ec8c2032143ca1403"
 dependencies = [
  "document-features",
  "riscv",
@@ -1578,20 +1617,21 @@ dependencies = [
 
 [[package]]
 name = "esp-wifi"
-version = "0.5.1"
-source = "git+https://github.com/kaspar030/esp-wifi?branch=for-riot-rs-240517#27bceae1171c238c41914b4aeeed37736343cc6a"
+version = "0.6.0"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#f612c820265fe8cee2a9693ec8c2032143ca1403"
 dependencies = [
  "atomic-waker",
  "cfg-if",
  "critical-section",
  "embassy-futures",
  "embassy-net-driver",
- "embassy-sync 0.5.0",
- "embedded-hal 0.2.7",
+ "embassy-sync 0.6.0",
  "embedded-io 0.6.1",
  "embedded-io-async",
  "enumset",
+ "esp-build",
  "esp-hal",
+ "esp-hal-embassy",
  "esp-wifi-sys",
  "fugit",
  "futures-util",
@@ -1610,16 +1650,16 @@ dependencies = [
 [[package]]
 name = "esp-wifi-sys"
 version = "0.3.0"
-source = "git+https://github.com/kaspar030/esp-wifi?branch=for-riot-rs-240517#27bceae1171c238c41914b4aeeed37736343cc6a"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "551b510b3944844675fcefa1301b3610fe56faa419bcc05dd0dd0056745c6654"
 dependencies = [
  "anyhow",
 ]
 
 [[package]]
 name = "esp32c3"
-version = "0.22.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4c22d8c27e7d675ef79db212b9e41df80aef6db1a5c819e4e726735f64ee0700"
+version = "0.23.0"
+source = "git+https://github.com/esp-rs/esp-pacs?rev=a7c72f7#a7c72f72c4cc50d1595a0d5a395250306d741fed"
 dependencies = [
  "critical-section",
  "vcell",
@@ -1627,9 +1667,8 @@ dependencies = [
 
 [[package]]
 name = "esp32c6"
-version = "0.13.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "acb7fd83dcdaf1d904f789b2739b646134ec8346fdde2150b7903ef049d81d13"
+version = "0.14.0"
+source = "git+https://github.com/esp-rs/esp-pacs?rev=a7c72f7#a7c72f72c4cc50d1595a0d5a395250306d741fed"
 dependencies = [
  "critical-section",
  "vcell",
@@ -2710,9 +2749,9 @@ dependencies = [
 
 [[package]]
 name = "object"
-version = "0.35.0"
+version = "0.36.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8ec7ab813848ba4522158d5517a6093db1ded27575b070f4177b8d12b41db5e"
+checksum = "576dfe1fc8f9df304abb159d767a29d0476f7750fbf8aa7ad07816004a207434"
 dependencies = [
  "flate2",
  "memchr",
@@ -3216,6 +3255,7 @@ dependencies = [
  "embassy-time",
  "embassy-usb",
  "esp-hal",
+ "esp-hal-embassy",
  "esp-wifi",
  "heapless 0.8.0",
  "linkme",
