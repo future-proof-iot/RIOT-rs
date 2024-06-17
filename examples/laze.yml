@@ -15,7 +15,6 @@ subdirs:
   - embassy-usb-keyboard
   - hello-world
   - hello-world-async
-  - i2c-bus
   - minimal
   - random
   - threading
