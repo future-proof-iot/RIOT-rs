@@ -18,6 +18,7 @@ members = [
   "tests/gpio",
   "tests/gpio-interrupt-nrf",
   "tests/gpio-interrupt-stm32",
+  "tests/i2c-bus",
 ]
 
 exclude = ["src/lib"]
