@@ -2,3 +2,4 @@ apps:
   - name: core-sizes
     selects:
       - debug-console
+      - sw/threading

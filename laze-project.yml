@@ -481,6 +481,10 @@ modules:
     selects:
       - network_device
 
+  - name: sw/threading
+    conflicts:
+      - executor-single-thread
+
   - name: wifi-cyw43
     context:
       - rpi-pico-w
