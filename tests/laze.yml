@@ -1,3 +1,4 @@
 subdirs:
   - benchmarks
   - i2c-bus
+  - spi-bus

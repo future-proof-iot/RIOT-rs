@@ -16,6 +16,7 @@ members = [
   "src/riot-rs-random",
   "tests/benchmarks/bench_sched_yield",
   "tests/i2c-bus",
+  "tests/spi-bus",
 ]
 
 exclude = ["src/lib"]
