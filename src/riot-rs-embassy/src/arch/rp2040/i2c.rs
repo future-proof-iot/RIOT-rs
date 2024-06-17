@@ -38,6 +38,7 @@ macro_rules! define_i2c_drivers {
         // paste allows to create new identifiers by concatenation using `[<foo bar>]`.
         paste::paste! {
             $(
+                /// Peripheral-specific I2C driver.
                 pub struct [<I2c $peripheral>] {
                     twim: embassy_rp::i2c::I2c<'static, peripherals::$peripheral, embassy_rp::i2c::Async>,
                 }
@@ -59,14 +60,20 @@ macro_rules! define_i2c_drivers {
                             }
                         );
 
-                        let i2c =
-                            embassy_rp::i2c::I2c::new_async(i2c_peripheral, scl_pin, sda_pin, Irqs, i2c_config);
+                        let i2c = embassy_rp::i2c::I2c::new_async(
+                            i2c_peripheral,
+                            scl_pin,
+                            sda_pin,
+                            Irqs,
+                            i2c_config,
+                        );
 
                         Self { twim: i2c }
                     }
                 }
             )*
 
+            /// Peripheral-agnostic driver.
             pub enum I2c {
                 $( $peripheral([<I2c $peripheral>]), )*
             }
