@@ -2,7 +2,7 @@
 
 ## About
 
-This application is demonstrating raw I2C bus usage in RIOT-rs.
+This application is testing raw I2C bus usage in RIOT-rs.
 Please use `riot_rs::sensors` instead for a high-level sensor abstraction that is architecture-agnostic.
 
 ## How to run
