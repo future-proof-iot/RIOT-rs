@@ -2,7 +2,7 @@
 
 ## About
 
-This application is demonstrating raw SPI bus usage in RIOT-rs.
+This application is testing raw SPI bus usage in RIOT-rs.
 Please use `riot_rs::sensors` instead for a high-level sensor abstraction that is architecture-agnostic.
 
 ## How to run
