@@ -41,5 +41,8 @@ _panic-handler = []
 _esp32c3 = []
 _esp32c6 = []
 
+# Enables developer docs, shows items that are otherwise hidden from users.
+_dev-doc = []
+
 [dev-dependencies]
 riot-rs-boards = { path = "../riot-rs-boards" }

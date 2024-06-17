@@ -113,3 +113,6 @@ override-usb-config = []
 
 executor-single-thread = []
 executor-interrupt = []
+
+# Enables developer docs, shows items that are otherwise hidden from users.
+_dev-doc = []

@@ -30,3 +30,7 @@ cortex-m.workspace = true
 cortex-m-rt.workspace = true
 cortex-m-semihosting.workspace = true
 panic-semihosting = { version = "0.6.0", features = ["exit"] }
+
+[features]
+# Enables developer docs, shows items that are otherwise hidden from users.
+_dev-doc = []

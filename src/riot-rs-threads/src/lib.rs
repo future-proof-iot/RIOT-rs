@@ -15,7 +15,7 @@ pub mod channel;
 pub mod lock;
 pub mod thread_flags;
 
-#[doc(hidden)]
+#[cfg_attr(not(feature = "_dev-doc"), doc(hidden))]
 pub mod macro_reexports {
     // Used by `autostart_thread`
     pub use linkme;
@@ -39,8 +39,10 @@ pub const THREADS_NUMOF: usize = 16;
 
 static THREADS: EnsureOnce<Threads> = EnsureOnce::new(Threads::new());
 
+#[cfg_attr(not(feature = "_dev-doc"), doc(hidden))]
 pub type ThreadFn = fn();
 
+#[cfg_attr(not(feature = "_dev-doc"), doc(hidden))]
 #[linkme::distributed_slice]
 pub static THREAD_FNS: [ThreadFn] = [..];
 
@@ -184,6 +186,7 @@ impl Threads {
 ///
 /// Currently it expects at least:
 /// - Cortex-M: to be called from the reset handler while MSP is active
+#[cfg_attr(not(feature = "_dev-doc"), doc(hidden))]
 pub unsafe fn start_threading() {
     Cpu::start_threading();
 }
@@ -239,6 +242,7 @@ pub fn thread_create_noarg(func: fn(), stack: &'static mut [u8], prio: u8) -> Th
 ///
 /// # Safety
 /// only use when you know what you are doing.
+#[cfg_attr(not(feature = "_dev-doc"), doc(hidden))]
 pub unsafe fn thread_create_raw(
     func: usize,
     arg: usize,

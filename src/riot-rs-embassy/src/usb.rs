@@ -6,6 +6,7 @@ pub type UsbBuilder = embassy_usb::Builder<'static, UsbDriver>;
 
 pub type UsbBuilderHook = &'static crate::delegate::Delegate<UsbBuilder>;
 
+#[cfg_attr(not(feature = "_dev-doc"), doc(hidden))]
 #[linkme::distributed_slice]
 pub static USB_BUILDER_HOOKS: [UsbBuilderHook] = [..];
 
