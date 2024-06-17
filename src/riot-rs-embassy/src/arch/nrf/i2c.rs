@@ -37,6 +37,7 @@ macro_rules! define_i2c_drivers {
         // paste allows to create new identifiers by concatenation using `[<foo bar>]`.
         paste::paste! {
             $(
+                /// Peripheral-specific I2C driver.
                 pub struct [<I2c $peripheral>] {
                     twim: Twim<'static, peripherals::$peripheral>,
                 }
@@ -69,6 +70,7 @@ macro_rules! define_i2c_drivers {
                 }
             )*
 
+            /// Peripheral-agnostic driver.
             pub enum I2c {
                 $( $peripheral([<I2c $peripheral>]), )*
             }

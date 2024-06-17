@@ -67,6 +67,7 @@ macro_rules! define_spi_drivers {
         // paste allows to create new identifiers by concatenation using `[<foo bar>]`.
         paste::paste! {
             $(
+                /// Peripheral-specific SPI driver.
                 pub struct [<Spi $peripheral>] {
                     spim: Spim<'static, peripherals::$peripheral>,
                 }
@@ -105,6 +106,7 @@ macro_rules! define_spi_drivers {
                 }
             )*
 
+            /// Peripheral-agnostic driver.
             pub enum Spi {
                 $( $peripheral([<Spi $peripheral>]), )*
             }
