@@ -7,6 +7,7 @@ use crate::arch;
 pub type SpiDevice =
     InnerSpiDevice<'static, CriticalSectionRawMutex, arch::spi::Spi, arch::gpio::Output<'static>>;
 
+#[allow(unused_macros, reason = "used by arch modules")]
 macro_rules! impl_async_spibus_for_driver_enum {
     ($driver_enum:ident, $( $peripheral:ident ),*) => {
         impl embedded_hal_async::spi::SpiBus for $driver_enum {
@@ -43,4 +44,5 @@ macro_rules! impl_async_spibus_for_driver_enum {
         }
     }
 }
+#[allow(unused_imports, reason = "used by arch modules")]
 pub(crate) use impl_async_spibus_for_driver_enum;

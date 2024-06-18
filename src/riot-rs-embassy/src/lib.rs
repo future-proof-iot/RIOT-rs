@@ -5,6 +5,7 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 #![feature(lint_reasons)]
+<<<<<<< HEAD
 #![feature(trait_alias)]
 
 mod i2c;
