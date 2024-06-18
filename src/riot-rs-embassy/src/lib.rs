@@ -76,11 +76,12 @@ pub static EMBASSY_TASKS: [Task] = [..];
 
 #[cfg(not(any(
     feature = "executor-interrupt",
+    feature = "executor-none",
     feature = "executor-single-thread",
     feature = "executor-thread"
 )))]
 compile_error!(
-    "must select one of \"executor-interrupt\", \"executor-single-thread\", \"executor-thread\"!"
+    r#"must select one of "executor-interrupt", "executor-single-thread", "executor-thread", "executor-none"!"#
 );
 
 #[cfg(all(feature = "threading", feature = "executor-single-thread"))]

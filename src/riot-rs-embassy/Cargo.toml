@@ -87,12 +87,16 @@ esp-wifi = { workspace = true, features = [
 
 [target.'cfg(context = "esp32c3")'.dependencies]
 esp-hal = { workspace = true, features = ["esp32c3"] }
-esp-hal-embassy = { workspace = true, default-features = false, features = ["esp32c3"] }
+esp-hal-embassy = { workspace = true, default-features = false, features = [
+  "esp32c3",
+] }
 esp-wifi = { workspace = true, features = ["esp32c3"], optional = true }
 
 [target.'cfg(context = "esp32c6")'.dependencies]
 esp-hal = { workspace = true, features = ["esp32c6"] }
-esp-hal-embassy = { workspace = true, default-features = false, features = ["esp32c6"] }
+esp-hal-embassy = { workspace = true, default-features = false, features = [
+  "esp32c6",
+] }
 esp-wifi = { workspace = true, features = ["esp32c6"], optional = true }
 
 [features]
@@ -118,6 +122,10 @@ threading = ["dep:riot-rs-threads"]
 override-network-config = []
 override-usb-config = []
 
-executor-single-thread = ["riot-rs-rt/executor-single-thread", "esp-hal-embassy?/executors"]
+executor-single-thread = [
+  "riot-rs-rt/executor-single-thread",
+  "esp-hal-embassy?/executors",
+]
 executor-interrupt = ["embassy-executor/executor-interrupt"]
 executor-thread = ["threading"]
+executor-none = []

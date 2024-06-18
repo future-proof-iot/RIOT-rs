@@ -76,7 +76,7 @@ bench = ["dep:riot-rs-bench"]
 ## Prints nothing in case of panics (may help reduce binary size).
 silent-panic = ["riot-rs-rt/silent-panic"]
 ## Allows to have no boards selected, useful to run target-independent tooling.
-no-boards = ["riot-rs-boards/no-boards"]
+no-boards = ["riot-rs-boards/no-boards", "executor-none"]
 
 net = ["riot-rs-embassy/net"]
 
@@ -88,3 +88,6 @@ executor-interrupt = ["riot-rs-embassy/executor-interrupt"]
 executor-single-thread = ["riot-rs-embassy/executor-single-thread"]
 ## Enables the riot-rs-threading thread executor.
 executor-thread = ["riot-rs-embassy/executor-thread", "threading"]
+# Don't start any executor automatically.
+# *Used for internal testing only.*
+executor-none = ["riot-rs-embassy/executor-none"]
