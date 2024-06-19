@@ -7,6 +7,8 @@ contexts:
   # base context for all RIOT-rs applications
   - name: riot-rs
     parent: default
+    selects:
+      - executor-default
     env:
       RUSTFLAGS:
         - "-Clink-arg=--nmagic"
@@ -479,6 +481,10 @@ modules:
     selects:
       - network_device
 
+  - name: sw/threading
+    conflicts:
+      - executor-single-thread
+
   - name: wifi-cyw43
     context:
       - rpi-pico-w
@@ -557,6 +563,48 @@ modules:
         FEATURES:
           - riot-rs/wifi-esp
 
+  - name: executor-thread
+    help: use embassy executor within riot-rs-threads thread
+    provides_unique:
+      - executor
+    env:
+      global:
+        FEATURES:
+          - riot-rs/executor-thread
+
+  - name: executor-single-thread
+    help: use Embassy executor within single "thread mode" thread
+    context:
+      - esp
+    provides_unique:
+      - executor
+    env:
+      global:
+        FEATURES:
+          - riot-rs/executor-single-thread
+
+  - name: executor-interrupt
+    help: use the Embassy interrupt executor
+    context:
+      - nrf
+      - rp
+    provides_unique:
+      - executor
+    env:
+      global:
+        FEATURES:
+          - riot-rs/executor-interrupt
+
+  - name: executor-default
+    help: executor preference
+    selects:
+      # This is order dependent.
+      # Unless otherwise selected (by application, context, on cli, or by other
+      # dependencies), the interrupt executor is preferred.
+      - ?executor-interrupt
+      - ?executor-single-thread
+      - ?executor-thread
+
 builders:
   # host builder (for housekeeping tasks)
   - name: host
@@ -572,6 +620,7 @@ builders:
       install-toolchain:
         build: false
         cmd:
+          - rustup target add thumbv6m-none-eabi
           - rustup target add thumbv7m-none-eabi
           - rustup target add thumbv7em-none-eabi
           - rustup target add thumbv7em-none-eabihf

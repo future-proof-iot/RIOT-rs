@@ -2,3 +2,4 @@ apps:
   - name: threading-channel
     selects:
       - ?release
+      - sw/threading

@@ -21,17 +21,6 @@ riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-utils = { workspace = true }
 static_cell = { workspace = true }
 
-[target.'cfg(context = "cortex-m")'.dependencies]
-riot-rs-embassy = { path = "../riot-rs-embassy", features = [
-  "executor-interrupt",
-] }
-
-[target.'cfg(context = "esp")'.dependencies]
-riot-rs-embassy = { path = "../riot-rs-embassy", features = [
-  "executor-single-thread",
-] }
-riot-rs-rt = { path = "../riot-rs-rt", features = ["executor-single-thread"] }
-
 [features]
 default = ["riot-rs-rt/_panic-handler"]
 
@@ -87,6 +76,18 @@ bench = ["dep:riot-rs-bench"]
 ## Prints nothing in case of panics (may help reduce binary size).
 silent-panic = ["riot-rs-rt/silent-panic"]
 ## Allows to have no boards selected, useful to run target-independent tooling.
-no-boards = ["riot-rs-boards/no-boards"]
+no-boards = ["riot-rs-boards/no-boards", "executor-none"]
 
 net = ["riot-rs-embassy/net"]
+
+#! ## Executor type selection for the (autostarted) main executor
+#! Exactly one of the features below must be enabled at once.
+## Enables the interrupt executor.
+executor-interrupt = ["riot-rs-embassy/executor-interrupt"]
+## Enables the single thread-mode executor.
+executor-single-thread = ["riot-rs-embassy/executor-single-thread"]
+## Enables the riot-rs-threading thread executor.
+executor-thread = ["riot-rs-embassy/executor-thread", "threading"]
+# Don't start any executor automatically.
+# *Used for internal testing only.*
+executor-none = ["riot-rs-embassy/executor-none"]
