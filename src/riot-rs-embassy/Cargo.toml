@@ -86,7 +86,7 @@ wifi = []
 wifi-cyw43 = ["riot-rs-arch/wifi-cyw43", "net", "wifi"]
 wifi-esp = ["riot-rs-arch/wifi-esp", "net", "wifi"]
 
-threading = ["dep:riot-rs-threads"]
+threading = ["dep:riot-rs-threads", "riot-rs-esp/threading"]
 override-network-config = []
 override-usb-config = []
 

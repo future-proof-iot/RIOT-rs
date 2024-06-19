@@ -30,6 +30,8 @@ once_cell = { workspace = true }
 paste = { workspace = true }
 riot-rs-debug = { workspace = true }
 riot-rs-embassy-common = { workspace = true }
+riot-rs-macros = { path = "../riot-rs-macros", optional = true }
+riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-utils = { workspace = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
@@ -93,3 +95,7 @@ wifi-esp = ["dep:embassy-time", "dep:esp-alloc", "dep:esp-wifi", "wifi"]
 executor-interrupt = ["embassy-executor/executor-interrupt"]
 ## Enables the single thread-mode executor.
 executor-single-thread = ["esp-hal-embassy/executors"]
+
+## Enables threading support.
+# Required for the usage of esp-wifi together with `riot-rs-threads`.
+threading = ["dep:riot-rs-macros", "dep:riot-rs-threads"]
