@@ -16,4 +16,3 @@ riot-rs-boards = { path = "../../src/riot-rs-boards" }
 
 [target.'cfg(not(context = "esp"))'.dependencies]
 riot-rs = { path = "../../src/riot-rs", features = ["override-network-config"] }
-
