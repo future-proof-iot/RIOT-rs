@@ -23,6 +23,8 @@ embassy-sync = { workspace = true }
 embassy-time = { workspace = true, optional = true }
 embassy-usb = { workspace = true, optional = true }
 
+embedded-hal = { workspace = true }
+
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-debug = { workspace = true }
 riot-rs-macros = { path = "../riot-rs-macros" }

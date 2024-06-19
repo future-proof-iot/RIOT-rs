@@ -272,6 +272,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf4b9d6a944f767f8e5e0db018570623c85f3d925ac718db4e06d0187adb21c1"
 
 [[package]]
+name = "blink"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embassy-time",
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
 name = "block-buffer"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3496,6 +3506,7 @@ dependencies = [
  "embassy-sync 0.6.0",
  "embassy-time",
  "embassy-usb",
+ "embedded-hal 1.0.0",
  "esp-hal",
  "esp-hal-embassy",
  "esp-wifi",
