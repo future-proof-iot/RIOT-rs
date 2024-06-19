@@ -5,6 +5,7 @@
 #![feature(used_with_arg)]
 
 pub mod define_peripherals;
+pub mod gpio;
 
 #[cfg(context = "cortex-m")]
 pub mod executor_swi;
