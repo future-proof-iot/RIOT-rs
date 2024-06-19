@@ -1,4 +1,4 @@
-use embedded_hal::digital::OutputPin;
+use embedded_hal::digital::{OutputPin, StatefulOutputPin};
 
 use crate::arch::{
     self,
@@ -35,6 +35,11 @@ impl Output {
     pub fn set_high(&mut self) {
         // All architectures are infallible.
         let _ = <Self as OutputPin>::set_high(self);
+    }
+
+    pub fn toggle(&mut self) {
+        // All architectures are infallible.
+        let _ = <Self as StatefulOutputPin>::toggle(self);
     }
 }
 
@@ -99,12 +104,17 @@ impl OutputPin for Output {
     }
 }
 
-// FIXME
 // Outputs are all stateful outputs on:
 // - embassy-nrf
 // - embassy-rp
 // - esp-hal
 // - embassy-stm32
-// impl StatefulOutputPin for Output {
-//
-// }
+impl StatefulOutputPin for Output {
+    fn is_set_high(&mut self) -> Result<bool, Self::Error> {
+        <ArchOutput as StatefulOutputPin>::is_set_high(&mut self.output)
+    }
+
+    fn is_set_low(&mut self) -> Result<bool, Self::Error> {
+        <ArchOutput as StatefulOutputPin>::is_set_low(&mut self.output)
+    }
+}
