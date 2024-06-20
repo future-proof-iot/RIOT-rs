@@ -3,19 +3,22 @@ pub mod output {
 
     use crate::{
         arch::peripheral::Peripheral,
-        gpio::{FromDriveStrength, PinState},
+        gpio::{FromDriveStrength, FromSpeed, PinState},
     };
 
     pub(crate) use embassy_nrf::gpio::{Output, Pin};
+
+    pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = true;
+    pub(crate) const SPEED_AVAILABLE: bool = false;
 
     pub(crate) fn new(
         pin: impl Peripheral<P: Pin> + 'static,
         initial_state: PinState,
         drive_strength: DriveStrength,
+        _speed: Speed, // Not supported by this architecture
     ) -> Output<'static> {
         let initial_state: bool = initial_state.into();
         let initial_state = Level::from(initial_state);
-        // TODO: allow to set this as a setter (does not seem possible on nRF, but is on ESP)
         // TODO: this also depends on the open-drain configuration
         let output_drive = match drive_strength {
             DriveStrength::Standard => OutputDrive::Standard,
@@ -49,6 +52,17 @@ pub mod output {
                 High => DriveStrength::High,
                 Highest => DriveStrength::High,
             }
+        }
+    }
+
+    #[derive(Copy, Clone, PartialEq, Eq)]
+    pub enum Speed {
+        UnsupportedByArchitecture,
+    }
+
+    impl FromSpeed for Speed {
+        fn from(_speed: crate::gpio::Speed) -> Self {
+            Self::UnsupportedByArchitecture
         }
     }
 }
