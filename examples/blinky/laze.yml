@@ -1,0 +1,11 @@
+apps:
+  - name: blinky
+    context:
+      # list of builders / contexts that have an entry in `pins.rs`
+      - esp
+      - nrf52840dk
+      - nrf5340dk
+      - rp
+      - stm32
+    selects:
+      - ?release
