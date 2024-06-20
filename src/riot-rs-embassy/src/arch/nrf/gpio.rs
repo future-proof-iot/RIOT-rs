@@ -1,14 +1,15 @@
-pub(crate) use embassy_nrf::gpio::Pin;
-
 pub mod output {
-    use embassy_nrf::gpio::{Level, OutputDrive, Pin};
+    use embassy_nrf::gpio::{Level, OutputDrive};
 
-    use crate::gpio::{FromDriveStrength, PinState};
+    use crate::{
+        arch::peripheral::Peripheral,
+        gpio::{FromDriveStrength, PinState},
+    };
 
-    pub(crate) use embassy_nrf::gpio::Output;
+    pub(crate) use embassy_nrf::gpio::{Output, Pin};
 
     pub(crate) fn new(
-        pin: impl Pin,
+        pin: impl Peripheral<P: Pin> + 'static,
         initial_state: PinState,
         drive_strength: DriveStrength,
     ) -> Output<'static> {

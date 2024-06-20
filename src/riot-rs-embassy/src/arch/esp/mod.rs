@@ -1,5 +1,9 @@
 pub mod gpio;
 
+pub mod peripheral {
+    pub use esp_hal::peripheral::Peripheral;
+}
+
 use esp_hal::{clock::ClockControl, system::SystemControl, timer::timg::TimerGroup};
 
 pub use esp_hal::peripherals::{OptionalPeripherals, Peripherals};

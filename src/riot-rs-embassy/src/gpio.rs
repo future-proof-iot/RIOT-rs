@@ -2,10 +2,10 @@ use embedded_hal::digital::{OutputPin, StatefulOutputPin};
 
 use crate::arch::{
     self,
-    gpio::{
-        output::{DriveStrength as ArchDriveStrength, Output as ArchOutput},
-        Pin as ArchPin,
+    gpio::output::{
+        DriveStrength as ArchDriveStrength, Output as ArchOutput, Pin as ArchOutputPin,
     },
+    peripheral::Peripheral,
 };
 
 pub use embedded_hal::digital::PinState;
@@ -15,11 +15,14 @@ pub struct Output {
 }
 
 impl Output {
-    pub fn new(pin: impl ArchPin, initial_state: PinState) -> Self {
+    pub fn new(pin: impl Peripheral<P: ArchOutputPin> + 'static, initial_state: PinState) -> Self {
         Self::builder(pin, initial_state).build()
     }
 
-    pub fn builder<P: ArchPin>(pin: P, initial_state: PinState) -> OutputBuilder<P> {
+    pub fn builder<P: Peripheral<P: ArchOutputPin>>(
+        pin: P,
+        initial_state: PinState,
+    ) -> OutputBuilder<P> {
         OutputBuilder {
             pin,
             initial_state,
@@ -43,7 +46,7 @@ impl Output {
     }
 }
 
-pub struct OutputBuilder<P: ArchPin> {
+pub struct OutputBuilder<P: Peripheral<P: ArchOutputPin>> {
     pin: P,
     initial_state: PinState,
     drive_strength: DriveStrength,
