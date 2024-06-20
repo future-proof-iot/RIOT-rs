@@ -1,5 +1,9 @@
 pub mod gpio;
 
+pub mod peripheral {
+    pub use embassy_rp::Peripheral;
+}
+
 #[cfg(feature = "usb")]
 pub mod usb;
 
