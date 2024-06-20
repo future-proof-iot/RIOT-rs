@@ -1,27 +1,31 @@
 pub mod output {
-    use embassy_rp::gpio::{Drive, Level};
+    use embassy_rp::gpio::{Drive, Level, SlewRate};
 
     use crate::{
         arch::peripheral::Peripheral,
-        gpio::{FromDriveStrength, PinState},
+        gpio::{FromDriveStrength, FromSpeed, PinState},
     };
 
     pub(crate) use embassy_rp::gpio::{Output, Pin};
+
+    pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = true;
+    pub(crate) const SPEED_AVAILABLE: bool = true;
 
     pub(crate) fn new(
         pin: impl Peripheral<P: Pin> + 'static,
         initial_state: PinState,
         drive_strength: DriveStrength,
+        speed: Speed,
     ) -> Output<'static> {
         let initial_state: bool = initial_state.into();
         let initial_state = Level::from(initial_state);
-        // TODO: allow to set this as a setter (does not seem possible on nRF, but is on ESP)
         let mut output = Output::new(pin, initial_state);
         output.set_drive_strength(drive_strength.into());
+        output.set_slew_rate(speed.into());
         output
     }
 
-    // We provide our own type because the upstream Drive is not `Copy` and has no `Default` impl.
+    // We provide our own type because the upstream type is not `Copy` and has no `Default` impl.
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum DriveStrength {
         _2mA,
@@ -60,6 +64,45 @@ pub mod output {
                 Medium => DriveStrength::_8mA,
                 High => DriveStrength::_12mA,
                 Highest => DriveStrength::_12mA,
+            }
+        }
+    }
+
+    // These values do not seem to be quantitatively defined on the RP2040.
+    // We provide our own type because the `SlewRate` upstream type is not `Copy` and has no
+    // `Default` impl.
+    #[derive(Copy, Clone, PartialEq, Eq)]
+    pub enum Speed {
+        Low,
+        High,
+    }
+
+    impl Default for Speed {
+        fn default() -> Self {
+            // Reset value
+            Self::Low
+        }
+    }
+
+    impl From<Speed> for SlewRate {
+        fn from(speed: Speed) -> Self {
+            match speed {
+                Speed::Low => SlewRate::Slow,
+                Speed::High => SlewRate::Fast,
+            }
+        }
+    }
+
+    impl FromSpeed for Speed {
+        fn from(speed: crate::gpio::Speed) -> Self {
+            use crate::gpio::Speed::*;
+
+            match speed {
+                Arch(speed) => speed,
+                Low => Speed::Low,
+                Medium => Speed::Low,
+                High => Speed::High,
+                VeryHigh => Speed::High,
             }
         }
     }
