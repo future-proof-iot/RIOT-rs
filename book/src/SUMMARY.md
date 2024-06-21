@@ -2,6 +2,7 @@
 
 - [Manifesto](./manifesto.md)
 - [Introduction](./introduction.md)
+- [Hardware & Functionality Support](./hardware_functionality_support.md)
 - [Code of Conduct](./CODE_OF_CONDUCT.md)
   - [Reporting Guidelines](./COC_reporting.md)
 
