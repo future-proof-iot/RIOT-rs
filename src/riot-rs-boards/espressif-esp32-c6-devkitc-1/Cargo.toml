@@ -1,5 +1,5 @@
 [package]
-name = "expressif-esp32-c6-devkitc-1"
+name = "espressif-esp32-c6-devkitc-1"
 version = "0.1.0"
 edition = "2021"
 

@@ -14,7 +14,7 @@ linkme.workspace = true
 riot-rs-rt = { path = "../riot-rs-rt" }
 
 ai-c3 = { optional = true, path = "ai-c3" }
-expressif-esp32-c6-devkitc-1 = { optional = true, path = "expressif-esp32-c6-devkitc-1" }
+espressif-esp32-c6-devkitc-1 = { optional = true, path = "espressif-esp32-c6-devkitc-1" }
 dwm1001 = { optional = true, path = "dwm1001" }
 microbit = { optional = true, path = "microbit" }
 microbit-v2 = { optional = true, path = "microbit-v2" }

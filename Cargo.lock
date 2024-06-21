@@ -1675,20 +1675,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "espressif-esp32-c6-devkitc-1"
+version = "0.1.0"
+dependencies = [
+ "riot-rs-debug",
+ "riot-rs-rt",
+]
+
+[[package]]
 name = "example-random"
 version = "0.1.0"
 dependencies = [
  "rand",
  "riot-rs",
  "riot-rs-boards",
-]
-
-[[package]]
-name = "expressif-esp32-c6-devkitc-1"
-version = "0.1.0"
-dependencies = [
- "riot-rs-debug",
- "riot-rs-rt",
 ]
 
 [[package]]
@@ -3206,7 +3206,7 @@ dependencies = [
  "ai-c3",
  "cfg-if",
  "dwm1001",
- "expressif-esp32-c6-devkitc-1",
+ "espressif-esp32-c6-devkitc-1",
  "linkme",
  "microbit",
  "microbit-v2",
