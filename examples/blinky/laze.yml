@@ -1,5 +1,5 @@
 apps:
-  - name: blink
+  - name: blinky
     env:
       global:
         CARGO_ENV:
