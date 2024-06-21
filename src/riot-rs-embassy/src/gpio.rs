@@ -117,6 +117,10 @@ impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
         }
     }
 
+    // It is unclear whether `opt_*()` functions are actually useful, so we provide them but do not
+    // commit to them being part of our API for now.
+    // We may remove them in the future if we realize they are never useful.
+    #[doc(hidden)]
     // TODO: or `drive_strength_opt`?
     pub fn opt_drive_strength(self, drive_strength: DriveStrength) -> Self {
         if arch::gpio::output::DRIVE_STRENGTH_AVAILABLE {
@@ -142,6 +146,10 @@ impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
         Self { speed, ..self }
     }
 
+    // It is unclear whether `opt_*()` functions are actually useful, so we provide them but do not
+    // commit to them being part of our API for now.
+    // We may remove them in the future if we realize they are never useful.
+    #[doc(hidden)]
     // TODO: or `speed_opt`?
     pub fn opt_speed(self, speed: Speed) -> Self {
         if arch::gpio::output::SPEED_AVAILABLE {
