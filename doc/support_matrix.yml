@@ -1,0 +1,125 @@
+---
+
+support_keys:
+  supported:
+    icon: ✅
+    description: supported
+  supported_with_caveats:
+    icon: ⚠️
+    description: supported with some caveats
+  needs_testing:
+    icon: ❔
+    description: needs testing; support may be present but we do not currently test it
+  being_reworked:
+    icon: ♻️
+    description: rework in progress, expect breaking changes
+  wip:
+    icon: 🚧
+    description: work in progress
+  not_currently_supported:
+    icon: ❌
+    description: available in hardware, but not currently supported by RIOT-rs
+  not_available:
+    icon: 🚫
+    description: not available on this piece of hardware
+
+functionalities:
+  - name: gpio
+    title: GPIO
+    description:
+  - name: debug_output
+    title: Debug Output
+    description:
+  - name: logging
+    title: Logging
+    description:
+  - name: user_usb
+    title: User USB
+    description:
+  - name: wifi
+    title: Wi-Fi
+    description:
+  - name: ethernet_over_usb
+    title: Ethernet over USB
+    description:
+
+chips:
+  nrf52xxx:
+    name: nRF52xxx
+    supports:
+      gpio:
+        status: being_reworked
+        github_pr: 322
+      debug_output: supported
+      logging: wip
+      wifi: not_available
+
+  nrf53xx:
+    name: nRF53xx
+    supports:
+      gpio:
+        status: being_reworked
+        github_pr: 322
+      debug_output: supported
+      logging: wip
+      wifi: not_available
+
+  rp2040:
+    name: RP2040
+    supports:
+      gpio:
+        status: being_reworked
+        github_pr: 322
+      logging: wip
+      debug_output: supported
+
+  esp32-c6:
+    name: ESP32-C6
+    supports:
+      gpio:
+        status: being_reworked
+        github_pr: 322
+      logging:
+        status: supported
+        github_pr: 255
+      debug_output: supported
+
+boards:
+  nrf52840-dk:
+    name: nRF52840-DK
+    chip: nrf52xxx
+    supports:
+      user_usb: supported
+      ethernet_over_usb: supported
+
+  nrf5340-dk:
+    name: nRF5340-DK
+    chip: nrf53xx
+    supports:
+      user_usb: supported
+      wifi: not_available
+      ethernet_over_usb: supported
+
+  rp-pico:
+    name: Raspberry Pi Pico
+    chip: rp2040
+    supports:
+      wifi: not_available
+      user_usb: supported
+      ethernet_over_usb: supported
+
+  rp-pico-w:
+    name: Raspberry Pi Pico W
+    chip: rp2040
+    supports:
+      user_usb: supported
+      wifi: supported
+      ethernet_over_usb: supported
+
+  esp32-c6-devkitc-1:
+    name: ESP32-C6-DevKitC-1
+    chip: esp32-c6
+    supports:
+      user_usb: wip
+      wifi: wip
+      ethernet_over_usb: wip
