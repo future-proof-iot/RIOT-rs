@@ -7,6 +7,9 @@
 
 # User Guide
 
+- [Tooling](./tooling/index.md)
+  - [defmt](./tooling/defmt.md)
+
 # Developer Guide
 
 - [Appendices](./appendices.md)
