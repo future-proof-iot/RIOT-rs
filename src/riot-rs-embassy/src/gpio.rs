@@ -1,4 +1,5 @@
 use embedded_hal::digital::{OutputPin, StatefulOutputPin};
+use embedded_hal_async::digital::Wait;
 
 use crate::arch::{
     self,
@@ -18,7 +19,6 @@ pub struct Input {
     input: ArchInput<'static>, // FIXME: is this ok to require a 'static pin?
 }
 
-// FIXME: impl Wait + same methods (/!\ STM32)
 impl Input {
     pub fn new(pin: impl Peripheral<P: ArchInputPin> + 'static, pull: Pull) -> Self {
         Self::builder(pin, pull).build()
@@ -42,6 +42,54 @@ impl Input {
 
     pub fn get_level(&self) -> Level {
         self.input.get_level().into()
+    }
+
+    // FIXME: /!\ STM32
+    pub async fn wait_for_high(&mut self) {
+        self.input.wait_for_high().await;
+    }
+
+    pub async fn wait_for_low(&mut self) {
+        self.input.wait_for_low().await;
+    }
+
+    pub async fn wait_for_rising_edge(&mut self) {
+        self.input.wait_for_rising_edge().await;
+    }
+
+    pub async fn wait_for_falling_edge(&mut self) {
+        self.input.wait_for_falling_edge().await;
+    }
+
+    pub async fn wait_for_any_edge(&mut self) {
+        self.input.wait_for_any_edge().await;
+    }
+}
+
+impl embedded_hal::digital::ErrorType for Input {
+    type Error = <ArchInput<'static> as embedded_hal::digital::ErrorType>::Error;
+}
+
+// FIXME: it is not obvious this would work on STM32
+impl Wait for Input {
+    async fn wait_for_high(&mut self) -> Result<(), Self::Error> {
+        <ArchInput as Wait>::wait_for_high(&mut self.input).await
+    }
+
+    async fn wait_for_low(&mut self) -> Result<(), Self::Error> {
+        <ArchInput as Wait>::wait_for_low(&mut self.input).await
+    }
+
+    async fn wait_for_rising_edge(&mut self) -> Result<(), Self::Error> {
+        <ArchInput as Wait>::wait_for_rising_edge(&mut self.input).await
+    }
+
+    async fn wait_for_falling_edge(&mut self) -> Result<(), Self::Error> {
+        <ArchInput as Wait>::wait_for_falling_edge(&mut self.input).await
+    }
+
+    async fn wait_for_any_edge(&mut self) -> Result<(), Self::Error> {
+        <ArchInput as Wait>::wait_for_any_edge(&mut self.input).await
     }
 }
 
