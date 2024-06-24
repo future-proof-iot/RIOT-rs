@@ -5,13 +5,19 @@ pub mod input {
 
     pub(crate) use embassy_rp::gpio::{Input, Pin};
 
+    pub(crate) const SCHMITT_TRIGGER_AVAILABLE: bool = true;
+
     pub(crate) fn new(
         pin: impl Peripheral<P: Pin> + 'static,
         pull: crate::gpio::Pull,
+        schmitt_trigger: bool,
     ) -> Input<'static> {
         let pull = Pull::from(pull);
 
-        Input::new(pin, pull)
+        let mut input = Input::new(pin, pull);
+        input.set_schmitt(schmitt_trigger);
+
+        input
     }
 
     impl From<crate::gpio::Pull> for Pull {

@@ -28,8 +28,12 @@ riot_rs::define_peripherals!(BlinkyButtonPeripherals {
 });
 
 #[cfg(context = "rp")]
-riot_rs::define_peripherals!(BlinkyPeripherals {
-    led1: PIN_1,
+riot_rs::define_peripherals!(BlinkyPeripherals { led1: PIN_1 });
+
+#[cfg(context = "rp")]
+riot_rs::define_peripherals!(BlinkyButtonPeripherals {
+    led2: PIN_2,
+    btn2: PIN_6,
 });
 
 #[riot_rs::task(autostart, peripherals)]
@@ -62,7 +66,11 @@ async fn blinky(peripherals: BlinkyPeripherals) {
 
 #[riot_rs::task(autostart, peripherals)]
 async fn blinky_button(peripherals: BlinkyButtonPeripherals) {
-    let btn2 = Input::new(peripherals.btn2, Pull::Up);
+    let btn2_builder = Input::builder(peripherals.btn2, Pull::Up);
+    #[cfg(context = "rp")]
+    let btn2_builder = btn2_builder.schmitt_trigger(true);
+    let btn2 = btn2_builder.build();
+
     let mut led2 = Output::new(peripherals.led2, PinState::High);
 
     loop {

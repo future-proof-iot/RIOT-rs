@@ -25,7 +25,11 @@ impl Input {
     }
 
     pub fn builder<P: Peripheral<P: ArchInputPin>>(pin: P, pull: Pull) -> InputBuilder<P> {
-        InputBuilder { pin, pull }
+        InputBuilder {
+            pin,
+            pull,
+            schmitt_trigger: false,
+        }
     }
 
     pub fn is_high(&self) -> bool {
@@ -69,12 +73,43 @@ impl From<bool> for Level {
 pub struct InputBuilder<P: Peripheral<P: ArchInputPin>> {
     pin: P,
     pull: Pull,
+    schmitt_trigger: bool,
 }
 
-// TODO: add support for Schmitt triggers (on RP2040)
 impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
+    pub fn schmitt_trigger(self, enable: bool) -> Self {
+        const {
+            assert!(
+                arch::gpio::input::SCHMITT_TRIGGER_AVAILABLE,
+                "This architecture does not support enabling Schmitt triggers on GPIO inputs."
+            );
+        }
+
+        Self {
+            schmitt_trigger: enable,
+            ..self
+        }
+    }
+
+    // It is unclear whether `opt_*()` functions are actually useful, so we provide them but do not
+    // commit to them being part of our API for now.
+    // We may remove them in the future if we realize they are never useful.
+    #[doc(hidden)]
+    pub fn opt_schmitt_trigger(self, enable: bool) -> Self {
+        if arch::gpio::input::SCHMITT_TRIGGER_AVAILABLE {
+            // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
+            // be triggered.
+            Self {
+                schmitt_trigger: enable,
+                ..self
+            }
+        } else {
+            self
+        }
+    }
+
     pub fn build(self) -> Input {
-        let input = arch::gpio::input::new(self.pin, self.pull);
+        let input = arch::gpio::input::new(self.pin, self.pull, self.schmitt_trigger);
 
         Input { input }
     }
@@ -202,8 +237,8 @@ impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
     // TODO: or `drive_strength_opt`?
     pub fn opt_drive_strength(self, drive_strength: DriveStrength) -> Self {
         if arch::gpio::output::DRIVE_STRENGTH_AVAILABLE {
-            // We cannot reuse `Self::drive_strength()`, otherwise the const assert inside it would
-            // always be triggered.
+            // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
+            // be triggered.
             Self {
                 drive_strength,
                 ..self
@@ -231,8 +266,8 @@ impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
     // TODO: or `speed_opt`?
     pub fn opt_speed(self, speed: Speed) -> Self {
         if arch::gpio::output::SPEED_AVAILABLE {
-            // We cannot reuse `Self::speed()`, otherwise the const assert inside it would
-            // always be triggered.
+            // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
+            // be triggered.
             Self { speed, ..self }
         } else {
             self
