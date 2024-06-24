@@ -2,20 +2,98 @@ use embedded_hal::digital::{OutputPin, StatefulOutputPin};
 
 use crate::arch::{
     self,
-    gpio::output::{
-        DriveStrength as ArchDriveStrength, Output as ArchOutput, Pin as ArchOutputPin,
-        Speed as ArchSpeed,
+    gpio::{
+        input::{Input as ArchInput, Pin as ArchInputPin},
+        output::{
+            DriveStrength as ArchDriveStrength, Output as ArchOutput, Pin as ArchOutputPin,
+            Speed as ArchSpeed,
+        },
     },
     peripheral::Peripheral,
 };
 
 pub use embedded_hal::digital::PinState;
 
+pub struct Input {
+    input: ArchInput<'static>, // FIXME: is this ok to require a 'static pin?
+}
+
+// FIXME: impl Wait + same methods (/!\ STM32)
+impl Input {
+    pub fn new(pin: impl Peripheral<P: ArchInputPin> + 'static, pull: Pull) -> Self {
+        Self::builder(pin, pull).build()
+    }
+
+    pub fn builder<P: Peripheral<P: ArchInputPin>>(pin: P, pull: Pull) -> InputBuilder<P> {
+        InputBuilder { pin, pull }
+    }
+
+    pub fn is_high(&self) -> bool {
+        self.input.is_high()
+    }
+
+    pub fn is_low(&self) -> bool {
+        self.input.is_low()
+    }
+
+    pub fn get_level(&self) -> Level {
+        self.input.get_level().into()
+    }
+}
+
+// TODO: should we use PinState instead?
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum Level {
+    Low,
+    High,
+}
+
+impl From<Level> for bool {
+    fn from(level: Level) -> Self {
+        match level {
+            Level::Low => false,
+            Level::High => true,
+        }
+    }
+}
+
+impl From<bool> for Level {
+    fn from(boolean: bool) -> Self {
+        match boolean {
+            false => Level::Low,
+            true => Level::High,
+        }
+    }
+}
+
+pub struct InputBuilder<P: Peripheral<P: ArchInputPin>> {
+    pin: P,
+    pull: Pull,
+}
+
+// TODO: add support for Schmitt triggers (on RP2040)
+impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
+    pub fn build(self) -> Input {
+        let input = arch::gpio::input::new(self.pin, self.pull);
+
+        Input { input }
+    }
+}
+
+// All the architectures we support have pull-up and pull-down resistors.
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum Pull {
+    None,
+    Up,
+    Down,
+}
+
 pub struct Output {
     output: ArchOutput<'static>, // FIXME: is this ok to require a 'static pin?
 }
 
 impl Output {
+    // TODO: is PinState appropriate if we turn this into a open-drain-capable output?
     pub fn new(pin: impl Peripheral<P: ArchOutputPin> + 'static, initial_state: PinState) -> Self {
         Self::builder(pin, initial_state).build()
     }
