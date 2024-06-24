@@ -69,16 +69,14 @@ async fn blinky_button(peripherals: BlinkyButtonPeripherals) {
     let btn2_builder = Input::builder(peripherals.btn2, Pull::Up);
     #[cfg(context = "rp")]
     let btn2_builder = btn2_builder.schmitt_trigger(true);
-    let btn2 = btn2_builder.build();
+    let mut btn2 = btn2_builder.build_with_interrupt();
 
     let mut led2 = Output::new(peripherals.led2, PinState::High);
 
     loop {
-        // If the button is pressed
-        if btn2.is_low() {
-            led2.toggle();
-        }
-
+        // Wait for the button to be pressed
+        btn2.wait_for_low().await;
+        led2.toggle();
         Timer::after(Duration::from_millis(200)).await;
     }
 }

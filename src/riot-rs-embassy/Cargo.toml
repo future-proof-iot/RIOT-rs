@@ -24,6 +24,7 @@ embassy-time = { workspace = true, optional = true }
 embassy-usb = { workspace = true, optional = true }
 
 embedded-hal = { workspace = true }
+embedded-hal-async = { workspace = true }
 
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-debug = { workspace = true }
@@ -56,6 +57,7 @@ embassy-executor = { workspace = true, default-features = false, features = [
 
 [target.'cfg(context = "nrf")'.dependencies]
 embassy-nrf = { workspace = true, features = [
+  "gpiote",
   "time-driver-rtc1",
   "time",
   "unstable-pac",

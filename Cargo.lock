@@ -3507,6 +3507,7 @@ dependencies = [
  "embassy-time",
  "embassy-usb",
  "embedded-hal 1.0.0",
+ "embedded-hal-async",
  "esp-hal",
  "esp-hal-embassy",
  "esp-wifi",
