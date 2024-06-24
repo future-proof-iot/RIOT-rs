@@ -27,10 +27,40 @@ mod backend {
             unsafe { cortex_m::asm::semihosting_syscall(SYS_EXIT, semihosting_exit_code) };
         }
     }
-    pub use rtt_target::rprint as print;
-    pub use rtt_target::rprintln as println;
+
+    pub use rtt_target::{rprint as print, rprintln as println};
+
     pub fn init() {
-        rtt_target::rtt_init_print!(NoBlockTrim);
+        #[cfg(not(feature = "defmt"))]
+        {
+            use rtt_target::ChannelMode::NoBlockTrim;
+
+            rtt_target::rtt_init_print!(NoBlockTrim);
+        }
+
+        #[cfg(feature = "defmt")]
+        {
+            use rtt_target::ChannelMode::{NoBlockSkip, NoBlockTrim};
+            let channels = rtt_target::rtt_init! {
+                up: {
+                    0: {
+                        size: 1024,
+                        mode: NoBlockTrim,
+                        // probe-run autodetects whether defmt is in use based on this channel name
+                        name: "Terminal"
+                    }
+                    1: {
+                        size: 1024,
+                        mode: NoBlockSkip,
+                        // probe-run autodetects whether defmt is in use based on this channel name
+                        name: "defmt"
+                    }
+                }
+            };
+
+            rtt_target::set_print_channel(channels.up.0);
+            defmt_rtt_target::init(channels.up.1);
+        }
     }
 }
 
@@ -81,3 +111,70 @@ mod backend {
 }
 
 pub use backend::*;
+
+#[cfg(feature = "defmt")]
+pub mod log {
+    pub use defmt;
+
+    #[macro_export]
+    macro_rules! __trace {
+        ($($arg:tt)*) => {{
+            use $crate::log::defmt;
+            defmt::trace!($($arg)*);
+        }};
+    }
+
+    #[macro_export]
+    macro_rules! __debug {
+        ($($arg:tt)*) => {{
+            use $crate::log::defmt;
+            defmt::debug!($($arg)*);
+        }};
+    }
+
+    #[macro_export]
+    macro_rules! __info {
+        ($($arg:tt)*) => {{
+            use $crate::log::defmt;
+            defmt::info!($($arg)*);
+        }};
+    }
+
+    #[macro_export]
+    macro_rules! __warn {
+        ($($arg:tt)*) => {{
+            use $crate::log::defmt;
+            defmt::warn!($($arg)*);
+        }};
+    }
+
+    #[macro_export]
+    macro_rules! __error {
+        ($($arg:tt)*) => {{
+            use $crate::log::defmt;
+            defmt::error!($($arg)*);
+        }};
+    }
+
+    pub use __debug as debug;
+    pub use __error as error;
+    pub use __info as info;
+    pub use __trace as trace;
+    pub use __warn as warn;
+}
+
+#[cfg(not(feature = "defmt"))]
+pub mod log {
+    #[macro_export]
+    macro_rules! __stub {
+        ($($arg:tt)*) => {{
+            let _ = ($($arg)*); // Do nothing
+        }};
+    }
+
+    pub use __stub as debug;
+    pub use __stub as error;
+    pub use __stub as info;
+    pub use __stub as trace;
+    pub use __stub as warn;
+}

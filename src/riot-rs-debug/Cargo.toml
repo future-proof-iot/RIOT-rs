@@ -11,11 +11,16 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
+defmt = { workspace = true, optional = true }
+
+# listed here so they can enable its features conditionally
+esp-println = { workspace = true, optional = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
 cortex-m = { workspace = true, features = ["critical-section-single-core"] }
 cortex-m-semihosting = { workspace = true, optional = true }
-rtt-target = { version = "0.4.0", optional = true }
+rtt-target = { version = "0.5.0", optional = true }
+defmt-rtt-target = { git = "https://github.com/kaspar030/defmt-rtt-target", rev = "5668c92ac5a0689b165a6a07bb14e173fc47cd34" }
 
 [target.'cfg(context = "esp")'.dependencies]
 esp-println = { workspace = true, features = ["log"] }
@@ -29,3 +34,4 @@ esp-println = { workspace = true, features = ["esp32c6"] }
 
 [features]
 debug-console = []
+defmt = ["dep:defmt", "esp-println?/defmt-espflash"]

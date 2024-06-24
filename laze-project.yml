@@ -276,7 +276,7 @@ contexts:
         #- -C force-frame-pointers
       CARGO_ARGS:
         - -Zbuild-std=core
-      CARGO_RUNNER: '"espflash flash --monitor"'
+      CARGO_RUNNER: '"espflash flash --monitor ${ESPFLASH_LOG_FORMAT}"'
 
   - name: esp32c3
     parent: esp
@@ -373,6 +373,21 @@ modules:
       global:
         FEATURES:
           - riot-rs/debug-console
+
+  - name: defmt
+    help: Enable use of defmt
+    context: riot-rs
+    env:
+      global:
+        FEATURES:
+          - riot-rs/defmt
+        RUSTFLAGS:
+          - -Clink-arg=-Tdefmt.x
+        ESPFLASH_LOG_FORMAT: '--log-format defmt'
+        CARGO_ENV:
+          # For some reason, `sccache` makes the build not realize changes to
+          # `DEFMT_LOG`. Painful as it is, hard-disable `sccache` here.
+          - RUSTC_WRAPPER=""
 
   - name: silent-panic
     context: riot-rs
