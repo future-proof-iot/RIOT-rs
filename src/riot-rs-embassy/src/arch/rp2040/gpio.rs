@@ -1,3 +1,39 @@
+pub mod input {
+    use embassy_rp::gpio::{Level, Pull};
+
+    use crate::arch::peripheral::Peripheral;
+
+    pub(crate) use embassy_rp::gpio::{Input, Pin};
+
+    pub(crate) fn new(
+        pin: impl Peripheral<P: Pin> + 'static,
+        pull: crate::gpio::Pull,
+    ) -> Input<'static> {
+        let pull = Pull::from(pull);
+
+        Input::new(pin, pull)
+    }
+
+    impl From<crate::gpio::Pull> for Pull {
+        fn from(pull: crate::gpio::Pull) -> Self {
+            match pull {
+                crate::gpio::Pull::None => Pull::None,
+                crate::gpio::Pull::Up => Pull::Up,
+                crate::gpio::Pull::Down => Pull::Down,
+            }
+        }
+    }
+
+    impl From<Level> for crate::gpio::Level {
+        fn from(level: Level) -> Self {
+            match level {
+                Level::Low => crate::gpio::Level::Low,
+                Level::High => crate::gpio::Level::High,
+            }
+        }
+    }
+}
+
 pub mod output {
     use embassy_rp::gpio::{Drive, Level, SlewRate};
 
