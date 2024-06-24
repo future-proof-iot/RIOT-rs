@@ -13,6 +13,8 @@ jobs:
 
       - name: ⤵ Install and configure hax
         uses: hacspec/hax-actions@main
+        with:
+          hax_reference: main
 
       - name: 🏃 Extract `riot-rs-runqueue`
         working-directory: ./src/riot-rs-runqueue
