@@ -1,9 +1,11 @@
 [package]
-name = "nucleo-f401re"
+name = "st-nucleo-f401re"
 version = "0.1.0"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-stm32f4xx = { path = "../../riot-rs-chips/stm32f4xx", features = ["stm32f401"] }
+embassy-stm32 = { workspace = true, features = ["stm32f401re"] }
+riot-rs-debug = { workspace = true, features = ["rtt-target"] }
+riot-rs-rt.workspace = true

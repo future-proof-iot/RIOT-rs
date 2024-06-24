@@ -1,0 +1,18 @@
+[package]
+name = "nintendo-game-and-watch"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+riot-rs-debug.workspace = true
+riot-rs-rt.workspace = true
+stm32 = { path = "../../riot-rs-chips/stm32" }
+embassy-stm32 = { workspace = true, features = [
+  "stm32h7b0vb",
+  "memory-x",
+  "rt",
+] }
+
+[features]
+mario = []
+zelda = []

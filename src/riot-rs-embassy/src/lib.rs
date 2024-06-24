@@ -19,6 +19,9 @@ cfg_if::cfg_if! {
     } else if #[cfg(context = "esp")] {
         #[path = "arch/esp/mod.rs"]
         pub mod arch;
+    } else if #[cfg(context = "stm32")] {
+        #[path = "arch/stm32/mod.rs"]
+        pub mod arch;
     } else if #[cfg(context = "riot-rs")] {
         compile_error!("this architecture is not supported");
     } else {
@@ -75,6 +78,14 @@ pub type Task = fn(Spawner, &mut arch::OptionalPeripherals);
 pub static EMBASSY_TASKS: [Task] = [..];
 
 #[cfg(not(any(
+    context = "esp",
+    context = "nrf",
+    context = "rp2040",
+    context = "stm32"
+)))]
+compile_error!("no supported embassy architecture selected");
+
+#[cfg(not(any(
     feature = "executor-interrupt",
     feature = "executor-none",
     feature = "executor-single-thread",
@@ -96,8 +107,9 @@ pub(crate) fn init() {
     println!("riot-rs-embassy::init(): using interrupt mode executor");
     let p = arch::init();
 
-    #[cfg(any(context = "nrf", context = "rp2040"))]
+    #[cfg(any(context = "nrf", context = "rp2040", context = "stm32"))]
     {
+        println!("riot-rs-embassy::init() executor starting");
         EXECUTOR.start(arch::SWI);
         EXECUTOR.spawner().must_spawn(init_task(p));
     }
