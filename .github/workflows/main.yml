@@ -89,7 +89,7 @@ jobs:
         run: |
           sccache --start-server || true # work around https://github.com/ninja-build/ninja/issues/2052
 
-          laze build --global --partition hash:${{ matrix.partition }}
+          CONFIG_WIFI_NETWORK='test' CONFIG_WIFI_PASSWORD='password' laze build --global --partition hash:${{ matrix.partition }}
 
   cargo-test:
     runs-on: ubuntu-latest
