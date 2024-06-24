@@ -5,9 +5,12 @@ pub mod input {
 
     pub(crate) use embassy_nrf::gpio::{Input, Pin};
 
+    pub(crate) const SCHMITT_TRIGGER_AVAILABLE: bool = false;
+
     pub(crate) fn new(
         pin: impl Peripheral<P: Pin> + 'static,
         pull: crate::gpio::Pull,
+        _schmitt_trigger: bool, // Not supported by this architecture
     ) -> Input<'static> {
         let pull = Pull::from(pull);
 
