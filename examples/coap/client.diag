@@ -1,0 +1,12 @@
+{
+  "coap://10.42.0.61/*": {
+    "edhoc-oscore": {
+      "suite": 2,
+      "method": 3,
+      "own_cred_style": "by-key-id",
+      "own_cred": {14: {2: "42-50-31-FF-EF-37-32-39", 8: {1: {1: 2, 2: h'2b', -1: 1, -2: h'ac75e9ece3e50bfc8ed60399889522405c47bf16df96660a41298cb4307f7eb6', -3: h'6e5de611388a4b8a8211334ac7d37ecb52a387d257e6db3c2a93df21ff3affc8'}}}},
+      "private_key_file": "client.cosekey",
+      "peer_cred": {14: {2: "", 8: {1: {1: 2, 2: h'0a', -1: 1, -2: h'bbc34960526ea4d32e940cad2a234148ddc21791a12afbcbac93622046dd44f0', -3: h'4519e257236b2a0ce2023f0931f1f386ca7afda64fcde0108c224c51eabf6072'}}}},
+    }
+  },
+}
