@@ -9,6 +9,7 @@ pub mod input {
 
     pub(crate) fn new(
         pin: impl Peripheral<P: Pin> + 'static,
+        _int_enabled: bool, // This architecture does not require special treatment of interrupts
         pull: crate::gpio::Pull,
         schmitt_trigger: bool,
     ) -> Input<'static> {

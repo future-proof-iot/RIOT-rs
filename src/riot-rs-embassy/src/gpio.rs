@@ -26,6 +26,7 @@ impl Input {
 
     pub fn builder<P: Peripheral<P: ArchInputPin>>(pin: P, pull: Pull) -> InputBuilder<P> {
         InputBuilder {
+            int_enabled: false,
             pin,
             pull,
             schmitt_trigger: false,
@@ -43,8 +44,17 @@ impl Input {
     pub fn get_level(&self) -> Level {
         self.input.get_level().into()
     }
+}
 
-    // FIXME: /!\ STM32
+impl embedded_hal::digital::ErrorType for Input {
+    type Error = <ArchInput<'static> as embedded_hal::digital::ErrorType>::Error;
+}
+
+pub struct IntEnabledInput {
+    input: ArchInput<'static>, // FIXME: is this ok to require a 'static pin?
+}
+
+impl IntEnabledInput {
     pub async fn wait_for_high(&mut self) {
         self.input.wait_for_high().await;
     }
@@ -66,12 +76,11 @@ impl Input {
     }
 }
 
-impl embedded_hal::digital::ErrorType for Input {
+impl embedded_hal::digital::ErrorType for IntEnabledInput {
     type Error = <ArchInput<'static> as embedded_hal::digital::ErrorType>::Error;
 }
 
-// FIXME: it is not obvious this would work on STM32
-impl Wait for Input {
+impl Wait for IntEnabledInput {
     async fn wait_for_high(&mut self) -> Result<(), Self::Error> {
         <ArchInput as Wait>::wait_for_high(&mut self.input).await
     }
@@ -119,12 +128,22 @@ impl From<bool> for Level {
 }
 
 pub struct InputBuilder<P: Peripheral<P: ArchInputPin>> {
+    int_enabled: bool,
     pin: P,
     pull: Pull,
     schmitt_trigger: bool,
 }
 
 impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
+    // All architectures provide interrupts (although with architecture-specific limitations), so
+    // we only provide one method.
+    pub fn interrupt_enabled(self) -> Self {
+        Self {
+            int_enabled: true,
+            ..self
+        }
+    }
+
     pub fn schmitt_trigger(self, enable: bool) -> Self {
         const {
             assert!(
@@ -157,9 +176,18 @@ impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
     }
 
     pub fn build(self) -> Input {
-        let input = arch::gpio::input::new(self.pin, self.pull, self.schmitt_trigger);
+        let input =
+            arch::gpio::input::new(self.pin, self.int_enabled, self.pull, self.schmitt_trigger);
 
         Input { input }
+    }
+
+    // FIXME: maybe return an error, in case no interrupt channel is available anymore
+    // FIXME: rename this
+    pub fn build_with_interrupt(self) -> IntEnabledInput {
+        let input = self.build().input;
+
+        IntEnabledInput { input }
     }
 }
 

@@ -9,6 +9,7 @@ pub mod input {
 
     pub(crate) fn new(
         pin: impl Peripheral<P: Pin> + 'static,
+        int_enabled: bool, // FIXME: detect usage of more GPIOTE channels than supported
         pull: crate::gpio::Pull,
         _schmitt_trigger: bool, // Not supported by this architecture
     ) -> Input<'static> {
