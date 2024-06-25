@@ -3409,6 +3409,7 @@ dependencies = [
  "heapless 0.8.0",
  "linkme",
  "once_cell",
+ "portable-atomic",
  "riot-rs-debug",
  "riot-rs-macros",
  "riot-rs-random",

@@ -1,7 +1,7 @@
 pub mod input {
     use embassy_rp::gpio::{Level, Pull};
 
-    use crate::arch::peripheral::Peripheral;
+    use crate::{arch::peripheral::Peripheral, gpio};
 
     pub(crate) use embassy_rp::gpio::{Input, Pin};
 
@@ -12,13 +12,13 @@ pub mod input {
         _int_enabled: bool, // This architecture does not require special treatment of interrupts
         pull: crate::gpio::Pull,
         schmitt_trigger: bool,
-    ) -> Input<'static> {
+    ) -> Result<Input<'static>, gpio::input::Error> {
         let pull = Pull::from(pull);
 
         let mut input = Input::new(pin, pull);
         input.set_schmitt(schmitt_trigger);
 
-        input
+        Ok(input)
     }
 
     impl From<crate::gpio::Pull> for Pull {
