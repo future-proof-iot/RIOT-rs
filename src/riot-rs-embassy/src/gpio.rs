@@ -124,7 +124,6 @@ pub struct InputBuilder<P: Peripheral<P: ArchInputPin>> {
     schmitt_trigger: bool,
 }
 
-// TODO: add support for Schmitt triggers (on RP2040)
 impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
     pub fn schmitt_trigger(self, enable: bool) -> Self {
         const {
