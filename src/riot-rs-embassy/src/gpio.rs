@@ -26,7 +26,6 @@ impl Input {
 
     pub fn builder<P: Peripheral<P: ArchInputPin>>(pin: P, pull: Pull) -> InputBuilder<P> {
         InputBuilder {
-            int_enabled: false,
             pin,
             pull,
             schmitt_trigger: false,
@@ -128,22 +127,12 @@ impl From<bool> for Level {
 }
 
 pub struct InputBuilder<P: Peripheral<P: ArchInputPin>> {
-    int_enabled: bool,
     pin: P,
     pull: Pull,
     schmitt_trigger: bool,
 }
 
 impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
-    // All architectures provide interrupts (although with architecture-specific limitations), so
-    // we only provide one method.
-    pub fn interrupt_enabled(self) -> Self {
-        Self {
-            int_enabled: true,
-            ..self
-        }
-    }
-
     pub fn schmitt_trigger(self, enable: bool) -> Self {
         const {
             assert!(
@@ -176,18 +165,35 @@ impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
     }
 
     pub fn build(self) -> Input {
-        let input =
-            arch::gpio::input::new(self.pin, self.int_enabled, self.pull, self.schmitt_trigger);
+        let input = match arch::gpio::input::new(self.pin, false, self.pull, self.schmitt_trigger) {
+            Ok(input) => input,
+            Err(input::Error::InterruptChannel(_)) => unreachable!(),
+        };
 
         Input { input }
     }
 
-    // FIXME: maybe return an error, in case no interrupt channel is available anymore
     // FIXME: rename this
-    pub fn build_with_interrupt(self) -> IntEnabledInput {
-        let input = self.build().input;
+    pub fn build_with_interrupt(self) -> Result<IntEnabledInput, input::Error> {
+        let input = arch::gpio::input::new(self.pin, true, self.pull, self.schmitt_trigger)?;
 
-        IntEnabledInput { input }
+        Ok(IntEnabledInput { input })
+    }
+}
+
+pub mod input {
+    use crate::extint_registry;
+
+    // TODO: rename this or move this to a sub-module
+    #[derive(Debug)]
+    pub enum Error {
+        InterruptChannel(extint_registry::Error),
+    }
+
+    impl From<extint_registry::Error> for Error {
+        fn from(err: extint_registry::Error) -> Self {
+            Error::InterruptChannel(err)
+        }
     }
 }
 

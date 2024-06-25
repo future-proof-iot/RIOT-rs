@@ -1,7 +1,7 @@
 pub mod input {
     use embassy_nrf::gpio::{Level, Pull};
 
-    use crate::arch::peripheral::Peripheral;
+    use crate::{arch::peripheral::Peripheral, extint_registry::EXTINT_REGISTRY, gpio};
 
     pub(crate) use embassy_nrf::gpio::{Input, Pin};
 
@@ -9,13 +9,19 @@ pub mod input {
 
     pub(crate) fn new(
         pin: impl Peripheral<P: Pin> + 'static,
-        int_enabled: bool, // FIXME: detect usage of more GPIOTE channels than supported
+        int_enabled: bool,
         pull: crate::gpio::Pull,
         _schmitt_trigger: bool, // Not supported by this architecture
-    ) -> Input<'static> {
+    ) -> Result<Input<'static>, gpio::input::Error> {
         let pull = Pull::from(pull);
 
-        Input::new(pin, pull)
+        let pin = if int_enabled {
+            EXTINT_REGISTRY.use_interrupt_for_pin(pin)?
+        } else {
+            pin
+        };
+
+        Ok(Input::new(pin, pull))
     }
 
     impl From<crate::gpio::Pull> for Pull {

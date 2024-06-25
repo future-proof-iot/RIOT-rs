@@ -69,7 +69,7 @@ async fn blinky_button(peripherals: BlinkyButtonPeripherals) {
     let btn2_builder = Input::builder(peripherals.btn2, Pull::Up);
     #[cfg(context = "rp")]
     let btn2_builder = btn2_builder.schmitt_trigger(true);
-    let mut btn2 = btn2_builder.build_with_interrupt();
+    let mut btn2 = btn2_builder.build_with_interrupt().unwrap();
 
     let mut led2 = Output::new(peripherals.led2, PinState::High);
 
