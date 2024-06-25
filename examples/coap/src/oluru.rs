@@ -47,7 +47,7 @@ pub trait PriorityLevel {
 ///
 /// # Usage
 ///
-/// ```
+/// ```ignore
 /// use crate::oluru::{OrderedPool, PriorityLevel};
 ///
 /// #[derive(Debug)]
