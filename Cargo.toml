@@ -96,9 +96,6 @@ usbd-hid-macros = { git = "https://github.com/kaspar030/usbd-hid", branch = "for
 # version 0.12-to-be
 smoltcp = { git = "https://github.com/smoltcp-rs/smoltcp.git", rev = "125773e282bc2e0c914a49e9c75573926e26e558" }
 
-coap-message = { git = "https://gitlab.com/chrysn/coap-message/", branch = "enable-downcasts" }
-coap-message-implementations = { git = "https://codeberg.org/chrysn/coap-tools", branch = "downcast" }
-
 [workspace.lints.rust]
 unsafe_op_in_unsafe_fn = "warn"
 unused_must_use = "deny"
