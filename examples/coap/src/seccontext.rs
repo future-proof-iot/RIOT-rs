@@ -88,7 +88,7 @@ impl Into<lakers::ConnId> for COwn {
 /// [*path], Tperm = u32).
 ///
 /// FIXME: At the moment, this always represents an authorization that allows everything, and only
-/// has runtime information about whether or not stdout is allowd. On the long run, this will
+/// has runtime information about whether or not stdout is allowed. On the long run, this will
 /// likely be a CBOR item with pre-verified structure.
 #[derive(Debug)]
 struct AifStaticRest {
@@ -196,13 +196,13 @@ impl core::fmt::Display for SecContextState {
 const LEVEL_ADMIN: usize = 0;
 const LEVEL_AUTHENTICATED: usize = 1;
 const LEVEL_ONGOING: usize = 2;
-const LEVEL_EMTPY: usize = 3;
+const LEVEL_EMPTY: usize = 3;
 const LEVEL_COUNT: usize = 4;
 
 impl crate::oluru::PriorityLevel for SecContextState {
     fn level(&self) -> usize {
         match &self.protocol_stage {
-            SecContextStage::Empty => LEVEL_EMTPY,
+            SecContextStage::Empty => LEVEL_EMPTY,
             SecContextStage::EdhocResponderProcessedM1 { .. } => {
                 // If this is ever tested, means we're outbound message limited, so let's try to
                 // get one through rather than pointlessly sending errors

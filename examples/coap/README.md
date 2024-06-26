@@ -6,7 +6,7 @@ This application is a work in progress demo of running CoAP with OSCORE/EDHOC se
 
 ## Running
 
-* Run on any board with networking, eg. `laze build -b particlex-xenon run`.
+* Run on any board with networking, eg. `laze build -b particle-xenon run`.
 * [Set up networking](../README.md).
 * Run `pipx run coap-console coap://10.42.0.61 --credentials client.diag`,
   which establishes a secure CoAP connection using EDHOC and OSCORE,

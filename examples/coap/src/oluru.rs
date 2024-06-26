@@ -29,7 +29,7 @@ pub trait PriorityLevel {
     ///
     /// The level should not change due to global effects (or internal mutability, if shared access
     /// is later implemented). If it does, the ordering of an [`OrderedPool`] containing it may become
-    /// arbitrary, even after the elemnt whose level changed has been removed.
+    /// arbitrary, even after the element whose level changed has been removed.
     fn level(&self) -> usize;
 }
 
