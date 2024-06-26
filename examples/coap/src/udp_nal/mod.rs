@@ -8,7 +8,7 @@
 //! useful enough. (FIXME: Given we construct from Socket, Stack could really be implemented on
 //! `Cell<Option<Socket>>` by `.take()`ing, couldn't it?)
 //!
-//! The constructors of the various socket types mimick the UdpStack's socket creation functions,
+//! The constructors of the various socket types mimic the UdpStack's socket creation functions,
 //! but take an owned (uninitialized) Socket instead of a shared stack.
 //!
 //! No `bind_single` style constructor is currently provided. FIXME: Not sure we have all the

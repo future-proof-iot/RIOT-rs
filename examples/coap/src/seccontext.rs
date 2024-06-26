@@ -18,7 +18,7 @@ const MAX_CONTEXTS: usize = 4;
 // implementations that work well for us.
 type LakersCrypto = lakers_crypto_rustcrypto::Crypto<riot_rs::random::CryptoRng>;
 
-/// A pool of security contexts sharable by several users inside a thread.
+/// A pool of security contexts shareable by several users inside a thread.
 pub type SecContextPool = crate::oluru::OrderedPool<SecContextState, MAX_CONTEXTS, LEVEL_COUNT>;
 
 /// An own identifier for a security context
@@ -830,7 +830,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                     // FIXME render late error (it'd help if CoAPError also offered a type that unions it
                     // with an arbitrary other error). As it is, depending on the CoAP stack, there may be
                     // DoS if a peer can send many requests before the server starts rendering responses.
-                    panic!("State vanished before respone was built.");
+                    panic!("State vanished before response was built.");
                 };
 
                 response
@@ -854,7 +854,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                             // FIXME render late error (it'd help if CoAPError also offered a type that unions it
                             // with an arbitrary other error). As it is, depending on the CoAP stack, there may be
                             // DoS if a peer can send many requests before the server starts rendering responses.
-                            panic!("State vanished before respone was built.");
+                            panic!("State vanished before response was built.");
                         };
 
                         let response = coap_message_implementations::inmemory_write::Message::downcast_from(response)
