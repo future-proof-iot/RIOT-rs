@@ -22,6 +22,7 @@
 /// This starts a thread with a stack size of 1024 bytes and a priority of 2:
 ///
 /// ```ignore
+/// // `stacksize` and `priority` can be arbitrary expressions.
 /// #[riot_rs::thread(stacksize = 1024, priority = 2)]
 /// fn print_hello_world() {
 ///     println!("Hello world!");
@@ -37,7 +38,9 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
     #[allow(clippy::wildcard_imports)]
     use thread::*;
 
-    use quote::{format_ident, quote};
+    use quote::quote;
+
+    use crate::utils::find_crate;
 
     let mut attrs = Attributes::default();
     let thread_parser = syn::meta::parser(|meta| attrs.parse(&meta));
@@ -57,24 +60,24 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     let fn_name = thread_function.sig.ident.clone();
-    let slice_fn_name_ident = format_ident!("__start_thread_{fn_name}");
     let Parameters {
         stack_size,
         priority,
     } = Parameters::from(attrs);
 
-    let riot_rs_crate = utils::riot_rs_crate();
+    let thread_crate = {
+        match (find_crate("riot-rs"), find_crate("riot-rs-threads")) {
+            (Some(riot_rs), _) => quote! { #riot_rs::thread },
+            (None, Some(riot_rs_threads)) => quote! { #riot_rs_threads },
+            _ => panic!(r#"neither "riot-rs" nor "riot-rs-threads" found in dependencies!"#),
+        }
+    };
 
     let expanded = quote! {
         #no_mangle_attr
         #thread_function
 
-        #[#riot_rs_crate::linkme::distributed_slice(#riot_rs_crate::thread::THREAD_FNS)]
-        #[linkme(crate = #riot_rs_crate::linkme)]
-        fn #slice_fn_name_ident() {
-            let stack = #riot_rs_crate::static_cell::make_static!([0u8; #stack_size as usize]);
-            #riot_rs_crate::thread::thread_create_noarg(#fn_name, stack, #priority);
-        }
+        #thread_crate::autostart_thread!(#fn_name, stacksize = #stack_size, priority = #priority);
     };
 
     TokenStream::from(expanded)
@@ -82,16 +85,16 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
 
 mod thread {
     pub struct Parameters {
-        pub stack_size: u64,
-        pub priority: u8,
+        pub stack_size: syn::Expr,
+        pub priority: syn::Expr,
     }
 
     impl Default for Parameters {
         fn default() -> Self {
             // TODO: proper values
             Self {
-                stack_size: 2048,
-                priority: 1,
+                stack_size: syn::parse_quote!{ 2048 },
+                priority: syn::parse_quote!{ 1 },
             }
         }
     }
@@ -100,13 +103,8 @@ mod thread {
         fn from(attrs: Attributes) -> Self {
             let default = Self::default();
 
-            let stack_size = attrs.stack_size.map_or(default.stack_size, |l| {
-                parse_base10_or_panic(&l, "stack_size")
-            });
-
-            let priority = attrs
-                .priority
-                .map_or(default.priority, |l| parse_base10_or_panic(&l, "priority"));
+            let stack_size = attrs.stack_size.unwrap_or(default.stack_size);
+            let priority = attrs.priority.unwrap_or(default.priority);
 
             Self {
                 stack_size,
@@ -115,32 +113,11 @@ mod thread {
         }
     }
 
-    /// Parse a base-10 integer literal.
-    ///
-    /// # Panics
-    ///
-    /// Panics if parsing fails.
-    fn parse_base10_or_panic<I>(lit_int: &syn::LitInt, attr: &str) -> I
-    where
-        I: core::str::FromStr,
-        <I as core::str::FromStr>::Err: std::fmt::Display,
-    {
-        if let Ok(int) = lit_int.base10_parse() {
-            assert!(
-                lit_int.suffix().is_empty(),
-                "`{attr}` must be a base-10 integer without a suffix",
-            );
-            int
-        } else {
-            panic!("`{attr}` must be a base-10 integer");
-        }
-    }
-
     #[derive(Default)]
     pub struct Attributes {
         pub autostart: bool,
-        pub stack_size: Option<syn::LitInt>,
-        pub priority: Option<syn::LitInt>,
+        pub stack_size: Option<syn::Expr>,
+        pub priority: Option<syn::Expr>,
         pub no_mangle: bool,
     }
 

@@ -25,10 +25,7 @@ impl From<Peripherals> for OptionalPeripherals {
     }
 }
 
-#[derive(Default)]
-pub struct Config;
-
-pub fn init(_config: Config) -> OptionalPeripherals {
+pub fn init() -> OptionalPeripherals {
     unimplemented!();
 }
 

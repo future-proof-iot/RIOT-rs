@@ -28,6 +28,7 @@ macro_rules! define_env_with_default_macro {
 }
 
 define_env_with_default_macro!(usize_from_env_or, parse_usize, "a usize");
+define_env_with_default_macro!(u8_from_env_or, parse_u8, "a u8");
 
 #[macro_export]
 macro_rules! str_from_env_or {
@@ -37,6 +38,22 @@ macro_rules! str_from_env_or {
             str_value
         } else {
             $default
+        }
+    };
+}
+
+#[macro_export]
+macro_rules! str_from_env {
+    ($env_var:literal, $doc:literal) => {
+        if let Some(str_value) = option_env!($env_var) {
+            str_value
+        } else {
+            $crate::env::const_panic::concat_panic!(
+                "`",
+                $env_var,
+                "` environment variable was expected to provide the ",
+                $doc,
+            );
         }
     };
 }

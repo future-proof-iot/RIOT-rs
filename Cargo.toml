@@ -33,7 +33,7 @@ cfg-if = { version = "1.0.0" }
 cortex-m = { version = "0.7", default-features = false, features = [
   "inline-asm",
 ] }
-cortex-m-rt = { version = "0.7" }
+cortex-m-rt = { version = "=0.7.3" }
 cortex-m-semihosting = { version = "0.5" }
 critical-section = { version = "1.1.2" }
 
@@ -46,9 +46,10 @@ embassy-sync = { version = "0.5", default-features = false }
 embassy-time = { version = "0.3", default-features = false }
 embassy-usb = { version = "0.1", default-features = false }
 
-esp-hal = { version = "0.15", git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-290224", default-features = false }
+esp-hal = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-06-14", default-features = false }
+esp-hal-embassy = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-06-14", default-features = false }
 esp-println = { version = "0.9.0" }
-esp-wifi = { git = "https://github.com/kaspar030/esp-wifi", branch = "update-esp-hal" }
+esp-wifi = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-06-14", default-features = false }
 
 linkme = { version = "0.3.21", features = ["used_linker"] }
 
@@ -60,11 +61,13 @@ riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 riot-rs-utils = { path = "src/riot-rs-utils", default-features = false }
 
-const_panic = { version = "0.2.8", default_features = false }
+const_panic = { version = "0.2.8", default-features = false }
+defmt = { version = "0.3.7" }
 document-features = "0.2.8"
 heapless = { version = "0.8.0", default-features = false }
-konst = { version = "0.3.8", default_features = false }
+konst = { version = "0.3.8", default-features = false }
 ld-memory = { version = "0.2.9" }
+paste = { version = "1.0" }
 static_cell = { version = "2.0.0", features = ["nightly"] }
 
 [profile.dev]
@@ -86,12 +89,20 @@ opt-level = 3
 
 [patch.crates-io]
 # riot-rs embassy fork
-embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-300424" }
-embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-300424" }
-embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-300424" }
-embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-300424" }
+embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-rp = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-net-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-net-driver-channel = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-time-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-time-queue-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-usb-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+cyw43 = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+cyw43-pio = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 
-usbd-hid-macros = { git = "https://github.com/kaspar030/usbd-hid", branch = "for-riot-rs" }
+usbd-hid-macros = { git = "https://github.com/twitchyliquid64/usbd-hid", rev = "76bea16537e1a347df2ebced5b9e1d48f71c9859" }
 
 # version 0.12-to-be
 smoltcp = { git = "https://github.com/smoltcp-rs/smoltcp.git", rev = "125773e282bc2e0c914a49e9c75573926e26e558" }
@@ -99,6 +110,9 @@ smoltcp = { git = "https://github.com/smoltcp-rs/smoltcp.git", rev = "125773e282
 [workspace.lints.rust]
 unsafe_op_in_unsafe_fn = "warn"
 unused_must_use = "deny"
+# ... until we figure out a way to generate a list of all used cfg variables
+# across build configurations ...
+unexpected_cfgs = "allow"
 
 [workspace.lints.clippy]
 # Clippy lints are documented here: https://rust-lang.github.io/rust-clippy/master/index.html

@@ -1,5 +1,4 @@
 #![cfg_attr(not(test), no_std)]
-#![feature(inline_const)]
 #![feature(naked_functions)]
 #![feature(used_with_arg)]
 // Disable indexing lints for now, possible panics are documented or rely on internally-enforced
@@ -7,6 +6,7 @@
 #![allow(clippy::indexing_slicing)]
 
 mod arch;
+mod autostart_thread;
 mod ensure_once;
 mod thread;
 mod threadlist;
@@ -14,6 +14,14 @@ mod threadlist;
 pub mod channel;
 pub mod lock;
 pub mod thread_flags;
+
+#[doc(hidden)]
+pub mod macro_reexports {
+    // Used by `autostart_thread`
+    pub use linkme;
+    pub use paste;
+    pub use static_cell;
+}
 
 pub use riot_rs_runqueue::{RunqueueId, ThreadId};
 pub use thread_flags as flags;

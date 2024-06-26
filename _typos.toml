@@ -1,0 +1,11 @@
+[default.extend-words]
+hax = "hax"
+
+[default.extend-identifiers]
+celcius = "celcius" # Until embedded-aht20 is fixed
+
+[files]
+extend-exclude = [
+  "doc/*.svg",
+  "src/riot-rs-embassy/src/wifi/cyw43/firmware/README.md",
+]

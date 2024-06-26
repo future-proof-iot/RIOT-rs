@@ -82,14 +82,14 @@ jobs:
       - name: "limit build unless nightly build"
         if: github.event_name != 'schedule'
         run: |
-          echo "LAZE_BUILDERS=ai-c3,expressif-esp32-c6-devkitc-1,microbit-v2,nrf52840dk,nrf5340dk,rpi-pico,rpi-pico-w" >> "$GITHUB_ENV"
+          echo "LAZE_BUILDERS=ai-c3,espressif-esp32-c6-devkitc-1,microbit-v2,nrf52840dk,nrf5340dk,rpi-pico,rpi-pico-w" >> "$GITHUB_ENV"
 
       - name: "riot-rs compilation test"
         if: steps.result-cache.outputs.cache-hit != 'true'
         run: |
           sccache --start-server || true # work around https://github.com/ninja-build/ninja/issues/2052
 
-          laze build --global --partition hash:${{ matrix.partition }}
+          CONFIG_WIFI_NETWORK='test' CONFIG_WIFI_PASSWORD='password' laze build --global --partition hash:${{ matrix.partition }}
 
   cargo-test:
     runs-on: ubuntu-latest
@@ -167,6 +167,9 @@ jobs:
         uses: chartboost/ruff-action@v1
         with:
           args: format --check  # Only check formatting for now
+
+      - name: typos
+        uses: crate-ci/typos@v1.22.0
 
   CI-success:
     if: ${{ always() }}

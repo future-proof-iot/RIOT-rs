@@ -3,3 +3,4 @@ apps:
     depends:
       - ?release
       - sw/benchmark
+      - sw/threading

@@ -6,7 +6,6 @@ use esp_hal::peripherals::SYSTEM;
 use esp_hal::{
     interrupt::{self, TrapFrame},
     peripherals::Interrupt,
-    prelude::*,
     riscv, Cpu as EspHalCpu,
 };
 
@@ -102,8 +101,8 @@ fn copy_registers(src: &TrapFrame, dst: &mut TrapFrame) {
 
 /// Handler for software interrupt 0, which we use for context switching.
 #[allow(non_snake_case)]
-#[interrupt]
-fn FROM_CPU_INTR1(trap_frame: &mut TrapFrame) {
+#[no_mangle]
+extern "C" fn FROM_CPU_INTR1(trap_frame: &mut TrapFrame) {
     unsafe {
         // clear FROM_CPU_INTR1
         (&*SYSTEM::PTR)

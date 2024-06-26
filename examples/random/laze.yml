@@ -3,3 +3,4 @@ apps:
     selects:
       - ?release
       - random
+      - sw/threading

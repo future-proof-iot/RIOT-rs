@@ -66,10 +66,26 @@ pub mod blocker;
 pub mod delegate;
 pub mod sendcell;
 
+#[cfg(feature = "executor-thread")]
+pub mod thread_executor;
+
 pub type Task = fn(Spawner, &mut arch::OptionalPeripherals);
 
 #[distributed_slice]
 pub static EMBASSY_TASKS: [Task] = [..];
+
+#[cfg(not(any(
+    feature = "executor-interrupt",
+    feature = "executor-none",
+    feature = "executor-single-thread",
+    feature = "executor-thread"
+)))]
+compile_error!(
+    r#"must select one of "executor-interrupt", "executor-single-thread", "executor-thread", "executor-none"!"#
+);
+
+#[cfg(all(feature = "threading", feature = "executor-single-thread"))]
+compile_error!(r#""executor-single-thread" and "threading" are mutually exclusive!"#);
 
 #[cfg(feature = "executor-interrupt")]
 pub static EXECUTOR: arch::Executor = arch::Executor::new();
@@ -77,8 +93,8 @@ pub static EXECUTOR: arch::Executor = arch::Executor::new();
 #[cfg(feature = "executor-interrupt")]
 #[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
-    println!("riot-rs-embassy::init()");
-    let p = arch::init(Default::default());
+    println!("riot-rs-embassy::init(): using interrupt mode executor");
+    let p = arch::init();
 
     #[cfg(any(context = "nrf", context = "rp2040"))]
     {
@@ -93,12 +109,35 @@ pub(crate) fn init() {
 #[cfg(feature = "executor-single-thread")]
 #[export_name = "riot_rs_embassy_init"]
 fn init() -> ! {
-    println!("riot-rs-embassy::init()");
-    let p = arch::init(Default::default());
-
-    println!("riot-rs-embassy::init() done");
+    println!("riot-rs-embassy::init(): using single thread executor");
+    let p = arch::init();
 
     let executor = make_static!(arch::Executor::new());
+    executor.run(|spawner| spawner.must_spawn(init_task(p)))
+}
+
+#[cfg(feature = "executor-thread")]
+mod executor_thread {
+    pub(crate) const STACKSIZE: usize = riot_rs_utils::usize_from_env_or!(
+        "CONFIG_EXECUTOR_THREAD_STACKSIZE",
+        16384,
+        "executor thread stack size"
+    );
+
+    pub(crate) const PRIORITY: u8 = riot_rs_utils::u8_from_env_or!(
+        "CONFIG_EXECUTOR_THREAD_PRIORITY",
+        8,
+        "executor thread priority"
+    );
+}
+
+#[cfg(feature = "executor-thread")]
+#[riot_rs_macros::thread(autostart, stacksize = executor_thread::STACKSIZE, priority = executor_thread::PRIORITY)]
+fn init() {
+    println!("riot-rs-embassy::init(): using thread executor");
+    let p = arch::init();
+
+    let executor = make_static!(thread_executor::Executor::new());
     executor.run(|spawner| spawner.must_spawn(init_task(p)));
 }
 

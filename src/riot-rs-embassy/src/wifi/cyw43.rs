@@ -8,9 +8,8 @@ use embassy_rp::{
 };
 
 use riot_rs_debug::println;
-use riot_rs_utils::str_from_env_or;
 
-use self::rpi_pico_w::{Cyw43Periphs, CywSpi, Irqs, CYW43_PWR};
+use self::rpi_pico_w::{Cyw43Periphs, CywSpi, Irqs};
 use crate::{arch::OptionalPeripherals, make_static};
 
 pub type NetworkDevice = cyw43::NetDriver<'static>;
@@ -31,7 +30,7 @@ pub async fn join(mut control: cyw43::Control<'static>) {
 }
 
 #[embassy_executor::task]
-async fn wifi_cyw43_task(runner: Runner<'static, Output<'static, CYW43_PWR>, CywSpi>) -> ! {
+async fn wifi_cyw43_task(runner: Runner<'static, Output<'static>, CywSpi>) -> ! {
     runner.run().await
 }
 
