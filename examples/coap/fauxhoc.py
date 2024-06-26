@@ -199,7 +199,9 @@ async def main():
             code=GET,
             uri=args.peer + "/poem",
         )
-        poem = (await ctx.request(normalrequest).response_raising).payload.decode("utf8")
+        poem = (await ctx.request(normalrequest).response_raising).payload.decode(
+            "utf8"
+        )
         print("Received /poem (a resource transported in multiple blocks):")
         print(poem)
         print()
