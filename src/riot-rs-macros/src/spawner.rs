@@ -33,6 +33,7 @@
 #[proc_macro_attribute]
 pub fn spawner(args: TokenStream, item: TokenStream) -> TokenStream {
     use quote::{format_ident, quote};
+    use syn::{spanned::Spanned, Error};
 
     #[allow(clippy::wildcard_imports)]
     use spawner::*;
@@ -55,12 +56,21 @@ pub fn spawner(args: TokenStream, item: TokenStream) -> TokenStream {
         "spawner functions cannot be async, consider using `task` instead",
     );
 
-    if !attrs.peripherals {
-        let param_count = spawner_function.sig.inputs.len();
-        assert!(
-            param_count == 1,
-            "to provide this function with peripherals, use the `{PERIPHERALS_PARAM}` macro parameter",
-        );
+    let param_count = spawner_function.sig.inputs.len();
+    if param_count == 0 {
+        let span = spawner_function.sig.span();
+        let error = Error::new(span, "`spawner: Spawner` function argument missing");
+        return error.to_compile_error().into();
+    } else if param_count == 2 && !attrs.peripherals {
+        let span = proc_macro2::Span::call_site();
+        let mut error = Error::new(span, "`peripherals` macro parameter missing here ...");
+
+        error.combine(Error::new(
+            spawner_function.sig.inputs.span(),
+            "... because this function has a second parameter",
+        ));
+
+        return error.to_compile_error().into();
     }
 
     let riot_rs_crate = utils::riot_rs_crate();
