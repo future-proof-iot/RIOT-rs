@@ -588,7 +588,8 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                                     writeln!(
                                         self.log,
                                         "Peer indicates use of the one preconfigured key"
-                                    ).unwrap();
+                                    )
+                                    .unwrap();
 
                                     use hexlit::hex;
                                     const CRED_I: &[u8] = &hex!("A2027734322D35302D33312D46462D45462D33372D33322D333908A101A5010202412B2001215820AC75E9ECE3E50BFC8ED60399889522405C47BF16DF96660A41298CB4307F7EB62258206E5DE611388A4B8A8211334AC7D37ECB52A387D257E6DB3C2A93DF21FF3AFFC8");
