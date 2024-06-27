@@ -3,7 +3,7 @@ apps:
     env:
       global:
         CARGO_ENV:
-          - CONFIG_ISR_STACKSIZE=16384
+          - CONFIG_ISR_STACKSIZE=32768
     selects:
       - ?release
       - network

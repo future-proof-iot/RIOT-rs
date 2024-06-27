@@ -162,6 +162,9 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     let spawner = Spawner::for_current_executor().await;
 
+    #[cfg(feature = "net")]
+    let stack_lock = network::STACK_LOCK.lock().await;
+
     for task in EMBASSY_TASKS {
         task(spawner, &mut peripherals);
     }
@@ -272,6 +275,9 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
             unreachable!();
         }
     }
+
+    #[cfg(feature = "net")]
+    drop(stack_lock);
 
     #[cfg(feature = "wifi-cyw43")]
     {
