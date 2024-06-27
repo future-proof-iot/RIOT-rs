@@ -18,3 +18,4 @@ subdirs:
   - random
   - threading
   - threading-channel
+  - usb-serial

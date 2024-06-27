@@ -1,0 +1,5 @@
+apps:
+  - name: usb-serial
+    selects:
+      - hw/usb-device-port
+      - ?release
