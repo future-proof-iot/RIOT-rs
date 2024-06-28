@@ -3,3 +3,4 @@ apps:
     selects:
       - ?release
       - network
+      - executor-thread
