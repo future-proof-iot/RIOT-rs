@@ -8,7 +8,7 @@ See the [defmt documentation] for general info on `defmt`.
 Example:
 
 ```shell
-# DEFMT_LOG=info laze -C examples/hello-world-async --board nrf52840dk --select defmt run
+# DEFMT_LOG=info laze build -C examples/hello-world-async --builders nrf52840dk --select defmt run
 ```
 
 Then within Rust code, import `riot_rs::debug::log` items, then use `defmt` log
