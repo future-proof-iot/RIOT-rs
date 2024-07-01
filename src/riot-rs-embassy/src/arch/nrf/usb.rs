@@ -7,8 +7,6 @@ use embassy_nrf::{
     },
 };
 
-use crate::arch;
-
 #[cfg(context = "nrf52")]
 bind_interrupts!(struct Irqs {
     USBD => usb::InterruptHandler<peripherals::USBD>;
@@ -23,7 +21,8 @@ bind_interrupts!(struct Irqs {
 
 pub type UsbDriver = Driver<'static, peripherals::USBD, HardwareVbusDetect>;
 
-pub fn driver(peripherals: &mut arch::OptionalPeripherals) -> UsbDriver {
-    let usbd = peripherals.USBD.take().unwrap();
-    Driver::new(usbd, Irqs, HardwareVbusDetect::new(Irqs))
+crate::define_peripherals!(Peripherals { usbd: USBD });
+
+pub fn driver(peripherals: Peripherals) -> UsbDriver {
+    Driver::new(peripherals.usbd, Irqs, HardwareVbusDetect::new(Irqs))
 }

@@ -3,8 +3,6 @@ use embassy_usb::driver::{
     EndpointIn, EndpointInfo, EndpointOut, EndpointType, Event, Unsupported,
 };
 
-use crate::arch;
-
 pub struct UsbDriver;
 
 impl<'a> Driver<'a> for UsbDriver {
@@ -34,7 +32,9 @@ impl<'a> Driver<'a> for UsbDriver {
     }
 }
 
-pub fn driver(_peripherals: &mut arch::OptionalPeripherals) -> UsbDriver {
+crate::define_peripherals!(Peripherals {});
+
+pub fn driver(_peripherals: Peripherals) -> UsbDriver {
     unimplemented!();
 }
 

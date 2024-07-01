@@ -143,12 +143,22 @@ fn init() {
 
 #[embassy_executor::task]
 async fn init_task(mut peripherals: arch::OptionalPeripherals) {
+    use crate::define_peripherals::TakePeripherals;
+
     println!("riot-rs-embassy::init_task()");
 
     #[cfg(feature = "hwrng")]
     arch::hwrng::construct_rng(&mut peripherals);
     // Clock startup and entropy collection may lend themselves to parallelization, provided that
     // doesn't impact runtime RAM or flash use.
+
+    // Move out the peripherals required for drivers, so that tasks cannot mistakenly take them.
+    #[cfg(feature = "usb")]
+    let usb_peripherals: arch::usb::Peripherals = (&mut peripherals).take_peripherals();
+    #[cfg(feature = "wifi-cyw43")]
+    let wifi_cyw43_peripherals: wifi::cyw43::Peripherals = (&mut peripherals).take_peripherals();
+    #[cfg(feature = "wifi-esp")]
+    let esp_wifi_peripherals: wifi::esp_wifi::Peripherals = (&mut peripherals).take_peripherals();
 
     #[cfg(all(context = "nrf", feature = "usb"))]
     {
@@ -162,6 +172,8 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     let spawner = Spawner::for_current_executor().await;
 
+    // Tasks have to be started before driver initializations so that the tasks are able to
+    // configure the drivers using hooks.
     for task in EMBASSY_TASKS {
         task(spawner, &mut peripherals);
     }
@@ -170,7 +182,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     let mut usb_builder = {
         let usb_config = usb::config();
 
-        let usb_driver = arch::usb::driver(&mut peripherals);
+        let usb_driver = arch::usb::driver(usb_peripherals);
 
         // Create embassy-usb DeviceBuilder using the driver and config.
         let builder = usb::UsbBuilder::new(
@@ -226,13 +238,10 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     }
 
     #[cfg(feature = "wifi-cyw43")]
-    let (device, control) = {
-        let (net_device, control) = wifi::cyw43::device(&mut peripherals, &spawner).await;
-        (net_device, control)
-    };
+    let (device, control) = wifi::cyw43::init(wifi_cyw43_peripherals, &spawner).await;
 
     #[cfg(feature = "wifi-esp")]
-    let device = wifi::esp_wifi::init(&mut peripherals, spawner);
+    let device = wifi::esp_wifi::init(esp_wifi_peripherals, spawner);
 
     #[cfg(feature = "net")]
     {

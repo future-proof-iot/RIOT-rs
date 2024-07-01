@@ -1,9 +1,11 @@
-use esp_wifi::{wifi::WifiStaDevice, EspWifiInitialization};
+use esp_hal::peripherals;
+use esp_wifi::{
+    wifi::{WifiController, WifiDevice, WifiStaDevice},
+    EspWifiInitialization,
+};
 use once_cell::sync::OnceCell;
 
-use crate::{arch::OptionalPeripherals, Spawner};
-
-use esp_wifi::wifi::{WifiController, WifiDevice};
+use crate::Spawner;
 
 pub type NetworkDevice = WifiDevice<'static, WifiStaDevice>;
 
@@ -14,8 +16,10 @@ pub type NetworkDevice = WifiDevice<'static, WifiStaDevice>;
 // sure.
 pub static WIFI_INIT: OnceCell<EspWifiInitialization> = OnceCell::new();
 
-pub fn init(peripherals: &mut OptionalPeripherals, spawner: Spawner) -> NetworkDevice {
-    let wifi = peripherals.WIFI.take().unwrap();
+crate::define_peripherals!(Peripherals { wifi: WIFI });
+
+pub fn init(peripherals: Peripherals, spawner: Spawner) -> NetworkDevice {
+    let wifi = peripherals.wifi;
     let init = WIFI_INIT.get().unwrap();
     let (device, controller) = esp_wifi::wifi::new_with_mode(init, wifi, WifiStaDevice).unwrap();
 
