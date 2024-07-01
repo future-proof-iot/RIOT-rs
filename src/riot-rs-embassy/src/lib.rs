@@ -265,10 +265,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
         spawner.spawn(network::net_task(stack)).unwrap();
 
-        if STACK
-            .lock(|c| c.set(SendCell::new(stack, spawner)))
-            .is_err()
-        {
+        if STACK.init(SendCell::new(stack, spawner)).is_err() {
             unreachable!();
         }
     }

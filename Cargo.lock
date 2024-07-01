@@ -1015,7 +1015,7 @@ name = "embassy"
 version = "0.1.0"
 dependencies = [
  "embassy-executor",
- "embassy-sync 0.5.0",
+ "embassy-sync 0.6.0",
  "embassy-time",
  "riot-rs",
  "riot-rs-boards",
@@ -1091,7 +1091,7 @@ dependencies = [
  "embassy-executor",
  "embassy-net",
  "embassy-nrf",
- "embassy-sync 0.5.0",
+ "embassy-sync 0.6.0",
  "embassy-time",
  "embedded-io-async",
  "heapless 0.8.0",
@@ -1267,8 +1267,7 @@ dependencies = [
 [[package]]
 name = "embassy-sync"
 version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3e0c49ff02ebe324faf3a8653ba91582e2d0a7fdef5bc88f449d5aa1bfcc05c"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-240605#584940fc7ea02fe184f3ae346ecaa3d00008c95e"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -1340,7 +1339,7 @@ version = "0.1.0"
 dependencies = [
  "embassy-executor",
  "embassy-nrf",
- "embassy-sync 0.5.0",
+ "embassy-sync 0.6.0",
  "embassy-time",
  "embassy-usb",
  "riot-rs",
@@ -3420,7 +3419,7 @@ dependencies = [
  "embassy-net-driver-channel",
  "embassy-nrf",
  "embassy-rp",
- "embassy-sync 0.5.0",
+ "embassy-sync 0.6.0",
  "embassy-time",
  "embassy-usb",
  "esp-hal",
@@ -3457,7 +3456,7 @@ dependencies = [
 name = "riot-rs-random"
 version = "0.1.0"
 dependencies = [
- "embassy-sync 0.5.0",
+ "embassy-sync 0.6.0",
  "rand_chacha",
  "rand_core",
  "rand_pcg",
