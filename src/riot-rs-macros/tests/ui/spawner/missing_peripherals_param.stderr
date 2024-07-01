@@ -1,7 +1,13 @@
-error: custom attribute panicked
+error: `peripherals` macro parameter missing here ...
   --> tests/ui/spawner/missing_peripherals_param.rs:10:1
    |
 10 | #[riot_rs::spawner(autostart)]
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
-   = help: message: to provide this function with peripherals, use the `peripherals` macro parameter
+   = note: this error originates in the attribute macro `riot_rs::spawner` (in Nightly builds, run with -Z macro-backtrace for more info)
+
+error: ... because this function has a second parameter
+  --> tests/ui/spawner/missing_peripherals_param.rs:11:9
+   |
+11 | fn main(_spawner: Spawner, _peripherals: Peripherals) {}
+   |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
