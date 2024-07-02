@@ -6,13 +6,13 @@ pub mod peripheral {
 
 use esp_hal::{clock::ClockControl, system::SystemControl, timer::timg::TimerGroup};
 
-pub use esp_hal::peripherals::{OptionalPeripherals, Peripherals};
+pub use esp_hal::peripherals::{self, OptionalPeripherals};
 
 #[cfg(feature = "executor-single-thread")]
 pub use esp_hal_embassy::Executor;
 
 pub fn init() -> OptionalPeripherals {
-    let mut peripherals = OptionalPeripherals::from(Peripherals::take());
+    let mut peripherals = OptionalPeripherals::from(peripherals::Peripherals::take());
     let system = SystemControl::new(peripherals.SYSTEM.take().unwrap());
     let clocks = ClockControl::max(system.clock_control).freeze();
 

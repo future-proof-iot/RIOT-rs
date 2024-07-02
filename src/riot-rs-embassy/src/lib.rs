@@ -148,6 +148,12 @@ fn init() {
 async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     println!("riot-rs-embassy::init_task()");
 
+    #[cfg(context = "esp")]
+    let _pins = esp_hal::gpio::Io::new(
+        peripherals.GPIO.take().unwrap(),
+        peripherals.IO_MUX.take().unwrap(),
+    );
+
     #[cfg(feature = "hwrng")]
     arch::hwrng::construct_rng(&mut peripherals);
     // Clock startup and entropy collection may lend themselves to parallelization, provided that
