@@ -8,12 +8,9 @@ use core::fmt::Write;
 // If this exceeds 47, COwn will need to be extended.
 const MAX_CONTEXTS: usize = 4;
 
-// On the long run, we'll probably provide an own implementation based on crypto primitive
-// implementations that work well for us.
-type LakersCrypto = lakers_crypto_rustcrypto::Crypto<riot_rs::random::CryptoRng>;
-
 /// A pool of security contexts shareable by several users inside a thread.
-pub type SecContextPool = crate::oluru::OrderedPool<SecContextState, MAX_CONTEXTS, LEVEL_COUNT>;
+pub type SecContextPool<Crypto> =
+    crate::oluru::OrderedPool<SecContextState<Crypto>, MAX_CONTEXTS, LEVEL_COUNT>;
 
 /// An own identifier for a security context
 ///
@@ -114,14 +111,14 @@ impl AifStaticRest {
 }
 
 #[derive(Debug)]
-struct SecContextState {
+struct SecContextState<Crypto: lakers::Crypto> {
     // FIXME: Should also include timeout. How do? Store expiry, do raytime in not-even-RTC mode,
     // and whenever there is a new time stamp from AS, remove old ones?
     authorization: AifStaticRest,
-    protocol_stage: SecContextStage,
+    protocol_stage: SecContextStage<Crypto>,
 }
 
-impl Default for SecContextState {
+impl<Crypto: lakers::Crypto> Default for SecContextState<Crypto> {
     fn default() -> Self {
         Self {
             authorization: AifStaticRest {
@@ -133,7 +130,7 @@ impl Default for SecContextState {
 }
 
 #[derive(Debug)]
-enum SecContextStage {
+enum SecContextStage<Crypto: lakers::Crypto> {
     Empty,
 
     // if we have time to spare, we can have empty-but-prepared-with-single-use-random-key entries
@@ -148,7 +145,7 @@ enum SecContextStage {
     // to just do it, to store the message in the handler's `RequestData`, or to have one or a few
     // slots in parallel to this in the [`SecContextPool`].
     EdhocResponderProcessedM1 {
-        responder: lakers::EdhocResponderProcessedM1<'static, LakersCrypto>,
+        responder: lakers::EdhocResponderProcessedM1<'static, Crypto>,
         // May be removed if lakers keeps access to those around if they are set at this point at
         // all
         c_r: COwn,
@@ -156,7 +153,7 @@ enum SecContextStage {
     },
     //
     EdhocResponderSentM2 {
-        responder: lakers::EdhocResponderWaitM3<LakersCrypto>,
+        responder: lakers::EdhocResponderWaitM3<Crypto>,
         c_r: COwn,
         c_i: lakers::ConnId,
     },
@@ -165,7 +162,7 @@ enum SecContextStage {
     Oscore(liboscore::PrimitiveContext),
 }
 
-impl core::fmt::Display for SecContextState {
+impl<Crypto: lakers::Crypto> core::fmt::Display for SecContextState<Crypto> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
         use SecContextStage::*;
         match &self.protocol_stage {
@@ -193,7 +190,7 @@ const LEVEL_ONGOING: usize = 2;
 const LEVEL_EMPTY: usize = 3;
 const LEVEL_COUNT: usize = 4;
 
-impl crate::oluru::PriorityLevel for SecContextState {
+impl<Crypto: lakers::Crypto> crate::oluru::PriorityLevel for SecContextState<Crypto> {
     fn level(&self) -> usize {
         match &self.protocol_stage {
             SecContextStage::Empty => LEVEL_EMPTY,
@@ -218,7 +215,7 @@ impl crate::oluru::PriorityLevel for SecContextState {
     }
 }
 
-impl SecContextState {
+impl<Crypto: lakers::Crypto> SecContextState<Crypto> {
     fn corresponding_cown(&self) -> Option<COwn> {
         match &self.protocol_stage {
             SecContextStage::Empty => None,
@@ -236,11 +233,11 @@ impl SecContextState {
 /// While the EDHOC part could be implemented as a handler that is to be added into the tree, the
 /// OSCORE part needs to wrap the inner handler anyway, and EDHOC and OSCORE are intertwined rather
 /// strongly in processing the EDHOC option.
-pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler, L: Write> {
+pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> {
     // It'd be tempted to have sharing among multiple handlers for multiple CoAP stacks, but
     // locks for such sharing could still be acquired in a factory (at which point it may make
     // sense to make this a &mut).
-    pool: SecContextPool,
+    pool: SecContextPool<Crypto>,
     // FIXME: That 'static is going to bite us -- but EdhocResponderProcessedM1 holds a reference
     // to it -- see SecContextStage::EdhocResponderProcessedM1
     own_identity: (&'a lakers::CredentialRPK, &'static [u8]),
@@ -257,17 +254,27 @@ pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler, L: Write> {
     inner: H,
 
     log: L,
+
+    crypto_factory: fn() -> Crypto,
 }
 
-impl<'a, H: coap_handler::Handler, L: Write> OscoreEdhocHandler<'a, H, L> {
+impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto>
+    OscoreEdhocHandler<'a, H, L, Crypto>
+{
     // FIXME: Apart from an own identity, this will also need a function to convert ID_CRED_I into
     // a (CRED_I, AifStaticRest) pair.
-    pub fn new(own_identity: (&'a lakers::CredentialRPK, &'static [u8]), inner: H, log: L) -> Self {
+    pub fn new(
+        own_identity: (&'a lakers::CredentialRPK, &'static [u8]),
+        inner: H,
+        log: L,
+        crypto_factory: fn() -> Crypto,
+    ) -> Self {
         Self {
             pool: Default::default(),
             own_identity,
             inner,
             log,
+            crypto_factory,
         }
     }
 
@@ -358,8 +365,8 @@ impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrI
     }
 }
 
-impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
-    for OscoreEdhocHandler<'a, H, L>
+impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handler::Handler
+    for OscoreEdhocHandler<'a, H, L, Crypto>
 {
     type RequestData = OrInner<
         EdhocResponse<Result<H::RequestData, H::ExtractRequestError>>,
@@ -464,7 +471,7 @@ impl<'a, H: coap_handler::Handler, L: Write> coap_handler::Handler
                             .map_err(too_small)?;
 
                     let (responder, c_i, ead_1) = lakers::EdhocResponder::new(
-                        lakers_crypto_rustcrypto::Crypto::new(riot_rs::random::crypto_rng()),
+                        (self.crypto_factory)(),
                         &self.own_identity.1,
                         self.own_identity.0.clone(),
                     )

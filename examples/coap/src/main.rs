@@ -101,7 +101,9 @@ where
         )
         .with_wkc();
 
-    let mut handler = seccontext::OscoreEdhocHandler::new(own_identity, handler, stdout);
+    let mut handler = seccontext::OscoreEdhocHandler::new(own_identity, handler, stdout, || {
+        lakers_crypto_rustcrypto::Crypto::new(riot_rs::random::crypto_rng())
+    });
 
     println!("Server is ready.");
 

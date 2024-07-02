@@ -30,6 +30,3 @@ liboscore-msgbackend = { git = "https://gitlab.com/oscore/liboscore/", features 
 ], rev = "e7a4ecd037cbb9c7f085047fec5896f4bdc68d50" }
 minicbor = "0.23.0"
 heapless = "0.8.0"
-
-# to be removed
-riot-rs.path = "../../riot-rs"

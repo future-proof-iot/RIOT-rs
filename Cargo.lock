@@ -458,6 +458,7 @@ dependencies = [
  "heapless 0.8.0",
  "hexlit",
  "lakers",
+ "lakers-crypto-rustcrypto",
  "riot-rs",
  "riot-rs-boards",
  "scroll-ring",
@@ -604,7 +605,6 @@ dependencies = [
  "liboscore",
  "liboscore-msgbackend",
  "minicbor 0.23.0",
- "riot-rs",
 ]
 
 [[package]]
