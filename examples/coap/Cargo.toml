@@ -18,6 +18,8 @@ riot-rs = { path = "../../src/riot-rs", features = [
 ] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 
+coapcore.path = "../../src/lib/coapcore/"
+
 # for the udp_nal mod
 embedded-nal-async = "0.7"
 # actually patched with https://github.com/smoltcp-rs/smoltcp/pull/904 but
@@ -32,19 +34,10 @@ coap-request-implementations = "0.1.0-alpha.4"
 lakers = { version = "0.6.0", default-features = false }
 lakers-crypto-rustcrypto = "0.6.0"
 coap-handler = "0.2.0"
-coap-message-utils = "0.3.3"
 coap-handler-implementations = "0.5.0"
 hexlit = "0.5.5"
-coap-numbers = "0.2.3"
-minicbor = "0.23.0"
 
-liboscore = { git = "https://gitlab.com/oscore/liboscore/", rev = "e7a4ecd037cbb9c7f085047fec5896f4bdc68d50" }
-liboscore-msgbackend = { git = "https://gitlab.com/oscore/liboscore/", features = [
-  "alloc",
-], rev = "e7a4ecd037cbb9c7f085047fec5896f4bdc68d50" }
-coap-message-implementations = { version = "0.1.2", features = ["downcast"] }
 static-alloc = "0.2.5"
-arrayvec = { version = "0.7.4", default-features = false }
 coap-scroll-ring-server = "0.2.0"
 scroll-ring = "0.1.1"
 
