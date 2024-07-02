@@ -143,6 +143,7 @@ fn init() {
 
 #[embassy_executor::task]
 async fn init_task(mut peripherals: arch::OptionalPeripherals) {
+    #[allow(unused_imports)]
     use crate::define_peripherals::TakePeripherals;
 
     println!("riot-rs-embassy::init_task()");
