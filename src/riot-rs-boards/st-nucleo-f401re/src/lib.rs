@@ -1,0 +1,5 @@
+#![no_std]
+
+pub fn init() {
+    riot_rs_debug::println!("boards::st-nucleo-f401re::init()");
+}

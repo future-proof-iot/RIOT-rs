@@ -1,5 +1,6 @@
 [default.extend-words]
 hax = "hax"
+hsi = "hsi"
 
 [default.extend-identifiers]
 celcius = "celcius" # Until embedded-aht20 is fixed

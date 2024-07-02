@@ -42,12 +42,17 @@ contexts:
         -serial mon:stdio
         -semihosting-config enable=on,target=native
         -kernel
+      PROBE_RS_PROTOCOL: swd
 
     var_options:
       # this turns ${FEATURES} from a list to "--features=feature1,feature2"
       FEATURES:
         start: --features=
         joiner: ","
+
+      # this prefixes `--protocol=` to `PROBE_RS_PROTOCOL`
+      PROBE_RS_PROTOCOL:
+        start: --protocol=
 
     rules:
       - name: LINK
@@ -294,6 +299,55 @@ contexts:
       RUSTC_TARGET: riscv32imac-unknown-none-elf
       CARGO_TARGET_PREFIX: CARGO_TARGET_RISCV32IMAC_UNKNOWN_NONE_ELF
 
+  - name: stm32
+    help: STM32 support (based on embassy-stm32)
+    parent: riot-rs
+    selects:
+      - ?probe-rs
+    env:
+      OPENOCD_ARGS: foo
+      RUSTFLAGS:
+        - --cfg context=\"stm32\"
+
+  - name: stm32f401retx
+    parent: stm32
+    selects:
+      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+    env:
+      PROBE_RS_CHIP: STM32F401RETx
+      PROBE_RS_PROTOCOL: swd
+      RUSTFLAGS:
+        - --cfg context=\"stm32f401retx\"
+      CARGO_ENV:
+        # This ISR is unused on a naked board. Configured here for testing.
+        - CONFIG_SWI=USART2
+
+  - name: stm32wb55rgvx
+    parent: stm32
+    selects:
+      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+    env:
+      PROBE_RS_CHIP: STM32WB55RGVx
+      PROBE_RS_PROTOCOL: swd
+      RUSTFLAGS:
+        - --cfg context=\"stm32wb55rgvx\"
+      CARGO_ENV:
+        # This ISR is unused on a naked board. Configured here for testing.
+        - CONFIG_SWI=LPUART1
+
+  - name: stm32h755zitx
+    parent: stm32
+    selects:
+      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+    env:
+      PROBE_RS_CHIP: STM32H755ZITx
+      PROBE_RS_PROTOCOL: swd
+      RUSTFLAGS:
+        - --cfg context=\"stm32h755zitx\"
+      CARGO_ENV:
+        # This ISR is unused on a naked board. Configured here for testing.
+        - CONFIG_SWI=UART5
+
 modules:
   - name: cortex-m
     env:
@@ -485,7 +539,7 @@ modules:
       - ?debug-console
     env:
       global:
-        CARGO_RUNNER: "'probe-rs run --chip ${PROBE_RS_CHIP}'"
+        CARGO_RUNNER: "'probe-rs run ${PROBE_RS_PROTOCOL} --chip ${PROBE_RS_CHIP}'"
 
   - name: probe-rs-run
     help: "deprecated alias for `probe-rs`"
@@ -528,6 +582,8 @@ modules:
       - rpi-pico
       - rpi-pico-w
       - particle-xenon
+      - st-nucleo-h755zi-q
+      - st-nucleo-wb55
     env:
       global:
         RUSTFLAGS:
@@ -713,6 +769,15 @@ builders:
 
   - name: nrf5340dk
     parent: nrf5340
+
+  - name: st-nucleo-f401re
+    parent: stm32f401retx
+
+  - name: st-nucleo-h755zi-q
+    parent: stm32h755zitx
+
+  - name: st-nucleo-wb55
+    parent: stm32wb55rgvx
 
 apps:
   # define a dummy host application so the host tasks work

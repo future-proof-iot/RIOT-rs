@@ -41,6 +41,7 @@ cyw43-pio = { version = "0.1.0", features = ["overclock"], optional = true }
 
 # listed here for conditional feature selection
 embassy-nrf = { workspace = true, default-features = false, optional = true }
+embassy-stm32 = { workspace = true, default-features = false, optional = true }
 esp-hal = { workspace = true, default-features = false, optional = true }
 esp-hal-embassy = { workspace = true, default-features = false, optional = true }
 esp-wifi = { workspace = true, optional = true }
@@ -104,6 +105,13 @@ esp-wifi = { workspace = true, default-features = false, features = [
   "esp32c6",
 ], optional = true }
 
+[target.'cfg(context = "stm32")'.dependencies]
+embassy-stm32 = { workspace = true, features = [
+  "rt",
+  "time-driver-any",
+  "unstable-pac",
+] }
+
 [features]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
 usb = ["dep:embassy-usb"]
@@ -138,7 +146,13 @@ executor-none = []
 defmt = [
   "embassy-net?/defmt",
   "embassy-nrf?/defmt",
+  "embassy-stm32?/defmt",
   "embassy-time?/defmt",
   "embassy-usb?/defmt",
   "esp-wifi?/defmt",
 ]
+
+# These are chosen automatically by riot-rs-boards and select the correct stm32
+# usb peripheral support.
+stm32-usb = []
+stm32-usb-synopsis = []
