@@ -440,17 +440,14 @@ dependencies = [
 name = "coap"
 version = "0.1.0"
 dependencies = [
- "arrayvec",
  "coap-handler",
  "coap-handler-implementations",
  "coap-message",
  "coap-message-demos",
- "coap-message-implementations",
- "coap-message-utils",
- "coap-numbers",
  "coap-request",
  "coap-request-implementations",
  "coap-scroll-ring-server",
+ "coapcore",
  "embassy-executor",
  "embassy-futures",
  "embassy-net",
@@ -461,10 +458,6 @@ dependencies = [
  "heapless 0.8.0",
  "hexlit",
  "lakers",
- "lakers-crypto-rustcrypto",
- "liboscore",
- "liboscore-msgbackend",
- "minicbor 0.23.0",
  "riot-rs",
  "riot-rs-boards",
  "scroll-ring",
@@ -592,6 +585,26 @@ dependencies = [
  "coap-message-utils",
  "coap-numbers",
  "scroll-ring",
+]
+
+[[package]]
+name = "coapcore"
+version = "0.0.1"
+dependencies = [
+ "arrayvec",
+ "coap-handler",
+ "coap-message",
+ "coap-message-implementations",
+ "coap-message-utils",
+ "coap-numbers",
+ "heapless 0.8.0",
+ "hexlit",
+ "lakers",
+ "lakers-crypto-rustcrypto",
+ "liboscore",
+ "liboscore-msgbackend",
+ "minicbor 0.23.0",
+ "riot-rs",
 ]
 
 [[package]]

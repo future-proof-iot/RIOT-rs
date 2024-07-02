@@ -5,12 +5,6 @@ use coap_message::{
 use coap_message_utils::{Error as CoAPError, OptionsExt as _};
 use core::fmt::Write;
 
-extern crate alloc;
-use static_alloc::Bump;
-
-#[global_allocator]
-static A: Bump<[u8; 1 << 16]> = Bump::uninit();
-
 // If this exceeds 47, COwn will need to be extended.
 const MAX_CONTEXTS: usize = 4;
 
