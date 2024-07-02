@@ -1,13 +1,12 @@
 [package]
 name = "coapcore"
 version = "0.0.1"
-edition = "2021"
+edition.workspace = true
 
 license = "MIT OR Apache-2.0"
 keywords = ["coap", "iot", "edhoc", "oscore"]
 categories = ["no-std"]
-homepage = "https://github.com/future-proof-iot/RIOT-rs"
-repository = "https://github.com/future-proof-iot/RIOT-rs"
+repository.workspace = true
 
 description = "A CoAP stack for embedded devices with built-in OSCORE/EDHOC support"
 
