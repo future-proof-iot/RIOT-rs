@@ -615,7 +615,8 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                                 self.log,
                                 "Got credential by value: {:?}..",
                                 &id_cred_i.value.get_slice(0, 5)
-                            );
+                            )
+                            .unwrap();
 
                             cred_i = lakers::CredentialRPK::new(id_cred_i.value)
                                 // FIXME What kind of error do we send here?

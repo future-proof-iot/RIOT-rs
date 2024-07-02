@@ -94,7 +94,7 @@ where
         R,
         );
 
-    let mut handler = coap_message_demos::full_application_tree(log)
+    let handler = coap_message_demos::full_application_tree(log)
         .at(
             &["stdout"],
             coap_scroll_ring_server::BufferHandler::new(&buffer),
