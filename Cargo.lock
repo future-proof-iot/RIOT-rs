@@ -449,7 +449,6 @@ dependencies = [
  "coap-scroll-ring-server",
  "coapcore",
  "embassy-executor",
- "embassy-futures",
  "embassy-net",
  "embassy-time",
  "embedded-io-async",
@@ -598,6 +597,9 @@ dependencies = [
  "coap-message-implementations",
  "coap-message-utils",
  "coap-numbers",
+ "embassy-futures",
+ "embedded-nal-async",
+ "embedded-nal-coap",
  "heapless 0.8.0",
  "hexlit",
  "lakers",
@@ -605,6 +607,7 @@ dependencies = [
  "liboscore",
  "liboscore-msgbackend",
  "minicbor 0.23.0",
+ "rand_core",
 ]
 
 [[package]]

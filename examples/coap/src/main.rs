@@ -107,57 +107,48 @@ where
 
     println!("Server is ready.");
 
-    let coap = embedded_nal_coap::CoAPShared::<3>::new();
-    let (client, server) = coap.split();
-
-    // going with an embassy_futures join instead of an async_std::task::spawn b/c CoAPShared is not
-    // Sync, and async_std expects to work in multiple threads
-    embassy_futures::join::join(
-        async {
-            server
-                .run(&mut sock, &mut handler, &mut riot_rs::random::fast_rng())
-                .await
-                .expect("UDP error")
-        },
-        run_client_operations(client),
-    )
-    .await;
+    // FIXME: We may want to have a very slim wrapper around this for riot-rs that provides our RNG
+    // … or maybe less slim and it handles the sock creation as well.
+    let mut rng = riot_rs::random::fast_rng();
+    coapcore::coap_task(&mut sock, &mut handler, &mut rng, Client).await;
 }
 
-/// In parallel to server operation, this function performs some operations as a client.
-///
-/// This doubles as an experimentation ground for the client side of embedded_nal_coap and
-/// coap-request in general.
-async fn run_client_operations<const N: usize>(
-    client: embedded_nal_coap::CoAPRuntimeClient<'_, N>,
-) {
-    // shame
-    let demoserver = "10.42.0.1:1234".parse().unwrap();
+struct Client;
 
-    use coap_request::Stack;
-    println!("Sending GET to {}...", demoserver);
-    let response = client
-        .to(demoserver)
-        .request(
-            coap_request_implementations::Code::get()
-                .with_path("/other/separate")
+impl coapcore::ClientRunner<3> for Client {
+    /// In parallel to server operation, this function performs some operations as a client.
+    ///
+    /// This doubles as an experimentation ground for the client side of embedded_nal_coap and
+    /// coap-request in general.
+    async fn run(self, client: embedded_nal_coap::CoAPRuntimeClient<'_, 3>) {
+        // shame
+        let demoserver = "10.42.0.1:1234".parse().unwrap();
+
+        use coap_request::Stack;
+        println!("Sending GET to {}...", demoserver);
+        let response = client
+            .to(demoserver)
+            .request(
+                coap_request_implementations::Code::get()
+                    .with_path("/other/separate")
+                    .processing_response_payload_through(|p| {
+                        println!("Got payload {:?}", p);
+                    }),
+            )
+            .await;
+        println!("Response {:?}", response);
+
+        let req = coap_request_implementations::Code::post().with_path("/uppercase");
+
+        println!("Sending POST...");
+        let mut response = client.to(demoserver);
+        let response = response.request(
+            req.with_request_payload_slice(b"Set time to 1955-11-05")
                 .processing_response_payload_through(|p| {
-                    println!("Got payload {:?}", p);
+                    println!("Uppercase is {}", core::str::from_utf8(p).unwrap())
                 }),
-        )
-        .await;
-    println!("Response {:?}", response);
-
-    let req = coap_request_implementations::Code::post().with_path("/uppercase");
-
-    println!("Sending POST...");
-    let mut response = client.to(demoserver);
-    let response = response.request(
-        req.with_request_payload_slice(b"Set time to 1955-11-05")
-            .processing_response_payload_through(|p| {
-                println!("Uppercase is {}", core::str::from_utf8(p).unwrap())
-            }),
-    );
-    let response = response.await;
-    println!("Response {:?}", response);
+        );
+        let response = response.await;
+        println!("Response {:?}", response);
+    }
 }

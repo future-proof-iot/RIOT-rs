@@ -14,7 +14,14 @@ description = "A CoAP stack for embedded devices with built-in OSCORE/EDHOC supp
 # public
 coap-handler = "0.2.0"
 coap-message = "0.3.2"
+# public because we take a credential
 lakers = { version = "0.6.0", default-features = false }
+# public because the callback provides a type from there
+embedded-nal-coap = "0.1.0-alpha.2"
+# public because we take a socket
+embedded-nal-async = "0.7"
+# public because we take a RngCor
+rand_core = "0.6.4"
 
 # private
 arrayvec = { version = "0.7.4", default-features = false }
@@ -29,3 +36,4 @@ liboscore-msgbackend = { git = "https://gitlab.com/oscore/liboscore/", features 
 ], rev = "e7a4ecd037cbb9c7f085047fec5896f4bdc68d50" }
 minicbor = "0.23.0"
 heapless = "0.8.0"
+embassy-futures = "0.1.1"
