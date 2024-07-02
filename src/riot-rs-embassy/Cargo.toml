@@ -11,6 +11,7 @@ critical-section.workspace = true
 linkme.workspace = true
 static_cell.workspace = true
 cfg-if.workspace = true
+portable-atomic.workspace = true
 
 embassy-executor = { workspace = true, features = ["nightly"] }
 
@@ -22,6 +23,9 @@ embassy-net-driver-channel = { workspace = true, optional = true }
 embassy-sync = { workspace = true }
 embassy-time = { workspace = true, optional = true }
 embassy-usb = { workspace = true, optional = true }
+
+embedded-hal = { workspace = true }
+embedded-hal-async = { workspace = true }
 
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-debug = { workspace = true }
@@ -52,6 +56,7 @@ embassy-executor = { workspace = true, default-features = false, features = [
 
 [target.'cfg(context = "nrf")'.dependencies]
 embassy-nrf = { workspace = true, features = [
+  "gpiote", # FIXME: is it ok to always enable GPIOTE?
   "time-driver-rtc1",
   "time",
   "unstable-pac",
@@ -76,7 +81,7 @@ embassy-rp = { workspace = true, features = [
 ] }
 
 [target.'cfg(context = "esp")'.dependencies]
-esp-hal = { workspace = true, features = [] }
+esp-hal = { workspace = true, features = ["async", "embedded-hal"] }
 esp-hal-embassy = { workspace = true, default-features = false, features = [
   "time-timg0",
 ] }

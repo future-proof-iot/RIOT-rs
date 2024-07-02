@@ -1,5 +1,9 @@
 pub mod gpio;
 
+pub mod peripheral {
+    pub use embassy_nrf::Peripheral;
+}
+
 #[cfg(feature = "hwrng")]
 pub mod hwrng;
 

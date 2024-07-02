@@ -5,6 +5,7 @@ defaults:
 
 subdirs:
   - benchmark
+  - blinky
   - core-sizes
   - coap
   - embassy

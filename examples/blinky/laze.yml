@@ -1,0 +1,8 @@
+apps:
+  - name: blinky
+    env:
+      global:
+        CARGO_ENV:
+          - CONFIG_ISR_STACKSIZE=16384
+    selects:
+      - ?release
