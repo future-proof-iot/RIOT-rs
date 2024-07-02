@@ -1,0 +1,15 @@
+[package]
+name = "usb-serial"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+publish = false
+
+[dependencies]
+embassy-executor = { workspace = true, default-features = false }
+embassy-time = { workspace = true, default-features = false }
+riot-rs = { path = "../../src/riot-rs", features = [
+  "usb",
+  "override-usb-config",
+] }
+riot-rs-boards = { path = "../../src/riot-rs-boards" }
