@@ -47,8 +47,8 @@ pub trait PriorityLevel {
 ///
 /// # Usage
 ///
-/// ```ignore
-/// use crate::oluru::{OrderedPool, PriorityLevel};
+/// ```
+/// use coapcore::oluru::{OrderedPool, PriorityLevel};
 ///
 /// #[derive(Debug)]
 /// struct MyValue {
