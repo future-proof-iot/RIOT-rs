@@ -76,7 +76,7 @@ impl<'a> ConnectedUdp<'a> {
     /// unconnected.
     pub async fn connect(socket: udp::UdpSocket<'a>, /*, ... */) -> Result<Self, udp::BindError> {
         // This is really just a copy of the provided `embedded_nal::udp::UdpStack::connect` method
-        todo!()
+        todo!("use {:p}", &socket)
     }
 }
 

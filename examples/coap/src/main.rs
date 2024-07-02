@@ -6,7 +6,6 @@
 use riot_rs::{debug::log::*, network};
 
 use embassy_net::udp::{PacketMetadata, UdpSocket};
-use embedded_nal_coap::TransportError;
 
 // Moving work from https://github.com/embassy-rs/embassy/pull/2519 in here for the time being
 mod udp_nal;
@@ -95,7 +94,7 @@ where
         R,
         );
 
-    let mut handler = coap_message_demos::full_application_tree(log)
+    let handler = coap_message_demos::full_application_tree(log)
         .at(
             &["stdout"],
             coap_scroll_ring_server::BufferHandler::new(&buffer),
