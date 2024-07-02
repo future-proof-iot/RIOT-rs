@@ -4,6 +4,7 @@ members = [
   "src/lib/clist",
   "src/lib/rbi",
   "src/lib/ringbuffer",
+  "src/lib/coapcore",
   "src/riot-rs",
   "src/riot-rs-bench",
   "src/riot-rs-boards",
