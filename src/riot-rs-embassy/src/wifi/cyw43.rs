@@ -9,8 +9,10 @@ use embassy_rp::{
 
 use riot_rs_debug::println;
 
-use self::rpi_pico_w::{Cyw43Periphs, CywSpi, Irqs};
-use crate::{arch::OptionalPeripherals, make_static};
+use self::rpi_pico_w::{CywSpi, Irqs};
+use crate::make_static;
+
+pub use rpi_pico_w::Cyw43Periphs as Peripherals;
 
 pub type NetworkDevice = cyw43::NetDriver<'static>;
 
@@ -34,14 +36,10 @@ async fn wifi_cyw43_task(runner: Runner<'static, Output<'static>, CywSpi>) -> ! 
     runner.run().await
 }
 
-pub async fn device<'a, 'b: 'a>(
-    mut p: &'a mut OptionalPeripherals,
+pub async fn init<'a>(
+    periperals: Peripherals,
     spawner: &crate::Spawner,
-) -> (embassy_net_driver_channel::Device<'b, 1514>, Control<'b>) {
-    use crate::define_peripherals::TakePeripherals;
-
-    let pins: Cyw43Periphs = p.take_peripherals();
-
+) -> (embassy_net_driver_channel::Device<'a, 1514>, Control<'a>) {
     let fw = include_bytes!("cyw43/firmware/43439A0.bin");
     let clm = include_bytes!("cyw43/firmware/43439A0_clm.bin");
 
@@ -52,17 +50,17 @@ pub async fn device<'a, 'b: 'a>(
     //let fw = unsafe { core::slice::from_raw_parts(0x10100000 as *const u8, 230321) };
     //let clm = unsafe { core::slice::from_raw_parts(0x10140000 as *const u8, 4752) };
 
-    let pwr = Output::new(pins.pwr, Level::Low);
-    let cs = Output::new(pins.cs, Level::High);
-    let mut pio = Pio::new(pins.pio, Irqs);
+    let pwr = Output::new(periperals.pwr, Level::Low);
+    let cs = Output::new(periperals.cs, Level::High);
+    let mut pio = Pio::new(periperals.pio, Irqs);
     let spi = CywSpi::new(
         &mut pio.common,
         pio.sm0,
         pio.irq0,
         cs,
-        pins.dio,
-        pins.clk,
-        pins.dma,
+        periperals.dio,
+        periperals.clk,
+        periperals.dma,
     );
 
     let state = make_static!(cyw43::State::new());
