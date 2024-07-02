@@ -36,6 +36,15 @@ riot_rs::define_peripherals!(BlinkyButtonPeripherals {
     btn2: PIN_6,
 });
 
+#[cfg(context = "esp")]
+riot_rs::define_peripherals!(BlinkyPeripherals { led1: Gpio0 });
+
+#[cfg(context = "esp")]
+riot_rs::define_peripherals!(BlinkyButtonPeripherals {
+    led2: Gpio1,
+    btn2: Gpio2,
+});
+
 #[riot_rs::task(autostart, peripherals)]
 async fn blinky(peripherals: BlinkyPeripherals) {
     // All of the following are possible (not all of them are equivalent):

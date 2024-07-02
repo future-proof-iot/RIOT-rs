@@ -4,15 +4,51 @@ pub mod peripheral {
     pub use esp_hal::peripheral::Peripheral;
 }
 
+pub mod peripherals {
+    pub use esp_hal::peripherals::*;
+
+    pub use esp_hal::gpio::Gpio0;
+    pub use esp_hal::gpio::Gpio1;
+    pub use esp_hal::gpio::Gpio2;
+    pub use esp_hal::gpio::Gpio3;
+    pub use esp_hal::gpio::Gpio4;
+    pub use esp_hal::gpio::Gpio5;
+    pub use esp_hal::gpio::Gpio6;
+    pub use esp_hal::gpio::Gpio7;
+    pub use esp_hal::gpio::Gpio8;
+    pub use esp_hal::gpio::Gpio9;
+    pub use esp_hal::gpio::Gpio10;
+    pub use esp_hal::gpio::Gpio11;
+    pub use esp_hal::gpio::Gpio12;
+    pub use esp_hal::gpio::Gpio13;
+    pub use esp_hal::gpio::Gpio14;
+    pub use esp_hal::gpio::Gpio15;
+    pub use esp_hal::gpio::Gpio16;
+    pub use esp_hal::gpio::Gpio17;
+    pub use esp_hal::gpio::Gpio18;
+    pub use esp_hal::gpio::Gpio19;
+    pub use esp_hal::gpio::Gpio20;
+    pub use esp_hal::gpio::Gpio21;
+    pub use esp_hal::gpio::Gpio22;
+    pub use esp_hal::gpio::Gpio23;
+    pub use esp_hal::gpio::Gpio24;
+    pub use esp_hal::gpio::Gpio25;
+    pub use esp_hal::gpio::Gpio26;
+    pub use esp_hal::gpio::Gpio27;
+    pub use esp_hal::gpio::Gpio28;
+    pub use esp_hal::gpio::Gpio29;
+    pub use esp_hal::gpio::Gpio30;
+}
+
 use esp_hal::{clock::ClockControl, system::SystemControl, timer::timg::TimerGroup};
 
-pub use esp_hal::peripherals::{OptionalPeripherals, Peripherals};
+pub use esp_hal::peripherals::OptionalPeripherals;
 
 #[cfg(feature = "executor-single-thread")]
 pub use esp_hal_embassy::Executor;
 
 pub fn init() -> OptionalPeripherals {
-    let mut peripherals = OptionalPeripherals::from(Peripherals::take());
+    let mut peripherals = OptionalPeripherals::from(peripherals::Peripherals::take());
     let system = SystemControl::new(peripherals.SYSTEM.take().unwrap());
     let clocks = ClockControl::max(system.clock_control).freeze();
 

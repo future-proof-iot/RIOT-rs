@@ -83,7 +83,7 @@ embassy-rp = { workspace = true, features = [
 ] }
 
 [target.'cfg(context = "esp")'.dependencies]
-esp-hal = { workspace = true, features = [] }
+esp-hal = { workspace = true, features = ["async", "embedded-hal"] }
 esp-hal-embassy = { workspace = true, default-features = false, features = [
   "time-timg0",
 ] }
