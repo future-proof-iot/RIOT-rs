@@ -9,7 +9,6 @@ publish = false
 embassy-executor = { workspace = true, default-features = false }
 embassy-net = { workspace = true, features = ["udp"] }
 embassy-time = { workspace = true, default-features = false }
-embedded-io-async = "0.6.1"
 heapless = { workspace = true }
 riot-rs = { path = "../../src/riot-rs", features = [
   "override-network-config",
@@ -22,11 +21,6 @@ riot-rs-boards = { path = "../../src/riot-rs-boards" }
 
 coapcore.path = "../../src/lib/coapcore/"
 
-# for the udp_nal mod
-embedded-nal-async = "0.7"
-# actually patched with https://github.com/smoltcp-rs/smoltcp/pull/904 but
-# patch.crates-io takes care of that
-smoltcp = { version = "0.11", default-features = false }
 embedded-nal-coap = "0.1.0-alpha.2"
 coap-request = "0.2.0-alpha.2"
 coap-message = "0.3.2"
@@ -41,9 +35,3 @@ hexlit = "0.5.5"
 static-alloc = "0.2.5"
 coap-scroll-ring-server = "0.2.0"
 scroll-ring = "0.1.1"
-
-[features]
-default = ["proto-ipv4"] # shame
-# actually embedded-nal features, we have to match them here while developing udp_nal in here
-proto-ipv4 = []
-proto-ipv6 = []

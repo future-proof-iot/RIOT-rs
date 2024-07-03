@@ -21,7 +21,7 @@ use core::future::poll_fn;
 use embedded_nal_async as nal;
 use smoltcp::wire::{IpAddress, IpEndpoint};
 
-use embassy_net::udp;
+use riot_rs_embassy::embassy_net::udp;
 
 mod util;
 pub use util::Error;
