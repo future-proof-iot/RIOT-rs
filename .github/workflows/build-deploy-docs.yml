@@ -48,7 +48,7 @@ jobs:
 
       - name: Build rustdoc docs
         run: |
-          cargo doc -p riot-rs --features no-boards,bench,threading,random,csprng,hwrng
+          cargo doc -p riot-rs --features no-boards,bench,threading,random,csprng,hwrng,coap
           echo "<meta http-equiv=\"refresh\" content=\"0; url=riot_rs\">" > target/doc/index.html
           mkdir -p ./_site/dev/docs/api && mv target/doc/* ./_site/dev/docs/api
 
