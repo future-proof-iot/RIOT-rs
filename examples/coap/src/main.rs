@@ -3,11 +3,9 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::{debug::println, embassy::network};
+use riot_rs::debug::println;
 
 use riot_rs::embassy::embassy_net;
-
-use coapcore::seccontext;
 
 // because coapcore depends on it temporarily
 extern crate alloc;
@@ -49,13 +47,6 @@ async fn run() {
     writeln!(stdout, "We have our own stdout now.").unwrap();
     writeln!(stdout, "With rings and atomics.").unwrap();
 
-    use hexlit::hex;
-    const R: &[u8] = &hex!("72cc4761dbd4c78f758931aa589d348d1ef874a7e303ede2f140dcf3e6aa4aac");
-    let own_identity = (
-        &lakers::CredentialRPK::new(lakers::EdhocMessageBuffer::new_from_slice(&hex!("A2026008A101A5010202410A2001215820BBC34960526EA4D32E940CAD2A234148DDC21791A12AFBCBAC93622046DD44F02258204519E257236B2A0CE2023F0931F1F386CA7AFDA64FCDE0108C224C51EABF6072")).expect("Credential should be small enough")).expect("Credential should be processable"),
-        R,
-        );
-
     let handler = coap_message_demos::full_application_tree(log)
         .at(
             &["stdout"],
@@ -63,13 +54,9 @@ async fn run() {
         )
         .with_wkc();
 
-    let mut handler = seccontext::OscoreEdhocHandler::new(own_identity, handler, stdout, || {
-        lakers_crypto_rustcrypto::Crypto::new(riot_rs::random::crypto_rng())
-    });
-
     println!("Server is ready.");
 
-    riot_rs::coap::coap_task(&mut handler, Client).await;
+    riot_rs::coap::coap_task(handler, Client, &mut stdout).await;
 }
 
 struct Client;

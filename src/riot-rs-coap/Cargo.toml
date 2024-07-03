@@ -7,7 +7,7 @@ repository.workspace = true
 
 [dependencies]
 coapcore.path = "../lib/coapcore"
-riot-rs-random.path = "../riot-rs-random"
+riot-rs-random = { path = "../riot-rs-random", features = ["csprng"] }
 riot-rs-embassy.path = "../riot-rs-embassy"
 
 # actually patched with https://github.com/smoltcp-rs/smoltcp/pull/904 but
@@ -16,6 +16,9 @@ smoltcp = { version = "0.11", default-features = false }
 
 embedded-nal-coap = "0.1.0-alpha.2"
 coap-handler = "0.2.0"
+hexlit = "0.5.5"
+lakers = { version = "0.6.0", default-features = false }
+lakers-crypto-rustcrypto = "0.6.0"
 
 # for the udp_nal mod
 embedded-nal-async = "0.7"

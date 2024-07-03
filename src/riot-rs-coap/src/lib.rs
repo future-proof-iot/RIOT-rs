@@ -12,9 +12,12 @@ mod udp_nal;
 
 use riot_rs_embassy::embassy_net::udp::{PacketMetadata, UdpSocket};
 
+use coapcore::seccontext;
+
 pub async fn coap_task<const N: usize>(
-    handler: &mut impl coap_handler::Handler,
+    handler: impl coap_handler::Handler,
     client_runner: impl coapcore::ClientRunner<N>,
+    logger: &mut impl core::fmt::Write,
 ) {
     let stack = riot_rs_embassy::network::network_stack().await.unwrap();
 
@@ -41,5 +44,16 @@ pub async fn coap_task<const N: usize>(
 
     let mut rng = riot_rs_random::fast_rng();
 
-    coapcore::coap_task(&mut sock, handler, &mut rng, client_runner).await;
+    use hexlit::hex;
+    const R: &[u8] = &hex!("72cc4761dbd4c78f758931aa589d348d1ef874a7e303ede2f140dcf3e6aa4aac");
+    let own_identity = (
+        &lakers::CredentialRPK::new(lakers::EdhocMessageBuffer::new_from_slice(&hex!("A2026008A101A5010202410A2001215820BBC34960526EA4D32E940CAD2A234148DDC21791A12AFBCBAC93622046DD44F02258204519E257236B2A0CE2023F0931F1F386CA7AFDA64FCDE0108C224C51EABF6072")).expect("Credential should be small enough")).expect("Credential should be processable"),
+        R,
+        );
+
+    let mut handler = seccontext::OscoreEdhocHandler::new(own_identity, handler, logger, || {
+        lakers_crypto_rustcrypto::Crypto::new(riot_rs_random::crypto_rng())
+    });
+
+    coapcore::coap_task(&mut sock, &mut handler, &mut rng, client_runner).await;
 }
