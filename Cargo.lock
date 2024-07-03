@@ -449,20 +449,13 @@ dependencies = [
  "coap-scroll-ring-server",
  "coapcore",
  "embassy-executor",
- "embassy-futures",
  "embassy-net",
  "embassy-time",
- "embedded-io-async",
- "embedded-nal-async",
  "embedded-nal-coap",
  "heapless 0.8.0",
- "hexlit",
- "lakers",
- "lakers-crypto-rustcrypto",
  "riot-rs",
  "riot-rs-boards",
  "scroll-ring",
- "smoltcp",
  "static-alloc",
 ]
 
@@ -598,6 +591,9 @@ dependencies = [
  "coap-message-implementations",
  "coap-message-utils",
  "coap-numbers",
+ "embassy-futures",
+ "embedded-nal-async",
+ "embedded-nal-coap",
  "heapless 0.8.0",
  "hexlit",
  "lakers",
@@ -605,6 +601,7 @@ dependencies = [
  "liboscore",
  "liboscore-msgbackend",
  "minicbor 0.23.0",
+ "rand_core",
 ]
 
 [[package]]
@@ -3360,6 +3357,7 @@ dependencies = [
  "linkme",
  "riot-rs-bench",
  "riot-rs-boards",
+ "riot-rs-coap",
  "riot-rs-debug",
  "riot-rs-embassy",
  "riot-rs-macros",
@@ -3404,6 +3402,23 @@ name = "riot-rs-chips"
 version = "0.1.0"
 dependencies = [
  "stm32f4xx",
+]
+
+[[package]]
+name = "riot-rs-coap"
+version = "0.1.0"
+dependencies = [
+ "coap-handler",
+ "coapcore",
+ "embedded-io-async",
+ "embedded-nal-async",
+ "embedded-nal-coap",
+ "hexlit",
+ "lakers",
+ "lakers-crypto-rustcrypto",
+ "riot-rs-embassy",
+ "riot-rs-random",
+ "smoltcp",
 ]
 
 [[package]]
