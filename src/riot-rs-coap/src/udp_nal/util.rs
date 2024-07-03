@@ -39,7 +39,8 @@ pub(super) fn sockaddr_smol2nal(endpoint: IpEndpoint) -> nal::SocketAddr {
         }
         #[cfg(feature = "proto-ipv6")]
         IpAddress::Ipv6(addr) => {
-            embedded_nal_async::SocketAddrV6::new(addr.0.into(), endpoint.port).into()
+            // FIXME: Where is smoltcp's zone identifier?
+            embedded_nal_async::SocketAddrV6::new(addr.0.into(), endpoint.port, 0, 0).into()
         }
     }
 }
