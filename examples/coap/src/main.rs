@@ -3,7 +3,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::debug::println;
+use core::fmt::Write;
 
 use riot_rs::embassy::embassy_net;
 
@@ -28,22 +28,23 @@ fn network_config() -> embassy_net::Config {
 
 // This is adjusted from coap-message-demos/examples/std_embedded_nal_coap.rs
 
+// FIXME: Why doesn't scroll_ring provide that?
+#[derive(Clone)]
+struct Stdout<'a>(&'a scroll_ring::Buffer<512>);
+impl<'a> Write for Stdout<'a> {
+    fn write_str(&mut self, s: &str) -> Result<(), core::fmt::Error> {
+        self.0.write(s.as_bytes());
+        Ok(())
+    }
+}
+
 #[riot_rs::task(autostart)]
 async fn run() {
     use coap_handler_implementations::{HandlerBuilder, ReportingHandlerBuilder};
 
     let log = None;
     let buffer = scroll_ring::Buffer::<512>::default();
-    // FIXME: Why doesn't scroll_ring provide that?
-    struct Stdout<'a>(&'a scroll_ring::Buffer<512>);
-    impl<'a> core::fmt::Write for Stdout<'a> {
-        fn write_str(&mut self, s: &str) -> Result<(), core::fmt::Error> {
-            self.0.write(s.as_bytes());
-            Ok(())
-        }
-    }
     let mut stdout = Stdout(&buffer);
-    use core::fmt::Write;
     writeln!(stdout, "We have our own stdout now.").unwrap();
     writeln!(stdout, "With rings and atomics.").unwrap();
 
@@ -54,47 +55,59 @@ async fn run() {
         )
         .with_wkc();
 
-    println!("Server is ready.");
+    writeln!(stdout, "Server is ready.").unwrap();
 
-    riot_rs::coap::coap_task(handler, Client, &mut stdout).await;
+    riot_rs::coap::coap_task(handler, Client(stdout.clone()), &mut stdout).await;
 }
 
-struct Client;
+struct Client<'s>(Stdout<'s>);
 
-impl coapcore::ClientRunner<3> for Client {
-    /// In parallel to server operation, this function performs some operations as a client.
-    ///
-    /// This doubles as an experimentation ground for the client side of embedded_nal_coap and
-    /// coap-request in general.
-    async fn run(self, client: embedded_nal_coap::CoAPRuntimeClient<'_, 3>) {
+impl<'s> Client<'s> {
+    async fn run_logging(
+        mut self,
+        client: embedded_nal_coap::CoAPRuntimeClient<'_, 3>,
+    ) -> Result<(), &'static str> {
         // shame
-        let demoserver = "10.42.0.1:1234".parse().unwrap();
+        let demoserver = "10.42.0.1:1234"
+            .parse()
+            .map_err(|_| "Error parsing demo server address")?;
 
         use coap_request::Stack;
-        println!("Sending GET to {}...", demoserver);
+        writeln!(self.0, "Sending GET to {}...", demoserver).unwrap();
+
         let response = client
             .to(demoserver)
             .request(
                 coap_request_implementations::Code::get()
                     .with_path("/other/separate")
                     .processing_response_payload_through(|p| {
-                        println!("Got payload {:?}", p);
+                        writeln!(
+                            self.0,
+                            "Got payload {:?} length {}",
+                            &p[..core::cmp::min(10, p.len())],
+                            p.len()
+                        )
+                        .unwrap();
                     }),
             )
-            .await;
-        println!("Response {:?}", response);
+            .await
+            .map_err(|_| "Error while trying to GET /other/separate")?;
+        writeln!(self.0, "Response {:?}", response).unwrap();
 
-        let req = coap_request_implementations::Code::post().with_path("/uppercase");
+        Ok(())
+    }
+}
 
-        println!("Sending POST...");
-        let mut response = client.to(demoserver);
-        let response = response.request(
-            req.with_request_payload_slice(b"Set time to 1955-11-05")
-                .processing_response_payload_through(|p| {
-                    println!("Uppercase is {}", core::str::from_utf8(p).unwrap())
-                }),
-        );
-        let response = response.await;
-        println!("Response {:?}", response);
+impl<'s> coapcore::ClientRunner<3> for Client<'s> {
+    /// In parallel to server operation, this function performs some operations as a client.
+    ///
+    /// This doubles as an experimentation ground for the client side of embedded_nal_coap and
+    /// coap-request in general.
+    async fn run(self, client: embedded_nal_coap::CoAPRuntimeClient<'_, 3>) {
+        let mut stdout = self.0.clone();
+        match self.run_logging(client).await {
+            Ok(_) => writeln!(stdout, "Client process completed").unwrap(),
+            Err(e) => writeln!(stdout, "Client process erred out: {e}").unwrap(),
+        }
     }
 }
