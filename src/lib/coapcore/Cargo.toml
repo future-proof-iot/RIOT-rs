@@ -1,0 +1,31 @@
+[package]
+name = "coapcore"
+version = "0.0.1"
+edition.workspace = true
+
+license = "MIT OR Apache-2.0"
+keywords = ["coap", "iot", "edhoc", "oscore"]
+categories = ["no-std"]
+repository.workspace = true
+
+description = "A CoAP stack for embedded devices with built-in OSCORE/EDHOC support"
+
+[dependencies]
+# public
+coap-handler = "0.2.0"
+coap-message = "0.3.2"
+lakers = { version = "0.6.0", default-features = false }
+
+# private
+arrayvec = { version = "0.7.4", default-features = false }
+coap-message-implementations = { version = "0.1.2", features = ["downcast"] }
+coap-message-utils = "0.3.3"
+coap-numbers = "0.2.3"
+hexlit = "0.5.5"
+lakers-crypto-rustcrypto = "0.6.0"
+liboscore = { git = "https://gitlab.com/oscore/liboscore/", rev = "e7a4ecd037cbb9c7f085047fec5896f4bdc68d50" }
+liboscore-msgbackend = { git = "https://gitlab.com/oscore/liboscore/", features = [
+  "alloc",
+], rev = "e7a4ecd037cbb9c7f085047fec5896f4bdc68d50" }
+minicbor = "0.23.0"
+heapless = "0.8.0"

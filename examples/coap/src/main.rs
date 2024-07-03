@@ -9,10 +9,15 @@ use embassy_net::udp::{PacketMetadata, UdpSocket};
 
 // Moving work from https://github.com/embassy-rs/embassy/pull/2519 in here for the time being
 mod udp_nal;
-// Might warrant a standalone crate at some point
-mod oluru;
 
-mod seccontext;
+use coapcore::seccontext;
+
+// because coapcore depends on it temporarily
+extern crate alloc;
+use static_alloc::Bump;
+
+#[global_allocator]
+static A: Bump<[u8; 1 << 16]> = Bump::uninit();
 
 #[riot_rs::task(autostart)]
 async fn coap_run() {
@@ -96,7 +101,9 @@ where
         )
         .with_wkc();
 
-    let mut handler = seccontext::OscoreEdhocHandler::new(own_identity, handler, stdout);
+    let mut handler = seccontext::OscoreEdhocHandler::new(own_identity, handler, stdout, || {
+        lakers_crypto_rustcrypto::Crypto::new(riot_rs::random::crypto_rng())
+    });
 
     println!("Server is ready.");
 
