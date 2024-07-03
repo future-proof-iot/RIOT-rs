@@ -216,7 +216,7 @@ jobs:
       - name: clippy
         uses: clechasseur/rs-clippy-check@v3
         with:
-          args: --verbose --locked --features net,no-boards,external-interrupts,spi,storage -p riot-rs -p riot-rs-arch -p riot-rs-boards -p riot-rs-chips -p riot-rs-debug -p riot-rs-embassy -p riot-rs-embassy-common -p riot-rs-identity -p riot-rs-macros -p riot-rs-random -p riot-rs-rt -p riot-rs-storage -p riot-rs-threads -p riot-rs-utils -- --deny warnings
+          args: --verbose --locked --features net,no-boards,external-interrupts,spi,storage -p riot-rs -p riot-rs-arch -p riot-rs-boards -p riot-rs-chips -p riot-rs-coap -p riot-rs-debug -p riot-rs-embassy -p riot-rs-embassy-common -p riot-rs-identity -p riot-rs-macros -p riot-rs-random -p riot-rs-rt -p riot-rs-storage -p riot-rs-threads -p riot-rs-utils -- --deny warnings
 
       - run: echo 'RUSTFLAGS=--cfg context="esp32c6"' >> $GITHUB_ENV
       - name: clippy for ESP32
@@ -246,7 +246,7 @@ jobs:
       - run: echo 'RUSTFLAGS=' >> $GITHUB_ENV
 
       - name: rustdoc
-        run: RUSTDOCFLAGS='-D warnings' cargo doc -p riot-rs --features bench,csprng,executor-thread,external-interrupts,hwrng,i2c,net,no-boards,random,spi,storage,threading,usb
+        run: RUSTDOCFLAGS='-D warnings' cargo doc -p riot-rs --features bench,coap,csprng,executor-thread,external-interrupts,hwrng,i2c,net,no-boards,random,riot-rs-coap/doc,spi,storage,threading,usb
 
       - name: rustdoc for ESP32
         run: RUSTDOCFLAGS='-D warnings --cfg context="esp32c6"' cargo doc --target=riscv32imac-unknown-none-elf --features external-interrupts,i2c,spi,esp-hal/esp32c6,esp-hal-embassy/esp32c6 -p riot-rs-esp

@@ -3574,6 +3574,7 @@ dependencies = [
  "linkme",
  "riot-rs-bench",
  "riot-rs-boards",
+ "riot-rs-coap",
  "riot-rs-debug",
  "riot-rs-embassy",
  "riot-rs-identity",
@@ -3643,6 +3644,16 @@ name = "riot-rs-chips"
 version = "0.1.0"
 dependencies = [
  "stm32f4xx",
+]
+
+[[package]]
+name = "riot-rs-coap"
+version = "0.1.0"
+dependencies = [
+ "coapcore",
+ "embassy-net",
+ "lakers-crypto-rustcrypto",
+ "riot-rs-random",
 ]
 
 [[package]]

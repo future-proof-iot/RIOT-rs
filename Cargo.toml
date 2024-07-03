@@ -12,6 +12,7 @@ members = [
   "src/riot-rs-boards/nrf52",
   "src/riot-rs-boards/nrf52840dk",
   "src/riot-rs-chips",
+  "src/riot-rs-coap",
   "src/riot-rs-debug",
   "src/riot-rs-embassy-common",
   "src/riot-rs-esp",
@@ -91,6 +92,7 @@ riot-rs = { path = "src/riot-rs", default-features = false }
 riot-rs-arch = { path = "src/riot-rs-arch", default-features = false }
 riot-rs-bench = { path = "src/riot-rs-bench", default-features = false }
 riot-rs-boards = { path = "src/riot-rs-boards", default-features = false }
+riot-rs-coap = { path = "src/riot-rs-coap", default-features = false }
 riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
 riot-rs-embassy = { path = "src/riot-rs-embassy", default-features = false }
 riot-rs-embassy-common = { path = "src/riot-rs-embassy-common" }

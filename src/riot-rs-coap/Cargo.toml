@@ -1,0 +1,25 @@
+[package]
+name = "riot-rs-coap"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[dependencies]
+coapcore.path = "../lib/coapcore"
+embassy-net = { workspace = true, features = ["udp"] }
+lakers-crypto-rustcrypto = "0.6.0"
+riot-rs-random.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+## Enables an arbitrary set of features in dependencies where dependencies fail
+## if no features are configured at all.
+doc = ["embassy-net/proto-ipv6", "embassy-net/medium-ip"]
+
+# Only around while we carry the embedded-nal-async impl
+proto-ipv4 = ["embassy-net/proto-ipv4"]
+proto-ipv6 = ["embassy-net/proto-ipv6"]

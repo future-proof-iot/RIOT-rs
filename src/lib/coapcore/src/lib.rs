@@ -1,14 +1,8 @@
-//! A CoAP stack for embedded devices with built-in OSCORE/EDHOC support
-//! ====================================================================
+//! A CoAP security for embedded devices, supporting OSCORE/EDHOC and managing credentials.
 //!
-//! This crate provides an asynchronous task that serves CoAP requests on a UDP port provided by
-//! the application as an `embedded-nal` socket, and processes CoAP along with its security
-//! components OSCORE and EDHOC before passing on authorized requests to the application.
-//!
-//! The crate is under heavy development: Its API is in flux, and so far it does not yet provide
-//! the CoAP server itself, but merely a middleware. (Providing the full CoAP will be a requirement
-//! for at least as long as the OSCORE component is tightly coupled to a particular implementation
-//! of [`coap-message`]).
+//! The crate is under heavy development: Its API is in flux. So far, it has hidden dependencies on a
+//! particular implementation of the [`coap-message`] provided (it needs to be a
+//! [`coap_message_implementations::inmemory_write::Message`]).
 #![no_std]
 
 // Might warrant a standalone crate at some point

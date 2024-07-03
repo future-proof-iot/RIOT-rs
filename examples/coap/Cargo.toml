@@ -17,6 +17,8 @@ embedded-io-async = "0.6.1"
 heapless = { workspace = true }
 riot-rs = { path = "../../src/riot-rs", features = [
   "override-network-config",
+  "coap",
+  # to be removed later once coap pulls them in
   "random",
   "csprng",
 ] }
