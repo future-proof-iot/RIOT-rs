@@ -12,6 +12,7 @@ document-features = { workspace = true }
 linkme = { workspace = true }
 riot-rs-bench = { workspace = true, optional = true }
 riot-rs-boards = { path = "../riot-rs-boards" }
+riot-rs-coap = { path = "../riot-rs-coap", optional = true }
 riot-rs-debug = { workspace = true }
 riot-rs-embassy = { path = "../riot-rs-embassy" }
 riot-rs-macros = { path = "../riot-rs-macros" }
@@ -40,6 +41,8 @@ random = ["riot-rs-random"]
 csprng = ["riot-rs-random/csprng"]
 ## Enables seeding the random number generator from hardware.
 hwrng = ["riot-rs-embassy/hwrng"]
+## Enables the [`coap`] module
+coap = ["riot-rs-coap", "random", "csprng"]
 
 #! ## Wired communication
 ## Enables USB support.

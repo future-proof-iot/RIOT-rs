@@ -1,0 +1,12 @@
+[package]
+name = "riot-rs-coap"
+version.workspace = true
+authors.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[dependencies]
+coapcore.path = "../lib/coapcore"
+
+[lints]
+workspace = true
