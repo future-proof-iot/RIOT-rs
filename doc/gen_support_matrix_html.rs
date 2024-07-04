@@ -57,7 +57,7 @@ const KEY_TEMPLATE: &str =
 r##"<p>Key:</p>
 
 <ul>
-  {%- for _, support_key in matrix.support_keys|items %}
+  {%- for support_key in matrix.support_keys %}
   <li class="no-marker">{{ support_key.icon }}&nbsp;&nbsp;{{ support_key.description }}</li>
   {%- endfor %}
 </ul>
@@ -228,7 +228,8 @@ fn render_html(matrix: &schema::Matrix) -> Result<String, Error> {
                 let support_key = if let Some(support_info) = board_info.support.get(name) {
                     let status = support_info.status();
                     matrix.support_keys
-                        .get(status)
+                        .iter()
+                        .find(|s| s.name == status)
                         .ok_or(Error::InvalidSupportKeyNameBoard {
                             found: status.to_owned(),
                             functionality: name.to_owned(),
@@ -250,7 +251,8 @@ fn render_html(matrix: &schema::Matrix) -> Result<String, Error> {
                         })?;
                     let status = support_info.status();
                     matrix.support_keys
-                        .get(status)
+                        .iter()
+                        .find(|s| s.name == status)
                         .ok_or(Error::InvalidSupportKeyNameChip {
                             found: status.to_owned(),
                             functionality: name.to_owned(),
@@ -367,7 +369,7 @@ mod schema {
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(deny_unknown_fields)]
     pub struct Matrix {
-        pub support_keys: HashMap<String, SupportKeyInfo>,
+        pub support_keys: Vec<SupportKeyInfo>,
         pub functionalities: Vec<FunctionalityInfo>,
         pub chips: HashMap<String, ChipInfo>,
         pub boards: HashMap<String, BoardInfo>,
@@ -376,6 +378,7 @@ mod schema {
     #[derive(Debug, Serialize, Deserialize)]
     #[serde(deny_unknown_fields)]
     pub struct SupportKeyInfo {
+        pub name: String,
         pub icon: String,
         pub description: String,
     }

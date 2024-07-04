@@ -2,25 +2,25 @@
 
 # Defines the different support statuses.
 support_keys:
-  supported:
+  - name: supported
     icon: ✅
     description: supported
-  supported_with_caveats:
+  - name: supported_with_caveats
     icon: ⚠️
     description: supported with some caveats
-  needs_testing:
+  - name: needs_testing
     icon: ❔
     description: needs testing; support may be present but we do not currently test it
-  being_reworked:
+  - name: being_reworked
     icon: ♻️
     description: rework in progress, expect breaking changes
-  wip:
+  - name: wip
     icon: 🚧
     description: work in progress
-  not_currently_supported:
+  - name: not_currently_supported
     icon: ❌
     description: available in hardware, but not currently supported by RIOT-rs
-  not_available:
+  - name: not_available
     icon: 🚫
     description: not available on this piece of hardware
 
