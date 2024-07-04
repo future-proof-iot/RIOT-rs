@@ -2,10 +2,16 @@
 #![no_std]
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
+#![feature(noop_waker)]
 
 use core::fmt::Write;
 
 use riot_rs::embassy::embassy_net;
+
+use riot_rs::arch::peripherals;
+#[cfg(builder = "particle-xenon")]
+riot_rs::define_peripherals!(MyPeripherals { nvmc: NVMC });
+use riot_rs::storage::Storage;
 
 // because coapcore depends on it temporarily
 extern crate alloc;
@@ -38,8 +44,46 @@ impl<'a> Write for Stdout<'a> {
     }
 }
 
-#[riot_rs::task(autostart)]
-async fn run() {
+struct StringStorageAccess<F>(Storage<F>, &'static str);
+
+impl<F: embedded_storage_async::nor_flash::NorFlash> coap_handler_implementations::TypeRenderable for StringStorageAccess<F> {
+    type Get = heapless::String<64>;
+    type Post = ();
+    type Put = heapless::String<64>;
+
+    fn get(&mut self) -> Result<Self::Get, u8> {
+        use core::future::Future;
+        let future = core::pin::pin!(self.0.get(self.1));
+        // Let's assume this is not *really* blocking
+        match future
+            .poll(&mut core::task::Context::from_waker(&core::task::Waker::noop()))
+        {
+            core::task::Poll::Ready(data) => data.map_err(|_| coap_numbers::code::BAD_REQUEST).and_then(|data| data.ok_or(coap_numbers::code::NOT_FOUND)),
+            _ => Err(coap_numbers::code::INTERNAL_SERVER_ERROR),
+        }
+    }
+
+    fn put(&mut self, value: &Self::Put) -> u8 {
+        use core::future::Future;
+        let future = core::pin::pin!(self.0.put(self.1, value.clone()));
+        // Let's assume this is not *really* blocking
+        match future
+            .poll(&mut core::task::Context::from_waker(&core::task::Waker::noop()))
+        {
+            core::task::Poll::Ready(Ok(())) => coap_numbers::code::CHANGED,
+            // more like "some other error"
+            core::task::Poll::Ready(Err(_)) => coap_numbers::code::BAD_REQUEST,
+            _ => coap_numbers::code::INTERNAL_SERVER_ERROR,
+        }
+    }
+}
+
+#[riot_rs::task(autostart, peripherals)]
+async fn run(p: MyPeripherals) {
+    let flash = embassy_nrf::nvmc::Nvmc::new(p.nvmc);
+    let flash = embassy_embedded_hal::adapter::BlockingAsync::new(flash);
+    let mut storage = Storage::new(flash).await;
+
     use coap_handler_implementations::{HandlerBuilder, ReportingHandlerBuilder};
 
     let log = None;
@@ -52,6 +96,11 @@ async fn run() {
         .at(
             &["stdout"],
             coap_scroll_ring_server::BufferHandler::new(&buffer),
+        )
+        .at_with_attributes(
+            &["stored"],
+            &[],
+            coap_handler_implementations::TypeHandler::new(StringStorageAccess(storage, "stored")),
         )
         .with_wkc();
 

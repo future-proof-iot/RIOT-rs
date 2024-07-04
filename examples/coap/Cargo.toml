@@ -9,10 +9,11 @@ publish = false
 embassy-executor = { workspace = true, default-features = false }
 embassy-net = { workspace = true, features = ["udp"] }
 embassy-time = { workspace = true, default-features = false }
-heapless = { workspace = true }
+heapless = { workspace = true, features = ["serde"] }
 riot-rs = { path = "../../src/riot-rs", features = [
   "override-network-config",
   "coap",
+  "storage",
   # to be removed later once coap pulls them in
   "random",
   "csprng",
@@ -32,3 +33,8 @@ coap-handler-implementations = "0.5.0"
 static-alloc = "0.2.5"
 coap-scroll-ring-server = "0.2.0"
 scroll-ring = "0.1.1"
+
+embassy-embedded-hal = { workspace = true }
+embassy-nrf = { workspace = true }
+coap-numbers = "*"
+embedded-storage-async = "*"

@@ -11,14 +11,17 @@ use riot_rs::arch::peripherals;
 #[cfg(builder = "nrf52840dk")]
 riot_rs::define_peripherals!(MyPeripherals { nvmc: NVMC });
 
+#[cfg(builder = "particle-xenon")]
+riot_rs::define_peripherals!(MyPeripherals { nvmc: NVMC });
+
 use riot_rs::storage::Storage;
 
 use serde::{Deserialize, Serialize};
 
 #[derive(Serialize, Deserialize, Debug)]
 struct MyConfig {
-    val_uno: heapless::String<64>,
     val_dos: u64,
+    val_uno: heapless::String<64>,
 }
 
 #[riot_rs::task(autostart, peripherals)]
@@ -48,4 +51,6 @@ async fn main(p: MyPeripherals) {
     if let Some(value) = cfg {
         println!("got value {:?}", value);
     }
+    let cfg_bytes: Result<Option<heapless::String::<100>>, _> = storage.get("my_config").await;
+    println!("got cfg_bytes {:?}", cfg_bytes);
 }
