@@ -1,5 +1,6 @@
 ---
 
+# Defines the different support statuses.
 support_keys:
   supported:
     icon: ✅
@@ -23,6 +24,7 @@ support_keys:
     icon: 🚫
     description: not available on this piece of hardware
 
+# Defines existing pieces of functionality, hardware or software.
 functionalities:
   - name: gpio
     title: GPIO
@@ -43,6 +45,7 @@ functionalities:
     title: Ethernet over USB
     description:
 
+# Encodes support status for each chip.
 chips:
   nrf52xxx:
     name: nRF52xxx
@@ -84,6 +87,8 @@ chips:
         github_pr: 255
       debug_output: supported
 
+# Encodes support status for each board.
+# Boards inherit support statuses of their chip, but can also override them.
 boards:
   nrf52840-dk:
     name: nRF52840-DK
