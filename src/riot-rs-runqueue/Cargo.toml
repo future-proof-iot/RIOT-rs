@@ -10,3 +10,4 @@ license = "Apache-2.0 / MIT"
 workspace = true
 
 [dependencies]
+defmt = { workspace = true, optional = true }

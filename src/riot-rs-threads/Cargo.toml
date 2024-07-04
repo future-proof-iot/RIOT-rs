@@ -18,6 +18,8 @@ paste.workspace = true
 riot-rs-runqueue.workspace = true
 static_cell.workspace = true
 
+defmt =  { workspace = true, optional =  true }
+
 [target.'cfg(context = "esp32c3")'.dependencies]
 esp-hal = { workspace = true, features = ["esp32c3"] }
 
@@ -30,3 +32,6 @@ cortex-m.workspace = true
 cortex-m-rt.workspace = true
 cortex-m-semihosting.workspace = true
 panic-semihosting = { version = "0.6.0", features = ["exit"] }
+
+[features]
+defmt = ["dep:defmt", "riot-rs-runqueue/defmt"]
