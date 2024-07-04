@@ -22,6 +22,7 @@ pub struct Thread {
 
 /// Possible states of a thread
 #[derive(Copy, Clone, PartialEq, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum ThreadState {
     /// No active thread.
     Invalid,

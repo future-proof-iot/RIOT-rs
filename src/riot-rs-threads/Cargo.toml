@@ -18,7 +18,7 @@ paste.workspace = true
 riot-rs-runqueue.workspace = true
 static_cell.workspace = true
 
-defmt =  { workspace = true, optional =  true }
+defmt = { workspace = true, optional = true }
 
 [target.'cfg(context = "esp32c3")'.dependencies]
 esp-hal = { workspace = true, features = ["esp32c3"] }
