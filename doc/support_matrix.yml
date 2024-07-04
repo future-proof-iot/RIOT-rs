@@ -73,8 +73,9 @@ chips:
       gpio:
         status: being_reworked
         github_pr: 322
-      logging: wip
       debug_output: supported
+      logging: wip
+      wifi: not_available
 
   esp32-c6:
     name: ESP32-C6
@@ -82,10 +83,11 @@ chips:
       gpio:
         status: being_reworked
         github_pr: 322
+      debug_output: supported
       logging:
         status: supported
         github_pr: 255
-      debug_output: supported
+      wifi: not_available
 
 # Encodes support status for each board.
 # Boards inherit support statuses of their chip, but can also override them.
@@ -102,14 +104,12 @@ boards:
     chip: nrf53xx
     support:
       user_usb: supported
-      wifi: not_available
       ethernet_over_usb: supported
 
   rp-pico:
     name: Raspberry Pi Pico
     chip: rp2040
     support:
-      wifi: not_available
       user_usb: supported
       ethernet_over_usb: supported
 
