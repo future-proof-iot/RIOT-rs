@@ -416,7 +416,7 @@ mod schema {
         Details {
             status: String,
             comments: Option<String>,
-            github_pr: Option<u32>,
+            link: Option<String>,
         },
     }
 
