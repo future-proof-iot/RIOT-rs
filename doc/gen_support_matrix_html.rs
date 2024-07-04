@@ -140,6 +140,8 @@ fn main() -> miette::Result<()> {
         }
     })?;
 
+    validate_input(&matrix)?;
+
     let html = render_html(&matrix)?;
 
     match args.command {
@@ -167,6 +169,36 @@ fn main() -> miette::Result<()> {
     }
 }
 
+fn validate_input(matrix: &schema::Matrix) -> Result<(), Error> {
+    for (_, board_info) in &matrix.boards {
+        let invalid_functionality_name = board_info.supports
+            .keys()
+            .find(|f| matrix.functionalities.iter().all(|functionality| functionality.name != **f));
+
+        if let Some(f) = invalid_functionality_name {
+            return Err(Error::InvalidFunctionalityNameBoard {
+                found: f.to_owned(),
+                board: board_info.name.to_owned(),
+            });
+        }
+    }
+
+    for (_, chip_info) in &matrix.chips {
+        let invalid_functionality_name = chip_info.supports
+            .keys()
+            .find(|f| matrix.functionalities.iter().all(|functionality| functionality.name != **f));
+
+        if let Some(f) = invalid_functionality_name {
+            return Err(Error::InvalidFunctionalityNameChip {
+                found: f.to_owned(),
+                chip: chip_info.name.to_owned(),
+            });
+        }
+    }
+
+    Ok(())
+}
+
 fn render_html(matrix: &schema::Matrix) -> Result<String, Error> {
     use minijinja::{Environment, context};
 
@@ -186,6 +218,8 @@ fn render_html(matrix: &schema::Matrix) -> Result<String, Error> {
     }
 
     let mut boards = matrix.boards.iter().map(|(_, board_info)| {
+        let board_name = &board_info.name;
+
         let functionalities = matrix.functionalities
             .iter()
             .map(|functionality_info| {
@@ -198,19 +232,19 @@ fn render_html(matrix: &schema::Matrix) -> Result<String, Error> {
                         .ok_or(Error::InvalidSupportKeyNameBoard {
                             found: status.to_owned(),
                             functionality: name.to_owned(),
-                            board: board_info.name.to_owned(),
+                            board: board_name.to_owned(),
                         })?
                 } else {
                     let chip = &board_info.chip;
                     // Implement chip info inheritance
                     let chip_info = matrix.chips.get(chip).ok_or(Error::InvalidChipName {
                         found: chip.to_owned(),
-                        board: board_info.name.to_owned(),
+                        board: board_name.to_owned(),
                     })?;
                     let support_info = chip_info.supports
                         .get(name)
                         .ok_or(Error::MissingSupportInfo {
-                            board: board_info.name.to_owned(),
+                            board: board_name.to_owned(),
                             chip: board_info.chip.to_owned(),
                             functionality: functionality_info.title.to_owned(),
                         })?;
@@ -224,7 +258,6 @@ fn render_html(matrix: &schema::Matrix) -> Result<String, Error> {
                         })?
                 };
 
-                // FIXME: make sure invalid functionality names in boards are rejected
                 Ok(FunctionalitySupport {
                     icon: support_key.icon.to_owned(),
                     description: support_key.description.to_owned(),
@@ -235,12 +268,12 @@ fn render_html(matrix: &schema::Matrix) -> Result<String, Error> {
 
         let chip = matrix.chips.get(&board_info.chip).ok_or(Error::InvalidChipName {
             found: board_info.chip.to_owned(),
-            board: board_info.name.to_owned(),
+            board: board_name.to_owned(),
         })?;
 
         Ok(BoardSupport {
             chip: chip.name.to_owned(),
-            name: board_info.name.to_owned(),
+            name: board_name.to_owned(),
             functionalities,
         })
     }).collect::<Result<Vec<_>, Error>>()?;
@@ -282,8 +315,16 @@ enum Error {
         found: String,
         board: String,
     },
-    #[error("invalid functionality name")] // FIXME: improve this error message
-    InvalidFunctionalityName,
+    #[error("invalid functionality name `{found}` for board `{board}`")]
+    InvalidFunctionalityNameBoard {
+        found: String,
+        board: String,
+    },
+    #[error("invalid functionality name `{found}` for chip `{chip}`")]
+    InvalidFunctionalityNameChip {
+        found: String,
+        chip: String,
+    },
     #[error("invalid support key name `{found}` for functionality `{functionality}` for board `{board}`")]
     InvalidSupportKeyNameBoard {
         found: String,
