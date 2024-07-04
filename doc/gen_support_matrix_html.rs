@@ -4,6 +4,7 @@
 edition = "2021"
 
 [dependencies]
+argh = { version = "0.1.12" }
 miette = { version = "7.2.0", features = ["fancy"] }
 minijinja = { version = "2.0.3" }
 serde = { version = "1.0.0", features = ["derive"] }
@@ -11,7 +12,7 @@ serde_yaml = { version = "0.9.34" } # TODO: use a maintained crate instead
 thiserror = { version = "1.0.61" }
 ---
 
-use std::{env, fs, io, path::PathBuf};
+use std::{fs, io, path::{Path, PathBuf}};
 
 use serde::Serialize;
 use miette::Diagnostic;
@@ -67,25 +68,72 @@ r##"<p>Key:</p>
 </style>
 "##;
 
-fn main() -> miette::Result<()> {
-    // TODO: add a flag to only check, for CLI
-    // TODO: maybe use argh instead
-    let input_file_path = env::args()
-        .nth(1)
-        .expect("input file path as first CLI argument");
-    let output_file_path = env::args()
-        .nth(2)
-        .expect("output file path as second CLI argument");
+#[derive(argh::FromArgs)]
+/// Generate the HTML support matrix, or check it is up to date.
+struct Args {
+    #[argh(subcommand)]
+    command: SubCommand,
+}
 
-    let input_file = fs::read_to_string(&input_file_path).map_err(|source| Error::InputFile {
-        path: input_file_path.clone().into(),
+impl Args {
+    fn input_file(&self) -> &Path {
+        match self.command {
+            SubCommand::Generate(SubCommandGenerate { ref input_file, .. }) => input_file,
+            SubCommand::Check(SubCommandCheck { ref input_file, .. }) => input_file,
+        }
+    }
+
+    fn output_file(&self) -> &Path {
+        match self.command {
+            SubCommand::Generate(SubCommandGenerate { ref output_file, .. }) => output_file,
+            SubCommand::Check(SubCommandCheck { ref output_file, .. }) => output_file,
+        }
+    }
+}
+
+#[derive(argh::FromArgs)]
+#[argh(subcommand)]
+enum SubCommand {
+    Generate(SubCommandGenerate),
+    Check(SubCommandCheck),
+}
+
+#[derive(argh::FromArgs)]
+#[argh(subcommand, name = "generate")]
+/// generate the HTML support matrix
+struct SubCommandGenerate {
+    #[argh(positional)]
+    /// path of the input YAML file
+    input_file: PathBuf,
+    #[argh(positional)]
+    /// path of the HTML file to generate
+    output_file: PathBuf,
+}
+
+#[derive(argh::FromArgs)]
+#[argh(subcommand, name = "check")]
+/// check that the generated HTML support matrix is up to date
+struct SubCommandCheck {
+    #[argh(positional)]
+    /// path of the input YAML file
+    input_file: PathBuf,
+    #[argh(positional)]
+    /// path of the HTML file to check
+    output_file: PathBuf,
+}
+
+fn main() -> miette::Result<()> {
+    let args: Args = argh::from_env();
+
+    let input_file = fs::read_to_string(&args.input_file()).map_err(|source| Error::InputFile {
+        path: args.input_file().into(),
         source,
     })?;
 
     let matrix = serde_yaml::from_str(&input_file).map_err(|source| {
         let err_span = miette::SourceSpan::from(source.location().unwrap().index());
         Error::Parsing {
-            path: input_file_path.into(),
+            path: args.input_file().into(),
             src: input_file,
             err_span,
             source,
@@ -93,9 +141,30 @@ fn main() -> miette::Result<()> {
     })?;
 
     let html = render_html(&matrix)?;
-    fs::write(output_file_path, html).expect("could not write the output HTML file");
 
-    Ok(())
+    match args.command {
+        SubCommand::Generate(_) => {
+            fs::write(args.output_file(), html).map_err(|source| Error::WritingOutputFile {
+                path: args.output_file().into(),
+                source,
+            })?;
+            Ok(())
+        }
+        SubCommand::Check(_) => {
+            let existing_html = fs::read_to_string(args.output_file()).map_err(|source| Error::ReadingExistingFile {
+                path: args.output_file().into(),
+                source,
+            })?;
+
+            if existing_html == html {
+                Ok(())
+            } else {
+                Err(Error::ExistingHtmlNotUpToDate {
+                    path: args.output_file().into(),
+                })?
+            }
+        }
+    }
 }
 
 fn render_html(matrix: &schema::Matrix) -> Result<String, Error> {
@@ -202,7 +271,21 @@ enum Error {
         board: String,
         chip: String,
         functionality: String,
-    }
+    },
+    #[error("could not write the output HTML file `{path}`")]
+    WritingOutputFile {
+        path: PathBuf,
+        source: io::Error,
+    },
+    #[error("could not read existing output HTML file `{path}`")]
+    ReadingExistingFile {
+        path: PathBuf,
+        source: io::Error,
+    },
+    #[error("existing HTML file `{path}` is not up to date")]
+    ExistingHtmlNotUpToDate {
+        path: PathBuf,
+    },
 }
 
 mod schema {
