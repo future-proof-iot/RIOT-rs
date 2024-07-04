@@ -191,24 +191,40 @@ fn render_html(matrix: &schema::Matrix) -> Result<String, Error> {
             .map(|functionality_info| {
                 let name = &functionality_info.name;
 
-                let support_info = if let Some(support_info) = board_info.supports.get(name) {
-                    support_info
+                let support_key = if let Some(support_info) = board_info.supports.get(name) {
+                    let status = support_info.status();
+                    matrix.support_keys
+                        .get(status)
+                        .ok_or(Error::InvalidSupportKeyNameBoard {
+                            found: status.to_owned(),
+                            functionality: name.to_owned(),
+                            board: board_info.name.to_owned(),
+                        })?
                 } else {
+                    let chip = &board_info.chip;
                     // Implement chip info inheritance
-                    let chip_info = matrix.chips.get(&board_info.chip).ok_or(Error::InvalidChipName)?;
-                    chip_info.supports.get(name).ok_or(Error::MissingSupportInfo {
+                    let chip_info = matrix.chips.get(chip).ok_or(Error::InvalidChipName {
+                        found: chip.to_owned(),
                         board: board_info.name.to_owned(),
-                        chip: board_info.chip.to_owned(),
-                        functionality: functionality_info.title.to_owned(),
-                    })?
+                    })?;
+                    let support_info = chip_info.supports
+                        .get(name)
+                        .ok_or(Error::MissingSupportInfo {
+                            board: board_info.name.to_owned(),
+                            chip: board_info.chip.to_owned(),
+                            functionality: functionality_info.title.to_owned(),
+                        })?;
+                    let status = support_info.status();
+                    matrix.support_keys
+                        .get(status)
+                        .ok_or(Error::InvalidSupportKeyNameChip {
+                            found: status.to_owned(),
+                            functionality: name.to_owned(),
+                            chip: chip_info.name.to_owned(),
+                        })?
                 };
 
                 // FIXME: make sure invalid functionality names in boards are rejected
-
-                let status = support_info.status();
-                let support_key = matrix.support_keys.get(status)
-                    .ok_or(Error::InvalidSupportKeyName { found: status.to_owned() })?;
-
                 Ok(FunctionalitySupport {
                     icon: support_key.icon.to_owned(),
                     description: support_key.description.to_owned(),
@@ -217,7 +233,10 @@ fn render_html(matrix: &schema::Matrix) -> Result<String, Error> {
             .collect::<Result<Vec<_>, Error>>()?;
 
 
-        let chip = matrix.chips.get(&board_info.chip).ok_or(Error::InvalidChipName)?;
+        let chip = matrix.chips.get(&board_info.chip).ok_or(Error::InvalidChipName {
+            found: board_info.chip.to_owned(),
+            board: board_info.name.to_owned(),
+        })?;
 
         Ok(BoardSupport {
             chip: chip.name.to_owned(),
@@ -258,13 +277,24 @@ enum Error {
         err_span: miette::SourceSpan,
         source: serde_yaml::Error,
     },
-    #[error("invalid chip name")] // FIXME: improve this error message
-    InvalidChipName,
+    #[error("invalid chip name `{found}` for board `{board}`")]
+    InvalidChipName {
+        found: String,
+        board: String,
+    },
     #[error("invalid functionality name")] // FIXME: improve this error message
     InvalidFunctionalityName,
-    #[error("invalid support key name `{found}`")] // FIXME: improve this error message
-    InvalidSupportKeyName {
+    #[error("invalid support key name `{found}` for functionality `{functionality}` for board `{board}`")]
+    InvalidSupportKeyNameBoard {
         found: String,
+        functionality: String,
+        board: String,
+    },
+    #[error("invalid support key name `{found}` for functionality `{functionality}` for chip `{chip}`")]
+    InvalidSupportKeyNameChip {
+        found: String,
+        functionality: String,
+        chip: String,
     },
     #[error("missing support info on board `{board}` or chip `{chip}` regarding functionality `{functionality}`")]
     MissingSupportInfo {
