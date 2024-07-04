@@ -16,6 +16,7 @@ subdirs:
   - hello-world-async
   - minimal
   - random
+  - storage
   - threading
   - threading-channel
   - usb-serial

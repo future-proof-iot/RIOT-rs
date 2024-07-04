@@ -18,6 +18,7 @@ riot-rs-embassy = { path = "../riot-rs-embassy" }
 riot-rs-macros = { path = "../riot-rs-macros" }
 riot-rs-random = { path = "../riot-rs-random", optional = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
+riot-rs-storage = { path = "../riot-rs-storage", optional = true }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-utils = { workspace = true }
 static_cell = { workspace = true }
@@ -26,6 +27,10 @@ static_cell = { workspace = true }
 default = ["riot-rs-rt/_panic-handler"]
 
 #! ## System functionality
+## Enables storage support.
+storage = [
+  "dep:riot-rs-storage",
+]
 ## Enables threading support, see the [`macro@thread`] attribute macro.
 threading = [
   "dep:riot-rs-threads",

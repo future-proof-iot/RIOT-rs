@@ -23,12 +23,15 @@ pub use riot_rs_coap as coap;
 pub use riot_rs_debug as debug;
 #[doc(inline)]
 pub use riot_rs_embassy as embassy;
-pub use riot_rs_embassy::{define_peripherals, group_peripherals};
+pub use riot_rs_embassy::{arch, define_peripherals, group_peripherals};
 #[cfg(feature = "random")]
 #[doc(inline)]
 pub use riot_rs_random as random;
 #[doc(inline)]
 pub use riot_rs_rt as rt;
+#[cfg(feature = "storage")]
+#[doc(inline)]
+pub use riot_rs_storage as storage;
 #[cfg(feature = "threading")]
 #[doc(inline)]
 pub use riot_rs_threads as thread;
