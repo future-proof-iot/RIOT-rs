@@ -21,29 +21,29 @@
     <tr>
       <td>ESP32-C6</td>
       <td>ESP32-C6-DevKitC-1</td>
-      <td class="support-cell" title="rework in progress, expect breaking changes">♻️</td>
       <td class="support-cell" title="supported">✅</td>
       <td class="support-cell" title="supported">✅</td>
-      <td class="support-cell" title="work in progress">🚧</td>
-      <td class="support-cell" title="work in progress">🚧</td>
-      <td class="support-cell" title="work in progress">🚧</td>
+      <td class="support-cell" title="supported">✅</td>
+      <td class="support-cell" title="supported">✅</td>
+      <td class="support-cell" title="supported with some caveats">☑️</td>
+      <td class="support-cell" title="supported">✅</td>
     </tr>
     <tr>
       <td>RP2040</td>
       <td>Raspberry Pi Pico</td>
-      <td class="support-cell" title="rework in progress, expect breaking changes">♻️</td>
       <td class="support-cell" title="supported">✅</td>
-      <td class="support-cell" title="work in progress">🚧</td>
       <td class="support-cell" title="supported">✅</td>
-      <td class="support-cell" title="not available on this piece of hardware">🚫</td>
+      <td class="support-cell" title="supported">✅</td>
+      <td class="support-cell" title="supported">✅</td>
+      <td class="support-cell" title="not available on this piece of hardware">–</td>
       <td class="support-cell" title="supported">✅</td>
     </tr>
     <tr>
       <td>RP2040</td>
       <td>Raspberry Pi Pico W</td>
-      <td class="support-cell" title="rework in progress, expect breaking changes">♻️</td>
       <td class="support-cell" title="supported">✅</td>
-      <td class="support-cell" title="work in progress">🚧</td>
+      <td class="support-cell" title="supported">✅</td>
+      <td class="support-cell" title="supported">✅</td>
       <td class="support-cell" title="supported">✅</td>
       <td class="support-cell" title="supported">✅</td>
       <td class="support-cell" title="supported">✅</td>
@@ -51,21 +51,21 @@
     <tr>
       <td>nRF52xxx</td>
       <td>nRF52840-DK</td>
-      <td class="support-cell" title="rework in progress, expect breaking changes">♻️</td>
       <td class="support-cell" title="supported">✅</td>
-      <td class="support-cell" title="work in progress">🚧</td>
       <td class="support-cell" title="supported">✅</td>
-      <td class="support-cell" title="not available on this piece of hardware">🚫</td>
+      <td class="support-cell" title="supported">✅</td>
+      <td class="support-cell" title="supported">✅</td>
+      <td class="support-cell" title="not available on this piece of hardware">–</td>
       <td class="support-cell" title="supported">✅</td>
     </tr>
     <tr>
       <td>nRF53xx</td>
       <td>nRF5340-DK</td>
-      <td class="support-cell" title="rework in progress, expect breaking changes">♻️</td>
       <td class="support-cell" title="supported">✅</td>
-      <td class="support-cell" title="work in progress">🚧</td>
       <td class="support-cell" title="supported">✅</td>
-      <td class="support-cell" title="not available on this piece of hardware">🚫</td>
+      <td class="support-cell" title="supported">✅</td>
+      <td class="support-cell" title="supported">✅</td>
+      <td class="support-cell" title="not available on this piece of hardware">–</td>
       <td class="support-cell" title="supported">✅</td>
     </tr>
   </tbody>
@@ -76,17 +76,22 @@
 }
 </style><p>Key:</p>
 
-<ul>
-  <li class="no-marker">✅&nbsp;&nbsp;supported</li>
-  <li class="no-marker">⚠️&nbsp;&nbsp;supported with some caveats</li>
-  <li class="no-marker">❔&nbsp;&nbsp;needs testing; support may be present but we do not currently test it</li>
-  <li class="no-marker">♻️&nbsp;&nbsp;rework in progress, expect breaking changes</li>
-  <li class="no-marker">🚧&nbsp;&nbsp;work in progress</li>
-  <li class="no-marker">❌&nbsp;&nbsp;not currently supported by RIOT-rs</li>
-  <li class="no-marker">🚫&nbsp;&nbsp;not available on this piece of hardware</li>
-</ul>
+<dl>
+  <div>
+    <dt>✅</dt><dd>supported</dd>
+  </div>
+  <div>
+    <dt>☑️</dt><dd>supported with some caveats</dd>
+  </div>
+  <div>
+    <dt>❌</dt><dd>available in hardware, but not currently supported by RIOT-rs</dd>
+  </div>
+  <div>
+    <dt>–</dt><dd>not available on this piece of hardware</dd>
+  </div>
+</dl>
 <style>
-.no-marker::marker {
-  content: '';
+dt, dd {
+  display: inline;
 }
 </style>

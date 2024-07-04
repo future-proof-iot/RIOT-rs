@@ -56,14 +56,16 @@ r##"<!-- This table is auto-generated. Do not edit manually. -->
 const KEY_TEMPLATE: &str =
 r##"<p>Key:</p>
 
-<ul>
+<dl>
   {%- for support_key in matrix.support_keys %}
-  <li class="no-marker">{{ support_key.icon }}&nbsp;&nbsp;{{ support_key.description }}</li>
+  <div>
+    <dt>{{ support_key.icon }}</dt><dd>{{ support_key.description }}</dd>
+  </div>
   {%- endfor %}
-</ul>
+</dl>
 <style>
-.no-marker::marker {
-  content: '';
+dt, dd {
+  display: inline;
 }
 </style>
 "##;
@@ -415,7 +417,7 @@ mod schema {
         StatusOnly(String),
         Details {
             status: String,
-            comments: Option<String>,
+            comments: Option<Vec<String>>,
             link: Option<String>,
         },
     }

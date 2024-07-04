@@ -6,22 +6,13 @@ support_keys:
     icon: ✅
     description: supported
   - name: supported_with_caveats
-    icon: ⚠️
+    icon: ☑️
     description: supported with some caveats
-  - name: needs_testing
-    icon: ❔
-    description: needs testing; support may be present but we do not currently test it
-  - name: being_reworked
-    icon: ♻️
-    description: rework in progress, expect breaking changes
-  - name: wip
-    icon: 🚧
-    description: work in progress
   - name: not_currently_supported
     icon: ❌
     description: available in hardware, but not currently supported by RIOT-rs
   - name: not_available
-    icon: 🚫
+    icon: '–'
     description: not available on this piece of hardware
 
 # Defines existing pieces of functionality, hardware or software.
@@ -50,43 +41,33 @@ chips:
   nrf52xxx:
     name: nRF52xxx
     support:
-      gpio:
-        status: being_reworked
-        link: https://github.com/future-proof-iot/RIOT-rs/pull/322
+      gpio: supported
       debug_output: supported
-      logging: wip
+      logging: supported
       wifi: not_available
 
   nrf53xx:
     name: nRF53xx
     support:
-      gpio:
-        status: being_reworked
-        link: https://github.com/future-proof-iot/RIOT-rs/pull/322
+      gpio: supported
       debug_output: supported
-      logging: wip
+      logging: supported
       wifi: not_available
 
   rp2040:
     name: RP2040
     support:
-      gpio:
-        status: being_reworked
-        link: https://github.com/future-proof-iot/RIOT-rs/pull/322
+      gpio: supported
       debug_output: supported
-      logging: wip
+      logging: supported
       wifi: not_available
 
   esp32-c6:
     name: ESP32-C6
     support:
-      gpio:
-        status: being_reworked
-        link: https://github.com/future-proof-iot/RIOT-rs/pull/322
+      gpio: supported
       debug_output: supported
-      logging:
-        status: supported
-        link: https://github.com/future-proof-iot/RIOT-rs/pull/255
+      logging: supported
       wifi: not_available
 
 # Encodes support status for each board.
@@ -125,6 +106,9 @@ boards:
     name: ESP32-C6-DevKitC-1
     chip: esp32-c6
     support:
-      user_usb: wip
-      wifi: wip
-      ethernet_over_usb: wip
+      user_usb: supported
+      wifi:
+        status: supported_with_caveats
+        comments:
+          - not currently compatible with threading
+      ethernet_over_usb: supported
