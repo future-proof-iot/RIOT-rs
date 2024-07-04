@@ -171,6 +171,9 @@ jobs:
       - name: typos
         uses: crate-ci/typos@v1.22.0
 
+      - name: Check that the HTML support matrix is up to date
+        run: ./doc/gen_support_matrix_html.rs check doc/support_matrix.yml book/src/support_matrix.html
+
   CI-success:
     if: ${{ always() }}
     runs-on: ubuntu-latest
