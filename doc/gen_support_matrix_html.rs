@@ -171,7 +171,7 @@ fn main() -> miette::Result<()> {
 
 fn validate_input(matrix: &schema::Matrix) -> Result<(), Error> {
     for (_, board_info) in &matrix.boards {
-        let invalid_functionality_name = board_info.supports
+        let invalid_functionality_name = board_info.support
             .keys()
             .find(|f| matrix.functionalities.iter().all(|functionality| functionality.name != **f));
 
@@ -184,7 +184,7 @@ fn validate_input(matrix: &schema::Matrix) -> Result<(), Error> {
     }
 
     for (_, chip_info) in &matrix.chips {
-        let invalid_functionality_name = chip_info.supports
+        let invalid_functionality_name = chip_info.support
             .keys()
             .find(|f| matrix.functionalities.iter().all(|functionality| functionality.name != **f));
 
@@ -225,7 +225,7 @@ fn render_html(matrix: &schema::Matrix) -> Result<String, Error> {
             .map(|functionality_info| {
                 let name = &functionality_info.name;
 
-                let support_key = if let Some(support_info) = board_info.supports.get(name) {
+                let support_key = if let Some(support_info) = board_info.support.get(name) {
                     let status = support_info.status();
                     matrix.support_keys
                         .get(status)
@@ -241,7 +241,7 @@ fn render_html(matrix: &schema::Matrix) -> Result<String, Error> {
                         found: chip.to_owned(),
                         board: board_name.to_owned(),
                     })?;
-                    let support_info = chip_info.supports
+                    let support_info = chip_info.support
                         .get(name)
                         .ok_or(Error::MissingSupportInfo {
                             board: board_name.to_owned(),
@@ -393,7 +393,7 @@ mod schema {
     pub struct ChipInfo {
         pub name: String,
         pub description: Option<String>,
-        pub supports: HashMap<String, SupportInfo>,
+        pub support: HashMap<String, SupportInfo>,
     }
 
     #[derive(Debug, Serialize, Deserialize)]
@@ -402,7 +402,7 @@ mod schema {
         pub name: String,
         pub description: Option<String>,
         pub chip: String,
-        pub supports: HashMap<String, SupportInfo>,
+        pub support: HashMap<String, SupportInfo>,
     }
 
     #[derive(Debug, Serialize, Deserialize)]
