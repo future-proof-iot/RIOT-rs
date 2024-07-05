@@ -1,7 +1,7 @@
 //! Helpers for udp_nal -- conversion and error types
 
-use embassy_net::udp;
 use embedded_nal_async as nal;
+use riot_rs_embassy::embassy_net::udp;
 use smoltcp::wire::{IpAddress, IpEndpoint};
 
 pub(super) fn sockaddr_nal2smol(sockaddr: nal::SocketAddr) -> Result<IpEndpoint, Error> {
@@ -39,7 +39,8 @@ pub(super) fn sockaddr_smol2nal(endpoint: IpEndpoint) -> nal::SocketAddr {
         }
         #[cfg(feature = "proto-ipv6")]
         IpAddress::Ipv6(addr) => {
-            embedded_nal_async::SocketAddrV6::new(addr.0.into(), endpoint.port).into()
+            // FIXME: Where is smoltcp's zone identifier?
+            embedded_nal_async::SocketAddrV6::new(addr.0.into(), endpoint.port, 0, 0).into()
         }
     }
 }

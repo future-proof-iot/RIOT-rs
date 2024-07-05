@@ -19,6 +19,17 @@ This application is a work in progress demo of running CoAP with OSCORE/EDHOC se
   up to the maximum number of security contexts that are stored (currently 4).
 * There is also `./fauxhoc.py`, which did EDHOC manually before it was integrated in aiocoap.
 
+### Storage
+
+```
+$ pipx run --spec 'aiocoap[all]' aiocoap-client coap://10.42.0.61/stored --credentials client.diag
+4.04 Not Found
+$ pipx run --spec 'aiocoap[all]' aiocoap-client coap://10.42.0.61/stored --credentials client.diag -m PUT --payload '"123"' --content-format application/cbor
+$ pipx run --spec 'aiocoap[all]' aiocoap-client coap://10.42.0.61/stored --credentials client.diag
+# CBOR message shown in Diagnostic Notation
+"123"
+```
+
 ## Roadmap
 
 Eventually, this should be a 20 line demo.
