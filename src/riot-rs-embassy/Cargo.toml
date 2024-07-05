@@ -15,6 +15,7 @@ portable-atomic.workspace = true
 
 embassy-executor = { workspace = true, features = ["nightly"] }
 
+embassy-hal-internal = { workspace = true }
 embassy-net = { workspace = true, optional = true, features = [
   "dhcpv4",
   "medium-ethernet",

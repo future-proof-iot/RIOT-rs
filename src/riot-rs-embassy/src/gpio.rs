@@ -1,5 +1,4 @@
 use embedded_hal::digital::{OutputPin, StatefulOutputPin};
-use embedded_hal_async::digital::Wait;
 
 use crate::arch::{
     self,
@@ -79,25 +78,27 @@ impl embedded_hal::digital::ErrorType for IntEnabledInput {
     type Error = <ArchInput<'static> as embedded_hal::digital::ErrorType>::Error;
 }
 
-impl Wait for IntEnabledInput {
+impl embedded_hal_async::digital::Wait for IntEnabledInput {
     async fn wait_for_high(&mut self) -> Result<(), Self::Error> {
-        <ArchInput as Wait>::wait_for_high(&mut self.input).await
+        <ArchInput as embedded_hal_async::digital::Wait>::wait_for_high(&mut self.input).await
     }
 
     async fn wait_for_low(&mut self) -> Result<(), Self::Error> {
-        <ArchInput as Wait>::wait_for_low(&mut self.input).await
+        <ArchInput as embedded_hal_async::digital::Wait>::wait_for_low(&mut self.input).await
     }
 
     async fn wait_for_rising_edge(&mut self) -> Result<(), Self::Error> {
-        <ArchInput as Wait>::wait_for_rising_edge(&mut self.input).await
+        <ArchInput as embedded_hal_async::digital::Wait>::wait_for_rising_edge(&mut self.input)
+            .await
     }
 
     async fn wait_for_falling_edge(&mut self) -> Result<(), Self::Error> {
-        <ArchInput as Wait>::wait_for_falling_edge(&mut self.input).await
+        <ArchInput as embedded_hal_async::digital::Wait>::wait_for_falling_edge(&mut self.input)
+            .await
     }
 
     async fn wait_for_any_edge(&mut self) -> Result<(), Self::Error> {
-        <ArchInput as Wait>::wait_for_any_edge(&mut self.input).await
+        <ArchInput as embedded_hal_async::digital::Wait>::wait_for_any_edge(&mut self.input).await
     }
 }
 
@@ -292,7 +293,7 @@ impl Default for DriveStrength {
 
 // We introduce our own trait instead of using `From` because this conversion is not
 // value-preserving.
-pub trait FromDriveStrength {
+pub(crate) trait FromDriveStrength {
     fn from(drive_strength: DriveStrength) -> ArchDriveStrength;
 }
 
@@ -315,7 +316,7 @@ impl Default for Speed {
 
 // We introduce our own trait instead of using `From` because this conversion is not
 // value-preserving.
-pub trait FromSpeed {
+pub(crate) trait FromSpeed {
     fn from(speed: Speed) -> ArchSpeed;
 }
 
