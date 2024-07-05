@@ -44,32 +44,46 @@ impl<'a> Write for Stdout<'a> {
     }
 }
 
-struct StringStorageAccess<F>(Storage<F>, &'static str);
+struct StringStorageAccess<'s, F>(&'s core::cell::RefCell<Storage<F>>, &'static str);
 
-impl<F: embedded_storage_async::nor_flash::NorFlash> coap_handler_implementations::TypeRenderable for StringStorageAccess<F> {
+impl<'s, F: embedded_storage_async::nor_flash::NorFlash>
+    coap_handler_implementations::TypeRenderable for StringStorageAccess<'s, F>
+{
     type Get = heapless::String<64>;
     type Post = ();
     type Put = heapless::String<64>;
 
     fn get(&mut self) -> Result<Self::Get, u8> {
         use core::future::Future;
-        let future = core::pin::pin!(self.0.get(self.1));
+        let mut storage = self
+            .0
+            .try_borrow_mut()
+            .map_err(|_| coap_numbers::code::SERVICE_UNAVAILABLE)?;
+        let future = core::pin::pin!(storage.get(self.1));
         // Let's assume this is not *really* blocking
-        match future
-            .poll(&mut core::task::Context::from_waker(&core::task::Waker::noop()))
-        {
-            core::task::Poll::Ready(data) => data.map_err(|_| coap_numbers::code::BAD_REQUEST).and_then(|data| data.ok_or(coap_numbers::code::NOT_FOUND)),
+        match future.poll(&mut core::task::Context::from_waker(
+            &core::task::Waker::noop(),
+        )) {
+            core::task::Poll::Ready(data) => data
+                .map_err(|_| coap_numbers::code::BAD_REQUEST)
+                .and_then(|data| data.ok_or(coap_numbers::code::NOT_FOUND)),
             _ => Err(coap_numbers::code::INTERNAL_SERVER_ERROR),
         }
     }
 
     fn put(&mut self, value: &Self::Put) -> u8 {
         use core::future::Future;
-        let future = core::pin::pin!(self.0.put(self.1, value.clone()));
+        let storage = self.0.try_borrow_mut();
+        let Ok(mut storage) = storage else {
+            // FIXME: put should also return a Result; yes it's slightly sub-optimal stack usage,
+            // but then, where is a u8 actually an u8 on the stack?
+            return coap_numbers::code::SERVICE_UNAVAILABLE;
+        };
+        let future = core::pin::pin!(storage.put(self.1, value.clone()));
         // Let's assume this is not *really* blocking
-        match future
-            .poll(&mut core::task::Context::from_waker(&core::task::Waker::noop()))
-        {
+        match future.poll(&mut core::task::Context::from_waker(
+            &core::task::Waker::noop(),
+        )) {
             core::task::Poll::Ready(Ok(())) => coap_numbers::code::CHANGED,
             // more like "some other error"
             core::task::Poll::Ready(Err(_)) => coap_numbers::code::BAD_REQUEST,
@@ -78,11 +92,44 @@ impl<F: embedded_storage_async::nor_flash::NorFlash> coap_handler_implementation
     }
 }
 
+struct RawStorageAccess<'s, F>(&'s core::cell::RefCell<Storage<F>>, &'static str);
+
+impl<'s, F: embedded_storage_async::nor_flash::NorFlash>
+    coap_handler_implementations::TypeRenderable for RawStorageAccess<'s, F>
+{
+    type Get = heapless::Vec<u8, 64>;
+    type Post = ();
+    type Put = ();
+
+    fn get(&mut self) -> Result<Self::Get, u8> {
+        use core::future::Future;
+        let mut storage = self
+            .0
+            .try_borrow_mut()
+            .map_err(|_| coap_numbers::code::SERVICE_UNAVAILABLE)?;
+        let future = core::pin::pin!(storage.get_raw_owned(self.1));
+        // Let's assume this is not *really* blocking
+        match future.poll(&mut core::task::Context::from_waker(
+            &core::task::Waker::noop(),
+        )) {
+            core::task::Poll::Ready(data) => data
+                .map_err(|_| coap_numbers::code::BAD_REQUEST)
+                .and_then(|option| {
+                    option.ok_or(coap_numbers::code::NOT_FOUND).map(|data| {
+                        data.as_slice().try_into()
+                            .expect("ArrayVec<64> can be converted into heapless::Vec<64>")
+                    })
+                }),
+            _ => Err(coap_numbers::code::INTERNAL_SERVER_ERROR),
+        }
+    }
+}
+
 #[riot_rs::task(autostart, peripherals)]
 async fn run(p: MyPeripherals) {
     let flash = embassy_nrf::nvmc::Nvmc::new(p.nvmc);
     let flash = embassy_embedded_hal::adapter::BlockingAsync::new(flash);
-    let mut storage = Storage::new(flash).await;
+    let storage = core::cell::RefCell::new(Storage::new(flash).await);
 
     use coap_handler_implementations::{HandlerBuilder, ReportingHandlerBuilder};
 
@@ -97,11 +144,18 @@ async fn run(p: MyPeripherals) {
             &["stdout"],
             coap_scroll_ring_server::BufferHandler::new(&buffer),
         )
+        // For weird reasons, only one of those canb e used at the same time -- is the firmware
+        // getting too big?
         .at_with_attributes(
             &["stored"],
             &[],
-            coap_handler_implementations::TypeHandler::new(StringStorageAccess(storage, "stored")),
+            coap_handler_implementations::TypeHandler::new(StringStorageAccess(&storage, "stored")),
         )
+        // .at_with_attributes(
+        //     &["raw"],
+        //     &[],
+        //     coap_handler_implementations::TypeHandler::new(RawStorageAccess(&storage, "stored")),
+        // )
         .with_wkc();
 
     writeln!(stdout, "Server is ready.").unwrap();

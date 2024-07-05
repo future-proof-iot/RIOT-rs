@@ -88,6 +88,21 @@ impl<F: NorFlash> Storage<F> {
         .await
     }
 
+    pub async fn get_raw_owned(&mut self, key: &str) -> Result<Option<arrayvec::ArrayVec::<u8, 64>>, sequential_storage::Error<<F as ErrorType>::Error>> {
+        let key = ArrayString::<MAX_KEY_LEN>::from(key).unwrap();
+        let mut data_buffer = [0; DATA_BUFFER_SIZE];
+
+        fetch_item::<_, &[u8], _>(
+            &mut self.flash,
+            self.storage_range.clone(),
+            &mut NoCache::new(),
+            &mut data_buffer,
+            key,
+        )
+        .await
+        .map(|o| o.map(|d| d.try_into().unwrap()))
+    }
+
     pub async fn put_raw<'d, V: Value<'d>>(
         &mut self,
         key: &str,
