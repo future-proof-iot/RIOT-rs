@@ -52,8 +52,11 @@ pub mod output {
         gpio::{FromDriveStrength, FromSpeed, PinState},
     };
 
-    pub(crate) use embassy_nrf::gpio::{Output, Pin};
+    // We re-export `Output` twice, for consistency with other architectures that have a dedicated
+    // type for open-drain outputs.
+    pub(crate) use embassy_nrf::gpio::{Output, Output as OpenDrainOutput, Pin};
 
+    pub(crate) const OPEN_DRAIN_AVAILABLE: bool = true;
     pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = true;
     pub(crate) const SPEED_AVAILABLE: bool = false;
 
@@ -69,6 +72,23 @@ pub mod output {
         let output_drive = match drive_strength {
             DriveStrength::Standard => OutputDrive::Standard,
             DriveStrength::High => OutputDrive::HighDrive,
+        };
+        Output::new(pin, initial_state, output_drive)
+    }
+
+    pub(crate) fn new_open_drain(
+        pin: impl Peripheral<P: Pin> + 'static,
+        initial_state: PinState,
+        drive_strength: DriveStrength,
+        _speed: Speed, // Not supported by this architecture
+    ) -> OpenDrainOutput<'static> {
+        // TODO: maybe factor this out with `new()`
+        let initial_state: bool = initial_state.into();
+        let initial_state = Level::from(initial_state);
+        // TODO: this also depends on the open-drain configuration
+        let output_drive = match drive_strength {
+            DriveStrength::Standard => OutputDrive::Standard0Disconnect1,
+            DriveStrength::High => OutputDrive::HighDrive0Disconnect1,
         };
         Output::new(pin, initial_state, output_drive)
     }

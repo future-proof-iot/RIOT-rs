@@ -6,8 +6,8 @@ use crate::arch::{
     gpio::{
         input::{Input as ArchInput, Pin as ArchInputPin},
         output::{
-            DriveStrength as ArchDriveStrength, Output as ArchOutput, Pin as ArchOutputPin,
-            Speed as ArchSpeed,
+            DriveStrength as ArchDriveStrength, OpenDrainOutput as ArchOpenDrainOutput,
+            Output as ArchOutput, Pin as ArchOutputPin, Speed as ArchSpeed,
         },
     },
     peripheral::Peripheral,
@@ -243,6 +243,28 @@ impl Output {
     }
 }
 
+// FIXME: rename it to OutputOpenDrain for consistency with Embassy?
+pub struct OpenDrainOutput {
+    output: ArchOpenDrainOutput<'static>, // FIXME: is this ok to require a 'static pin?
+}
+
+impl OpenDrainOutput {
+    pub fn set_low(&mut self) {
+        // All architectures are infallible.
+        let _ = <Self as OutputPin>::set_low(self);
+    }
+
+    pub fn set_high(&mut self) {
+        // All architectures are infallible.
+        let _ = <Self as OutputPin>::set_high(self);
+    }
+
+    pub fn toggle(&mut self) {
+        // All architectures are infallible.
+        let _ = <Self as StatefulOutputPin>::toggle(self);
+    }
+}
+
 pub struct OutputBuilder<P: Peripheral<P: ArchOutputPin>> {
     pin: P,
     initial_state: PinState,
@@ -366,33 +388,61 @@ impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
 
         Output { output }
     }
-}
 
-impl embedded_hal::digital::ErrorType for Output {
-    type Error = <ArchOutput<'static> as embedded_hal::digital::ErrorType>::Error;
-}
+    pub fn build_open_drain(self) -> OpenDrainOutput {
+        // It is not clear whether any architectures does *not* support open-drain, but we still
+        // check it for forward compatibility.
+        const {
+            assert!(
+                arch::gpio::output::OPEN_DRAIN_AVAILABLE,
+                "This architecture does not support open-drain GPIO outputs."
+            );
+        }
 
-impl OutputPin for Output {
-    fn set_low(&mut self) -> Result<(), Self::Error> {
-        <ArchOutput as OutputPin>::set_low(&mut self.output)
-    }
+        // TODO: should we move this into `output::new()`s?
+        let drive_strength = <ArchDriveStrength as FromDriveStrength>::from(self.drive_strength);
+        // TODO: should we move this into `output::new()`s?
+        let speed = <ArchSpeed as FromSpeed>::from(self.speed);
 
-    fn set_high(&mut self) -> Result<(), Self::Error> {
-        <ArchOutput as OutputPin>::set_high(&mut self.output)
-    }
-}
+        let output =
+            arch::gpio::output::new_open_drain(self.pin, self.initial_state, drive_strength, speed);
 
-// Outputs are all stateful outputs on:
-// - embassy-nrf
-// - embassy-rp
-// - esp-hal
-// - embassy-stm32
-impl StatefulOutputPin for Output {
-    fn is_set_high(&mut self) -> Result<bool, Self::Error> {
-        <ArchOutput as StatefulOutputPin>::is_set_high(&mut self.output)
-    }
-
-    fn is_set_low(&mut self) -> Result<bool, Self::Error> {
-        <ArchOutput as StatefulOutputPin>::is_set_low(&mut self.output)
+        OpenDrainOutput { output }
     }
 }
+
+macro_rules! impl_embedded_hal_output_traits {
+    ($type:ident, $arch_type:ident) => {
+        impl embedded_hal::digital::ErrorType for $type {
+            type Error = <$arch_type<'static> as embedded_hal::digital::ErrorType>::Error;
+        }
+
+        impl OutputPin for $type {
+            fn set_low(&mut self) -> Result<(), Self::Error> {
+                <$arch_type as OutputPin>::set_low(&mut self.output)
+            }
+
+            fn set_high(&mut self) -> Result<(), Self::Error> {
+                <$arch_type as OutputPin>::set_high(&mut self.output)
+            }
+        }
+
+        // Outputs are all stateful outputs on:
+        // - embassy-nrf
+        // - embassy-rp
+        // - esp-hal
+        // - embassy-stm32
+        impl StatefulOutputPin for $type {
+            fn is_set_high(&mut self) -> Result<bool, Self::Error> {
+                <$arch_type as StatefulOutputPin>::is_set_high(&mut self.output)
+            }
+
+            fn is_set_low(&mut self) -> Result<bool, Self::Error> {
+                <$arch_type as StatefulOutputPin>::is_set_low(&mut self.output)
+            }
+        }
+    };
+}
+
+impl_embedded_hal_output_traits!(Output, ArchOutput);
+impl_embedded_hal_output_traits!(OpenDrainOutput, ArchOpenDrainOutput);
