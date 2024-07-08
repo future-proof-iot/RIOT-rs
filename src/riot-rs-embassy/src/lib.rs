@@ -39,7 +39,7 @@ pub mod network;
 #[cfg(feature = "wifi")]
 mod wifi;
 
-use riot_rs_debug::println;
+use riot_rs_debug::log::debug;
 
 // re-exports
 pub use linkme::{self, distributed_slice};
@@ -96,7 +96,7 @@ pub static EXECUTOR: arch::Executor = arch::Executor::new();
 #[cfg(feature = "executor-interrupt")]
 #[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
-    println!("riot-rs-embassy::init(): using interrupt mode executor");
+    debug!("riot-rs-embassy::init(): using interrupt mode executor");
     let p = arch::init();
 
     #[cfg(any(context = "nrf", context = "rp2040", context = "stm32"))]
@@ -112,7 +112,7 @@ pub(crate) fn init() {
 #[cfg(feature = "executor-single-thread")]
 #[export_name = "riot_rs_embassy_init"]
 fn init() -> ! {
-    println!("riot-rs-embassy::init(): using single thread executor");
+    debug!("riot-rs-embassy::init(): using single thread executor");
     let p = arch::init();
 
     let executor = make_static!(arch::Executor::new());
@@ -137,7 +137,7 @@ mod executor_thread {
 #[cfg(feature = "executor-thread")]
 #[riot_rs_macros::thread(autostart, stacksize = executor_thread::STACKSIZE, priority = executor_thread::PRIORITY)]
 fn init() {
-    println!("riot-rs-embassy::init(): using thread executor");
+    debug!("riot-rs-embassy::init(): using thread executor");
     let p = arch::init();
 
     let executor = make_static!(thread_executor::Executor::new());
@@ -146,7 +146,7 @@ fn init() {
 
 #[embassy_executor::task]
 async fn init_task(mut peripherals: arch::OptionalPeripherals) {
-    println!("riot-rs-embassy::init_task()");
+    debug!("riot-rs-embassy::init_task()");
 
     #[cfg(feature = "hwrng")]
     arch::hwrng::construct_rng(&mut peripherals);
@@ -158,7 +158,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         // nrf52840
         let clock: embassy_nrf::pac::CLOCK = unsafe { core::mem::transmute(()) };
 
-        println!("nrf: enabling ext hfosc...");
+        debug!("nrf: enabling ext hfosc...");
         clock.tasks_hfclkstart.write(|w| unsafe { w.bits(1) });
         while clock.events_hfclkstarted.read().bits() != 1 {}
     }
@@ -281,5 +281,5 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     // mark used
     let _ = peripherals;
 
-    println!("riot-rs-embassy::init_task() done");
+    debug!("riot-rs-embassy::init_task() done");
 }

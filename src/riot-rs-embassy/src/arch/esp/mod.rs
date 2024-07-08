@@ -17,7 +17,7 @@ pub fn init() -> OptionalPeripherals {
         use esp_hal::{rng::Rng, timer::systimer::SystemTimer};
         use esp_wifi::{initialize, EspWifiInitFor};
 
-        riot_rs_debug::println!("riot-rs-embassy::arch::esp::init(): wifi");
+        riot_rs_debug::log::debug!("riot-rs-embassy::arch::esp::init(): wifi");
 
         let timer = SystemTimer::new(peripherals.SYSTIMER.take().unwrap());
 
