@@ -39,6 +39,7 @@ pub use bench::benchmark;
 
 /// Possible errors happening when benchmarking.
 #[derive(Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Error {
     /// The system timer wrapped when benchmarking.
     SystemTimerWrapped,

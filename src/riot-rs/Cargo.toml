@@ -76,6 +76,7 @@ defmt = [
   "riot-rs-debug/defmt",
   "riot-rs-embassy/defmt",
   "riot-rs-threads?/defmt",
+  "riot-rs-bench?/defmt",
 ]
 ## Enables benchmarking facilities.
 bench = ["dep:riot-rs-bench"]

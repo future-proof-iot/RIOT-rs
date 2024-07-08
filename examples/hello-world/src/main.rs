@@ -3,11 +3,11 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::debug::{exit, println};
+use riot_rs::debug::{exit, log::*};
 
 #[riot_rs::thread(autostart)]
 fn main() {
-    println!(
+    info!(
         "Hello from main()! Running on a {} board.",
         riot_rs::buildinfo::BOARD,
     );

@@ -3,9 +3,10 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::{debug::println, embassy::network};
+use riot_rs::{debug::log::*, embassy::network};
 
 use embassy_net::udp::{PacketMetadata, UdpSocket};
+use embedded_nal_coap::TransportError;
 
 // Moving work from https://github.com/embassy-rs/embassy/pull/2519 in here for the time being
 mod udp_nal;
@@ -37,7 +38,7 @@ async fn coap_run() {
         &mut tx_buffer,
     );
 
-    println!("Starting up CoAP server");
+    info!("Starting up CoAP server");
 
     // Can't that even bind to the Any address??
     // let local_any = "0.0.0.0:5683".parse().unwrap(); // shame
@@ -105,7 +106,7 @@ where
         lakers_crypto_rustcrypto::Crypto::new(riot_rs::random::crypto_rng())
     });
 
-    println!("Server is ready.");
+    info!("Server is ready.");
 
     let coap = embedded_nal_coap::CoAPShared::<3>::new();
     let (client, server) = coap.split();
@@ -132,32 +133,33 @@ async fn run_client_operations<const N: usize>(
     client: embedded_nal_coap::CoAPRuntimeClient<'_, N>,
 ) {
     // shame
-    let demoserver = "10.42.0.1:1234".parse().unwrap();
+    let addr = "10.42.0.1:1234";
+    let demoserver = addr.clone().parse().unwrap();
 
     use coap_request::Stack;
-    println!("Sending GET to {}...", demoserver);
+    info!("Sending GET to {}...", addr);
     let response = client
         .to(demoserver)
         .request(
             coap_request_implementations::Code::get()
                 .with_path("/other/separate")
                 .processing_response_payload_through(|p| {
-                    println!("Got payload {:?}", p);
+                    info!("Got payload {:?}", p);
                 }),
         )
         .await;
-    println!("Response {:?}", response);
+    info!("Response {:?}", response.map_err(|_| "TransportError"));
 
     let req = coap_request_implementations::Code::post().with_path("/uppercase");
 
-    println!("Sending POST...");
+    info!("Sending POST...");
     let mut response = client.to(demoserver);
     let response = response.request(
         req.with_request_payload_slice(b"Set time to 1955-11-05")
             .processing_response_payload_through(|p| {
-                println!("Uppercase is {}", core::str::from_utf8(p).unwrap())
+                info!("Uppercase is {}", core::str::from_utf8(p).unwrap())
             }),
     );
     let response = response.await;
-    println!("Response {:?}", response);
+    info!("Response {:?}", response.map_err(|_| "TransportError"));
 }

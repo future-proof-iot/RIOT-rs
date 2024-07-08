@@ -10,6 +10,7 @@ workspace = true
 
 [dependencies]
 cfg-if = { workspace = true }
+defmt = { workspace = true, optional = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
 cortex-m = { workspace = true, features = ["critical-section-single-core"] }

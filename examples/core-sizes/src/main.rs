@@ -3,15 +3,15 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::debug::{exit, println, EXIT_SUCCESS};
+use riot_rs::debug::{exit, log::*, EXIT_SUCCESS};
 
 #[riot_rs::thread(autostart)]
 fn main() {
-    println!(
+    info!(
         "riot_rs::thread::lock::Lock: {}",
         core::mem::size_of::<riot_rs::thread::lock::Lock>(),
     );
-    println!(
+    info!(
         "riot_rs::thread::Thread: {}",
         riot_rs::thread::thread_struct_size()
     );

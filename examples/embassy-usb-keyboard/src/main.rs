@@ -6,7 +6,7 @@
 use embassy_time::Duration;
 use embassy_usb::class::hid::{self, HidReaderWriter};
 use riot_rs::{
-    debug::println,
+    debug::log::*,
     embassy::{
         make_static,
         usb::{UsbBuilderHook, UsbDriver},
@@ -38,15 +38,15 @@ async fn usb_keyboard(button_peripherals: pins::Buttons) {
     loop {
         for (i, button) in buttons.get_mut().iter_mut().enumerate() {
             if button.is_pressed() {
-                println!("Button #{} pressed", i + 1);
+                info!("Button #{} pressed", i + 1);
 
                 let report = keyboard_report(KEYCODE_MAPPING[i]);
                 if let Err(e) = hid_writer.write_serialize(&report).await {
-                    println!("Failed to send report: {:?}", e);
+                    info!("Failed to send report: {:?}", e);
                 }
                 let report = keyboard_report(KEY_RELEASED);
                 if let Err(e) = hid_writer.write_serialize(&report).await {
-                    println!("Failed to send report: {:?}", e);
+                    info!("Failed to send report: {:?}", e);
                 }
             }
         }
