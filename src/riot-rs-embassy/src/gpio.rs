@@ -5,9 +5,10 @@ use crate::arch::{
     gpio::{
         input::{Input as ArchInput, Pin as ArchInputPin},
         output::{
-            DriveStrength as ArchDriveStrength, OpenDrainOutput as ArchOpenDrainOutput,
+            DriveStrength as ArchDriveStrength,
             Output as ArchOutput, Pin as ArchOutputPin, Speed as ArchSpeed,
         },
+        open_drain_output::{OpenDrainOutput as ArchOpenDrainOutput, Pin as ArchOpenDrainOutputPin},
     },
     peripheral::Peripheral,
 };
@@ -250,6 +251,28 @@ pub struct OpenDrainOutput {
 }
 
 impl OpenDrainOutput {
+    pub fn new(
+        pin: impl Peripheral<P: ArchOpenDrainOutputPin> + 'static,
+        initial_state: PinState,
+        pull: Pull,
+    ) -> Self {
+        Self::builder(pin, initial_state, pull).build()
+    }
+
+    pub fn builder<P: Peripheral<P: ArchOpenDrainOutputPin>>(
+        pin: P,
+        initial_state: PinState,
+        pull: Pull,
+    ) -> OpenDrainOutputBuilder<P> {
+        OpenDrainOutputBuilder {
+            pin,
+            initial_state,
+            drive_strength: DriveStrength::default(),
+            pull,
+            speed: Speed::default(),
+        }
+    }
+
     pub fn set_low(&mut self) {
         // All architectures are infallible.
         let _ = <Self as OutputPin>::set_low(self);
@@ -264,13 +287,6 @@ impl OpenDrainOutput {
         // All architectures are infallible.
         let _ = <Self as StatefulOutputPin>::toggle(self);
     }
-}
-
-pub struct OutputBuilder<P: Peripheral<P: ArchOutputPin>> {
-    pin: P,
-    initial_state: PinState,
-    drive_strength: DriveStrength,
-    speed: Speed,
 }
 
 // TODO: should this be marked non_exaustive?
@@ -320,65 +336,89 @@ pub(crate) trait FromSpeed {
     fn from(speed: Speed) -> ArchSpeed;
 }
 
-impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
-    pub fn drive_strength(self, drive_strength: DriveStrength) -> Self {
-        const {
-            assert!(
-                arch::gpio::output::DRIVE_STRENGTH_AVAILABLE,
-                "This architecture does not support setting the drive strength of GPIO outputs."
-            );
-        }
+pub struct OutputBuilder<P: Peripheral<P: ArchOutputPin>> {
+    pin: P,
+    initial_state: PinState,
+    drive_strength: DriveStrength,
+    speed: Speed,
+}
 
-        Self {
-            drive_strength,
-            ..self
-        }
-    }
+pub struct OpenDrainOutputBuilder<P: Peripheral<P: ArchOpenDrainOutputPin>> {
+    pin: P,
+    initial_state: PinState,
+    drive_strength: DriveStrength,
+    pull: Pull,
+    speed: Speed,
+}
 
-    // It is unclear whether `opt_*()` functions are actually useful, so we provide them but do not
-    // commit to them being part of our API for now.
-    // We may remove them in the future if we realize they are never useful.
-    #[doc(hidden)]
-    // TODO: or `drive_strength_opt`?
-    pub fn opt_drive_strength(self, drive_strength: DriveStrength) -> Self {
-        if arch::gpio::output::DRIVE_STRENGTH_AVAILABLE {
-            // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
-            // be triggered.
-            Self {
-                drive_strength,
-                ..self
+macro_rules! impl_output_builder {
+    ($type:ident, $pin_trait:ident) => {
+        impl<P: Peripheral<P: $pin_trait> + 'static> $type<P> {
+            pub fn drive_strength(self, drive_strength: DriveStrength) -> Self {
+                const {
+                    assert!(
+                        arch::gpio::output::DRIVE_STRENGTH_AVAILABLE,
+                        "This architecture does not support setting the drive strength of GPIO outputs."
+                    );
+                }
+
+                Self {
+                    drive_strength,
+                    ..self
+                }
             }
-        } else {
-            self
+
+            // It is unclear whether `opt_*()` functions are actually useful, so we provide them but do not
+            // commit to them being part of our API for now.
+            // We may remove them in the future if we realize they are never useful.
+            #[doc(hidden)]
+            // TODO: or `drive_strength_opt`?
+            pub fn opt_drive_strength(self, drive_strength: DriveStrength) -> Self {
+                if arch::gpio::output::DRIVE_STRENGTH_AVAILABLE {
+                    // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
+                    // be triggered.
+                    Self {
+                        drive_strength,
+                        ..self
+                    }
+                } else {
+                    self
+                }
+            }
+
+            pub fn speed(self, speed: Speed) -> Self {
+                const {
+                    assert!(
+                        arch::gpio::output::SPEED_AVAILABLE,
+                        "This architecture does not support setting the speed of GPIO outputs."
+                    );
+                }
+
+                Self { speed, ..self }
+            }
+
+            // It is unclear whether `opt_*()` functions are actually useful, so we provide them but do not
+            // commit to them being part of our API for now.
+            // We may remove them in the future if we realize they are never useful.
+            #[doc(hidden)]
+            // TODO: or `speed_opt`?
+            pub fn opt_speed(self, speed: Speed) -> Self {
+                if arch::gpio::output::SPEED_AVAILABLE {
+                    // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
+                    // be triggered.
+                    Self { speed, ..self }
+                } else {
+                    self
+                }
+            }
         }
     }
+}
 
-    pub fn speed(self, speed: Speed) -> Self {
-        const {
-            assert!(
-                arch::gpio::output::SPEED_AVAILABLE,
-                "This architecture does not support setting the speed of GPIO outputs."
-            );
-        }
+impl_output_builder!(OutputBuilder, ArchOutputPin);
+impl_output_builder!(OpenDrainOutputBuilder, ArchOpenDrainOutputPin);
 
-        Self { speed, ..self }
-    }
-
-    // It is unclear whether `opt_*()` functions are actually useful, so we provide them but do not
-    // commit to them being part of our API for now.
-    // We may remove them in the future if we realize they are never useful.
-    #[doc(hidden)]
-    // TODO: or `speed_opt`?
-    pub fn opt_speed(self, speed: Speed) -> Self {
-        if arch::gpio::output::SPEED_AVAILABLE {
-            // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
-            // be triggered.
-            Self { speed, ..self }
-        } else {
-            self
-        }
-    }
-
+impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
     pub fn build(self) -> Output {
         // TODO: should we move this into `output::new()`s?
         let drive_strength = <ArchDriveStrength as FromDriveStrength>::from(self.drive_strength);
@@ -389,24 +429,22 @@ impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
 
         Output { output }
     }
+}
 
-    pub fn build_open_drain(self) -> OpenDrainOutput {
-        // It is not clear whether any architectures does *not* support open-drain, but we still
-        // check it for forward compatibility.
-        const {
-            assert!(
-                arch::gpio::output::OPEN_DRAIN_AVAILABLE,
-                "This architecture does not support open-drain GPIO outputs."
-            );
-        }
-
+impl<P: Peripheral<P: ArchOpenDrainOutputPin> + 'static> OpenDrainOutputBuilder<P> {
+    pub fn build(self) -> OpenDrainOutput {
         // TODO: should we move this into `output::new()`s?
         let drive_strength = <ArchDriveStrength as FromDriveStrength>::from(self.drive_strength);
         // TODO: should we move this into `output::new()`s?
         let speed = <ArchSpeed as FromSpeed>::from(self.speed);
 
-        let output =
-            arch::gpio::output::new_open_drain(self.pin, self.initial_state, drive_strength, speed);
+        let output = arch::gpio::open_drain_output::new(
+            self.pin,
+            self.initial_state,
+            drive_strength,
+            self.pull,
+            speed,
+        );
 
         OpenDrainOutput { output }
     }

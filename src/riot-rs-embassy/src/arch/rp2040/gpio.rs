@@ -51,7 +51,6 @@ pub mod output {
 
     pub(crate) use embassy_rp::gpio::{Output, OutputOpenDrain as OpenDrainOutput, Pin};
 
-    pub(crate) const OPEN_DRAIN_AVAILABLE: bool = true;
     pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = true;
     pub(crate) const SPEED_AVAILABLE: bool = true;
 
@@ -73,6 +72,7 @@ pub mod output {
         pin: impl Peripheral<P: Pin> + 'static,
         initial_state: PinState,
         drive_strength: DriveStrength,
+        pull: crate::gpio::Pull,
         speed: Speed,
     ) -> OpenDrainOutput<'static> {
         let initial_state: bool = initial_state.into();

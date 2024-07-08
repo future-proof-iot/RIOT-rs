@@ -106,6 +106,7 @@ pub mod output {
         pin: impl Peripheral<P: Pin> + 'static,
         initial_state: PinState,
         drive_strength: DriveStrength,
+        pull: crate::gpio::Pull,
         _speed: Speed, // Not supported by this architecture
     ) -> OpenDrainOutput<'static> {
         unimplemented!();

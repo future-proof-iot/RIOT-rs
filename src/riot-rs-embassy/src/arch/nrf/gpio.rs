@@ -45,18 +45,15 @@ pub mod input {
 }
 
 pub mod output {
-    use embassy_nrf::gpio::{Level, OutputDrive};
+    use embassy_nrf::gpio::{Level, OutputDrive, Pull};
 
     use crate::{
         arch::peripheral::Peripheral,
         gpio::{FromDriveStrength, FromSpeed, PinState},
     };
 
-    // We re-export `Output` twice, for consistency with other architectures that have a dedicated
-    // type for open-drain outputs.
-    pub(crate) use embassy_nrf::gpio::{Output, Output as OpenDrainOutput, Pin};
+    pub(crate) use embassy_nrf::gpio::{Flex as OpenDrainOutput, Output, Pin};
 
-    pub(crate) const OPEN_DRAIN_AVAILABLE: bool = true;
     pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = true;
     pub(crate) const SPEED_AVAILABLE: bool = false;
 
@@ -68,7 +65,6 @@ pub mod output {
     ) -> Output<'static> {
         let initial_state: bool = initial_state.into();
         let initial_state = Level::from(initial_state);
-        // TODO: this also depends on the open-drain configuration
         let output_drive = match drive_strength {
             DriveStrength::Standard => OutputDrive::Standard,
             DriveStrength::High => OutputDrive::HighDrive,
@@ -80,17 +76,23 @@ pub mod output {
         pin: impl Peripheral<P: Pin> + 'static,
         initial_state: PinState,
         drive_strength: DriveStrength,
+        pull: crate::gpio::Pull,
         _speed: Speed, // Not supported by this architecture
     ) -> OpenDrainOutput<'static> {
         // TODO: maybe factor this out with `new()`
         let initial_state: bool = initial_state.into();
         let initial_state = Level::from(initial_state);
-        // TODO: this also depends on the open-drain configuration
         let output_drive = match drive_strength {
             DriveStrength::Standard => OutputDrive::Standard0Disconnect1,
             DriveStrength::High => OutputDrive::HighDrive0Disconnect1,
         };
-        Output::new(pin, initial_state, output_drive)
+        let pull = Pull::from(pull);
+
+        let mut output = OpenDrainOutput::new(pin);
+        // Initial state must be set before the pin is set to output.
+        output.set_level(initial_state);
+        output.set_as_input_output(pull, output_drive);
+        output
     }
 
     #[derive(Copy, Clone, PartialEq, Eq)]

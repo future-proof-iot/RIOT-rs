@@ -86,16 +86,15 @@ pub mod input {
 }
 
 pub mod output {
-    use esp_hal::gpio::{CreateErasedPin, Level, OutputPin};
+    use esp_hal::gpio::{CreateErasedPin, Level, OutputPin, Pull};
 
     use crate::{
         arch::peripheral::Peripheral,
         gpio::{FromDriveStrength, FromSpeed, PinState},
     };
 
-    pub(crate) use esp_hal::gpio::{AnyOutput as Output, AnyOutputOpenDrain as OpenDrainOutput};
+    pub(crate) use esp_hal::gpio::AnyOutput as Output;
 
-    pub(crate) const OPEN_DRAIN_AVAILABLE: bool = true;
     // FIXME: ESP32 *does* support setting the drive strength, but esp-hal seems to currently make
     // this impossible on `AnyOutput` (unlike on `Output`), because it internally uses an
     // `ErasedPin`.
@@ -116,22 +115,6 @@ pub mod output {
         // TODO
         // output.set_drive_strength(drive_strength.into());
         output
-    }
-
-    // FIXME
-    pub(crate) fn new_open_drain(
-        pin: impl Peripheral<P: Pin> + 'static,
-        initial_state: PinState,
-        drive_strength: DriveStrength,
-        _speed: Speed, // Not supported by this architecture
-    ) -> OpenDrainOutput<'static> {
-        todo!();
-        // let initial_state: bool = initial_state.into();
-        // let initial_state = Level::from(initial_state);
-        // let mut output = OpenDrainOutput::new(pin, initial_state);
-        // TODO
-        // output.set_drive_strength(drive_strength.into());
-        // output
     }
 
     // We do not provide a `Default` impl as not all pins have the same reset value.
@@ -168,5 +151,37 @@ pub mod output {
         fn from(_speed: crate::gpio::Speed) -> Self {
             Self::UnsupportedByArchitecture
         }
+    }
+}
+
+// FIXME: keep name consistent with OpenDrainOutput
+pub mod open_drain_output {
+    use esp_hal::gpio::{CreateErasedPin, InputPin, OutputPin, Level, Pull};
+
+    use crate::{
+        arch::peripheral::Peripheral,
+        gpio::{FromDriveStrength, FromSpeed, PinState},
+    };
+
+    use super::output::{DriveStrength, Speed};
+
+    pub(crate) use esp_hal::gpio::AnyOutputOpenDrain as OpenDrainOutput;
+
+    pub(crate) trait Pin = OutputPin + InputPin + CreateErasedPin;
+
+    pub(crate) fn new(
+        pin: impl Peripheral<P: Pin> + 'static,
+        initial_state: PinState,
+        drive_strength: DriveStrength,
+        pull: crate::gpio::Pull,
+        _speed: Speed, // Not supported by this architecture
+    ) -> OpenDrainOutput<'static> {
+        let initial_state: bool = initial_state.into();
+        let initial_state = Level::from(initial_state);
+        let pull = Pull::from(pull);
+        let mut output = OpenDrainOutput::new(pin, initial_state, pull);
+        // TODO
+        // output.set_drive_strength(drive_strength.into());
+        output
     }
 }
