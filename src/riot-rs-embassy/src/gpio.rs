@@ -3,7 +3,6 @@
 use embedded_hal::digital::StatefulOutputPin;
 
 use crate::arch::{
-    self,
     gpio::{
         input::{Input as ArchInput, InputPin as ArchInputPin},
         output::{
@@ -13,6 +12,9 @@ use crate::arch::{
     },
     peripheral::Peripheral,
 };
+
+use input::InputBuilder;
+use output::OutputBuilder;
 
 pub use embedded_hal::digital::PinState;
 
@@ -160,87 +162,94 @@ impl From<bool> for Level {
     }
 }
 
-/// Builder type for [`Input`], can be obtained with [`Input::builder()`].
-pub struct InputBuilder<P: Peripheral<P: ArchInputPin>> {
-    pin: P,
-    pull: Pull,
-    schmitt_trigger: bool,
-}
+pub mod input {
+    //! Input-specific types.
 
-impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
-    /// Configures the input's Schmitt trigger.
-    ///
-    /// # Note
-    ///
-    /// Fails to compile if the architecture does not support configuring Schmitt trigger on
-    /// inputs.
-    pub fn schmitt_trigger(self, enable: bool) -> Self {
-        const {
-            assert!(
-                arch::gpio::input::SCHMITT_TRIGGER_AVAILABLE,
-                "This architecture does not support configuring Schmitt triggers on GPIO inputs."
-            );
-        }
+    use crate::{
+        arch::{self, gpio::input::InputPin as ArchInputPin, peripheral::Peripheral},
+        extint_registry,
+        gpio::Pull,
+    };
 
-        Self {
-            schmitt_trigger: enable,
-            ..self
-        }
+    use super::{Input, IntEnabledInput};
+
+    /// Builder type for [`Input`], can be obtained with [`Input::builder()`].
+    pub struct InputBuilder<P: Peripheral<P: ArchInputPin>> {
+        pub(crate) pin: P,
+        pub(crate) pull: Pull,
+        pub(crate) schmitt_trigger: bool,
     }
 
-    // It is unclear whether `opt_*()` functions are actually useful, so we provide them but do not
-    // commit to them being part of our API for now.
-    // We may remove them in the future if we realize they are never useful.
-    #[doc(hidden)]
-    pub fn opt_schmitt_trigger(self, enable: bool) -> Self {
-        if arch::gpio::input::SCHMITT_TRIGGER_AVAILABLE {
-            // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
-            // be triggered.
+    impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
+        /// Configures the input's Schmitt trigger.
+        ///
+        /// # Note
+        ///
+        /// Fails to compile if the architecture does not support configuring Schmitt trigger on
+        /// inputs.
+        pub fn schmitt_trigger(self, enable: bool) -> Self {
+            const {
+                assert!(
+                    arch::gpio::input::SCHMITT_TRIGGER_AVAILABLE,
+                    "This architecture does not support configuring Schmitt triggers on GPIO inputs."
+                );
+            }
+
             Self {
                 schmitt_trigger: enable,
                 ..self
             }
-        } else {
-            self
+        }
+
+        // It is unclear whether `opt_*()` functions are actually useful, so we provide them but do not
+        // commit to them being part of our API for now.
+        // We may remove them in the future if we realize they are never useful.
+        #[doc(hidden)]
+        pub fn opt_schmitt_trigger(self, enable: bool) -> Self {
+            if arch::gpio::input::SCHMITT_TRIGGER_AVAILABLE {
+                // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
+                // be triggered.
+                Self {
+                    schmitt_trigger: enable,
+                    ..self
+                }
+            } else {
+                self
+            }
         }
     }
-}
 
-// Split the impl for consistency with outputs.
-impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
-    /// Returns an [`Input`] by finalizing the builder.
-    pub fn build(self) -> Input {
-        let input = match arch::gpio::input::new(self.pin, false, self.pull, self.schmitt_trigger) {
-            Ok(input) => input,
-            Err(input::Error::InterruptChannel(_)) => unreachable!(),
-        };
+    // Split the impl for consistency with outputs.
+    impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
+        /// Returns an [`Input`] by finalizing the builder.
+        pub fn build(self) -> Input {
+            let input =
+                match arch::gpio::input::new(self.pin, false, self.pull, self.schmitt_trigger) {
+                    Ok(input) => input,
+                    Err(Error::InterruptChannel(_)) => unreachable!(),
+                };
 
-        Input { input }
+            Input { input }
+        }
+
+        /// Returns an [`IntEnabledInput`] by finalizing the builder.
+        ///
+        /// # Errors
+        ///
+        /// On some architectures, the number of external interrupts that can simultaneously be
+        /// enabled is limited by the number of hardware interrupt channels.
+        /// Some architectures also have other limitations, for instance it may not be possible to
+        /// register interrupts on a pin if one is already registered on the pin with the same pin
+        /// number of another port (e.g., `PA0` and `PB0`).
+        /// In these cases, this returns an [`Error::InterruptChannel`], with an
+        /// architecture-specific error.
+        // FIXME: rename this
+        pub fn build_with_interrupt(self) -> Result<IntEnabledInput, Error> {
+            let input = arch::gpio::input::new(self.pin, true, self.pull, self.schmitt_trigger)?;
+
+            Ok(IntEnabledInput { input })
+        }
     }
-
-    /// Returns an [`IntEnabledInput`] by finalizing the builder.
-    ///
-    /// # Errors
-    ///
-    /// On some architectures, the number of external interrupts that can simultaneously be
-    /// enabled is limited by the number of hardware interrupt channels.
-    /// Some architectures also have other limitations, for instance it may not be possible to
-    /// register interrupts on a pin if one is already registered on the pin with the same pin
-    /// number of another port (e.g., `PA0` and `PB0`).
-    /// In these cases, this returns an [`input::Error::InterruptChannel`], with an
-    /// architecture-specific error.
-    // FIXME: rename this
-    pub fn build_with_interrupt(self) -> Result<IntEnabledInput, input::Error> {
-        let input = arch::gpio::input::new(self.pin, true, self.pull, self.schmitt_trigger)?;
-
-        Ok(IntEnabledInput { input })
-    }
-}
-
-pub mod input {
-    //! Input-specific types.
-
-    use crate::extint_registry;
 
     /// Input-related errors.
     #[derive(Debug)]
@@ -372,92 +381,107 @@ pub(crate) trait FromSpeed {
     fn from(speed: Speed) -> ArchSpeed;
 }
 
-/// Builder type for [`Output`], can be obtained with [`Output::builder()`].
-pub struct OutputBuilder<P: Peripheral<P: ArchOutputPin>> {
-    pin: P,
-    initial_state: PinState,
-    drive_strength: DriveStrength,
-    speed: Speed,
-}
+pub mod output {
+    //! Output-specific types.
 
-// We define this in a macro because it will be useful for open-drain outputs.
-macro_rules! impl_output_builder {
-    ($type:ident, $pin_trait:ident) => {
-        impl<P: Peripheral<P: $pin_trait> + 'static> $type<P> {
-            pub fn drive_strength(self, drive_strength: DriveStrength) -> Self {
-                const {
-                    assert!(
-                        arch::gpio::output::DRIVE_STRENGTH_AVAILABLE,
-                        "This architecture does not support setting the drive strength of GPIO outputs."
-                    );
-                }
+    use embedded_hal::digital::PinState;
 
-                Self {
-                    drive_strength,
-                    ..self
-                }
-            }
+    use crate::{
+        arch::{self, gpio::output::OutputPin as ArchOutputPin, peripheral::Peripheral},
+        gpio::{DriveStrength, FromDriveStrength, FromSpeed, Speed},
+    };
 
-            // It is unclear whether `opt_*()` functions are actually useful, so we provide them but do not
-            // commit to them being part of our API for now.
-            // We may remove them in the future if we realize they are never useful.
-            #[doc(hidden)]
-            // TODO: or `drive_strength_opt`?
-            pub fn opt_drive_strength(self, drive_strength: DriveStrength) -> Self {
-                if arch::gpio::output::DRIVE_STRENGTH_AVAILABLE {
-                    // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
-                    // be triggered.
+    use super::{ArchDriveStrength, ArchSpeed, Output};
+
+    /// Builder type for [`Output`], can be obtained with [`Output::builder()`].
+    pub struct OutputBuilder<P: Peripheral<P: ArchOutputPin>> {
+        pub(crate) pin: P,
+        pub(crate) initial_state: PinState,
+        pub(crate) drive_strength: DriveStrength,
+        pub(crate) speed: Speed,
+    }
+
+    // We define this in a macro because it will be useful for open-drain outputs.
+    macro_rules! impl_output_builder {
+        ($type:ident, $pin_trait:ident) => {
+            impl<P: Peripheral<P: $pin_trait> + 'static> $type<P> {
+                pub fn drive_strength(self, drive_strength: DriveStrength) -> Self {
+                    const {
+                        assert!(
+                            arch::gpio::output::DRIVE_STRENGTH_AVAILABLE,
+                            "This architecture does not support setting the drive strength of GPIO outputs."
+                        );
+                    }
+
                     Self {
                         drive_strength,
                         ..self
                     }
-                } else {
-                    self
-                }
-            }
-
-            pub fn speed(self, speed: Speed) -> Self {
-                const {
-                    assert!(
-                        arch::gpio::output::SPEED_AVAILABLE,
-                        "This architecture does not support setting the speed of GPIO outputs."
-                    );
                 }
 
-                Self { speed, ..self }
-            }
+                // It is unclear whether `opt_*()` functions are actually useful, so we provide them but do not
+                // commit to them being part of our API for now.
+                // We may remove them in the future if we realize they are never useful.
+                #[doc(hidden)]
+                // TODO: or `drive_strength_opt`?
+                pub fn opt_drive_strength(self, drive_strength: DriveStrength) -> Self {
+                    if arch::gpio::output::DRIVE_STRENGTH_AVAILABLE {
+                        // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
+                        // be triggered.
+                        Self {
+                            drive_strength,
+                            ..self
+                        }
+                    } else {
+                        self
+                    }
+                }
 
-            // It is unclear whether `opt_*()` functions are actually useful, so we provide them but do not
-            // commit to them being part of our API for now.
-            // We may remove them in the future if we realize they are never useful.
-            #[doc(hidden)]
-            // TODO: or `speed_opt`?
-            pub fn opt_speed(self, speed: Speed) -> Self {
-                if arch::gpio::output::SPEED_AVAILABLE {
-                    // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
-                    // be triggered.
+                pub fn speed(self, speed: Speed) -> Self {
+                    const {
+                        assert!(
+                            arch::gpio::output::SPEED_AVAILABLE,
+                            "This architecture does not support setting the speed of GPIO outputs."
+                        );
+                    }
+
                     Self { speed, ..self }
-                } else {
-                    self
+                }
+
+                // It is unclear whether `opt_*()` functions are actually useful, so we provide them but do not
+                // commit to them being part of our API for now.
+                // We may remove them in the future if we realize they are never useful.
+                #[doc(hidden)]
+                // TODO: or `speed_opt`?
+                pub fn opt_speed(self, speed: Speed) -> Self {
+                    if arch::gpio::output::SPEED_AVAILABLE {
+                        // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
+                        // be triggered.
+                        Self { speed, ..self }
+                    } else {
+                        self
+                    }
                 }
             }
         }
     }
-}
 
-impl_output_builder!(OutputBuilder, ArchOutputPin);
+    impl_output_builder!(OutputBuilder, ArchOutputPin);
 
-impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
-    /// Returns an [`Output`] by finalizing the builder.
-    pub fn build(self) -> Output {
-        // TODO: should we move this into `output::new()`s?
-        let drive_strength = <ArchDriveStrength as FromDriveStrength>::from(self.drive_strength);
-        // TODO: should we move this into `output::new()`s?
-        let speed = <ArchSpeed as FromSpeed>::from(self.speed);
+    impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
+        /// Returns an [`Output`] by finalizing the builder.
+        pub fn build(self) -> Output {
+            // TODO: should we move this into `output::new()`s?
+            let drive_strength =
+                <ArchDriveStrength as FromDriveStrength>::from(self.drive_strength);
+            // TODO: should we move this into `output::new()`s?
+            let speed = <ArchSpeed as FromSpeed>::from(self.speed);
 
-        let output = arch::gpio::output::new(self.pin, self.initial_state, drive_strength, speed);
+            let output =
+                arch::gpio::output::new(self.pin, self.initial_state, drive_strength, speed);
 
-        Output { output }
+            Output { output }
+        }
     }
 }
 
