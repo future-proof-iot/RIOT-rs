@@ -14,6 +14,23 @@ use crate::arch::{
 
 pub use embedded_hal::digital::PinState;
 
+// We do not provide an `impl` block because it would be grouped separately in the documentation.
+macro_rules! inner_impl_input_methods {
+    ($inner:ident) => {
+        pub fn is_high(&self) -> bool {
+            self.$inner.is_high()
+        }
+
+        pub fn is_low(&self) -> bool {
+            self.$inner.is_low()
+        }
+
+        pub fn get_level(&self) -> Level {
+            self.$inner.get_level().into()
+        }
+    };
+}
+
 pub struct Input {
     input: ArchInput<'static>, // FIXME: is this ok to require a 'static pin?
 }
@@ -31,17 +48,7 @@ impl Input {
         }
     }
 
-    pub fn is_high(&self) -> bool {
-        self.input.is_high()
-    }
-
-    pub fn is_low(&self) -> bool {
-        self.input.is_low()
-    }
-
-    pub fn get_level(&self) -> Level {
-        self.input.get_level().into()
-    }
+    inner_impl_input_methods!(input);
 }
 
 impl embedded_hal::digital::ErrorType for Input {
@@ -53,6 +60,8 @@ pub struct IntEnabledInput {
 }
 
 impl IntEnabledInput {
+    inner_impl_input_methods!(input);
+
     pub async fn wait_for_high(&mut self) {
         self.input.wait_for_high().await;
     }
