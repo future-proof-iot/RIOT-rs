@@ -136,6 +136,23 @@ impl embedded_hal_async::digital::Wait for IntEnabledInput {
     }
 }
 
+macro_rules! impl_embedded_hal_input_trait {
+    ($type:ident, $arch_type:ident) => {
+        impl embedded_hal::digital::InputPin for $type {
+            fn is_high(&mut self) -> Result<bool, Self::Error> {
+                <$arch_type as embedded_hal::digital::InputPin>::is_high(&mut self.input)
+            }
+
+            fn is_low(&mut self) -> Result<bool, Self::Error> {
+                <$arch_type as embedded_hal::digital::InputPin>::is_low(&mut self.input)
+            }
+        }
+    };
+}
+
+impl_embedded_hal_input_trait!(Input, ArchInput);
+impl_embedded_hal_input_trait!(IntEnabledInput, ArchInput);
+
 /// Digital level of an input or output.
 // TODO: should we use PinState instead?
 #[derive(Copy, Clone, PartialEq, Eq)]

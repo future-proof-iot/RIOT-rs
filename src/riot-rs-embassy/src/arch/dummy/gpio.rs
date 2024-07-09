@@ -56,6 +56,16 @@ pub mod input {
         type Error = core::convert::Infallible;
     }
 
+    impl embedded_hal::digital::InputPin for Input<'_> {
+        fn is_low(&mut self) -> Result<bool, Self::Error> {
+            unimplemented!();
+        }
+
+        fn is_high(&mut self) -> Result<bool, Self::Error> {
+            unimplemented!();
+        }
+    }
+
     impl embedded_hal_async::digital::Wait for Input<'_> {
         async fn wait_for_high(&mut self) -> Result<(), Self::Error> {
             unimplemented!();
