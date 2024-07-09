@@ -14,6 +14,7 @@ subdirs:
   - embassy-usb-keyboard
   - hello-world
   - hello-world-async
+  - log
   - minimal
   - random
   - threading
