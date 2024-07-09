@@ -7,7 +7,7 @@ pub static EXTINT_REGISTRY: ExtIntRegistry = ExtIntRegistry::new();
 mod registry {
     use portable_atomic::{AtomicU8, Ordering};
 
-    use crate::arch::{gpio::input::Pin, peripheral::Peripheral};
+    use crate::arch::{gpio::input::InputPin, peripheral::Peripheral};
 
     #[cfg(context = "nrf51")]
     const INT_CHANNEL_COUNT: u8 = 4;
@@ -26,7 +26,7 @@ mod registry {
             }
         }
 
-        pub fn use_interrupt_for_pin<PIN: Peripheral<P: Pin>>(
+        pub fn use_interrupt_for_pin<PIN: Peripheral<P: InputPin>>(
             &self,
             _pin: &mut PIN, // Require the caller to have the peripheral
         ) -> Result<(), Error> {

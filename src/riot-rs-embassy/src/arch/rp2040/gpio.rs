@@ -3,12 +3,12 @@ pub mod input {
 
     use crate::{arch::peripheral::Peripheral, gpio};
 
-    pub(crate) use embassy_rp::gpio::{Input, Pin};
+    pub(crate) use embassy_rp::gpio::{Input, Pin as InputPin};
 
     pub(crate) const SCHMITT_TRIGGER_AVAILABLE: bool = true;
 
     pub(crate) fn new(
-        pin: impl Peripheral<P: Pin> + 'static,
+        pin: impl Peripheral<P: InputPin> + 'static,
         _int_enabled: bool, // This architecture does not require special treatment of interrupts
         pull: crate::gpio::Pull,
         schmitt_trigger: bool,
@@ -49,13 +49,13 @@ pub mod output {
         gpio::{FromDriveStrength, FromSpeed, PinState},
     };
 
-    pub(crate) use embassy_rp::gpio::{Output, Pin};
+    pub(crate) use embassy_rp::gpio::{Output, Pin as OutputPin};
 
     pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = true;
     pub(crate) const SPEED_AVAILABLE: bool = true;
 
     pub(crate) fn new(
-        pin: impl Peripheral<P: Pin> + 'static,
+        pin: impl Peripheral<P: OutputPin> + 'static,
         initial_state: PinState,
         drive_strength: DriveStrength,
         speed: Speed,

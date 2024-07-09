@@ -41,7 +41,7 @@ pub fn init(peripherals: &mut arch::OptionalPeripherals) {
 }
 
 pub mod input {
-    use esp_hal::gpio::{CreateErasedPin, InputPin, Level, Pull};
+    use esp_hal::gpio::{CreateErasedPin, InputPin as EspInputPin, Level, Pull};
 
     use crate::{arch::peripheral::Peripheral, gpio};
 
@@ -55,7 +55,7 @@ pub mod input {
     pub trait InputPin = EspInputPin + CreateErasedPin;
 
     pub(crate) fn new(
-        pin: impl Peripheral<P: Pin> + 'static,
+        pin: impl Peripheral<P: InputPin> + 'static,
         int_enabled: bool,
         pull: crate::gpio::Pull,
         _schmitt_trigger: bool, // Not supported by this architecture
@@ -104,7 +104,7 @@ pub mod output {
     pub trait OutputPin = EspOutputPin + CreateErasedPin;
 
     pub(crate) fn new(
-        pin: impl Peripheral<P: Pin> + 'static,
+        pin: impl Peripheral<P: OutputPin> + 'static,
         initial_state: PinState,
         drive_strength: DriveStrength,
         _speed: Speed, // Not supported by this architecture

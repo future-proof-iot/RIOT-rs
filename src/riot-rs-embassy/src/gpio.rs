@@ -1,12 +1,14 @@
-use embedded_hal::digital::{OutputPin, StatefulOutputPin};
+//! Provides consistent GPIO access.
+
+use embedded_hal::digital::StatefulOutputPin;
 
 use crate::arch::{
     self,
     gpio::{
-        input::{Input as ArchInput, Pin as ArchInputPin},
+        input::{Input as ArchInput, InputPin as ArchInputPin},
         output::{
-            DriveStrength as ArchDriveStrength,
-            Output as ArchOutput, Pin as ArchOutputPin, Speed as ArchSpeed,
+            DriveStrength as ArchDriveStrength, Output as ArchOutput, OutputPin as ArchOutputPin,
+            Speed as ArchSpeed,
         },
     },
     peripheral::Peripheral,
@@ -17,29 +19,38 @@ pub use embedded_hal::digital::PinState;
 // We do not provide an `impl` block because it would be grouped separately in the documentation.
 macro_rules! inner_impl_input_methods {
     ($inner:ident) => {
+        /// Returns whether the input level is high.
         pub fn is_high(&self) -> bool {
             self.$inner.is_high()
         }
 
+        /// Returns whether the input level is low.
         pub fn is_low(&self) -> bool {
             self.$inner.is_low()
         }
 
+        /// Returns the input level.
         pub fn get_level(&self) -> Level {
             self.$inner.get_level().into()
         }
     };
 }
 
+/// A GPIO input.
+///
+/// If support for external interrupts is needed, use [`InputBuilder::build_with_interrupt()`] to
+/// obtain an [`IntEnabledInput`].
 pub struct Input {
     input: ArchInput<'static>, // FIXME: is this ok to require a 'static pin?
 }
 
 impl Input {
+    /// Returns a configured [`Input`].
     pub fn new(pin: impl Peripheral<P: ArchInputPin> + 'static, pull: Pull) -> Self {
         Self::builder(pin, pull).build()
     }
 
+    /// Returns an [`InputBuilder`], allowing to configure the GPIO input further.
     pub fn builder<P: Peripheral<P: ArchInputPin>>(pin: P, pull: Pull) -> InputBuilder<P> {
         InputBuilder {
             pin,
@@ -51,10 +62,14 @@ impl Input {
     inner_impl_input_methods!(input);
 }
 
+#[doc(hidden)]
 impl embedded_hal::digital::ErrorType for Input {
     type Error = <ArchInput<'static> as embedded_hal::digital::ErrorType>::Error;
 }
 
+/// A GPIO input that supports external interrupts.
+///
+/// Can be obtained with [`InputBuilder::build_with_interrupt()`].
 pub struct IntEnabledInput {
     input: ArchInput<'static>, // FIXME: is this ok to require a 'static pin?
 }
@@ -62,27 +77,35 @@ pub struct IntEnabledInput {
 impl IntEnabledInput {
     inner_impl_input_methods!(input);
 
+    /// Asynchronously waits until the input level is high.
+    /// Returns immediately if it is already high.
     pub async fn wait_for_high(&mut self) {
         self.input.wait_for_high().await;
     }
 
+    /// Asynchronously waits until the input level is low.
+    /// Returns immediately if it is already low.
     pub async fn wait_for_low(&mut self) {
         self.input.wait_for_low().await;
     }
 
+    /// Asynchronously waits for the input level to transition from low to high.
     pub async fn wait_for_rising_edge(&mut self) {
         self.input.wait_for_rising_edge().await;
     }
 
+    /// Asynchronously waits for the input level to transition from high to low.
     pub async fn wait_for_falling_edge(&mut self) {
         self.input.wait_for_falling_edge().await;
     }
 
+    /// Asynchronously waits for the input level to transition from one level to the other.
     pub async fn wait_for_any_edge(&mut self) {
         self.input.wait_for_any_edge().await;
     }
 }
 
+#[doc(hidden)]
 impl embedded_hal::digital::ErrorType for IntEnabledInput {
     type Error = <ArchInput<'static> as embedded_hal::digital::ErrorType>::Error;
 }
@@ -111,6 +134,7 @@ impl embedded_hal_async::digital::Wait for IntEnabledInput {
     }
 }
 
+/// Digital level of an input or output.
 // TODO: should we use PinState instead?
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum Level {
@@ -136,6 +160,7 @@ impl From<bool> for Level {
     }
 }
 
+/// Builder type for [`Input`], can be obtained with [`Input::builder()`].
 pub struct InputBuilder<P: Peripheral<P: ArchInputPin>> {
     pin: P,
     pull: Pull,
@@ -143,11 +168,17 @@ pub struct InputBuilder<P: Peripheral<P: ArchInputPin>> {
 }
 
 impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
+    /// Configures the input's Schmitt trigger.
+    ///
+    /// # Note
+    ///
+    /// Fails to compile if the architecture does not support configuring Schmitt trigger on
+    /// inputs.
     pub fn schmitt_trigger(self, enable: bool) -> Self {
         const {
             assert!(
                 arch::gpio::input::SCHMITT_TRIGGER_AVAILABLE,
-                "This architecture does not support enabling Schmitt triggers on GPIO inputs."
+                "This architecture does not support configuring Schmitt triggers on GPIO inputs."
             );
         }
 
@@ -173,7 +204,11 @@ impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
             self
         }
     }
+}
 
+// Split the impl for consistency with outputs.
+impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
+    /// Returns an [`Input`] by finalizing the builder.
     pub fn build(self) -> Input {
         let input = match arch::gpio::input::new(self.pin, false, self.pull, self.schmitt_trigger) {
             Ok(input) => input,
@@ -183,6 +218,17 @@ impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
         Input { input }
     }
 
+    /// Returns an [`IntEnabledInput`] by finalizing the builder.
+    ///
+    /// # Errors
+    ///
+    /// On some architectures, the number of external interrupts that can simultaneously be
+    /// enabled is limited by the number of hardware interrupt channels.
+    /// Some architectures also have other limitations, for instance it may not be possible to
+    /// register interrupts on a pin if one is already registered on the pin with the same pin
+    /// number of another port (e.g., `PA0` and `PB0`).
+    /// In these cases, this returns an [`input::Error::InterruptChannel`], with an
+    /// architecture-specific error.
     // FIXME: rename this
     pub fn build_with_interrupt(self) -> Result<IntEnabledInput, input::Error> {
         let input = arch::gpio::input::new(self.pin, true, self.pull, self.schmitt_trigger)?;
@@ -192,11 +238,16 @@ impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
 }
 
 pub mod input {
+    //! Input-specific types.
+
     use crate::extint_registry;
 
-    // TODO: rename this or move this to a sub-module
+    /// Input-related errors.
     #[derive(Debug)]
     pub enum Error {
+        /// Error when hitting hardware limitations regarding interrupt registration.
+        /// See
+        /// [`InputBuilder::build_with_interrupt()`](super::InputBuilder::build_with_interrupt).
         InterruptChannel(extint_registry::Error),
     }
 
@@ -207,24 +258,32 @@ pub mod input {
     }
 }
 
-// All the architectures we support have pull-up and pull-down resistors.
+/// Pull-up/pull-down resistor configuration.
+///
+/// All the architectures we support have pull-up and pull-down resistors.
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum Pull {
+    /// No pull-up or pull-down resistor.
     None,
+    /// Pull-up resistor.
     Up,
+    /// Pull-down resistor.
     Down,
 }
 
+/// A GPIO output.
 pub struct Output {
     output: ArchOutput<'static>, // FIXME: is this ok to require a 'static pin?
 }
 
 impl Output {
+    /// Returns a configured [`Output`].
     // TODO: is PinState appropriate if we turn this into a open-drain-capable output?
     pub fn new(pin: impl Peripheral<P: ArchOutputPin> + 'static, initial_state: PinState) -> Self {
         Self::builder(pin, initial_state).build()
     }
 
+    /// Returns an [`OutputBuilder`], allowing to configure the GPIO output further.
     pub fn builder<P: Peripheral<P: ArchOutputPin>>(
         pin: P,
         initial_state: PinState,
@@ -237,23 +296,30 @@ impl Output {
         }
     }
 
-    pub fn set_low(&mut self) {
-        // All architectures are infallible.
-        let _ = <Self as OutputPin>::set_low(self);
-    }
-
+    /// Sets the output as high.
     pub fn set_high(&mut self) {
         // All architectures are infallible.
-        let _ = <Self as OutputPin>::set_high(self);
+        let _ = <Self as embedded_hal::digital::OutputPin>::set_high(self);
     }
 
+    /// Sets the output as low.
+    pub fn set_low(&mut self) {
+        // All architectures are infallible.
+        let _ = <Self as embedded_hal::digital::OutputPin>::set_low(self);
+    }
+
+    /// Toggles the output level.
     pub fn toggle(&mut self) {
         // All architectures are infallible.
         let _ = <Self as StatefulOutputPin>::toggle(self);
     }
 }
 
-// TODO: should this be marked non_exaustive?
+/// Drive strength of an output.
+///
+/// This enum allows to either use high-level, portable values, roughly normalized across
+/// architectures, or to use architecture-specific values if needed.
+// TODO: should this be marked non_exhaustive?
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum DriveStrength {
     Arch(ArchDriveStrength),
@@ -277,6 +343,12 @@ pub(crate) trait FromDriveStrength {
     fn from(drive_strength: DriveStrength) -> ArchDriveStrength;
 }
 
+/// Speed setting of an output.
+///
+/// Speed can be increased when needed, at the price of increasing high-frequency noise.
+///
+/// This enum allows to either use high-level, portable values, roughly normalized across
+/// architectures, or to use architecture-specific values if needed.
 #[doc(alias = "SlewRate")]
 #[derive(Copy, Clone, PartialEq, Eq)]
 // FIXME: should we call this slew rate instead?
@@ -300,6 +372,7 @@ pub(crate) trait FromSpeed {
     fn from(speed: Speed) -> ArchSpeed;
 }
 
+/// Builder type for [`Output`], can be obtained with [`Output::builder()`].
 pub struct OutputBuilder<P: Peripheral<P: ArchOutputPin>> {
     pin: P,
     initial_state: PinState,
@@ -375,6 +448,7 @@ macro_rules! impl_output_builder {
 impl_output_builder!(OutputBuilder, ArchOutputPin);
 
 impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
+    /// Returns an [`Output`] by finalizing the builder.
     pub fn build(self) -> Output {
         // TODO: should we move this into `output::new()`s?
         let drive_strength = <ArchDriveStrength as FromDriveStrength>::from(self.drive_strength);
@@ -390,17 +464,18 @@ impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
 // We define this in a macro because it will be useful for open-drain outputs.
 macro_rules! impl_embedded_hal_output_traits {
     ($type:ident, $arch_type:ident) => {
+        #[doc(hidden)]
         impl embedded_hal::digital::ErrorType for $type {
             type Error = <$arch_type<'static> as embedded_hal::digital::ErrorType>::Error;
         }
 
-        impl OutputPin for $type {
-            fn set_low(&mut self) -> Result<(), Self::Error> {
-                <$arch_type as OutputPin>::set_low(&mut self.output)
+        impl embedded_hal::digital::OutputPin for $type {
+            fn set_high(&mut self) -> Result<(), Self::Error> {
+                <$arch_type as embedded_hal::digital::OutputPin>::set_high(&mut self.output)
             }
 
-            fn set_high(&mut self) -> Result<(), Self::Error> {
-                <$arch_type as OutputPin>::set_high(&mut self.output)
+            fn set_low(&mut self) -> Result<(), Self::Error> {
+                <$arch_type as embedded_hal::digital::OutputPin>::set_low(&mut self.output)
             }
         }
 

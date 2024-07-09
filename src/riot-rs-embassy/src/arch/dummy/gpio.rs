@@ -3,10 +3,10 @@ pub mod input {
 
     pub(crate) const SCHMITT_TRIGGER_AVAILABLE: bool = false;
 
-    pub trait Pin {}
+    pub trait InputPin {}
 
     pub(crate) fn new(
-        pin: impl Peripheral<P: Pin> + 'static,
+        pin: impl Peripheral<P: InputPin> + 'static,
         int_enabled: bool,
         pull: crate::gpio::Pull,
         _schmitt_trigger: bool,
@@ -80,7 +80,7 @@ pub mod input {
 }
 
 pub mod output {
-    use embedded_hal::digital::{OutputPin, StatefulOutputPin};
+    use embedded_hal::digital::StatefulOutputPin;
 
     use crate::{
         arch::peripheral::Peripheral,
@@ -90,10 +90,10 @@ pub mod output {
     pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = false;
     pub(crate) const SPEED_AVAILABLE: bool = false;
 
-    pub trait Pin {}
+    pub trait OutputPin {}
 
     pub(crate) fn new(
-        pin: impl Peripheral<P: Pin> + 'static,
+        pin: impl Peripheral<P: OutputPin> + 'static,
         initial_state: PinState,
         drive_strength: DriveStrength,
         _speed: Speed, // Not supported by this architecture
@@ -129,7 +129,7 @@ pub mod output {
         type Error = core::convert::Infallible;
     }
 
-    impl OutputPin for Output<'_> {
+    impl embedded_hal::digital::OutputPin for Output<'_> {
         fn set_low(&mut self) -> Result<(), Self::Error> {
             unimplemented!();
         }
