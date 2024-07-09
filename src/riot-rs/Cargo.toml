@@ -72,7 +72,11 @@ wifi-esp = ["riot-rs-embassy/wifi-esp"]
 ## [`println!`](riot_rs_debug::println).
 debug-console = ["riot-rs-rt/debug-console"]
 ## Enables logging support through `defmt`.
-defmt = ["riot-rs-debug/defmt", "riot-rs-embassy/defmt"]
+defmt = [
+  "riot-rs-debug/defmt",
+  "riot-rs-embassy/defmt",
+  "riot-rs-threads?/defmt",
+]
 ## Enables benchmarking facilities.
 bench = ["dep:riot-rs-bench"]
 ## Prints nothing in case of panics (may help reduce binary size).

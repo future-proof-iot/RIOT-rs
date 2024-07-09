@@ -9,6 +9,7 @@ const USIZE_BITS: usize = mem::size_of::<usize>() * 8;
 
 /// Runqueue number.
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct RunqueueId(u8);
 
 impl RunqueueId {
@@ -24,6 +25,7 @@ impl From<RunqueueId> for usize {
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct ThreadId(u8);
 
 impl ThreadId {
