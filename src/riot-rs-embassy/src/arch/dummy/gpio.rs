@@ -87,7 +87,6 @@ pub mod output {
         gpio::{FromDriveStrength, FromSpeed, PinState},
     };
 
-    pub(crate) const OPEN_DRAIN_AVAILABLE: bool = false;
     pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = false;
     pub(crate) const SPEED_AVAILABLE: bool = false;
 
@@ -99,16 +98,6 @@ pub mod output {
         drive_strength: DriveStrength,
         _speed: Speed, // Not supported by this architecture
     ) -> Output<'static> {
-        unimplemented!();
-    }
-
-    pub(crate) fn new_open_drain(
-        pin: impl Peripheral<P: Pin> + 'static,
-        initial_state: PinState,
-        drive_strength: DriveStrength,
-        pull: crate::gpio::Pull,
-        _speed: Speed, // Not supported by this architecture
-    ) -> OpenDrainOutput<'static> {
         unimplemented!();
     }
 
@@ -151,34 +140,6 @@ pub mod output {
     }
 
     impl StatefulOutputPin for Output<'_> {
-        fn is_set_high(&mut self) -> Result<bool, Self::Error> {
-            unimplemented!();
-        }
-
-        fn is_set_low(&mut self) -> Result<bool, Self::Error> {
-            unimplemented!();
-        }
-    }
-
-    pub struct OpenDrainOutput<'d> {
-        _marker: core::marker::PhantomData<&'d ()>,
-    }
-
-    impl embedded_hal::digital::ErrorType for OpenDrainOutput<'_> {
-        type Error = core::convert::Infallible;
-    }
-
-    impl OutputPin for OpenDrainOutput<'_> {
-        fn set_low(&mut self) -> Result<(), Self::Error> {
-            unimplemented!();
-        }
-
-        fn set_high(&mut self) -> Result<(), Self::Error> {
-            unimplemented!();
-        }
-    }
-
-    impl StatefulOutputPin for OpenDrainOutput<'_> {
         fn is_set_high(&mut self) -> Result<bool, Self::Error> {
             unimplemented!();
         }

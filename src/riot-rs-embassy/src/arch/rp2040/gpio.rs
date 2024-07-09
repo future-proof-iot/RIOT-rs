@@ -49,7 +49,7 @@ pub mod output {
         gpio::{FromDriveStrength, FromSpeed, PinState},
     };
 
-    pub(crate) use embassy_rp::gpio::{Output, OutputOpenDrain as OpenDrainOutput, Pin};
+    pub(crate) use embassy_rp::gpio::{Output, Pin};
 
     pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = true;
     pub(crate) const SPEED_AVAILABLE: bool = true;
@@ -63,21 +63,6 @@ pub mod output {
         let initial_state: bool = initial_state.into();
         let initial_state = Level::from(initial_state);
         let mut output = Output::new(pin, initial_state);
-        output.set_drive_strength(drive_strength.into());
-        output.set_slew_rate(speed.into());
-        output
-    }
-
-    pub(crate) fn new_open_drain(
-        pin: impl Peripheral<P: Pin> + 'static,
-        initial_state: PinState,
-        drive_strength: DriveStrength,
-        pull: crate::gpio::Pull,
-        speed: Speed,
-    ) -> OpenDrainOutput<'static> {
-        let initial_state: bool = initial_state.into();
-        let initial_state = Level::from(initial_state);
-        let mut output = OpenDrainOutput::new(pin, initial_state);
         output.set_drive_strength(drive_strength.into());
         output.set_slew_rate(speed.into());
         output

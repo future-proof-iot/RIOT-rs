@@ -45,14 +45,14 @@ pub mod input {
 }
 
 pub mod output {
-    use embassy_nrf::gpio::{Level, OutputDrive, Pull};
+    use embassy_nrf::gpio::{Level, OutputDrive};
 
     use crate::{
         arch::peripheral::Peripheral,
         gpio::{FromDriveStrength, FromSpeed, PinState},
     };
 
-    pub(crate) use embassy_nrf::gpio::{Flex as OpenDrainOutput, Output, Pin};
+    pub(crate) use embassy_nrf::gpio::{Output, Pin};
 
     pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = true;
     pub(crate) const SPEED_AVAILABLE: bool = false;
@@ -70,29 +70,6 @@ pub mod output {
             DriveStrength::High => OutputDrive::HighDrive,
         };
         Output::new(pin, initial_state, output_drive)
-    }
-
-    pub(crate) fn new_open_drain(
-        pin: impl Peripheral<P: Pin> + 'static,
-        initial_state: PinState,
-        drive_strength: DriveStrength,
-        pull: crate::gpio::Pull,
-        _speed: Speed, // Not supported by this architecture
-    ) -> OpenDrainOutput<'static> {
-        // TODO: maybe factor this out with `new()`
-        let initial_state: bool = initial_state.into();
-        let initial_state = Level::from(initial_state);
-        let output_drive = match drive_strength {
-            DriveStrength::Standard => OutputDrive::Standard0Disconnect1,
-            DriveStrength::High => OutputDrive::HighDrive0Disconnect1,
-        };
-        let pull = Pull::from(pull);
-
-        let mut output = OpenDrainOutput::new(pin);
-        // Initial state must be set before the pin is set to output.
-        output.set_level(initial_state);
-        output.set_as_input_output(pull, output_drive);
-        output
     }
 
     #[derive(Copy, Clone, PartialEq, Eq)]

@@ -8,7 +8,6 @@ use crate::arch::{
             DriveStrength as ArchDriveStrength,
             Output as ArchOutput, Pin as ArchOutputPin, Speed as ArchSpeed,
         },
-        open_drain_output::{OpenDrainOutput as ArchOpenDrainOutput, Pin as ArchOpenDrainOutputPin},
     },
     peripheral::Peripheral,
 };
@@ -245,50 +244,6 @@ impl Output {
     }
 }
 
-// FIXME: rename it to OutputOpenDrain for consistency with Embassy?
-pub struct OpenDrainOutput {
-    output: ArchOpenDrainOutput<'static>, // FIXME: is this ok to require a 'static pin?
-}
-
-impl OpenDrainOutput {
-    pub fn new(
-        pin: impl Peripheral<P: ArchOpenDrainOutputPin> + 'static,
-        initial_state: PinState,
-        pull: Pull,
-    ) -> Self {
-        Self::builder(pin, initial_state, pull).build()
-    }
-
-    pub fn builder<P: Peripheral<P: ArchOpenDrainOutputPin>>(
-        pin: P,
-        initial_state: PinState,
-        pull: Pull,
-    ) -> OpenDrainOutputBuilder<P> {
-        OpenDrainOutputBuilder {
-            pin,
-            initial_state,
-            drive_strength: DriveStrength::default(),
-            pull,
-            speed: Speed::default(),
-        }
-    }
-
-    pub fn set_low(&mut self) {
-        // All architectures are infallible.
-        let _ = <Self as OutputPin>::set_low(self);
-    }
-
-    pub fn set_high(&mut self) {
-        // All architectures are infallible.
-        let _ = <Self as OutputPin>::set_high(self);
-    }
-
-    pub fn toggle(&mut self) {
-        // All architectures are infallible.
-        let _ = <Self as StatefulOutputPin>::toggle(self);
-    }
-}
-
 // TODO: should this be marked non_exaustive?
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum DriveStrength {
@@ -343,14 +298,7 @@ pub struct OutputBuilder<P: Peripheral<P: ArchOutputPin>> {
     speed: Speed,
 }
 
-pub struct OpenDrainOutputBuilder<P: Peripheral<P: ArchOpenDrainOutputPin>> {
-    pin: P,
-    initial_state: PinState,
-    drive_strength: DriveStrength,
-    pull: Pull,
-    speed: Speed,
-}
-
+// We define this in a macro because it will be useful for open-drain outputs.
 macro_rules! impl_output_builder {
     ($type:ident, $pin_trait:ident) => {
         impl<P: Peripheral<P: $pin_trait> + 'static> $type<P> {
@@ -416,7 +364,6 @@ macro_rules! impl_output_builder {
 }
 
 impl_output_builder!(OutputBuilder, ArchOutputPin);
-impl_output_builder!(OpenDrainOutputBuilder, ArchOpenDrainOutputPin);
 
 impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
     pub fn build(self) -> Output {
@@ -431,25 +378,7 @@ impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
     }
 }
 
-impl<P: Peripheral<P: ArchOpenDrainOutputPin> + 'static> OpenDrainOutputBuilder<P> {
-    pub fn build(self) -> OpenDrainOutput {
-        // TODO: should we move this into `output::new()`s?
-        let drive_strength = <ArchDriveStrength as FromDriveStrength>::from(self.drive_strength);
-        // TODO: should we move this into `output::new()`s?
-        let speed = <ArchSpeed as FromSpeed>::from(self.speed);
-
-        let output = arch::gpio::open_drain_output::new(
-            self.pin,
-            self.initial_state,
-            drive_strength,
-            self.pull,
-            speed,
-        );
-
-        OpenDrainOutput { output }
-    }
-}
-
+// We define this in a macro because it will be useful for open-drain outputs.
 macro_rules! impl_embedded_hal_output_traits {
     ($type:ident, $arch_type:ident) => {
         impl embedded_hal::digital::ErrorType for $type {
@@ -484,4 +413,3 @@ macro_rules! impl_embedded_hal_output_traits {
 }
 
 impl_embedded_hal_output_traits!(Output, ArchOutput);
-impl_embedded_hal_output_traits!(OpenDrainOutput, ArchOpenDrainOutput);
