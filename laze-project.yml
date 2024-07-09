@@ -49,6 +49,8 @@ contexts:
       FEATURES:
         start: --features=
         joiner: ","
+      LOG:
+        joiner: ","
 
       # this prefixes `--protocol=` to `PROBE_RS_PROTOCOL`
       PROBE_RS_PROTOCOL:
@@ -442,6 +444,7 @@ modules:
           # For some reason, `sccache` makes the build not realize changes to
           # `DEFMT_LOG`. Painful as it is, hard-disable `sccache` here.
           - RUSTC_WRAPPER=""
+          - DEFMT_LOG=${LOG}
 
   - name: silent-panic
     context: riot-rs
