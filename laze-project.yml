@@ -444,7 +444,7 @@ modules:
           # For some reason, `sccache` makes the build not realize changes to
           # `DEFMT_LOG`. Painful as it is, hard-disable `sccache` here.
           - RUSTC_WRAPPER=""
-          - DEFMT_LOG=${LOG}
+          - DEFMT_LOG=info,${LOG}
 
   - name: silent-panic
     context: riot-rs
