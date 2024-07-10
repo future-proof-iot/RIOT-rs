@@ -70,6 +70,30 @@ chips:
       logging: supported
       wifi: not_available
 
+  stm32f401retx:
+    name: STM32F401RETX
+    support:
+      gpio: supported
+      debug_output: supported
+      logging: supported
+      wifi: not_available
+
+  stm32h755zitx:
+    name: STM32F755ZITX
+    support:
+      gpio: supported
+      debug_output: supported
+      logging: supported
+      wifi: not_available
+
+  stm32wb55rgvx:
+    name: STM32W55RGVX
+    support:
+      gpio: supported
+      debug_output: supported
+      logging: supported
+      wifi: not_available
+
 # Encodes support status for each board.
 # Boards inherit support statuses of their chip, but can also override them.
 boards:
@@ -111,4 +135,28 @@ boards:
         status: supported_with_caveats
         comments:
           - not currently compatible with threading
+      ethernet_over_usb: supported
+
+  st-nucleo-f401re:
+    name: ST NUCLEO-F401RE
+    chip: stm32f401retx
+    support:
+      user_usb: not_available
+      wifi: not_available
+      ethernet_over_usb: not_available
+
+  st-nucleo-h755zi-q:
+    name: ST NUCLEO-H755ZI-Q
+    chip: stm32h755zitx
+    support:
+      user_usb: supported
+      wifi: not_available
+      ethernet_over_usb: not_currently_supported
+
+  st-nucleo-wb55:
+    name: ST NUCLEO-WB55RG
+    chip: stm32wb55rgvx
+    support:
+      user_usb: supported
+      wifi: not_available
       ethernet_over_usb: supported
