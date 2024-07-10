@@ -1,14 +1,16 @@
 # defmt
 
-RIOT-rs supports [defmt] on all platforms.
-To enable it, enable the laze module `defmt`, either on the laze command line or
-in a laze file. Don't forget to set the `DEFMT_LOG` variable, it defaults to `error`.
+RIOT-rs supports [defmt] on all platforms. It is enabled by default.
+
 See the [defmt documentation] for general info on `defmt`.
+
+In RIOT-rs, the log level defaults to `info`. It can be configured using the
+laze variable `LOG`.
 
 Example:
 
 ```shell
-# DEFMT_LOG=info laze build -C examples/hello-world-async --builders nrf52840dk --select defmt run
+# laze build -C examples/log --builders nrf52840dk -DLOG=warn run
 ```
 
 Then within Rust code, import `riot_rs::debug::log` items, then use `defmt` log
