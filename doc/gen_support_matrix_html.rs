@@ -282,7 +282,8 @@ fn render_html(matrix: &schema::Matrix) -> Result<String, Error> {
         })
     }).collect::<Result<Vec<_>, Error>>()?;
     // TODO: read the order from the YAML file instead?
-    boards.sort_unstable_by_key(|b| b.name.clone());
+    boards.sort_unstable_by_key(|b| b.name.to_lowercase());
+    dbg!(&boards);
 
     let mut env = Environment::new();
     env.add_template("matrix", TABLE_TEMPLATE).unwrap();
