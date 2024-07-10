@@ -9,6 +9,7 @@ contexts:
     parent: default
     selects:
       - executor-default
+      - ?defmt
     env:
       RUSTFLAGS:
         - "-Clink-arg=--nmagic"
@@ -48,6 +49,8 @@ contexts:
       # this turns ${FEATURES} from a list to "--features=feature1,feature2"
       FEATURES:
         start: --features=
+        joiner: ","
+      LOG:
         joiner: ","
 
       # this prefixes `--protocol=` to `PROBE_RS_PROTOCOL`
@@ -442,6 +445,7 @@ modules:
           # For some reason, `sccache` makes the build not realize changes to
           # `DEFMT_LOG`. Painful as it is, hard-disable `sccache` here.
           - RUSTC_WRAPPER=""
+          - DEFMT_LOG=info,${LOG}
 
   - name: silent-panic
     context: riot-rs

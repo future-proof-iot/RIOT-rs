@@ -209,7 +209,7 @@ dependencies = [
  "clang-sys",
  "lazy_static",
  "lazycell",
- "log",
+ "log 0.4.21",
  "peeking_take_while",
  "proc-macro2",
  "quote",
@@ -307,7 +307,7 @@ dependencies = [
  "clap",
  "heck 0.4.1",
  "indexmap 1.9.3",
- "log",
+ "log 0.4.21",
  "proc-macro2",
  "quote",
  "serde",
@@ -1572,7 +1572,7 @@ version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3d248bdd43ce613d87415282f69b9bb99d947d290b10962dd6c56233312c2ad5"
 dependencies = [
- "log",
+ "log 0.4.21",
 ]
 
 [[package]]
@@ -1759,7 +1759,7 @@ checksum = "e98f0f58453dd2ce08d99228fc8757fad39d05dfd26643665d1093b8844f42cc"
 dependencies = [
  "critical-section",
  "defmt",
- "log",
+ "log 0.4.21",
 ]
 
 [[package]]
@@ -2386,7 +2386,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "64eb682691d02609ff036a7416373edbc7cc769b0908bf2489af79461453669e"
 dependencies = [
  "lakers-shared",
- "log",
+ "log 0.4.21",
 ]
 
 [[package]]
@@ -2411,7 +2411,7 @@ version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dcdc5a0e1a5ea0387ab3e334f2061c633001db79e04d40af65bc68b41b13ef3a"
 dependencies = [
- "log",
+ "log 0.4.21",
 ]
 
 [[package]]
@@ -2594,6 +2594,15 @@ checksum = "07af8b9cdd281b7915f413fa73f29ebd5d55d0d3f0155584dade1ff18cea1b17"
 dependencies = [
  "autocfg",
  "scopeguard",
+]
+
+[[package]]
+name = "log"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "riot-rs",
+ "riot-rs-boards",
 ]
 
 [[package]]
@@ -3096,7 +3105,7 @@ dependencies = [
  "futures-util",
  "heapless 0.8.0",
  "lhash",
- "log",
+ "log 0.4.21",
  "ryu",
  "serde",
 ]
@@ -3464,7 +3473,7 @@ dependencies = [
  "defmt",
  "defmt-rtt-target",
  "esp-println",
- "log",
+ "log 0.4.21",
  "rtt-target 0.5.0",
 ]
 
@@ -4389,7 +4398,7 @@ source = "git+https://github.com/twitchyliquid64/usbd-hid?rev=76bea16537e1a347df
 dependencies = [
  "byteorder",
  "hashbrown 0.13.2",
- "log",
+ "log 0.4.21",
  "proc-macro2",
  "quote",
  "serde",
