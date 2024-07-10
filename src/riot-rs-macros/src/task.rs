@@ -20,7 +20,7 @@
 ///         of type `UsbBuilderHook`, allowing to access and modify the system-provided
 ///         `embassy_usb::Builder` through `Delegate::with()`, *before* it is built by the system.
 /// - `pool_size`: (*optional*) set the maximum number of concurrent tasks that can be spawned for
-///     the function.
+///     the function (defaults to `1`).
 ///     Cannot be used on `autostart` tasks.
 ///
 /// # Examples
@@ -111,7 +111,7 @@ pub fn task(args: TokenStream, item: TokenStream) -> TokenStream {
             #task_function
         }
     } else {
-        let pool_size = attrs.pool_size;
+        let pool_size = attrs.pool_size.unwrap_or_else(|| syn::parse_quote! { 1 });
 
         quote! {
             #[#riot_rs_crate::embassy::embassy_executor::task(pool_size = #pool_size)]
