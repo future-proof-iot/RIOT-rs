@@ -356,6 +356,13 @@ impl Output {
         let _ = <Self as embedded_hal::digital::OutputPin>::set_low(self);
     }
 
+    /// Sets the output level.
+    pub fn set_level(&mut self, level: Level) {
+        let state = level.into();
+        // All architectures are infallible.
+        let _ = <Self as embedded_hal::digital::OutputPin>::set_state(self, state);
+    }
+
     /// Toggles the output level.
     pub fn toggle(&mut self) {
         // All architectures are infallible.
