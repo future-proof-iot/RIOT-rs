@@ -49,7 +49,8 @@ pub mod input {
 
     use crate::{arch::peripheral::Peripheral, gpio};
 
-    pub(crate) use esp_hal::gpio::AnyInput as Input;
+    // Re-export `AnyInput` as `IntEnabledInput` as they are interrupt-enabled.
+    pub(crate) use esp_hal::gpio::{AnyInput as Input, AnyInput as IntEnabledInput};
 
     pub(crate) const SCHMITT_TRIGGER_AVAILABLE: bool = false;
 
@@ -60,13 +61,20 @@ pub mod input {
 
     pub(crate) fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
-        int_enabled: bool,
         pull: crate::gpio::Pull,
         _schmitt_trigger: bool, // Not supported by this architecture
     ) -> Result<Input<'static>, gpio::input::Error> {
         let pull = Pull::from(pull);
 
         Ok(Input::new(pin, pull))
+    }
+
+    pub(crate) fn new_int_enabled(
+        pin: impl Peripheral<P: InputPin> + 'static,
+        pull: crate::gpio::Pull,
+        _schmitt_trigger: bool, // Not supported by this architecture
+    ) -> Result<IntEnabledInput<'static>, gpio::input::Error> {
+        new(pin, pull, _schmitt_trigger)
     }
 
     impl From<crate::gpio::Pull> for Pull {
@@ -110,7 +118,7 @@ pub mod output {
     pub(crate) fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
         initial_level: crate::gpio::Level,
-        drive_strength: DriveStrength,
+        _drive_strength: DriveStrength,
         _speed: Speed, // Not supported by this architecture
     ) -> Output<'static> {
         let output = Output::new(pin, initial_level.into());

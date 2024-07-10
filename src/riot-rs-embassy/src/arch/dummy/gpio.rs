@@ -1,3 +1,81 @@
+macro_rules! define_input_like {
+    ($type:ident) => {
+        pub struct $type<'d> {
+            _marker: core::marker::PhantomData<&'d ()>,
+        }
+
+        impl $type<'_> {
+            pub fn is_high(&self) -> bool {
+                unimplemented!();
+            }
+
+            pub fn is_low(&self) -> bool {
+                unimplemented!();
+            }
+
+            pub fn get_level(&self) -> crate::gpio::Level {
+                unimplemented!();
+            }
+
+            pub async fn wait_for_high(&mut self) {
+                unimplemented!();
+            }
+
+            pub async fn wait_for_low(&mut self) {
+                unimplemented!();
+            }
+
+            pub async fn wait_for_rising_edge(&mut self) {
+                unimplemented!();
+            }
+
+            pub async fn wait_for_falling_edge(&mut self) {
+                unimplemented!();
+            }
+
+            pub async fn wait_for_any_edge(&mut self) {
+                unimplemented!();
+            }
+        }
+
+        impl embedded_hal::digital::ErrorType for $type<'_> {
+            type Error = core::convert::Infallible;
+        }
+
+        impl embedded_hal::digital::InputPin for $type<'_> {
+            fn is_low(&mut self) -> Result<bool, Self::Error> {
+                unimplemented!();
+            }
+
+            fn is_high(&mut self) -> Result<bool, Self::Error> {
+                unimplemented!();
+            }
+        }
+
+        impl embedded_hal_async::digital::Wait for $type<'_> {
+            async fn wait_for_high(&mut self) -> Result<(), Self::Error> {
+                unimplemented!();
+            }
+
+            async fn wait_for_low(&mut self) -> Result<(), Self::Error> {
+                unimplemented!();
+            }
+
+            async fn wait_for_rising_edge(&mut self) -> Result<(), Self::Error> {
+                unimplemented!();
+            }
+
+            async fn wait_for_falling_edge(&mut self) -> Result<(), Self::Error> {
+                unimplemented!();
+            }
+
+            async fn wait_for_any_edge(&mut self) -> Result<(), Self::Error> {
+                unimplemented!();
+            }
+        }
+    };
+}
+
 pub mod input {
     use crate::{arch::peripheral::Peripheral, gpio};
 
@@ -6,87 +84,23 @@ pub mod input {
     pub trait InputPin {}
 
     pub(crate) fn new(
-        pin: impl Peripheral<P: InputPin> + 'static,
-        int_enabled: bool,
-        pull: crate::gpio::Pull,
+        _pin: impl Peripheral<P: InputPin> + 'static,
+        _pull: crate::gpio::Pull,
         _schmitt_trigger: bool,
     ) -> Result<Input<'static>, gpio::input::Error> {
         unimplemented!();
     }
 
-    pub struct Input<'d> {
-        _marker: core::marker::PhantomData<&'d ()>,
+    pub(crate) fn new_int_enabled(
+        _pin: impl Peripheral<P: InputPin> + 'static,
+        _pull: crate::gpio::Pull,
+        _schmitt_trigger: bool,
+    ) -> Result<IntEnabledInput<'static>, gpio::input::Error> {
+        unimplemented!();
     }
 
-    impl Input<'_> {
-        pub fn is_high(&self) -> bool {
-            unimplemented!();
-        }
-
-        pub fn is_low(&self) -> bool {
-            unimplemented!();
-        }
-
-        pub fn get_level(&self) -> crate::gpio::Level {
-            unimplemented!();
-        }
-
-        pub async fn wait_for_high(&mut self) {
-            unimplemented!();
-        }
-
-        pub async fn wait_for_low(&mut self) {
-            unimplemented!();
-        }
-
-        pub async fn wait_for_rising_edge(&mut self) {
-            unimplemented!();
-        }
-
-        pub async fn wait_for_falling_edge(&mut self) {
-            unimplemented!();
-        }
-
-        pub async fn wait_for_any_edge(&mut self) {
-            unimplemented!();
-        }
-    }
-
-    impl embedded_hal::digital::ErrorType for Input<'_> {
-        type Error = core::convert::Infallible;
-    }
-
-    impl embedded_hal::digital::InputPin for Input<'_> {
-        fn is_low(&mut self) -> Result<bool, Self::Error> {
-            unimplemented!();
-        }
-
-        fn is_high(&mut self) -> Result<bool, Self::Error> {
-            unimplemented!();
-        }
-    }
-
-    impl embedded_hal_async::digital::Wait for Input<'_> {
-        async fn wait_for_high(&mut self) -> Result<(), Self::Error> {
-            unimplemented!();
-        }
-
-        async fn wait_for_low(&mut self) -> Result<(), Self::Error> {
-            unimplemented!();
-        }
-
-        async fn wait_for_rising_edge(&mut self) -> Result<(), Self::Error> {
-            unimplemented!();
-        }
-
-        async fn wait_for_falling_edge(&mut self) -> Result<(), Self::Error> {
-            unimplemented!();
-        }
-
-        async fn wait_for_any_edge(&mut self) -> Result<(), Self::Error> {
-            unimplemented!();
-        }
-    }
+    define_input_like!(Input);
+    define_input_like!(IntEnabledInput);
 }
 
 pub mod output {

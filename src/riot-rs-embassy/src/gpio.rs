@@ -4,7 +4,9 @@ use embedded_hal::digital::StatefulOutputPin;
 
 use crate::arch::{
     gpio::{
-        input::{Input as ArchInput, InputPin as ArchInputPin},
+        input::{
+            Input as ArchInput, InputPin as ArchInputPin, IntEnabledInput as ArchIntEnabledInput,
+        },
         output::{
             DriveStrength as ArchDriveStrength, Output as ArchOutput, OutputPin as ArchOutputPin,
             Speed as ArchSpeed,
@@ -71,7 +73,7 @@ impl embedded_hal::digital::ErrorType for Input {
 ///
 /// Can be obtained with [`InputBuilder::build_with_interrupt()`].
 pub struct IntEnabledInput {
-    input: ArchInput<'static>, // FIXME: is this ok to require a 'static pin?
+    input: ArchIntEnabledInput<'static>, // FIXME: is this ok to require a 'static pin?
 }
 
 impl IntEnabledInput {
@@ -107,30 +109,39 @@ impl IntEnabledInput {
 
 #[doc(hidden)]
 impl embedded_hal::digital::ErrorType for IntEnabledInput {
-    type Error = <ArchInput<'static> as embedded_hal::digital::ErrorType>::Error;
+    type Error = <ArchIntEnabledInput<'static> as embedded_hal::digital::ErrorType>::Error;
 }
 
 impl embedded_hal_async::digital::Wait for IntEnabledInput {
     async fn wait_for_high(&mut self) -> Result<(), Self::Error> {
-        <ArchInput as embedded_hal_async::digital::Wait>::wait_for_high(&mut self.input).await
+        <ArchIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_high(&mut self.input)
+            .await
     }
 
     async fn wait_for_low(&mut self) -> Result<(), Self::Error> {
-        <ArchInput as embedded_hal_async::digital::Wait>::wait_for_low(&mut self.input).await
+        <ArchIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_low(&mut self.input)
+            .await
     }
 
     async fn wait_for_rising_edge(&mut self) -> Result<(), Self::Error> {
-        <ArchInput as embedded_hal_async::digital::Wait>::wait_for_rising_edge(&mut self.input)
-            .await
+        <ArchIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_rising_edge(
+            &mut self.input,
+        )
+        .await
     }
 
     async fn wait_for_falling_edge(&mut self) -> Result<(), Self::Error> {
-        <ArchInput as embedded_hal_async::digital::Wait>::wait_for_falling_edge(&mut self.input)
-            .await
+        <ArchIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_falling_edge(
+            &mut self.input,
+        )
+        .await
     }
 
     async fn wait_for_any_edge(&mut self) -> Result<(), Self::Error> {
-        <ArchInput as embedded_hal_async::digital::Wait>::wait_for_any_edge(&mut self.input).await
+        <ArchIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_any_edge(
+            &mut self.input,
+        )
+        .await
     }
 }
 
@@ -149,7 +160,7 @@ macro_rules! impl_embedded_hal_input_trait {
 }
 
 impl_embedded_hal_input_trait!(Input, ArchInput);
-impl_embedded_hal_input_trait!(IntEnabledInput, ArchInput);
+impl_embedded_hal_input_trait!(IntEnabledInput, ArchIntEnabledInput);
 
 /// Digital level of an input or output.
 #[derive(Copy, Clone, PartialEq, Eq)]
@@ -263,11 +274,10 @@ pub mod input {
     impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
         /// Returns an [`Input`] by finalizing the builder.
         pub fn build(self) -> Input {
-            let input =
-                match arch::gpio::input::new(self.pin, false, self.pull, self.schmitt_trigger) {
-                    Ok(input) => input,
-                    Err(Error::InterruptChannel(_)) => unreachable!(),
-                };
+            let input = match arch::gpio::input::new(self.pin, self.pull, self.schmitt_trigger) {
+                Ok(input) => input,
+                Err(Error::InterruptChannel(_)) => unreachable!(),
+            };
 
             Input { input }
         }
@@ -285,7 +295,8 @@ pub mod input {
         /// architecture-specific error.
         // FIXME: rename this
         pub fn build_with_interrupt(self) -> Result<IntEnabledInput, Error> {
-            let input = arch::gpio::input::new(self.pin, true, self.pull, self.schmitt_trigger)?;
+            let input =
+                arch::gpio::input::new_int_enabled(self.pin, self.pull, self.schmitt_trigger)?;
 
             Ok(IntEnabledInput { input })
         }
