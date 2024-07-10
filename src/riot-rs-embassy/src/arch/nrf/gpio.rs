@@ -49,7 +49,7 @@ pub mod output {
 
     use crate::{
         arch::peripheral::Peripheral,
-        gpio::{FromDriveStrength, FromSpeed, PinState},
+        gpio::{FromDriveStrength, FromSpeed},
     };
 
     pub(crate) use embassy_nrf::gpio::{Output, Pin as OutputPin};
@@ -59,18 +59,18 @@ pub mod output {
 
     pub(crate) fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
-        initial_state: PinState,
+        initial_level: crate::gpio::Level,
         drive_strength: DriveStrength,
         _speed: Speed, // Not supported by this architecture
     ) -> Output<'static> {
-        let initial_state: bool = initial_state.into();
-        let initial_state = Level::from(initial_state);
         let output_drive = match drive_strength {
             DriveStrength::Standard => OutputDrive::Standard,
             DriveStrength::High => OutputDrive::HighDrive,
         };
-        Output::new(pin, initial_state, output_drive)
+        Output::new(pin, initial_level.into(), output_drive)
     }
+
+    crate::gpio::impl_from_level!(Level);
 
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum DriveStrength {

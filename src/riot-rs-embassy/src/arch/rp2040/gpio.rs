@@ -46,7 +46,7 @@ pub mod output {
 
     use crate::{
         arch::peripheral::Peripheral,
-        gpio::{FromDriveStrength, FromSpeed, PinState},
+        gpio::{FromDriveStrength, FromSpeed},
     };
 
     pub(crate) use embassy_rp::gpio::{Output, Pin as OutputPin};
@@ -56,17 +56,17 @@ pub mod output {
 
     pub(crate) fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
-        initial_state: PinState,
+        initial_level: crate::gpio::Level,
         drive_strength: DriveStrength,
         speed: Speed,
     ) -> Output<'static> {
-        let initial_state: bool = initial_state.into();
-        let initial_state = Level::from(initial_state);
-        let mut output = Output::new(pin, initial_state);
+        let mut output = Output::new(pin, initial_level.into());
         output.set_drive_strength(drive_strength.into());
         output.set_slew_rate(speed.into());
         output
     }
+
+    crate::gpio::impl_from_level!(Level);
 
     // We provide our own type because the upstream type is not `Copy` and has no `Default` impl.
     #[derive(Copy, Clone, PartialEq, Eq)]

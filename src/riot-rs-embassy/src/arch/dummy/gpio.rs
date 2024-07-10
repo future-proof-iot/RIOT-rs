@@ -94,7 +94,7 @@ pub mod output {
 
     use crate::{
         arch::peripheral::Peripheral,
-        gpio::{FromDriveStrength, FromSpeed, PinState},
+        gpio::{FromDriveStrength, FromSpeed},
     };
 
     pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = false;
@@ -103,10 +103,10 @@ pub mod output {
     pub trait OutputPin {}
 
     pub(crate) fn new(
-        pin: impl Peripheral<P: OutputPin> + 'static,
-        initial_state: PinState,
-        drive_strength: DriveStrength,
-        _speed: Speed, // Not supported by this architecture
+        _pin: impl Peripheral<P: OutputPin> + 'static,
+        _initial_level: crate::gpio::Level,
+        _drive_strength: DriveStrength,
+        _speed: Speed,
     ) -> Output<'static> {
         unimplemented!();
     }

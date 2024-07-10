@@ -16,8 +16,6 @@ use crate::arch::{
 use input::InputBuilder;
 use output::OutputBuilder;
 
-pub use embedded_hal::digital::PinState;
-
 // We do not provide an `impl` block because it would be grouped separately in the documentation.
 macro_rules! inner_impl_input_methods {
     ($inner:ident) => {
@@ -154,7 +152,6 @@ impl_embedded_hal_input_trait!(Input, ArchInput);
 impl_embedded_hal_input_trait!(IntEnabledInput, ArchInput);
 
 /// Digital level of an input or output.
-// TODO: should we use PinState instead?
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum Level {
     Low,
@@ -178,6 +175,32 @@ impl From<bool> for Level {
         }
     }
 }
+
+impl From<embedded_hal::digital::PinState> for Level {
+    fn from(pin_state: embedded_hal::digital::PinState) -> Self {
+        bool::from(pin_state).into()
+    }
+}
+
+impl From<Level> for embedded_hal::digital::PinState {
+    fn from(level: Level) -> Self {
+        bool::from(level).into()
+    }
+}
+
+macro_rules! impl_from_level {
+    ($level:ident) => {
+        impl From<crate::gpio::Level> for $level {
+            fn from(level: crate::gpio::Level) -> Self {
+                match level {
+                    crate::gpio::Level::Low => $level::Low,
+                    crate::gpio::Level::High => $level::High,
+                }
+            }
+        }
+    };
+}
+pub(crate) use impl_from_level;
 
 pub mod input {
     //! Input-specific types.
@@ -304,19 +327,18 @@ pub struct Output {
 
 impl Output {
     /// Returns a configured [`Output`].
-    // TODO: is PinState appropriate if we turn this into a open-drain-capable output?
-    pub fn new(pin: impl Peripheral<P: ArchOutputPin> + 'static, initial_state: PinState) -> Self {
-        Self::builder(pin, initial_state).build()
+    pub fn new(pin: impl Peripheral<P: ArchOutputPin> + 'static, initial_level: Level) -> Self {
+        Self::builder(pin, initial_level).build()
     }
 
     /// Returns an [`OutputBuilder`], allowing to configure the GPIO output further.
     pub fn builder<P: Peripheral<P: ArchOutputPin>>(
         pin: P,
-        initial_state: PinState,
+        initial_level: Level,
     ) -> OutputBuilder<P> {
         OutputBuilder {
             pin,
-            initial_state,
+            initial_level,
             drive_strength: DriveStrength::default(),
             speed: Speed::default(),
         }
@@ -401,11 +423,9 @@ pub(crate) trait FromSpeed {
 pub mod output {
     //! Output-specific types.
 
-    use embedded_hal::digital::PinState;
-
     use crate::{
         arch::{self, gpio::output::OutputPin as ArchOutputPin, peripheral::Peripheral},
-        gpio::{DriveStrength, FromDriveStrength, FromSpeed, Speed},
+        gpio::{DriveStrength, FromDriveStrength, FromSpeed, Level, Speed},
     };
 
     use super::{ArchDriveStrength, ArchSpeed, Output};
@@ -413,7 +433,7 @@ pub mod output {
     /// Builder type for [`Output`], can be obtained with [`Output::builder()`].
     pub struct OutputBuilder<P: Peripheral<P: ArchOutputPin>> {
         pub(crate) pin: P,
-        pub(crate) initial_state: PinState,
+        pub(crate) initial_level: Level,
         pub(crate) drive_strength: DriveStrength,
         pub(crate) speed: Speed,
     }
@@ -495,7 +515,7 @@ pub mod output {
             let speed = <ArchSpeed as FromSpeed>::from(self.speed);
 
             let output =
-                arch::gpio::output::new(self.pin, self.initial_state, drive_strength, speed);
+                arch::gpio::output::new(self.pin, self.initial_level, drive_strength, speed);
 
             Output { output }
         }
