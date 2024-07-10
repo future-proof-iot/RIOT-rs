@@ -10,7 +10,7 @@ embassy-executor = { workspace = true, default-features = false }
 embassy-net = { workspace = true, features = ["tcp"] }
 embassy-sync = { workspace = true }
 embassy-time = { workspace = true, default-features = false }
-embedded-io-async = "0.6.0"
+embedded-io-async = { version = "0.6.0", features = ["defmt-03"] }
 heapless = { workspace = true }
 httparse = { version = "1.8.0", default-features = false }
 picoserve = { version = "0.8.0", default-features = false, features = [

@@ -3,7 +3,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::debug::println;
+use riot_rs::debug::log::*;
 
 #[riot_rs::thread(autostart)]
 fn main() {
@@ -12,10 +12,10 @@ fn main() {
         // Consider using `core::hint::black_box()` where necessary.
     }) {
         Ok(ticks) => {
-            println!("took {} per iteration", ticks);
+            info!("took {} per iteration", ticks);
         }
         Err(err) => {
-            println!("benchmark returned error: {}", err);
+            info!("benchmark returned error: {}", err);
         }
     }
 }

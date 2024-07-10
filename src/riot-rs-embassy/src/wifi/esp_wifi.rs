@@ -1,9 +1,15 @@
-use esp_wifi::{wifi::WifiStaDevice, EspWifiInitialization};
+use embassy_time::{Duration, Timer};
+use esp_wifi::{
+    wifi::{
+        ClientConfiguration, Configuration, WifiController, WifiDevice, WifiEvent, WifiStaDevice,
+        WifiState,
+    },
+    EspWifiInitialization,
+};
 use once_cell::sync::OnceCell;
+use riot_rs_debug::log::{debug, info};
 
 use crate::{arch::OptionalPeripherals, Spawner};
-
-use esp_wifi::wifi::{WifiController, WifiDevice};
 
 pub type NetworkDevice = WifiDevice<'static, WifiStaDevice>;
 
@@ -26,13 +32,8 @@ pub fn init(peripherals: &mut OptionalPeripherals, spawner: Spawner) -> NetworkD
 
 #[embassy_executor::task]
 async fn connection(mut controller: WifiController<'static>) {
-    use riot_rs_debug::println;
-
-    use embassy_time::{Duration, Timer};
-    use esp_wifi::wifi::{ClientConfiguration, Configuration, WifiEvent, WifiState};
-
-    println!("start connection task");
-    println!("Device capabilities: {:?}", controller.get_capabilities());
+    debug!("start connection task");
+    debug!("Device capabilities: {:?}", controller.get_capabilities());
     loop {
         match esp_wifi::wifi::get_wifi_state() {
             WifiState::StaConnected => {
@@ -49,16 +50,16 @@ async fn connection(mut controller: WifiController<'static>) {
                 ..Default::default()
             });
             controller.set_configuration(&client_config).unwrap();
-            println!("Starting Wi-Fi");
+            debug!("Starting Wi-Fi");
             controller.start().await.unwrap();
-            println!("Wi-Fi started!");
+            debug!("Wi-Fi started!");
         }
-        println!("About to connect...");
+        debug!("About to connect...");
 
         match controller.connect().await {
-            Ok(_) => println!("Wifi connected!"),
+            Ok(_) => info!("Wifi connected!"),
             Err(e) => {
-                println!("Failed to connect to Wi-Fi: {e:?}");
+                info!("Failed to connect to Wi-Fi: {:?}", e);
                 Timer::after(Duration::from_millis(5000)).await
             }
         }

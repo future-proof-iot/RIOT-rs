@@ -1233,6 +1233,7 @@ dependencies = [
  "cortex-m",
  "cortex-m-rt",
  "critical-section",
+ "defmt",
  "document-features",
  "embassy-embedded-hal",
  "embassy-futures",
@@ -3432,6 +3433,7 @@ version = "0.1.0"
 dependencies = [
  "cfg-if",
  "cortex-m",
+ "defmt",
 ]
 
 [[package]]

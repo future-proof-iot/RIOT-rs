@@ -16,7 +16,7 @@ pub mod testing;
 #[cfg(feature = "threading")]
 mod threading;
 
-use riot_rs_debug::println;
+use riot_rs_debug::{log::debug, println};
 
 cfg_if::cfg_if! {
     if #[cfg(context = "cortex-m")] {
@@ -71,7 +71,7 @@ fn startup() -> ! {
     #[cfg(feature = "debug-console")]
     riot_rs_debug::init();
 
-    println!("riot_rs_rt::startup()");
+    debug!("riot_rs_rt::startup()");
 
     for f in INIT_FUNCS {
         f();
@@ -90,7 +90,7 @@ fn startup() -> ! {
         extern "Rust" {
             fn riot_rs_embassy_init() -> !;
         }
-        println!("riot_rs_rt::startup() launching single thread executor");
+        debug!("riot_rs_rt::startup() launching single thread executor");
         unsafe { riot_rs_embassy_init() };
     }
 

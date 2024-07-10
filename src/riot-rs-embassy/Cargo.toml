@@ -41,6 +41,7 @@ cyw43-pio = { version = "0.1.0", features = ["overclock"], optional = true }
 
 # listed here for conditional feature selection
 embassy-nrf = { workspace = true, default-features = false, optional = true }
+embassy-rp = { workspace = true, default-features = false, optional = true }
 embassy-stm32 = { workspace = true, default-features = false, optional = true }
 esp-hal = { workspace = true, default-features = false, optional = true }
 esp-hal-embassy = { workspace = true, default-features = false, optional = true }
@@ -146,6 +147,7 @@ executor-none = []
 defmt = [
   "embassy-net?/defmt",
   "embassy-nrf?/defmt",
+  "embassy-rp?/defmt",
   "embassy-stm32?/defmt",
   "embassy-time?/defmt",
   "embassy-usb?/defmt",

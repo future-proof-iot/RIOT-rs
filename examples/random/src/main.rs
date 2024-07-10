@@ -3,7 +3,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::debug::println;
+use riot_rs::debug::log::*;
 
 #[riot_rs::thread(autostart)]
 fn main() {
@@ -12,5 +12,5 @@ fn main() {
 
     let value = rng.gen_range(1..=6);
 
-    println!("The random value of this round is {}.", value);
+    info!("The random value of this round is {}.", value);
 }
