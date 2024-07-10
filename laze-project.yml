@@ -9,6 +9,7 @@ contexts:
     parent: default
     selects:
       - executor-default
+      - ?defmt
     env:
       RUSTFLAGS:
         - "-Clink-arg=--nmagic"
