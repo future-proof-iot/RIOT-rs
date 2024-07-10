@@ -1664,7 +1664,7 @@ dependencies = [
 [[package]]
 name = "esp-build"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#307718f69421d80d00cdccfa3247d402b8f32822"
 dependencies = [
  "quote",
  "syn 2.0.68",
@@ -1674,7 +1674,7 @@ dependencies = [
 [[package]]
 name = "esp-hal"
 version = "0.18.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#307718f69421d80d00cdccfa3247d402b8f32822"
 dependencies = [
  "basic-toml",
  "bitfield 0.15.0",
@@ -1722,7 +1722,7 @@ dependencies = [
 [[package]]
 name = "esp-hal-embassy"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#307718f69421d80d00cdccfa3247d402b8f32822"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -1738,7 +1738,7 @@ dependencies = [
 [[package]]
 name = "esp-hal-procmacros"
 version = "0.11.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#307718f69421d80d00cdccfa3247d402b8f32822"
 dependencies = [
  "darling",
  "document-features",
@@ -1754,7 +1754,7 @@ dependencies = [
 [[package]]
 name = "esp-metadata"
 version = "0.1.1"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#307718f69421d80d00cdccfa3247d402b8f32822"
 dependencies = [
  "basic-toml",
  "lazy_static",
@@ -1776,7 +1776,7 @@ dependencies = [
 [[package]]
 name = "esp-riscv-rt"
 version = "0.8.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#307718f69421d80d00cdccfa3247d402b8f32822"
 dependencies = [
  "document-features",
  "riscv",
@@ -1786,7 +1786,7 @@ dependencies = [
 [[package]]
 name = "esp-wifi"
 version = "0.6.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#307718f69421d80d00cdccfa3247d402b8f32822"
 dependencies = [
  "atomic-waker",
  "cfg-if",

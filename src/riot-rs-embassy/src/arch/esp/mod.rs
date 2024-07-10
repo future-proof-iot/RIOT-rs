@@ -7,37 +7,43 @@ pub mod peripheral {
 pub mod peripherals {
     pub use esp_hal::peripherals::*;
 
-    pub use esp_hal::gpio::Gpio0;
-    pub use esp_hal::gpio::Gpio1;
-    pub use esp_hal::gpio::Gpio2;
-    pub use esp_hal::gpio::Gpio3;
-    pub use esp_hal::gpio::Gpio4;
-    pub use esp_hal::gpio::Gpio5;
-    pub use esp_hal::gpio::Gpio6;
-    pub use esp_hal::gpio::Gpio7;
-    pub use esp_hal::gpio::Gpio8;
-    pub use esp_hal::gpio::Gpio9;
-    pub use esp_hal::gpio::Gpio10;
-    pub use esp_hal::gpio::Gpio11;
-    pub use esp_hal::gpio::Gpio12;
-    pub use esp_hal::gpio::Gpio13;
-    pub use esp_hal::gpio::Gpio14;
-    pub use esp_hal::gpio::Gpio15;
-    pub use esp_hal::gpio::Gpio16;
-    pub use esp_hal::gpio::Gpio17;
-    pub use esp_hal::gpio::Gpio18;
-    pub use esp_hal::gpio::Gpio19;
-    pub use esp_hal::gpio::Gpio20;
-    pub use esp_hal::gpio::Gpio21;
-    pub use esp_hal::gpio::Gpio22;
-    pub use esp_hal::gpio::Gpio23;
-    pub use esp_hal::gpio::Gpio24;
-    pub use esp_hal::gpio::Gpio25;
-    pub use esp_hal::gpio::Gpio26;
-    pub use esp_hal::gpio::Gpio27;
-    pub use esp_hal::gpio::Gpio28;
-    pub use esp_hal::gpio::Gpio29;
-    pub use esp_hal::gpio::Gpio30;
+    pub use esp_hal::gpio::GPIO_0;
+    pub use esp_hal::gpio::GPIO_1;
+    pub use esp_hal::gpio::GPIO_2;
+    pub use esp_hal::gpio::GPIO_3;
+    pub use esp_hal::gpio::GPIO_4;
+    pub use esp_hal::gpio::GPIO_5;
+    pub use esp_hal::gpio::GPIO_6;
+    pub use esp_hal::gpio::GPIO_7;
+    pub use esp_hal::gpio::GPIO_8;
+    pub use esp_hal::gpio::GPIO_9;
+
+    pub use esp_hal::gpio::GPIO_10;
+    pub use esp_hal::gpio::GPIO_11;
+    pub use esp_hal::gpio::GPIO_12;
+    pub use esp_hal::gpio::GPIO_13;
+    pub use esp_hal::gpio::GPIO_14;
+    pub use esp_hal::gpio::GPIO_15;
+    pub use esp_hal::gpio::GPIO_16;
+    pub use esp_hal::gpio::GPIO_17;
+    pub use esp_hal::gpio::GPIO_18;
+    pub use esp_hal::gpio::GPIO_19;
+    pub use esp_hal::gpio::GPIO_20;
+    pub use esp_hal::gpio::GPIO_21;
+
+    cfg_if::cfg_if! {
+        if #[cfg(context = "esp32c6")] {
+            pub use esp_hal::gpio::GPIO_22;
+            pub use esp_hal::gpio::GPIO_23;
+            pub use esp_hal::gpio::GPIO_24;
+            pub use esp_hal::gpio::GPIO_25;
+            pub use esp_hal::gpio::GPIO_26;
+            pub use esp_hal::gpio::GPIO_27;
+            pub use esp_hal::gpio::GPIO_28;
+            pub use esp_hal::gpio::GPIO_29;
+            pub use esp_hal::gpio::GPIO_30;
+        }
+    }
 }
 
 use esp_hal::{clock::ClockControl, system::SystemControl, timer::timg::TimerGroup};

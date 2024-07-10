@@ -7,37 +7,41 @@ pub fn init(peripherals: &mut arch::OptionalPeripherals) {
     );
     let pins = io.pins;
 
-    peripherals.Gpio0.replace(pins.gpio0);
-    peripherals.Gpio1.replace(pins.gpio1);
-    peripherals.Gpio2.replace(pins.gpio2);
-    peripherals.Gpio3.replace(pins.gpio3);
-    peripherals.Gpio4.replace(pins.gpio4);
-    peripherals.Gpio5.replace(pins.gpio5);
-    peripherals.Gpio6.replace(pins.gpio6);
-    peripherals.Gpio7.replace(pins.gpio7);
-    peripherals.Gpio8.replace(pins.gpio8);
-    peripherals.Gpio9.replace(pins.gpio9);
-    peripherals.Gpio10.replace(pins.gpio10);
-    peripherals.Gpio11.replace(pins.gpio11);
-    peripherals.Gpio12.replace(pins.gpio12);
-    peripherals.Gpio13.replace(pins.gpio13);
-    peripherals.Gpio14.replace(pins.gpio14);
-    peripherals.Gpio15.replace(pins.gpio15);
-    peripherals.Gpio16.replace(pins.gpio16);
-    peripherals.Gpio17.replace(pins.gpio17);
-    peripherals.Gpio18.replace(pins.gpio18);
-    peripherals.Gpio19.replace(pins.gpio19);
-    peripherals.Gpio20.replace(pins.gpio20);
-    peripherals.Gpio21.replace(pins.gpio21);
-    peripherals.Gpio22.replace(pins.gpio22);
-    peripherals.Gpio23.replace(pins.gpio23);
-    peripherals.Gpio24.replace(pins.gpio24);
-    peripherals.Gpio25.replace(pins.gpio25);
-    peripherals.Gpio26.replace(pins.gpio26);
-    peripherals.Gpio27.replace(pins.gpio27);
-    peripherals.Gpio28.replace(pins.gpio28);
-    peripherals.Gpio29.replace(pins.gpio29);
-    peripherals.Gpio30.replace(pins.gpio30);
+    peripherals.GPIO_0.replace(pins.gpio0);
+    peripherals.GPIO_1.replace(pins.gpio1);
+    peripherals.GPIO_2.replace(pins.gpio2);
+    peripherals.GPIO_3.replace(pins.gpio3);
+    peripherals.GPIO_4.replace(pins.gpio4);
+    peripherals.GPIO_5.replace(pins.gpio5);
+    peripherals.GPIO_6.replace(pins.gpio6);
+    peripherals.GPIO_7.replace(pins.gpio7);
+    peripherals.GPIO_8.replace(pins.gpio8);
+    peripherals.GPIO_9.replace(pins.gpio9);
+    peripherals.GPIO_10.replace(pins.gpio10);
+    peripherals.GPIO_11.replace(pins.gpio11);
+    peripherals.GPIO_12.replace(pins.gpio12);
+    peripherals.GPIO_13.replace(pins.gpio13);
+    peripherals.GPIO_14.replace(pins.gpio14);
+    peripherals.GPIO_15.replace(pins.gpio15);
+    peripherals.GPIO_16.replace(pins.gpio16);
+    peripherals.GPIO_17.replace(pins.gpio17);
+    peripherals.GPIO_18.replace(pins.gpio18);
+    peripherals.GPIO_19.replace(pins.gpio19);
+    peripherals.GPIO_20.replace(pins.gpio20);
+
+    #[cfg(context = "esp32c6")]
+    {
+        peripherals.GPIO_21.replace(pins.gpio21);
+        peripherals.GPIO_22.replace(pins.gpio22);
+        peripherals.GPIO_23.replace(pins.gpio23);
+        peripherals.GPIO_24.replace(pins.gpio24);
+        peripherals.GPIO_25.replace(pins.gpio25);
+        peripherals.GPIO_26.replace(pins.gpio26);
+        peripherals.GPIO_27.replace(pins.gpio27);
+        peripherals.GPIO_28.replace(pins.gpio28);
+        peripherals.GPIO_29.replace(pins.gpio29);
+        peripherals.GPIO_30.replace(pins.gpio30);
+    }
 }
 
 pub mod input {

@@ -37,12 +37,12 @@ riot_rs::define_peripherals!(BlinkyButtonPeripherals {
 });
 
 #[cfg(context = "esp")]
-riot_rs::define_peripherals!(BlinkyPeripherals { led1: Gpio0 });
+riot_rs::define_peripherals!(BlinkyPeripherals { led1: GPIO_0 });
 
 #[cfg(context = "esp")]
 riot_rs::define_peripherals!(BlinkyButtonPeripherals {
-    led2: Gpio1,
-    btn2: Gpio2,
+    led2: GPIO_1,
+    btn2: GPIO_2,
 });
 
 #[riot_rs::task(autostart, peripherals)]
