@@ -2386,7 +2386,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "64eb682691d02609ff036a7416373edbc7cc769b0908bf2489af79461453669e"
 dependencies = [
  "lakers-shared",
- "log",
+ "log 0.4.21",
 ]
 
 [[package]]
@@ -2411,7 +2411,7 @@ version = "0.6.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "dcdc5a0e1a5ea0387ab3e334f2061c633001db79e04d40af65bc68b41b13ef3a"
 dependencies = [
- "log",
+ "log 0.4.21",
 ]
 
 [[package]]
