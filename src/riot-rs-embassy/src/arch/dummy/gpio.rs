@@ -79,7 +79,7 @@ macro_rules! define_input_like {
 pub mod input {
     use crate::{arch::peripheral::Peripheral, gpio};
 
-    pub(crate) const SCHMITT_TRIGGER_AVAILABLE: bool = false;
+    pub(crate) const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
     pub trait InputPin {}
 
@@ -111,8 +111,8 @@ pub mod output {
         gpio::{FromDriveStrength, FromSpeed},
     };
 
-    pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = false;
-    pub(crate) const SPEED_AVAILABLE: bool = false;
+    pub(crate) const DRIVE_STRENGTH_CONFIGURABLE: bool = false;
+    pub(crate) const SPEED_CONFIGURABLE: bool = false;
 
     pub trait OutputPin {}
 

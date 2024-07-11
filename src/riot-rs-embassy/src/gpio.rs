@@ -244,7 +244,7 @@ pub mod input {
         pub fn schmitt_trigger(self, enable: bool) -> Self {
             const {
                 assert!(
-                    arch::gpio::input::SCHMITT_TRIGGER_AVAILABLE,
+                    arch::gpio::input::SCHMITT_TRIGGER_CONFIGURABLE,
                     "This architecture does not support configuring Schmitt triggers on GPIO inputs."
                 );
             }
@@ -260,7 +260,7 @@ pub mod input {
         // We may remove them in the future if we realize they are never useful.
         #[doc(hidden)]
         pub fn opt_schmitt_trigger(self, enable: bool) -> Self {
-            if arch::gpio::input::SCHMITT_TRIGGER_AVAILABLE {
+            if arch::gpio::input::SCHMITT_TRIGGER_CONFIGURABLE {
                 // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
                 // be triggered.
                 Self {
@@ -482,7 +482,7 @@ pub mod output {
                 pub fn drive_strength(self, drive_strength: DriveStrength) -> Self {
                     const {
                         assert!(
-                            arch::gpio::output::DRIVE_STRENGTH_AVAILABLE,
+                            arch::gpio::output::DRIVE_STRENGTH_CONFIGURABLE,
                             "This architecture does not support setting the drive strength of GPIO outputs."
                         );
                     }
@@ -499,7 +499,7 @@ pub mod output {
                 #[doc(hidden)]
                 // TODO: or `drive_strength_opt`?
                 pub fn opt_drive_strength(self, drive_strength: DriveStrength) -> Self {
-                    if arch::gpio::output::DRIVE_STRENGTH_AVAILABLE {
+                    if arch::gpio::output::DRIVE_STRENGTH_CONFIGURABLE {
                         // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
                         // be triggered.
                         Self {
@@ -520,7 +520,7 @@ pub mod output {
                 pub fn speed(self, speed: Speed) -> Self {
                     const {
                         assert!(
-                            arch::gpio::output::SPEED_AVAILABLE,
+                            arch::gpio::output::SPEED_CONFIGURABLE,
                             "This architecture does not support setting the speed of GPIO outputs."
                         );
                     }
@@ -534,7 +534,7 @@ pub mod output {
                 #[doc(hidden)]
                 // TODO: or `speed_opt`?
                 pub fn opt_speed(self, speed: Speed) -> Self {
-                    if arch::gpio::output::SPEED_AVAILABLE {
+                    if arch::gpio::output::SPEED_CONFIGURABLE {
                         // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
                         // be triggered.
                         Self { speed, ..self }

@@ -8,7 +8,7 @@ pub mod input {
         gpio::{Input, Pin as InputPin},
     };
 
-    pub(crate) const SCHMITT_TRIGGER_AVAILABLE: bool = false;
+    pub(crate) const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
     pub(crate) fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
@@ -61,8 +61,8 @@ pub mod output {
 
     pub(crate) use embassy_stm32::gpio::{Output, Pin as OutputPin};
 
-    pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = false;
-    pub(crate) const SPEED_AVAILABLE: bool = true;
+    pub(crate) const DRIVE_STRENGTH_CONFIGURABLE: bool = false;
+    pub(crate) const SPEED_CONFIGURABLE: bool = true;
 
     pub(crate) fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,

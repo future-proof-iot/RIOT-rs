@@ -52,7 +52,7 @@ pub mod input {
     // Re-export `AnyInput` as `IntEnabledInput` as they are interrupt-enabled.
     pub(crate) use esp_hal::gpio::{AnyInput as Input, AnyInput as IntEnabledInput};
 
-    pub(crate) const SCHMITT_TRIGGER_AVAILABLE: bool = false;
+    pub(crate) const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
     // NOTE(unstable-feature(trait_alias)): we may not have to use that unstable feature if we
     // define our own Pin trait and implement it on all GPIO types.
@@ -110,8 +110,8 @@ pub mod output {
     // FIXME: ESP32 *does* support setting the drive strength, but esp-hal seems to currently make
     // this impossible on `AnyOutput` (unlike on `Output`), because it internally uses an
     // `ErasedPin`.
-    pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = false;
-    pub(crate) const SPEED_AVAILABLE: bool = false;
+    pub(crate) const DRIVE_STRENGTH_CONFIGURABLE: bool = false;
+    pub(crate) const SPEED_CONFIGURABLE: bool = false;
 
     pub trait OutputPin = EspOutputPin + CreateErasedPin;
 

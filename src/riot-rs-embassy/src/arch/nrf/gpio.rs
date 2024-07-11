@@ -6,7 +6,7 @@ pub mod input {
     // Re-export `Input` as `IntEnabledInput` as they are interrupt-enabled.
     pub(crate) use embassy_nrf::gpio::{Input, Input as IntEnabledInput, Pin as InputPin};
 
-    pub(crate) const SCHMITT_TRIGGER_AVAILABLE: bool = false;
+    pub(crate) const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
     pub(crate) fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
@@ -57,8 +57,8 @@ pub mod output {
 
     pub(crate) use embassy_nrf::gpio::{Output, Pin as OutputPin};
 
-    pub(crate) const DRIVE_STRENGTH_AVAILABLE: bool = true;
-    pub(crate) const SPEED_AVAILABLE: bool = false;
+    pub(crate) const DRIVE_STRENGTH_CONFIGURABLE: bool = true;
+    pub(crate) const SPEED_CONFIGURABLE: bool = false;
 
     pub(crate) fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
