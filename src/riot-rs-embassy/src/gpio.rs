@@ -1,4 +1,5 @@
 //! Provides consistent GPIO access.
+#![deny(missing_docs)]
 
 use embedded_hal::digital::StatefulOutputPin;
 
@@ -165,7 +166,9 @@ impl_embedded_hal_input_trait!(IntEnabledInput, ArchIntEnabledInput);
 /// Digital level of an input or output.
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum Level {
+    /// Digital low level.
     Low,
+    /// Digital high level.
     High,
 }
 
@@ -388,12 +391,17 @@ impl Output {
 // TODO: should this be marked non_exhaustive?
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum DriveStrength {
+    /// Architecture-specific drive strength setting.
     Arch(ArchDriveStrength),
+    /// Lowest drive strength available on this architecture.
     Lowest,
-    // Reset value of most GPIOs.
+    /// Most common reset value of drive strength on this architecture.
     Standard,
+    /// Medium drive strength.
     Medium,
+    /// High drive strength.
     High,
+    /// Highest drive strength available on this architecture.
     Highest,
 }
 
@@ -419,10 +427,15 @@ pub(crate) trait FromDriveStrength {
 #[derive(Copy, Clone, PartialEq, Eq)]
 // FIXME: should we call this slew rate instead?
 pub enum Speed {
+    /// Architecture-specific speed setting.
     Arch(ArchSpeed),
+    /// Low speed.
     Low,
+    /// Medium speed.
     Medium,
+    /// High speed.
     High,
+    /// Very high speed.
     VeryHigh,
 }
 
@@ -460,6 +473,12 @@ pub mod output {
     macro_rules! impl_output_builder {
         ($type:ident, $pin_trait:ident) => {
             impl<P: Peripheral<P: $pin_trait> + 'static> $type<P> {
+                /// Configures the output's drive strength.
+                ///
+                /// # Note
+                ///
+                /// Fails to compile if the architecture does not support configuring drive
+                /// strength of outputs.
                 pub fn drive_strength(self, drive_strength: DriveStrength) -> Self {
                     const {
                         assert!(
@@ -492,6 +511,12 @@ pub mod output {
                     }
                 }
 
+                /// Configures the output's speed.
+                ///
+                /// # Note
+                ///
+                /// Fails to compile if the architecture does not support configuring speed of
+                /// outputs.
                 pub fn speed(self, speed: Speed) -> Self {
                     const {
                         assert!(
