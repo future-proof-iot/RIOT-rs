@@ -1,0 +1,5 @@
+apps:
+  - name: testing
+    selects:
+      - defmt
+      - embedded-test-only
