@@ -114,6 +114,7 @@ esp-wifi = { workspace = true, default-features = false, features = [
 
 [target.'cfg(context = "stm32")'.dependencies]
 embassy-stm32 = { workspace = true, features = [
+  "exti",
   "rt",
   "time-driver-any",
   "unstable-pac",

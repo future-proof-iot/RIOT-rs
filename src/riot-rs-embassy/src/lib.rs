@@ -152,6 +152,9 @@ fn init() {
 async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     debug!("riot-rs-embassy::init_task()");
 
+    #[cfg(context = "stm32")]
+    extint_registry::EXTINT_REGISTRY.init(&mut peripherals);
+
     #[cfg(context = "esp")]
     arch::gpio::init(&mut peripherals);
 
