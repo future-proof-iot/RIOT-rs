@@ -1,0 +1,19 @@
+[package]
+name = "testing"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+publish = false
+
+[dependencies]
+ariel-os = { path = "../../src/ariel-os" }
+ariel-os-boards = { path = "../../src/ariel-os-boards" }
+
+embassy-executor = { workspace = true, default-features = false }
+
+[dev-dependencies]
+embedded-test = { workspace = true }
+
+[[test]]
+name = "example_test"
+harness = false
