@@ -625,6 +625,7 @@ modules:
     context:
       - nrf
       - rp
+      - stm32
 
   - name: wifi-esp
     context:
