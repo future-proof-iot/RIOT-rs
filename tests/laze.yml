@@ -1,2 +1,3 @@
 subdirs:
   - benchmarks
+  - gpio-interrupt-stm32
