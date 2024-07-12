@@ -3,8 +3,11 @@ pub mod input {
 
     use crate::{arch::peripheral::Peripheral, gpio};
 
+    pub(crate) use embassy_rp::gpio::{Input, Pin as InputPin};
+
     // Re-export `Input` as `IntEnabledInput` as they are interrupt-enabled.
-    pub(crate) use embassy_rp::gpio::{Input, Input as IntEnabledInput, Pin as InputPin};
+    #[cfg(feature = "external-interrupts")]
+    pub(crate) use embassy_rp::gpio::Input as IntEnabledInput;
 
     pub(crate) const SCHMITT_TRIGGER_CONFIGURABLE: bool = true;
 
@@ -21,6 +24,7 @@ pub mod input {
         Ok(input)
     }
 
+    #[cfg(feature = "external-interrupts")]
     pub(crate) fn new_int_enabled(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: crate::gpio::Pull,

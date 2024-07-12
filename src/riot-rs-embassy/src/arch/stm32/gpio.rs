@@ -1,12 +1,12 @@
 pub mod input {
     use embassy_stm32::gpio::{Level, Pull};
 
-    use crate::{arch::peripheral::Peripheral, extint_registry::EXTINT_REGISTRY, gpio};
+    use crate::{arch::peripheral::Peripheral, gpio};
 
-    pub(crate) use embassy_stm32::{
-        exti::ExtiInput as IntEnabledInput,
-        gpio::{Input, Pin as InputPin},
-    };
+    pub(crate) use embassy_stm32::gpio::{Input, Pin as InputPin};
+
+    #[cfg(feature = "external-interrupts")]
+    pub(crate) use embassy_stm32::exti::ExtiInput as IntEnabledInput;
 
     pub(crate) const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
@@ -19,6 +19,7 @@ pub mod input {
         Ok(Input::new(pin, pull))
     }
 
+    #[cfg(feature = "external-interrupts")]
     pub(crate) fn new_int_enabled<P: Peripheral<P = T> + 'static, T: InputPin>(
         pin: P,
         pull: crate::gpio::Pull,
@@ -26,7 +27,7 @@ pub mod input {
     ) -> Result<IntEnabledInput<'static>, gpio::input::Error> {
         let pull = Pull::from(pull);
         let mut pin = pin.into_ref();
-        let ch = EXTINT_REGISTRY.get_interrupt_channel_for_pin(&mut pin)?;
+        let ch = crate::extint_registry::EXTINT_REGISTRY.get_interrupt_channel_for_pin(&mut pin)?;
         let pin = pin.into_ref().map_into();
         Ok(IntEnabledInput::new(pin, ch, pull))
     }

@@ -5,9 +5,7 @@ use embedded_hal::digital::StatefulOutputPin;
 
 use crate::arch::{
     gpio::{
-        input::{
-            Input as ArchInput, InputPin as ArchInputPin, IntEnabledInput as ArchIntEnabledInput,
-        },
+        input::{Input as ArchInput, InputPin as ArchInputPin},
         output::{
             DriveStrength as ArchDriveStrength, Output as ArchOutput, OutputPin as ArchOutputPin,
             Speed as ArchSpeed,
@@ -15,6 +13,9 @@ use crate::arch::{
     },
     peripheral::Peripheral,
 };
+
+#[cfg(feature = "external-interrupts")]
+use crate::arch::gpio::input::IntEnabledInput as ArchIntEnabledInput;
 
 use input::InputBuilder;
 use output::OutputBuilder;
@@ -73,10 +74,12 @@ impl embedded_hal::digital::ErrorType for Input {
 /// A GPIO input that supports external interrupts.
 ///
 /// Can be obtained with [`InputBuilder::build_with_interrupt()`].
+#[cfg(feature = "external-interrupts")]
 pub struct IntEnabledInput {
     input: ArchIntEnabledInput<'static>, // FIXME: is this ok to require a 'static pin?
 }
 
+#[cfg(feature = "external-interrupts")]
 impl IntEnabledInput {
     inner_impl_input_methods!(input);
 
@@ -108,11 +111,13 @@ impl IntEnabledInput {
     }
 }
 
+#[cfg(feature = "external-interrupts")]
 #[doc(hidden)]
 impl embedded_hal::digital::ErrorType for IntEnabledInput {
     type Error = <ArchIntEnabledInput<'static> as embedded_hal::digital::ErrorType>::Error;
 }
 
+#[cfg(feature = "external-interrupts")]
 impl embedded_hal_async::digital::Wait for IntEnabledInput {
     async fn wait_for_high(&mut self) -> Result<(), Self::Error> {
         <ArchIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_high(&mut self.input)
@@ -161,6 +166,7 @@ macro_rules! impl_embedded_hal_input_trait {
 }
 
 impl_embedded_hal_input_trait!(Input, ArchInput);
+#[cfg(feature = "external-interrupts")]
 impl_embedded_hal_input_trait!(IntEnabledInput, ArchIntEnabledInput);
 
 /// Digital level of an input or output.
@@ -221,11 +227,13 @@ pub mod input {
 
     use crate::{
         arch::{self, gpio::input::InputPin as ArchInputPin, peripheral::Peripheral},
-        extint_registry,
         gpio::Pull,
     };
 
-    use super::{Input, IntEnabledInput};
+    use super::Input;
+
+    #[cfg(feature = "external-interrupts")]
+    use super::IntEnabledInput;
 
     /// Builder type for [`Input`], can be obtained with [`Input::builder()`].
     pub struct InputBuilder<P: Peripheral<P: ArchInputPin>> {
@@ -279,7 +287,7 @@ pub mod input {
         pub fn build(self) -> Input {
             let input = match arch::gpio::input::new(self.pin, self.pull, self.schmitt_trigger) {
                 Ok(input) => input,
-                Err(Error::InterruptChannel(_)) => unreachable!(),
+                Err(_) => unreachable!(),
             };
 
             Input { input }
@@ -297,6 +305,7 @@ pub mod input {
         /// In these cases, this returns an [`Error::InterruptChannel`], with an
         /// architecture-specific error.
         // FIXME: rename this
+        #[cfg(feature = "external-interrupts")]
         pub fn build_with_interrupt(self) -> Result<IntEnabledInput, Error> {
             let input =
                 arch::gpio::input::new_int_enabled(self.pin, self.pull, self.schmitt_trigger)?;
@@ -311,11 +320,13 @@ pub mod input {
         /// Error when hitting hardware limitations regarding interrupt registration.
         /// See
         /// [`InputBuilder::build_with_interrupt()`](super::InputBuilder::build_with_interrupt).
-        InterruptChannel(extint_registry::Error),
+        #[cfg(feature = "external-interrupts")]
+        InterruptChannel(crate::extint_registry::Error),
     }
 
-    impl From<extint_registry::Error> for Error {
-        fn from(err: extint_registry::Error) -> Self {
+    #[cfg(feature = "external-interrupts")]
+    impl From<crate::extint_registry::Error> for Error {
+        fn from(err: crate::extint_registry::Error) -> Self {
             Error::InterruptChannel(err)
         }
     }

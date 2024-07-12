@@ -7,8 +7,10 @@
 #![feature(trait_alias)]
 
 pub mod define_peripherals;
-mod extint_registry;
 pub mod gpio;
+
+#[cfg(feature = "external-interrupts")]
+mod extint_registry;
 
 #[cfg(context = "cortex-m")]
 pub mod executor_swi;
@@ -152,7 +154,7 @@ fn init() {
 async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     debug!("riot-rs-embassy::init_task()");
 
-    #[cfg(context = "stm32")]
+    #[cfg(all(context = "stm32", feature = "external-interrupts"))]
     extint_registry::EXTINT_REGISTRY.init(&mut peripherals);
 
     #[cfg(context = "esp")]

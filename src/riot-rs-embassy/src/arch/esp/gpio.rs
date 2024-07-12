@@ -49,8 +49,11 @@ pub mod input {
 
     use crate::{arch::peripheral::Peripheral, gpio};
 
+    pub(crate) use esp_hal::gpio::AnyInput as Input;
+
     // Re-export `AnyInput` as `IntEnabledInput` as they are interrupt-enabled.
-    pub(crate) use esp_hal::gpio::{AnyInput as Input, AnyInput as IntEnabledInput};
+    #[cfg(feature = "external-interrupts")]
+    pub(crate) use esp_hal::gpio::AnyInput as IntEnabledInput;
 
     pub(crate) const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
@@ -69,6 +72,7 @@ pub mod input {
         Ok(Input::new(pin, pull))
     }
 
+    #[cfg(feature = "external-interrupts")]
     pub(crate) fn new_int_enabled(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: crate::gpio::Pull,

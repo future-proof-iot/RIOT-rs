@@ -59,7 +59,6 @@ embassy-executor = { workspace = true, default-features = false, features = [
 
 [target.'cfg(context = "nrf")'.dependencies]
 embassy-nrf = { workspace = true, features = [
-  "gpiote",
   "time-driver-rtc1",
   "time",
   "unstable-pac",
@@ -114,13 +113,14 @@ esp-wifi = { workspace = true, default-features = false, features = [
 
 [target.'cfg(context = "stm32")'.dependencies]
 embassy-stm32 = { workspace = true, features = [
-  "exti",
   "rt",
   "time-driver-any",
   "unstable-pac",
 ] }
 
 [features]
+## Enables GPIO interrupt support.
+external-interrupts = ["embassy-nrf?/gpiote", "embassy-stm32?/exti"]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
 usb = ["dep:embassy-usb"]
 # embassy-net requires embassy-time and support for timeouts in the executor

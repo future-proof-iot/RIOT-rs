@@ -1,10 +1,13 @@
 pub mod input {
     use embassy_nrf::gpio::{Level, Pull};
 
-    use crate::{arch::peripheral::Peripheral, extint_registry::EXTINT_REGISTRY, gpio};
+    use crate::{arch::peripheral::Peripheral, gpio};
+
+    pub(crate) use embassy_nrf::gpio::{Input, Pin as InputPin};
 
     // Re-export `Input` as `IntEnabledInput` as they are interrupt-enabled.
-    pub(crate) use embassy_nrf::gpio::{Input, Input as IntEnabledInput, Pin as InputPin};
+    #[cfg(feature = "external-interrupts")]
+    pub(crate) use embassy_nrf::gpio::Input as IntEnabledInput;
 
     pub(crate) const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
@@ -17,13 +20,15 @@ pub mod input {
         Ok(Input::new(pin, pull))
     }
 
+    #[cfg(feature = "external-interrupts")]
     pub(crate) fn new_int_enabled(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: crate::gpio::Pull,
         _schmitt_trigger: bool, // Not supported by this architecture
     ) -> Result<IntEnabledInput<'static>, gpio::input::Error> {
         let pull = Pull::from(pull);
-        let pin = EXTINT_REGISTRY.use_interrupt_for_pin(pin)?;
+        let mut pin = pin.into_ref();
+        crate::extint_registry::EXTINT_REGISTRY.use_interrupt_for_pin(&mut pin)?;
         Ok(Input::new(pin, pull))
     }
 
