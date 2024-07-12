@@ -18,13 +18,14 @@ rtt-target = { version = "0.4.0", optional = true }
 [target.'cfg(context = "cortex-m")'.dependencies]
 cortex-m = { workspace = true, features = ["critical-section-single-core"] }
 cortex-m-rt = { workspace = true }
-portable-atomic = { version = "1.6.0", features = ["critical-section"] }
+
+[target.'cfg(context = "rp2040")'.dependencies]
+# Use critical-section to provide an atomic CAS implementation.
+portable-atomic = { workspace = true, features = ["critical-section"] }
 
 [target.'cfg(context = "esp")'.dependencies]
 esp-hal = { workspace = true, default-features = false }
-portable-atomic = { version = "1.6.0", default-features = false, features = [
-  "require-cas",
-] }
+portable-atomic = { workspace = true }
 
 [features]
 #default = ["threading"]
