@@ -73,6 +73,9 @@ fn startup() -> ! {
 
     debug!("riot_rs_rt::startup()");
 
+    #[cfg(test)]
+    debug!("riot_rs_rt::startup() cfg(test)");
+
     for f in INIT_FUNCS {
         f();
     }

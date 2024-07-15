@@ -17,6 +17,7 @@ subdirs:
   - log
   - minimal
   - random
+  - testing
   - threading
   - threading-channel
   - usb-serial

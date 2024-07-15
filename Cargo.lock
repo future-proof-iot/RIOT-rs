@@ -1568,6 +1568,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "embedded-test"
+version = "0.4.0"
+source = "git+https://github.com/kaspar030/embedded-test?branch=for-riot-rs-20240710#aa0e7dcc9a12f09f77647204da489c26375a6211"
+dependencies = [
+ "defmt",
+ "embassy-executor",
+ "embedded-test-macros",
+ "heapless 0.8.0",
+ "semihosting",
+ "serde",
+ "serde-json-core",
+]
+
+[[package]]
+name = "embedded-test-macros"
+version = "0.5.0"
+source = "git+https://github.com/kaspar030/embedded-test?branch=for-riot-rs-20240710#aa0e7dcc9a12f09f77647204da489c26375a6211"
+dependencies = [
+ "darling",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.68",
+]
+
+[[package]]
 name = "ena"
 version = "0.14.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3769,6 +3794,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "semihosting"
+version = "0.1.12"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "999408e6628a9b637a47b6550310452084e88c29e1c3a09b65c50256ca6aaad6"
+
+[[package]]
 name = "semver"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3796,6 +3827,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7253ab4de971e72fb7be983802300c30b5a7f0c2e56fab8abfc6a214307c0094"
 dependencies = [
  "serde_derive",
+]
+
+[[package]]
+name = "serde-json-core"
+version = "0.5.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "3c9e1ab533c0bc414c34920ec7e5f097101d126ed5eac1a1aac711222e0bbb33"
+dependencies = [
+ "heapless 0.7.17",
+ "ryu",
+ "serde",
 ]
 
 [[package]]
@@ -4151,6 +4193,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06794f8f6c5c898b3275aebefa6b8a1cb24cd2c6c79397ab15774837a0bc5755"
 dependencies = [
  "winapi-util",
+]
+
+[[package]]
+name = "testing"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embedded-test",
+ "riot-rs",
+ "riot-rs-boards",
 ]
 
 [[package]]

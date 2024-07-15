@@ -111,6 +111,7 @@ embassy-usb-driver = { git = "https://github.com/kaspar030/embassy", branch = "f
 cyw43 = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 cyw43-pio = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 
+embedded-test = { git = "https://github.com/kaspar030/embedded-test", branch = "for-riot-rs-20240710" }
 usbd-hid-macros = { git = "https://github.com/twitchyliquid64/usbd-hid", rev = "76bea16537e1a347df2ebced5b9e1d48f71c9859" }
 
 # version 0.12-to-be

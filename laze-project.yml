@@ -87,7 +87,12 @@ contexts:
 
       cargo-test:
         cmd:
-          - cd ${relpath} && ${CARGO_ENV} cargo test --${PROFILE} --features=riot-rs-boards/${builder},riot-rs-rt/debug-console --manifest-path ${app}/Cargo.toml
+          - ${CARGO_ENV} cargo -Z unstable-options -C${appdir} test ${FEATURES},riot-rs/threading
+        build: false
+
+      cargo-test-expand:
+        cmd:
+          - ${CARGO_ENV} cargo -Z unstable-options -C${appdir} expand ${FEATURES},riot-rs/threading --test example_test
         build: false
 
       debug:
@@ -361,6 +366,7 @@ modules:
           - -Clink-arg=-Tlink.x
           - -Clink-arg=-Tdevice.x
           - -Clink-arg=-Tisr_stack.x
+          - -Clink-arg=-Tembedded-test.x
           - --cfg context=\"cortex-m\"
 
   - name: thumbv6m-none-eabi
