@@ -2117,6 +2117,7 @@ name = "gpio"
 version = "0.1.0"
 dependencies = [
  "embassy-executor",
+ "embassy-time",
  "riot-rs",
  "riot-rs-boards",
 ]
@@ -4194,6 +4195,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06794f8f6c5c898b3275aebefa6b8a1cb24cd2c6c79397ab15774837a0bc5755"
 dependencies = [
  "winapi-util",
+]
+
+[[package]]
+name = "tests_gpio"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "riot-rs",
+ "riot-rs-boards",
 ]
 
 [[package]]
