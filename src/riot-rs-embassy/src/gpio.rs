@@ -1,4 +1,11 @@
 //! Provides consistent GPIO access.
+//!
+//! # Note
+//!
+//! This API does not currently provide a way of using the same GPIO pin as an input and an output
+//! alternatively.
+//! If you have a use case for this, especially if this is not regarding bit-banging, please open
+//! an issue on our repository.
 #![deny(missing_docs)]
 
 use embedded_hal::digital::StatefulOutputPin;
