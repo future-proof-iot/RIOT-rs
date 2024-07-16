@@ -1,5 +1,11 @@
 use riot_rs::embassy::arch::peripherals;
 
+#[cfg(context = "microbit-v2")]
+riot_rs::define_peripherals!(LedPeripherals {
+    led_col1: P0_28,
+    led: P0_21,
+});
+
 #[cfg(context = "nrf52840dk")]
 riot_rs::define_peripherals!(LedPeripherals { led: P0_13 });
 
