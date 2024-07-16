@@ -48,10 +48,31 @@ riot_rs::define_peripherals!(ButtonPeripherals {
     btn2: GPIO_2,
 });
 
-#[cfg(context = "stm32")]
-riot_rs::define_peripherals!(Peripherals { led1: PA6 });
+#[cfg(context = "st-nucleo-f401re")]
+riot_rs::define_peripherals!(Peripherals { led1: PA0 });
 
-#[cfg(context = "stm32")]
+#[cfg(context = "st-nucleo-f401re")]
+riot_rs::define_peripherals!(ButtonPeripherals {
+    led2: PB0, // nothing connected here
+    btn2: PC13,
+});
+
+#[cfg(context = "st-nucleo-h755zi-q")]
+riot_rs::define_peripherals!(Peripherals { led1: PB0 });
+
+#[cfg(context = "st-nucleo-wb55")]
+riot_rs::define_peripherals!(Peripherals { led1: PB5 });
+
+#[cfg(context = "st-nucleo-wb55")]
+riot_rs::define_peripherals!(ButtonPeripherals {
+    led2: PB0,
+    btn2: PD0,
+});
+
+#[cfg(all(
+    context = "stm32",
+    not(any(context = "st-nucleo-wb55", context = "st-nucleo-f401re"))
+))]
 riot_rs::define_peripherals!(ButtonPeripherals {
     led2: PA7,
     btn2: PA9,

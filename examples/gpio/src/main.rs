@@ -8,10 +8,8 @@ mod pins;
 use embassy_time::{Duration, Timer};
 use riot_rs::embassy::gpio::{Input, Level, Output, Pull};
 
-use pins::{ButtonPeripherals, Peripherals};
-
 #[riot_rs::task(autostart, peripherals)]
-async fn blinky(peripherals: Peripherals) {
+async fn blinky(peripherals: pins::Peripherals) {
     let mut led1 = Output::new(peripherals.led1, Level::Low);
 
     // The micro:bit uses an LED matrix; pull the column line low.
@@ -25,7 +23,7 @@ async fn blinky(peripherals: Peripherals) {
 }
 
 #[riot_rs::task(autostart, peripherals)]
-async fn button_task(peripherals: ButtonPeripherals) {
+async fn button_task(peripherals: pins::ButtonPeripherals) {
     let mut btn2 = Input::builder(peripherals.btn2, Pull::Up)
         .build_with_interrupt()
         .unwrap();

@@ -12,5 +12,11 @@ riot_rs::define_peripherals!(LedPeripherals { led: PIN_1 });
 #[cfg(context = "esp")]
 riot_rs::define_peripherals!(LedPeripherals { led: GPIO_0 });
 
-#[cfg(context = "stm32")]
-riot_rs::define_peripherals!(LedPeripherals { led: PA6 });
+#[cfg(context = "st-nucleo-f401re")]
+riot_rs::define_peripherals!(LedPeripherals { led: PA5 });
+
+#[cfg(context = "st-nucleo-h755zi-q")]
+riot_rs::define_peripherals!(LedPeripherals { led: PB0 });
+
+#[cfg(context = "st-nucleo-wb55")]
+riot_rs::define_peripherals!(LedPeripherals { led: PB5 });

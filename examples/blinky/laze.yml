@@ -1,11 +1,13 @@
 apps:
   - name: blinky
     context:
-      # list of builders / contexts that have an entry in `pins.rs`
+      # list of contexts that have an entry in `pins.rs`
       - esp
       - nrf52840dk
       - nrf5340dk
       - rp
-      - stm32
+      - st-nucleo-f401re
+      - st-nucleo-h755zi-q
+      - st-nucleo-wb55
     selects:
       - ?release
