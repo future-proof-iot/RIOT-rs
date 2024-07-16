@@ -2117,6 +2117,7 @@ name = "gpio"
 version = "0.1.0"
 dependencies = [
  "embassy-executor",
+ "embassy-futures",
  "embassy-time",
  "riot-rs",
  "riot-rs-boards",

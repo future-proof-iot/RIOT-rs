@@ -10,6 +10,7 @@ workspace = true
 
 [dependencies]
 embassy-executor = { workspace = true }
+embassy-futures = { workspace = true }
 embassy-time = { workspace = true }
 riot-rs = { path = "../../src/riot-rs", features = [
   "external-interrupts",
