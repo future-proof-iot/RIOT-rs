@@ -4,5 +4,9 @@ apps:
       global:
         CARGO_ENV:
           - CONFIG_ISR_STACKSIZE=16384
+    contexts:
+      - nrf52840
+      - nrf5340
+      - rp2040
     selects:
       - ?release
