@@ -1,7 +1,7 @@
 use embassy_embedded_hal::shared_bus::asynch::spi::SpiDevice as InnerSpiDevice;
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 
-use crate::arch;
+use crate::{arch, gpio};
 
 // TODO: do we actually need a CriticalSectionRawMutex here?
 pub type SpiDevice =
