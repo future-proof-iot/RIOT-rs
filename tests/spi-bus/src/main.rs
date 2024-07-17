@@ -14,7 +14,8 @@ use embedded_hal_async::spi::{Operation, SpiDevice as _};
 use riot_rs::{
     debug::{exit, println, EXIT_SUCCESS},
     embassy::{
-        arch::{gpio, peripherals, spi},
+        arch::{peripherals, spi},
+        gpio,
         spi::SpiDevice,
     },
 };
