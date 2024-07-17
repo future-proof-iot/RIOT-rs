@@ -4,8 +4,7 @@ use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 use crate::{arch, gpio};
 
 // TODO: do we actually need a CriticalSectionRawMutex here?
-pub type SpiDevice =
-    InnerSpiDevice<'static, CriticalSectionRawMutex, arch::spi::Spi, arch::gpio::Output<'static>>;
+pub type SpiDevice = InnerSpiDevice<'static, CriticalSectionRawMutex, arch::spi::Spi, gpio::Output>;
 
 #[allow(unused_macros, reason = "used by arch modules")]
 macro_rules! impl_async_spibus_for_driver_enum {
