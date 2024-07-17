@@ -16,7 +16,6 @@ subdirs:
   - gpio
   - hello-world
   - hello-world-async
-  - i2c-bus
   - log
   - minimal
   - random
