@@ -25,6 +25,8 @@ static_cell = { workspace = true }
 default = ["riot-rs-rt/_panic-handler"]
 
 #! ## System functionality
+## Enables GPIO interrupt support.
+external-interrupts = ["riot-rs-embassy/external-interrupts"]
 ## Enables threading support, see the [`macro@thread`] attribute macro.
 threading = [
   "dep:riot-rs-threads",

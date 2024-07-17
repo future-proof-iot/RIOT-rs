@@ -1,13 +1,12 @@
 pub mod input {
-    use embassy_nrf::gpio::{Level, Pull};
+    use embassy_stm32::gpio::{Level, Pull};
 
     use crate::{arch::peripheral::Peripheral, gpio};
 
-    pub(crate) use embassy_nrf::gpio::{Input, Pin as InputPin};
+    pub(crate) use embassy_stm32::gpio::{Input, Pin as InputPin};
 
-    // Re-export `Input` as `IntEnabledInput` as they are interrupt-enabled.
     #[cfg(feature = "external-interrupts")]
-    pub(crate) use embassy_nrf::gpio::Input as IntEnabledInput;
+    pub(crate) use embassy_stm32::exti::ExtiInput as IntEnabledInput;
 
     pub(crate) const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
@@ -21,15 +20,16 @@ pub mod input {
     }
 
     #[cfg(feature = "external-interrupts")]
-    pub(crate) fn new_int_enabled(
-        pin: impl Peripheral<P: InputPin> + 'static,
+    pub(crate) fn new_int_enabled<P: Peripheral<P = T> + 'static, T: InputPin>(
+        pin: P,
         pull: crate::gpio::Pull,
         _schmitt_trigger: bool, // Not supported by this architecture
     ) -> Result<IntEnabledInput<'static>, gpio::input::Error> {
         let pull = Pull::from(pull);
         let mut pin = pin.into_ref();
-        crate::extint_registry::EXTINT_REGISTRY.use_interrupt_for_pin(&mut pin)?;
-        Ok(Input::new(pin, pull))
+        let ch = crate::extint_registry::EXTINT_REGISTRY.get_interrupt_channel_for_pin(&mut pin)?;
+        let pin = pin.into_ref().map_into();
+        Ok(IntEnabledInput::new(pin, ch, pull))
     }
 
     impl From<crate::gpio::Pull> for Pull {
@@ -53,42 +53,37 @@ pub mod input {
 }
 
 pub mod output {
-    use embassy_nrf::gpio::{Level, OutputDrive};
+    use embassy_stm32::gpio::{Level, Speed as StmSpeed};
 
     use crate::{
         arch::peripheral::Peripheral,
         gpio::{FromDriveStrength, FromSpeed},
     };
 
-    pub(crate) use embassy_nrf::gpio::{Output, Pin as OutputPin};
+    pub(crate) use embassy_stm32::gpio::{Output, Pin as OutputPin};
 
-    pub(crate) const DRIVE_STRENGTH_CONFIGURABLE: bool = true;
-    pub(crate) const SPEED_CONFIGURABLE: bool = false;
+    pub(crate) const DRIVE_STRENGTH_CONFIGURABLE: bool = false;
+    pub(crate) const SPEED_CONFIGURABLE: bool = true;
 
     pub(crate) fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
         initial_level: crate::gpio::Level,
-        drive_strength: DriveStrength,
-        _speed: Speed, // Not supported by this architecture
+        _drive_strength: DriveStrength, // Not supported by this architecture
+        speed: Speed,
     ) -> Output<'static> {
-        let output_drive = match drive_strength {
-            DriveStrength::Standard => OutputDrive::Standard,
-            DriveStrength::High => OutputDrive::HighDrive,
-        };
-        Output::new(pin, initial_level.into(), output_drive)
+        Output::new(pin, initial_level.into(), speed.into())
     }
 
     crate::gpio::impl_from_level!(Level);
 
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum DriveStrength {
-        Standard,
-        High, // Around 10 mA
+        UnsupportedByArchitecture,
     }
 
     impl Default for DriveStrength {
         fn default() -> Self {
-            Self::Standard
+            Self::UnsupportedByArchitecture
         }
     }
 
@@ -96,26 +91,47 @@ pub mod output {
         fn from(drive_strength: crate::gpio::DriveStrength) -> Self {
             use crate::gpio::DriveStrength::*;
 
-            // ESPs are able to output up to 40 mA, so we somewhat normalize this.
             match drive_strength {
                 Arch(drive_strength) => drive_strength,
-                Lowest => DriveStrength::Standard,
+                Lowest => DriveStrength::UnsupportedByArchitecture,
                 Standard => DriveStrength::default(),
-                Medium => DriveStrength::Standard,
-                High => DriveStrength::High,
-                Highest => DriveStrength::High,
+                Medium => DriveStrength::UnsupportedByArchitecture,
+                High => DriveStrength::UnsupportedByArchitecture,
+                Highest => DriveStrength::UnsupportedByArchitecture,
             }
         }
     }
 
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum Speed {
-        UnsupportedByArchitecture,
+        Low,
+        Medium,
+        High,
+        VeryHigh,
+    }
+
+    impl From<Speed> for StmSpeed {
+        fn from(speed: Speed) -> Self {
+            match speed {
+                Speed::Low => StmSpeed::Low,
+                Speed::Medium => StmSpeed::Medium,
+                Speed::High => StmSpeed::High,
+                Speed::VeryHigh => StmSpeed::VeryHigh,
+            }
+        }
     }
 
     impl FromSpeed for Speed {
-        fn from(_speed: crate::gpio::Speed) -> Self {
-            Self::UnsupportedByArchitecture
+        fn from(speed: crate::gpio::Speed) -> Self {
+            use crate::gpio::Speed::*;
+
+            match speed {
+                Arch(speed) => speed,
+                Low => Speed::Low,
+                Medium => Speed::Medium,
+                High => Speed::High,
+                VeryHigh => Speed::VeryHigh,
+            }
         }
     }
 }

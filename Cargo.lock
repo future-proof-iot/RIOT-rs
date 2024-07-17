@@ -272,6 +272,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cf4b9d6a944f767f8e5e0db018570623c85f3d925ac718db4e06d0187adb21c1"
 
 [[package]]
+name = "blinky"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embassy-time",
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
 name = "block-buffer"
 version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1654,7 +1664,7 @@ dependencies = [
 [[package]]
 name = "esp-build"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#307718f69421d80d00cdccfa3247d402b8f32822"
 dependencies = [
  "quote",
  "syn 2.0.68",
@@ -1664,7 +1674,7 @@ dependencies = [
 [[package]]
 name = "esp-hal"
 version = "0.18.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#307718f69421d80d00cdccfa3247d402b8f32822"
 dependencies = [
  "basic-toml",
  "bitfield 0.15.0",
@@ -1712,7 +1722,7 @@ dependencies = [
 [[package]]
 name = "esp-hal-embassy"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#307718f69421d80d00cdccfa3247d402b8f32822"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -1728,7 +1738,7 @@ dependencies = [
 [[package]]
 name = "esp-hal-procmacros"
 version = "0.11.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#307718f69421d80d00cdccfa3247d402b8f32822"
 dependencies = [
  "darling",
  "document-features",
@@ -1744,7 +1754,7 @@ dependencies = [
 [[package]]
 name = "esp-metadata"
 version = "0.1.1"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#307718f69421d80d00cdccfa3247d402b8f32822"
 dependencies = [
  "basic-toml",
  "lazy_static",
@@ -1766,7 +1776,7 @@ dependencies = [
 [[package]]
 name = "esp-riscv-rt"
 version = "0.8.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#307718f69421d80d00cdccfa3247d402b8f32822"
 dependencies = [
  "document-features",
  "riscv",
@@ -1776,7 +1786,7 @@ dependencies = [
 [[package]]
 name = "esp-wifi"
 version = "0.6.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#abacafb069aac19dfc1c995f58189a3a3aeef411"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-06-14#307718f69421d80d00cdccfa3247d402b8f32822"
 dependencies = [
  "atomic-waker",
  "cfg-if",
@@ -2101,6 +2111,37 @@ name = "glob"
 version = "0.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
+
+[[package]]
+name = "gpio"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embassy-futures",
+ "embassy-time",
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
+name = "gpio-interrupt-nrf"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embassy-time",
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
+name = "gpio-interrupt-stm32"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embassy-time",
+ "riot-rs",
+ "riot-rs-boards",
+]
 
 [[package]]
 name = "group"
@@ -3488,6 +3529,7 @@ dependencies = [
  "cyw43",
  "cyw43-pio",
  "embassy-executor",
+ "embassy-hal-internal",
  "embassy-net",
  "embassy-net-driver-channel",
  "embassy-nrf",
@@ -3496,12 +3538,15 @@ dependencies = [
  "embassy-sync 0.6.0",
  "embassy-time",
  "embassy-usb",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
  "esp-hal",
  "esp-hal-embassy",
  "esp-wifi",
  "heapless 0.8.0",
  "linkme",
  "once_cell",
+ "portable-atomic",
  "riot-rs-debug",
  "riot-rs-macros",
  "riot-rs-random",
@@ -4151,6 +4196,15 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "06794f8f6c5c898b3275aebefa6b8a1cb24cd2c6c79397ab15774837a0bc5755"
 dependencies = [
  "winapi-util",
+]
+
+[[package]]
+name = "tests_gpio"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "riot-rs",
+ "riot-rs-boards",
 ]
 
 [[package]]

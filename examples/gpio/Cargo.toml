@@ -1,0 +1,19 @@
+[package]
+name = "gpio"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+embassy-executor = { workspace = true }
+embassy-futures = { workspace = true }
+embassy-time = { workspace = true }
+riot-rs = { path = "../../src/riot-rs", features = [
+  "external-interrupts",
+  "time",
+] }
+riot-rs-boards = { path = "../../src/riot-rs-boards" }

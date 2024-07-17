@@ -3,8 +3,14 @@
 #![no_std]
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
+#![feature(lint_reasons)]
+#![feature(trait_alias)]
 
 pub mod define_peripherals;
+pub mod gpio;
+
+#[cfg(feature = "external-interrupts")]
+mod extint_registry;
 
 #[cfg(context = "cortex-m")]
 pub mod executor_swi;
@@ -147,6 +153,12 @@ fn init() {
 #[embassy_executor::task]
 async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     debug!("riot-rs-embassy::init_task()");
+
+    #[cfg(all(context = "stm32", feature = "external-interrupts"))]
+    extint_registry::EXTINT_REGISTRY.init(&mut peripherals);
+
+    #[cfg(context = "esp")]
+    arch::gpio::init(&mut peripherals);
 
     #[cfg(feature = "hwrng")]
     arch::hwrng::construct_rng(&mut peripherals);

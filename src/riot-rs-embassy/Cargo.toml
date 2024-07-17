@@ -11,9 +11,11 @@ critical-section.workspace = true
 linkme.workspace = true
 static_cell.workspace = true
 cfg-if.workspace = true
+portable-atomic.workspace = true
 
 embassy-executor = { workspace = true, features = ["nightly"] }
 
+embassy-hal-internal = { workspace = true }
 embassy-net = { workspace = true, optional = true, features = [
   "dhcpv4",
   "medium-ethernet",
@@ -22,6 +24,9 @@ embassy-net-driver-channel = { workspace = true, optional = true }
 embassy-sync = { workspace = true }
 embassy-time = { workspace = true, optional = true }
 embassy-usb = { workspace = true, optional = true }
+
+embedded-hal = { workspace = true }
+embedded-hal-async = { workspace = true }
 
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-debug = { workspace = true }
@@ -78,7 +83,7 @@ embassy-rp = { workspace = true, features = [
 ] }
 
 [target.'cfg(context = "esp")'.dependencies]
-esp-hal = { workspace = true, features = [] }
+esp-hal = { workspace = true, features = ["async", "embedded-hal"] }
 esp-hal-embassy = { workspace = true, default-features = false, features = [
   "time-timg0",
 ] }
@@ -114,6 +119,8 @@ embassy-stm32 = { workspace = true, features = [
 ] }
 
 [features]
+## Enables GPIO interrupt support.
+external-interrupts = ["embassy-nrf?/gpiote", "embassy-stm32?/exti"]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
 usb = ["dep:embassy-usb"]
 # embassy-net requires embassy-time and support for timeouts in the executor

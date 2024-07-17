@@ -1,3 +1,9 @@
+pub mod gpio;
+
+pub mod peripheral {
+    pub use embassy_stm32::Peripheral;
+}
+
 use embassy_stm32::Config;
 
 pub use embassy_stm32::{interrupt, peripherals, OptionalPeripherals, Peripherals};
