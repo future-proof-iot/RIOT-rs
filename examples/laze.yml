@@ -19,7 +19,6 @@ subdirs:
   - log
   - minimal
   - random
-  - spi-bus
   - threading
   - threading-channel
   - usb-serial
