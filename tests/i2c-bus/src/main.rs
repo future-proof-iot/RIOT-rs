@@ -41,7 +41,7 @@ async fn main(peripherals: Peripherals) {
     i2c_config.frequency = i2c::Frequency::K100;
 
     #[cfg(context = "rp")]
-    let i2c_bus = i2c::I2c::I2C1(i2c::I2cI2C1::new(
+    let i2c_bus = i2c::I2c::I2C0(i2c::I2cI2C0::new(
         peripherals.i2c_peripheral,
         peripherals.i2c_sda,
         peripherals.i2c_scl,
