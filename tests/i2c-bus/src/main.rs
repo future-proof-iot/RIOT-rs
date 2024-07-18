@@ -31,6 +31,15 @@ riot_rs::define_peripherals!(Peripherals {
     i2c_scl: PIN_13,
 });
 
+#[cfg(context = "st-nucleo-wb55")]
+riot_rs::define_peripherals!(Peripherals {
+    i2c_peripheral: I2C1,
+    i2c_sda: PB9,
+    i2c_scl: PB8,
+    i2c_tx_dma: DMA1_CH1,
+    i2c_rx_dma: DMA1_CH2,
+});
+
 pub static I2C_BUS: once_cell::sync::OnceCell<
     Mutex<embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex, i2c::I2c>,
 > = once_cell::sync::OnceCell::new();
@@ -45,6 +54,16 @@ async fn main(peripherals: Peripherals) {
         peripherals.i2c_peripheral,
         peripherals.i2c_sda,
         peripherals.i2c_scl,
+        i2c_config,
+    ));
+
+    #[cfg(context = "stm32wb55rgvx")]
+    let i2c_bus = i2c::I2c::I2C1(i2c::I2cI2C1::new(
+        peripherals.i2c_peripheral,
+        peripherals.i2c_sda,
+        peripherals.i2c_scl,
+        peripherals.i2c_tx_dma,
+        peripherals.i2c_rx_dma,
         i2c_config,
     ));
 

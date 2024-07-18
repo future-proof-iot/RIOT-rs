@@ -13,5 +13,7 @@ embassy-executor = { workspace = true }
 embassy-sync = { workspace = true }
 embedded-hal-async = { workspace = true }
 once_cell = { workspace = true }
-riot-rs = { path = "../../src/riot-rs", features = [] }
+riot-rs = { path = "../../src/riot-rs", features = [
+  "time", # FIXME: seems to be required on STM32
+] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }

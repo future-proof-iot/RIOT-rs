@@ -1,4 +1,5 @@
 pub mod gpio;
+pub mod i2c;
 
 pub mod peripheral {
     pub use embassy_stm32::Peripheral;
