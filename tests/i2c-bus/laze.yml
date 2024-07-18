@@ -8,5 +8,6 @@ apps:
       - nrf52840
       - nrf5340
       - rp2040
+      - st-nucleo-wb55
     selects:
       - ?release
