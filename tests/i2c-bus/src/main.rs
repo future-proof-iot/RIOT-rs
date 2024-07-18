@@ -26,9 +26,9 @@ const WHO_AM_I_REG_ADDR: u8 = 0x0f;
 
 #[cfg(context = "rp")]
 riot_rs::define_peripherals!(Peripherals {
-    i2c_peripheral: I2C1,
-    i2c_sda: PIN_18,
-    i2c_scl: PIN_19,
+    i2c_peripheral: I2C0,
+    i2c_sda: PIN_12,
+    i2c_scl: PIN_13,
 });
 
 pub static I2C_BUS: once_cell::sync::OnceCell<
