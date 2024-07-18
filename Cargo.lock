@@ -1042,12 +1042,11 @@ dependencies = [
 [[package]]
 name = "embassy-embedded-hal"
 version = "0.1.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eca4a9380d03e61063067b8239f67d2fa9f108ede7c46b4273804f6b79e59a1d"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-240605#584940fc7ea02fe184f3ae346ecaa3d00008c95e"
 dependencies = [
  "defmt",
  "embassy-futures",
- "embassy-sync 0.5.0",
+ "embassy-sync 0.6.0",
  "embassy-time",
  "embedded-hal 0.2.7",
  "embedded-hal 1.0.0",

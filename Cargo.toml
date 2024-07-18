@@ -111,6 +111,7 @@ opt-level = 3
 
 [patch.crates-io]
 # riot-rs embassy fork
+embassy-embedded-hal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
