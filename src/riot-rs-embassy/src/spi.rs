@@ -9,6 +9,7 @@ pub type SpiDevice = InnerSpiDevice<'static, CriticalSectionRawMutex, arch::spi:
 #[allow(unused_macros, reason = "used by arch modules")]
 macro_rules! impl_async_spibus_for_driver_enum {
     ($driver_enum:ident, $( $peripheral:ident ),*) => {
+        // The `SpiBus` represent exclusive ownership over the whole bus.
         impl embedded_hal_async::spi::SpiBus for $driver_enum {
             async fn read(&mut self, words: &mut [u8]) -> Result<(), Self::Error> {
                 match self {
