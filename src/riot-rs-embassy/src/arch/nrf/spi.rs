@@ -2,7 +2,7 @@ use embassy_nrf::{
     bind_interrupts,
     gpio::{self, Pin as GpioPin},
     peripherals,
-    spim::{InterruptHandler, Spim, MODE_0, MODE_1, MODE_2, MODE_3},
+    spim::{InterruptHandler, Spim},
 };
 
 use crate::spi::impl_async_spibus_for_driver_enum;
@@ -39,10 +39,10 @@ pub enum Mode {
 impl From<Mode> for embassy_nrf::spim::Mode {
     fn from(mode: Mode) -> Self {
         match mode {
-            Mode::Mode0 => MODE_0,
-            Mode::Mode1 => MODE_1,
-            Mode::Mode2 => MODE_2,
-            Mode::Mode3 => MODE_3,
+            Mode::Mode0 => embassy_nrf::spim::MODE_0,
+            Mode::Mode1 => embassy_nrf::spim::MODE_1,
+            Mode::Mode2 => embassy_nrf::spim::MODE_2,
+            Mode::Mode3 => embassy_nrf::spim::MODE_3,
         }
     }
 }

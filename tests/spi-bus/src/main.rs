@@ -34,6 +34,17 @@ riot_rs::define_peripherals!(Peripherals {
     spi_rx_dma: DMA_CH1,
 });
 
+#[cfg(context = "stm32wb55rgvx")]
+riot_rs::define_peripherals!(Peripherals {
+    spi_peripheral: SPI2,
+    spi_sck: PA9,
+    spi_miso: PC2,
+    spi_mosi: PC1,
+    spi_cs: PC0,
+    spi_tx_dma: DMA1_CH1,
+    spi_rx_dma: DMA1_CH2,
+});
+
 pub static SPI_BUS: once_cell::sync::OnceCell<
     Mutex<embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex, spi::Spi>,
 > = once_cell::sync::OnceCell::new();
@@ -46,6 +57,17 @@ async fn main(peripherals: Peripherals) {
 
     #[cfg(context = "rp")]
     let spi_bus = spi::Spi::SPI0(spi::SpiSPI0::new(
+        peripherals.spi_peripheral,
+        peripherals.spi_sck,
+        peripherals.spi_miso,
+        peripherals.spi_mosi,
+        peripherals.spi_tx_dma,
+        peripherals.spi_rx_dma,
+        spi_config,
+    ));
+
+    #[cfg(context = "stm32wb55rgvx")]
+    let spi_bus = spi::Spi::SPI2(spi::SpiSPI2::new(
         peripherals.spi_peripheral,
         peripherals.spi_sck,
         peripherals.spi_miso,

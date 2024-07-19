@@ -38,7 +38,7 @@ macro_rules! impl_async_spibus_for_driver_enum {
             async fn flush(&mut self) -> Result<(), Self::Error> {
                 use embedded_hal_async::spi::SpiBus;
                 match self {
-                    $( Self::$peripheral(spi) => SpiBus::flush(&mut spi.spim).await, )*
+                    $( Self::$peripheral(spi) => SpiBus::<u8>::flush(&mut spi.spim).await, )*
                 }
             }
         }
