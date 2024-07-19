@@ -3544,6 +3544,7 @@ dependencies = [
  "esp-hal",
  "esp-hal-embassy",
  "esp-wifi",
+ "fugit",
  "heapless 0.8.0",
  "linkme",
  "once_cell",

@@ -13,6 +13,7 @@ linkme.workspace = true
 static_cell.workspace = true
 cfg-if.workspace = true
 portable-atomic.workspace = true
+fugit.workspace = true
 paste.workspace = true
 
 embassy-embedded-hal = { workspace = true }
