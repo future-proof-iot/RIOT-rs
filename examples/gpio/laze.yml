@@ -1,4 +1,14 @@
 apps:
   - name: gpio
+    context:
+      # list of contexts that have an entry in `pins.rs`
+      - esp
+      - microbit-v2
+      - nrf52840dk
+      - nrf5340dk
+      - rp
+      - st-nucleo-f401re
+      - st-nucleo-h755zi-q
+      - st-nucleo-wb55
     selects:
       - ?release
