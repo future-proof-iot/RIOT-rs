@@ -57,7 +57,6 @@ async fn main(peripherals: Peripherals) {
 
     let _ = SPI_BUS.set(Mutex::new(spi_bus));
 
-    #[cfg(context = "rp")]
     let cs_output = gpio::Output::new(peripherals.spi_cs, gpio::Level::High);
 
     let mut spi_device = SpiDevice::new(SPI_BUS.get().unwrap(), cs_output);
