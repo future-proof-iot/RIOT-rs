@@ -84,9 +84,14 @@ unsafe extern "C" fn PendSV() {
              * so let's use '99' forward ('99f')
              */
             beq 99f
+
+            msr.n psp, r0
+
+            cmp r1, #0
+            beq 99f
+
             stmia r1, {{r4-r11}}
             ldmia r2, {{r4-r11}}
-            msr.n psp, r0
             99:
             movw LR, #0xFFFd
             movt LR, #0xFFFF
@@ -108,6 +113,11 @@ unsafe extern "C" fn PendSV() {
             "
             bl sched
             cmp r0, #0
+            beq 99f
+
+            msr.n psp, r0
+
+            cmp r1, #0
             beq 99f
 
             //stmia r1!, {{r4-r7}}
@@ -134,7 +144,6 @@ unsafe extern "C" fn PendSV() {
             mov r8,  r4
             ldmia r2!, {{r4-r7}}
 
-            msr.n psp, r0
             99:
             ldr r0, 999f
             mov LR, r0
@@ -183,25 +192,22 @@ unsafe fn sched() -> u128 {
                 }
             };
 
-            let current_high_regs;
+            let mut current_high_regs = core::ptr::null();
             if let Some(current_pid) = threads.current_pid() {
                 if next_pid == current_pid {
                     return Some(0);
                 }
 
-                threads.threads[usize::from(current_pid)].sp =
-                    cortex_m::register::psp::read() as usize;
-                threads.current_thread = Some(next_pid);
+                let current = &mut threads.threads[usize::from(current_pid)];
+                current.sp = cortex_m::register::psp::read() as usize;
+                current_high_regs = current.data.as_ptr();
+            }
 
-                current_high_regs = threads.threads[usize::from(current_pid)].data.as_ptr();
-            } else {
-                threads.current_thread = Some(next_pid);
-                current_high_regs = core::ptr::null();
-            };
+            threads.current_thread = Some(next_pid);
 
             let next = &threads.threads[usize::from(next_pid)];
-            let next_sp = next.sp as usize;
-            let next_high_regs = next.data.as_ptr() as usize;
+            let next_sp = next.sp;
+            let next_high_regs = next.data.as_ptr();
 
             // PendSV expects these three pointers in r0, r1 and r2:
             // r0 = &next.sp
