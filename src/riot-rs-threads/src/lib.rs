@@ -50,6 +50,8 @@ struct Threads {
     runqueue: RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF>,
     /// The actual TCBs.
     threads: [Thread; THREADS_NUMOF],
+    /// Circular list that is managed through `[`Threadlist`]s per resource.
+    ///
     /// `Some` when a thread is blocking another thread due to conflicting
     /// resource access.
     thread_blocklist: [Option<ThreadId>; THREADS_NUMOF],
