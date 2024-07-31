@@ -84,8 +84,8 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     /// # Panics
     ///
     /// Panics if `n` is not the queue's head.
-    /// This is fine, RIOT-rs only ever calls `del()` for the current thread.
-    pub fn del(&mut self, n: ThreadId, rq: RunqueueId) {
+    /// This is fine, RIOT-rs only ever calls `pop_head()` for the current thread.
+    pub fn pop_head(&mut self, n: ThreadId, rq: RunqueueId) {
         debug_assert!(usize::from(n) < N_THREADS);
         debug_assert!(usize::from(rq) < N_QUEUES);
         let popped = self.queues.pop_head(rq.0);

@@ -157,7 +157,7 @@ impl Threads {
         if old_state != ThreadState::Running && state == ThreadState::Running {
             self.runqueue.add(thread.pid, thread.prio);
         } else if old_state == ThreadState::Running && state != ThreadState::Running {
-            self.runqueue.del(thread.pid, thread.prio);
+            self.runqueue.pop_head(thread.pid, thread.prio);
         }
 
         old_state
