@@ -6,6 +6,9 @@ license.workspace = true
 edition.workspace = true
 publish = false
 
+[lints]
+workspace = true
+
 [dependencies]
 # Enabling the feature "random" is somewhat redundant with laze.yml's selects:
 # random, but helps with interactive tools.

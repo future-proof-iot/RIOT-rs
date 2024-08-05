@@ -7,6 +7,9 @@ edition = "2021"
 
 publish = false
 
+[lints]
+workspace = true
+
 [dependencies]
 riot-rs = { path = "../../src/riot-rs", features = ["bench", "threading"] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }

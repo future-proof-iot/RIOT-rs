@@ -6,6 +6,9 @@ license.workspace = true
 edition = "2021"
 publish = false
 
+[lints]
+workspace = true
+
 [dependencies]
 riot-rs = { path = "../../src/riot-rs", features = ["threading"] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }

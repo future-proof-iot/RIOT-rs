@@ -6,6 +6,9 @@ license.workspace = true
 edition.workspace = true
 publish = false
 
+[lints]
+workspace = true
+
 [dependencies]
 embassy-executor = { workspace = true, default-features = false }
 embassy-net = { workspace = true, features = ["tcp"] }

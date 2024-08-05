@@ -8,6 +8,9 @@ homepage = "https://github.com/future-proof-iot/RIOT-rs"
 description = "A hairy circular linked list for no_std environments."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lints]
+workspace = true
+
 [dependencies.memoffset]
 version = "0.6.5"
 features = ["unstable_const"]

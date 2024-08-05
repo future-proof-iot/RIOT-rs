@@ -10,6 +10,9 @@ repository.workspace = true
 
 description = "A CoAP stack for embedded devices with built-in OSCORE/EDHOC support"
 
+[lints]
+workspace = true
+
 [dependencies]
 # public
 coap-handler = "0.2.0"

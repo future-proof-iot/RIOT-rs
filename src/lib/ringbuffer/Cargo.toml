@@ -6,5 +6,8 @@ license.workspace = true
 edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
+[lints]
+workspace = true
+
 [dependencies]
 rbi = { path = "../rbi" }
