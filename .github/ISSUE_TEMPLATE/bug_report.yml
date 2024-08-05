@@ -27,8 +27,8 @@ body:
       required: false
   - type: textarea
     attributes:
-      label:  Possible Solution
-      description: Suggest a fix/reason for the bug, or ideas how to implement the addition or change. 
+      label: Possible Solution
+      description: Suggest a fix/reason for the bug, or ideas how to implement the addition or change.
     validations:
       required: false
   - type: dropdown

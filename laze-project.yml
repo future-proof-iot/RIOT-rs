@@ -200,7 +200,7 @@ contexts:
   - name: nrf52
     parent: nrf
     selects:
-      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv7em-none-eabi  # actually eabihf, but riot-rs doesn't support hard float yet
     env:
       CARGO_RUNNER:
         - ${SCRIPTS}/debug-openocd.sh
@@ -213,7 +213,7 @@ contexts:
   - name: nrf5340
     parent: nrf
     selects:
-      - thumbv8m.main-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv8m.main-none-eabi  # actually eabihf, but riot-rs doesn't support hard float yet
     env:
       PROBE_RS_CHIP: nrf5340_xxAA
       RUSTFLAGS:
@@ -246,8 +246,8 @@ contexts:
     help: Raspberry Pi pico MCU support (based on embassy-rp)
     parent: riot-rs
     selects:
-     - rp-link-arg
-     - thumbv6m-none-eabi
+      - rp-link-arg
+      - thumbv6m-none-eabi
     env:
       RUSTFLAGS:
         - --cfg context=\"rp\"
@@ -281,7 +281,7 @@ contexts:
         - -Clink-arg=-Tlinkme-esp-fixup.x
         - -Clink-arg=-Tlinkme.x
         # this might be needed for backtraces
-        #- -C force-frame-pointers
+        # - -C force-frame-pointers
       CARGO_ARGS:
         - -Zbuild-std=core
       CARGO_RUNNER: '"espflash flash --monitor ${ESPFLASH_LOG_FORMAT}"'
@@ -315,7 +315,7 @@ contexts:
   - name: stm32f401retx
     parent: stm32
     selects:
-      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv7em-none-eabi  # actually eabihf, but riot-rs doesn't support hard float yet
     env:
       PROBE_RS_CHIP: STM32F401RETx
       PROBE_RS_PROTOCOL: swd
@@ -328,7 +328,7 @@ contexts:
   - name: stm32wb55rgvx
     parent: stm32
     selects:
-      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv7em-none-eabi  # actually eabihf, but riot-rs doesn't support hard float yet
     env:
       PROBE_RS_CHIP: STM32WB55RGVx
       PROBE_RS_PROTOCOL: swd
@@ -341,7 +341,7 @@ contexts:
   - name: stm32h755zitx
     parent: stm32
     selects:
-      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv7em-none-eabi  # actually eabihf, but riot-rs doesn't support hard float yet
     env:
       PROBE_RS_CHIP: STM32H755ZITx
       PROBE_RS_PROTOCOL: swd
@@ -418,7 +418,7 @@ modules:
     env:
       global:
         RUSTFLAGS:
-        - "-Clink-arg=-Tlink-rp.x"
+          - "-Clink-arg=-Tlink-rp.x"
 
   - name: release
     selects:

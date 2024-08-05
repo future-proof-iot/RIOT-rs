@@ -10,7 +10,7 @@ on:
   merge_group:
   schedule:
     # run every morning at 3:17am
-    - cron:  '17 3 * * *'
+    - cron: '17 3 * * *'
 
 jobs:
   build:
@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        partition: [ "1/20", "2/20", "3/20", "4/20", "5/20", "6/20", "7/20", "8/20", "9/20", "10/20", "11/20", "12/20", "13/20", "14/20", "15/20", "16/20", "17/20", "18/20", "19/20", "20/20" ]
+        partition: ["1/20", "2/20", "3/20", "4/20", "5/20", "6/20", "7/20", "8/20", "9/20", "10/20", "11/20", "12/20", "13/20", "14/20", "15/20", "16/20", "17/20", "18/20", "19/20", "20/20"]
 
     steps:
       - name: Check out repository code
@@ -146,6 +146,11 @@ jobs:
       - name: rustfmt
         run: cargo fmt --check --all
 
+      - name: yamllint
+        uses: karancode/yamllint-github-action@master
+        with:
+          yamllint_comment: true  # Insert inline PR comments
+
       - uses: taiki-e/install-action@v2
         with:
           tool: cargo-binstall
@@ -196,4 +201,3 @@ jobs:
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
           message: "The nightly build [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})."
           server: "matrix.org"
-
