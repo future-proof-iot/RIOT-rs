@@ -140,6 +140,20 @@ jobs:
         with:
           args: --verbose --locked --features no-boards -p riot-rs -p riot-rs-boards -p riot-rs-chips -p riot-rs-debug -p riot-rs-embassy -p riot-rs-macros -p riot-rs-random -p riot-rs-rt -p riot-rs-threads -p riot-rs-utils
 
+      - name: cargo-deny
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          rust-version: ${{ steps.get_toolchain.outputs.toolchain }}
+          command: check bans licenses sources
+
+      - name: cargo-deny advisories
+        uses: EmbarkStudios/cargo-deny-action@v2
+        with:
+          rust-version: ${{ steps.get_toolchain.outputs.toolchain }}
+          command: check advisories
+        # Prevent sudden announcement of a new advisory from failing CI
+        continue-on-error: true
+
       - name: rustdoc
         run: RUSTDOCFLAGS='-D warnings' cargo doc -p riot-rs --features no-boards,bench,external-interrupts,threading,random,csprng,hwrng
 
