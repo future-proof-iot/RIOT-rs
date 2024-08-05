@@ -10,6 +10,11 @@
 //! for at least as long as the OSCORE component is tightly coupled to a particular implementation
 //! of [`coap-message`]).
 #![no_std]
+#![feature(lint_reasons)]
+#![expect(
+    clippy::indexing_slicing,
+    reason = "this should eventually be addressed"
+)]
 
 // Might warrant a standalone crate at some point
 //
