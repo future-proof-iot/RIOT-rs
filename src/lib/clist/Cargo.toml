@@ -2,9 +2,9 @@
 name = "clist"
 version = "0.1.1"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
+license = "Apache-2.0"
 edition = "2021"
 homepage = "https://github.com/future-proof-iot/RIOT-rs"
-license = "Apache-2.0"
 description = "A hairy circular linked list for no_std environments."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
