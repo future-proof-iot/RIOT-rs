@@ -12,7 +12,7 @@
 use embassy_sync::mutex::Mutex;
 use embedded_hal_async::spi::{Operation, SpiDevice as _};
 use riot_rs::{
-    debug::{exit, println, EXIT_SUCCESS},
+    debug::{exit, log::info, EXIT_SUCCESS},
     embassy::{
         arch::{peripherals, spi},
         gpio,
