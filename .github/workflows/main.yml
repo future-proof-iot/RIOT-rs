@@ -143,7 +143,6 @@ jobs:
       - name: cargo-deny
         uses: EmbarkStudios/cargo-deny-action@v2
         with:
-          rust-version: ${{ steps.get_toolchain.outputs.toolchain }}
           command: check bans licenses sources
 
       - name: cargo-deny advisories
