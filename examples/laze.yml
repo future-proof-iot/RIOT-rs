@@ -21,4 +21,5 @@ subdirs:
   - random
   - threading
   - threading-channel
+  - threading-lock
   - usb-serial
