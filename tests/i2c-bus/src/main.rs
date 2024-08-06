@@ -81,5 +81,7 @@ async fn main(peripherals: Peripherals) {
     info!("LIS3DH WHO_AM_I_COMMAND register value: 0x{:x}", who_am_i);
     assert_eq!(who_am_i, 0x33);
 
+    info!("Test passed!");
+
     exit(EXIT_SUCCESS);
 }
