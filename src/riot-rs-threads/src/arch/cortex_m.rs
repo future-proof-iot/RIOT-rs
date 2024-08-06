@@ -192,6 +192,10 @@ unsafe fn sched() -> u128 {
                 }
             };
 
+            // `current_high_regs` will be null if there is no current thread.
+            // This is only the case once, when the very first thread starts running.
+            // The returned `r1` therefore will be null, and saving/ restoring
+            // the context is skipped.
             let mut current_high_regs = core::ptr::null();
             if let Some(current_pid) = threads.current_pid() {
                 if next_pid == current_pid {
@@ -209,7 +213,7 @@ unsafe fn sched() -> u128 {
             let next_sp = next.sp;
             let next_high_regs = next.data.as_ptr();
 
-            // PendSV expects these three pointers in r0, r1 and r2:
+            // The caller (`PendSV`) expects these three pointers in r0, r1 and r2:
             // r0 = &next.sp
             // r1 = &current.high_regs
             // r2 = &next.high_regs
