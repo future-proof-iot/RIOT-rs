@@ -93,7 +93,7 @@ async fn main(peripherals: Peripherals) {
         .unwrap();
 
     let who_am_i = id[0];
-    println!("LIS3DH WHO_AM_I_COMMAND register value: 0x{:x}", who_am_i);
+    info!("LIS3DH WHO_AM_I_COMMAND register value: 0x{:x}", who_am_i);
     assert_eq!(who_am_i, 0x33);
 
     exit(EXIT_SUCCESS);
