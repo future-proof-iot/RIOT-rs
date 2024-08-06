@@ -12,7 +12,7 @@
 use embassy_sync::mutex::Mutex;
 use embedded_hal_async::i2c::I2c as _;
 use riot_rs::{
-    debug::{exit, println, EXIT_SUCCESS},
+    debug::{exit, log::info, EXIT_SUCCESS},
     embassy::{
         arch::{i2c, peripherals},
         i2c::I2cDevice,
