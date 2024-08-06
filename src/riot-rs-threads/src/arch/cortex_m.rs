@@ -87,6 +87,10 @@ unsafe extern "C" fn PendSV() {
 
             msr.n psp, r0
 
+            // r1 == 0 means that there was no previous thread.
+            // This is only the case if the scheduler was triggered for the first time,
+            // which also means that next thread has no stored context yet.
+            // Storing and loading of r4-r11 therefore can be skipped.
             cmp r1, #0
             beq 99f
 
@@ -117,6 +121,10 @@ unsafe extern "C" fn PendSV() {
 
             msr.n psp, r0
 
+            // r1 == 0 means that there was no previous thread.
+            // This is only the case if the scheduler was triggered for the first time,
+            // which also means that next thread has no stored context yet.
+            // Storing and loading of r4-r11 therefore can be skipped.
             cmp r1, #0
             beq 99f
 
@@ -167,6 +175,7 @@ unsafe extern "C" fn PendSV() {
 /// - `0` in `r0` if the next thread in the runqueue is the currently running thread
 /// - Else it writes into the following registers:
 ///   - `r1`: pointer to [`Thread::high_regs`] from old thread (to store old register state)
+///           or null pointer if there was no previously running thread.
 ///   - `r2`: pointer to [`Thread::high_regs`] from new thread (to load new register state)
 ///   - `r0`: stack-pointer for new thread
 ///
