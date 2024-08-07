@@ -108,9 +108,16 @@ impl Threads {
         }
     }
 
-    // fn get_unchecked(&self, thread_id: ThreadId) -> &Thread {
-    //     &self.threads[thread_id as usize]
-    // }
+    /// Returns access to any thread data.
+    ///
+    /// # Panics
+    ///
+    /// Panics if `thread_id` is >= [`THREADS_NUMOF`].
+    /// If the thread for this `thread_id` is in an invalid state, the
+    /// data in the returned [`Thread`] is undefined, i.e. empty or outdated.
+    fn get_unchecked(&self, thread_id: ThreadId) -> &Thread {
+        &self.threads[usize::from(thread_id)]
+    }
 
     /// Returns mutable access to any thread data.
     ///
@@ -157,7 +164,7 @@ impl Threads {
         if old_state != ThreadState::Running && state == ThreadState::Running {
             self.runqueue.add(thread.pid, thread.prio);
         } else if old_state == ThreadState::Running && state != ThreadState::Running {
-            self.runqueue.del(thread.pid, thread.prio);
+            self.runqueue.pop_head(thread.pid, thread.prio);
         }
 
         old_state
@@ -170,6 +177,37 @@ impl Threads {
         } else {
             None
         }
+    }
+
+    fn get_priority(&self, thread_id: ThreadId) -> Option<RunqueueId> {
+        self.is_valid_pid(thread_id)
+            .then(|| self.get_unchecked(thread_id).prio)
+    }
+
+    /// Change the priority of a thread.
+    ///
+    /// Returns true if the thread is in the runqueue and the order might have
+    /// changed.
+    fn set_priority(&mut self, thread_id: ThreadId, prio: RunqueueId) -> bool {
+        if !self.is_valid_pid(thread_id) {
+            return false;
+        }
+        let thread = self.get_unchecked_mut(thread_id);
+        let old_prio = thread.prio;
+        if old_prio == prio {
+            return false;
+        }
+        thread.prio = prio;
+        if thread.state != ThreadState::Running {
+            return false;
+        }
+        if self.runqueue.peek_head(old_prio) == Some(thread_id) {
+            self.runqueue.pop_head(thread_id, old_prio);
+        } else {
+            self.runqueue.del(thread_id);
+        }
+        self.runqueue.add(thread_id, prio);
+        true
     }
 }
 
@@ -317,6 +355,24 @@ pub fn wakeup(thread_id: ThreadId) -> bool {
             }
         } else {
             false
+        }
+    })
+}
+
+/// Get the priority of a thread.
+///
+/// Returns `None` if this is not a valid thread.
+pub fn get_priority(thread_id: ThreadId) -> Option<u8> {
+    THREADS.with_mut(|threads| threads.get_priority(thread_id).map(|rq| *rq))
+}
+
+/// Change the priority of a thread.
+///
+/// This might trigger a context switch.
+pub fn set_priority(thread_id: ThreadId, prio: u8) {
+    THREADS.with_mut(|mut threads| {
+        if threads.set_priority(thread_id, RunqueueId::new(prio)) {
+            schedule();
         }
     })
 }
