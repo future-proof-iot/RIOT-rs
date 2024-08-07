@@ -151,10 +151,5 @@ macro_rules! define_spi_drivers {
     };
 }
 
-// FIXME: support other STM32 archs
 // Define a driver per peripheral
-#[cfg(context = "stm32wb55rgvx")]
-define_spi_drivers!(
-    SPI1 => SPI1,
-    SPI2 => SPI2,
-);
+riot_rs_macros::define_stm32_drivers!(Spi);

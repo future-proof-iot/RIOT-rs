@@ -15,6 +15,10 @@ enum-iterator = "2.1.0"
 proc-macro-crate = "3.1.0"
 proc-macro2 = "1.0.78"
 quote = "1.0.35"
+serde_json = "1.0"
+# TODO: this must be up-to-date with the JSON file
+# stm32-data-serde = { git = "https://github.com/embassy-rs/stm32-data", rev = "stm32-metapac-v15" }
+stm32-data-serde = { path = "../../../stm32-data/stm32-data-serde" }
 syn = { version = "2.0.47", features = ["full"] }
 
 [dev-dependencies]

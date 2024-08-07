@@ -117,11 +117,5 @@ macro_rules! define_i2c_drivers {
     }
 }
 
-// FIXME: support other STM32 archs
 // Define a driver per peripheral
-#[cfg(context = "stm32wb55rgvx")]
-define_i2c_drivers!(
-    I2C1_EV, I2C1_ER => I2C1,
-    // There is no I2C2 peripheral.
-    I2C3_EV, I2C3_ER => I2C3,
-);
+riot_rs_macros::define_stm32_drivers!(I2c);
