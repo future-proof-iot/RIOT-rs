@@ -38,11 +38,11 @@ async fn connection(mut controller: WifiController<'static>) {
     #[cfg(feature = "threading")]
     {
         let thread_id = WIFI_THREAD_ID.get().unwrap();
-        riot_rs_threads::wakeup(*thread_id);
+        riot_rs_threads::thread_flags::set(*thread_id, 0b1);
     }
 
     debug!("start connection task");
-    debug!("Device capabilities: {:?}", controller.get_capabilities());
+    debug!("Device configuration: {:?}", controller.get_configuration());
     loop {
         match esp_wifi::wifi::get_wifi_state() {
             WifiState::StaConnected => {
@@ -95,8 +95,12 @@ mod wifi_thread {
                 .int_clr()
                 .write(|w| w.target0().clear_bit_by_one())
         }
-        // Wakeup `esp_wifi_thread`.
-        riot_rs_threads::wakeup(*WIFI_THREAD_ID.get().unwrap());
+        // Wake up `esp_wifi_thread`.
+        if !riot_rs_threads::wakeup(*WIFI_THREAD_ID.get().unwrap()) {
+            // We're already in the context of `esp_wifi_thread`, so yield
+            // directly.
+            yield_to_esp_wifi_scheduler();
+        }
     }
 
     // CPU Interrupt 3 triggers the scheduler in `esp-wifi`.
@@ -108,11 +112,18 @@ mod wifi_thread {
         }
     }
 
-    /// High priority thread that frequently wakes up to run the esp-wifi
-    /// scheduler.
+    /// Thread that runs the esp-wifi scheduler.
+    ///
+    /// Because it runs at highest priority, it can't be preempted by any riot-rs threads and therefore
+    /// the two schedulers won't interleave.
+    #[riot_rs_macros::thread(autostart, priority = riot_rs_threads::SCHED_PRIO_LEVELS as u8 - 1)]
     fn esp_wifi_thread() {
-        // Wait until `embassy` was intialized.
-        riot_rs_threads::sleep();
+        WIFI_THREAD_ID
+            .set(riot_rs_threads::current_pid().unwrap())
+            .unwrap();
+
+        // Wait until `embassy` was initialized.
+        riot_rs_threads::thread_flags::wait_one(0b1);
 
         // Bind the periodic systimer that is configured in esp-wifi to our own handler.
         unsafe {
@@ -121,23 +132,16 @@ mod wifi_thread {
                 core::mem::transmute(systimer_target0_ as *const ()),
             );
         }
+        interrupt::enable(Interrupt::SYSTIMER_TARGET0, interrupt::Priority::Priority2).unwrap();
 
         loop {
+            interrupt::enable(Interrupt::FROM_CPU_INTR3, interrupt::Priority::Priority1).unwrap();
             // Yield to the esp-wifi scheduler tasks, so that they get a chance to run.
             yield_to_esp_wifi_scheduler();
+            // Disable esp-wifi scheduler so that it won't interleave with the riot-rs-threads scheduler.
+            interrupt::disable(esp_hal::Cpu::ProCpu, Interrupt::FROM_CPU_INTR3);
             // Sleep until the systimer alarm 0 interrupts again.
             riot_rs_threads::sleep()
         }
-    }
-
-    #[linkme::distributed_slice(riot_rs_threads::THREAD_FNS)]
-    fn start_esp_wifi_thread() {
-        let stack = static_cell::make_static!([0u8; 2048]);
-        let id = riot_rs_threads::thread_create_noarg(
-            esp_wifi_thread,
-            stack,
-            riot_rs_threads::SCHED_PRIO_LEVELS as u8 - 1,
-        );
-        WIFI_THREAD_ID.set(id).unwrap();
     }
 }
