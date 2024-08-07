@@ -29,6 +29,7 @@ contexts:
           OPENOCD_ARGS="${OPENOCD_ARGS}"
           SCRIPTS=${SCRIPTS}
           CONFIG_BOARD=${builder}
+          EMBASSY_CHIP=${EMBASSY_CHIP}
           CARGO_BUILD_TARGET=${RUSTC_TARGET}
           ${CARGO_TARGET_PREFIX}_RUNNER=${CARGO_RUNNER}
           ${CARGO_TARGET_PREFIX}_RUSTFLAGS="${RUSTFLAGS}"
@@ -317,6 +318,7 @@ contexts:
     selects:
       - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
     env:
+      EMBASSY_CHIP: STM32F401RE
       PROBE_RS_CHIP: STM32F401RETx
       PROBE_RS_PROTOCOL: swd
       RUSTFLAGS:
@@ -330,6 +332,7 @@ contexts:
     selects:
       - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
     env:
+      EMBASSY_CHIP: STM32WB55RG
       PROBE_RS_CHIP: STM32WB55RGVx
       PROBE_RS_PROTOCOL: swd
       RUSTFLAGS:
@@ -343,6 +346,7 @@ contexts:
     selects:
       - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
     env:
+      EMBASSY_CHIP: STM32H755ZI
       PROBE_RS_CHIP: STM32H755ZITx
       PROBE_RS_PROTOCOL: swd
       RUSTFLAGS:
