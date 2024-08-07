@@ -15,5 +15,8 @@ embassy-net = { workspace = true, features = ["tcp"] }
 embassy-time = { workspace = true, default-features = false }
 embedded-io-async = "0.6.1"
 heapless = { workspace = true }
-riot-rs = { path = "../../src/riot-rs", features = ["override-network-config"] }
+riot-rs = { path = "../../src/riot-rs", features = ["threading"] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
+
+[target.'cfg(not(context = "esp"))'.dependencies]
+riot-rs = { path = "../../src/riot-rs", features = ["override-network-config"] }
