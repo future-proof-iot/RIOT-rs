@@ -34,6 +34,17 @@ riot_rs::define_peripherals!(Peripherals {
     spi_rx_dma: DMA_CH1,
 });
 
+#[cfg(context = "stm32h755zitx")]
+riot_rs::define_peripherals!(Peripherals {
+    spi_peripheral: SPI2,
+    spi_sck: PB10,
+    spi_miso: PC2,
+    spi_mosi: PC3,
+    spi_cs: PB12,
+    spi_tx_dma: DMA1_CH1,
+    spi_rx_dma: DMA1_CH2,
+});
+
 #[cfg(context = "stm32wb55rgvx")]
 riot_rs::define_peripherals!(Peripherals {
     spi_peripheral: SPI2,
@@ -57,6 +68,17 @@ async fn main(peripherals: Peripherals) {
 
     #[cfg(context = "rp")]
     let spi_bus = spi::Spi::SPI0(spi::SpiSPI0::new(
+        peripherals.spi_peripheral,
+        peripherals.spi_sck,
+        peripherals.spi_miso,
+        peripherals.spi_mosi,
+        peripherals.spi_tx_dma,
+        peripherals.spi_rx_dma,
+        spi_config,
+    ));
+
+    #[cfg(context = "stm32h755zitx")]
+    let spi_bus = spi::Spi::SPI2(spi::SpiSPI2::new(
         peripherals.spi_peripheral,
         peripherals.spi_sck,
         peripherals.spi_miso,
