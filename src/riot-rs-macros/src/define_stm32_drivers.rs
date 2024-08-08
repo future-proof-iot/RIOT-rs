@@ -61,7 +61,7 @@ mod define_stm32_drivers {
         let peripheral_definitions: Vec<_> = match input.peripheral_kind {
             PeripheralKind::Spi => {
                 let peripheral_interrupts =
-                    relevant_peripherals.map(SpiPeripheral::from_peripheral);
+                    relevant_peripherals.filter_map(SpiPeripheral::try_from_peripheral);
                 peripheral_interrupts
                     .map(|p| {
                         let interrupt = format_ident!("{}", p.interrupt);
@@ -145,17 +145,23 @@ mod define_stm32_drivers {
 
     impl SpiPeripheral {
         /// Extracts data from the `stm32-data-serde` schema.
-        pub fn from_peripheral(peripheral: &core::Peripheral) -> Self {
+        pub fn try_from_peripheral(peripheral: &core::Peripheral) -> Option<Self> {
             let mut interrupts = peripheral.interrupts.as_ref().unwrap().iter();
 
-            Self {
+            let interrupt = interrupts.next().unwrap();
+            // Assert that all SPI peripheral have exactly one interrupt.
+            assert!(interrupts.next().is_none());
+
+            let interrupt = match interrupt.signal.as_ref() {
+                "RADIO" => return None, // This is for the SUBGHZSPI peripheral.
+                "GLOBAL" => interrupt.interrupt.clone(),
+                _ => panic!("{} is not a recognized SPI interrupt signal", interrupt.signal),
+            };
+
+            Some(Self {
                 name: peripheral.name.clone(),
-                interrupt: interrupts
-                    .find(|int| int.signal == "GLOBAL")
-                    .unwrap()
-                    .interrupt
-                    .clone(),
-            }
+                interrupt,
+            })
         }
     }
 
@@ -201,7 +207,7 @@ mod define_stm32_drivers {
         ) {
             let json_file_path =
                 format!("../../../stm32-data-generated/data/chips/{chip_embassy_name}.json");
-            let json = fs::read_to_string(json_file_path).unwrap();
+            let json = fs::read_to_string(&json_file_path).unwrap();
             let input = Input { peripheral_kind };
 
             let generated =
@@ -236,6 +242,29 @@ mod define_stm32_drivers {
                 PeripheralKind::Spi,
                 "define_spi_drivers ! (SPI1 => SPI1 , SPI2 => SPI2) ;",
             );
+        }
+
+        // Test that JSON files generate something without panicking.
+        #[test]
+        fn test_all_json_files() {
+            let json_files = fs::read_dir("../../../stm32-data-generated/data/chips").unwrap();
+
+            for json_file_path in json_files {
+                let json_file_path = json_file_path.unwrap().path();
+
+                let json = fs::read_to_string(&json_file_path).unwrap();
+
+                let chip_embassy_name = json_file_path.file_stem().unwrap().to_str().unwrap();
+                dbg!(&chip_embassy_name);
+
+                let input = Input { peripheral_kind: PeripheralKind::I2c };
+                let _generated =
+                    generate_stm32_driver_definition(&json, &chip_embassy_name, &input).to_string();
+
+                let input = Input { peripheral_kind: PeripheralKind::Spi };
+                let _generated =
+                    generate_stm32_driver_definition(&json, &chip_embassy_name, &input).to_string();
+            }
         }
     }
 }
