@@ -3,6 +3,7 @@ use embassy_nrf::{
     gpio::{self, Pin as GpioPin},
     peripherals,
     spim::{InterruptHandler, Spim},
+    Peripheral,
 };
 
 use crate::spi::impl_async_spibus_for_driver_enum;
@@ -75,10 +76,10 @@ macro_rules! define_spi_drivers {
                 impl [<Spi $peripheral>] {
                     #[must_use]
                     pub fn new(
-                        spim_peripheral: peripherals::$peripheral,
-                        sck_pin: impl GpioPin,
-                        miso_pin: impl GpioPin,
-                        mosi_pin: impl GpioPin,
+                        spim_peripheral: impl Peripheral<P = peripherals::$peripheral> + 'static,
+                        sck_pin: impl Peripheral<P = impl GpioPin> + 'static,
+                        miso_pin: impl Peripheral<P = impl GpioPin> + 'static,
+                        mosi_pin: impl Peripheral<P = impl GpioPin> + 'static,
                         config: Config,
                     ) -> Self {
                         let mut spi_config = embassy_nrf::spim::Config::default();

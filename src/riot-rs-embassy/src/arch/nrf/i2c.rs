@@ -3,6 +3,7 @@ use embassy_nrf::{
     gpio::Pin as GpioPin,
     peripherals,
     twim::{InterruptHandler, Twim},
+    Peripheral,
 };
 use embedded_hal_async::i2c::Operation;
 
@@ -45,9 +46,9 @@ macro_rules! define_i2c_drivers {
                 impl [<I2c $peripheral>] {
                     #[must_use]
                     pub fn new(
-                        twim_peripheral: peripherals::$peripheral,
-                        sda_pin: impl GpioPin,
-                        scl_pin: impl GpioPin,
+                        twim_peripheral: impl Peripheral<P = peripherals::$peripheral> + 'static,
+                        sda_pin: impl Peripheral<P = impl GpioPin> + 'static,
+                        scl_pin: impl Peripheral<P = impl GpioPin> + 'static,
                         config: Config,
                     ) -> Self {
                         let mut twim_config = embassy_nrf::twim::Config::default();
