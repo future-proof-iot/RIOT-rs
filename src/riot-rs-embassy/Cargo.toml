@@ -13,9 +13,11 @@ linkme.workspace = true
 static_cell.workspace = true
 cfg-if.workspace = true
 portable-atomic.workspace = true
+fugit.workspace = true
+paste.workspace = true
 
+embassy-embedded-hal = { workspace = true }
 embassy-executor = { workspace = true, features = ["nightly"] }
-
 embassy-hal-internal = { workspace = true }
 embassy-net = { workspace = true, optional = true, features = [
   "dhcpv4",
@@ -37,9 +39,7 @@ riot-rs-random = { path = "../riot-rs-random", optional = true }
 riot-rs-utils = { workspace = true }
 
 heapless = "0.8.0"
-once_cell = { version = "1.19.0", default-features = false, features = [
-  "critical-section",
-] }
+once_cell = { workspace = true }
 
 # rpi-pico-w cyw43
 cyw43 = { version = "0.1.0", features = ["firmware-logs"], optional = true }

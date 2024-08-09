@@ -1,4 +1,6 @@
 pub mod gpio;
+pub mod i2c;
+pub mod spi;
 
 pub mod peripheral {
     pub use embassy_stm32::Peripheral;
@@ -75,7 +77,8 @@ fn board_config(config: &mut Config) {
             prediv: PllPreDiv::DIV4,
             mul: PllMul::MUL50,
             divp: Some(PllDiv::DIV2),
-            divq: None,
+            // Required for SPI (configured by `spi123sel`)
+            divq: Some(PllDiv::DIV16), // FIXME: adjust this divider
             divr: None,
         });
         config.rcc.sys = Sysclk::PLL1_P; // 400 Mhz
@@ -88,6 +91,9 @@ fn board_config(config: &mut Config) {
         // Set SMPS power config otherwise MCU will not powered after next power-off
         config.rcc.supply_config = SupplyConfig::DirectSMPS;
         config.rcc.mux.usbsel = mux::Usbsel::HSI48;
+        // Select the clock signal used for SPI1, SPI2, and SPI3.
+        config.rcc.mux.spi123sel = mux::Saisel::PLL1_Q; // Reset value
+        // FIXME: what to do about SPI4, SPI5, and SPI6?
     }
 
     // mark used

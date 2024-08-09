@@ -1,4 +1,6 @@
 pub mod gpio;
+pub mod i2c;
+pub mod spi;
 
 pub mod peripheral {
     pub use embassy_rp::Peripheral;
