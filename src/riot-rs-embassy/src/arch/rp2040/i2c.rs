@@ -47,8 +47,8 @@ macro_rules! define_i2c_drivers {
                     #[must_use]
                     pub fn new(
                         i2c_peripheral: impl Peripheral<P = peripherals::$peripheral> + 'static,
-                        sda_pin: impl Peripheral<P = impl SdaPin<peripherals::$peripheral>> + 'static,
-                        scl_pin: impl Peripheral<P = impl SclPin<peripherals::$peripheral>> + 'static,
+                        sda_pin: impl Peripheral<P: SdaPin<peripherals::$peripheral>> + 'static,
+                        scl_pin: impl Peripheral<P: SclPin<peripherals::$peripheral>> + 'static,
                         config: Config,
                     ) -> Self {
                         let mut i2c_config = embassy_rp::i2c::Config::default();
