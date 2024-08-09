@@ -24,6 +24,13 @@ const LIS3DH_I2C_ADDR: u8 = 0x19;
 // WHO_AM_I register of the LIS3DH sensor
 const WHO_AM_I_REG_ADDR: u8 = 0x0f;
 
+#[cfg(context = "esp")]
+riot_rs::define_peripherals!(Peripherals {
+    i2c_peripheral: I2C0,
+    i2c_sda: GPIO_0,
+    i2c_scl: GPIO_1,
+});
+
 #[cfg(context = "rp")]
 riot_rs::define_peripherals!(Peripherals {
     i2c_peripheral: I2C0,
@@ -57,6 +64,14 @@ pub static I2C_BUS: once_cell::sync::OnceCell<
 async fn main(peripherals: Peripherals) {
     let mut i2c_config = i2c::Config::default();
     i2c_config.frequency = i2c::Frequency::K100;
+
+    #[cfg(context = "esp")]
+    let i2c_bus = i2c::I2c::I2C0(i2c::I2cI2C0::new(
+        peripherals.i2c_peripheral,
+        peripherals.i2c_sda,
+        peripherals.i2c_scl,
+        i2c_config,
+    ));
 
     #[cfg(context = "rp")]
     let i2c_bus = i2c::I2c::I2C0(i2c::I2cI2C0::new(
