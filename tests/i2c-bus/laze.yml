@@ -5,6 +5,7 @@ apps:
         CARGO_ENV:
           - CONFIG_ISR_STACKSIZE=16384
     context:
+      - espressif-esp32-c6-devkitc-1
       - nrf52840
       - nrf5340
       - rp2040

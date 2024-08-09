@@ -1,4 +1,5 @@
 pub mod gpio;
+pub mod i2c;
 pub mod spi;
 
 pub mod peripheral {
@@ -47,7 +48,11 @@ pub mod peripherals {
     }
 }
 
-use esp_hal::{clock::{ClockControl, Clocks}, system::SystemControl, timer::timg::TimerGroup};
+use esp_hal::{
+    clock::{ClockControl, Clocks},
+    system::SystemControl,
+    timer::timg::TimerGroup,
+};
 use once_cell::sync::OnceCell;
 
 pub use esp_hal::peripherals::OptionalPeripherals;
