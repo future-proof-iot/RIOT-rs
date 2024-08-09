@@ -71,10 +71,10 @@ macro_rules! define_spi_drivers {
                 impl [<Spi $peripheral>] {
                     #[must_use]
                     pub fn new(
-                        spi_peripheral: peripherals::$peripheral,
-                        sck_pin: impl ClkPin<peripherals::$peripheral>,
-                        miso_pin: impl MisoPin<peripherals::$peripheral>,
-                        mosi_pin: impl MosiPin<peripherals::$peripheral>,
+                        spi_peripheral: impl Peripheral<P = peripherals::$peripheral> + 'static,
+                        sck_pin: impl Peripheral<P = impl ClkPin<peripherals::$peripheral>> + 'static,
+                        miso_pin: impl Peripheral<P = impl MisoPin<peripherals::$peripheral>> + 'static,
+                        mosi_pin: impl Peripheral<P = impl MosiPin<peripherals::$peripheral>> + 'static,
                         tx_dma: impl dma::Channel,
                         rx_dma: impl dma::Channel,
                         config: Config,
