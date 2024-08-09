@@ -1,6 +1,7 @@
 use embassy_rp::{
     dma, peripherals,
     spi::{Async, ClkPin, MisoPin, MosiPin, Phase, Polarity, Spi as InnerSpi},
+    Peripheral,
 };
 
 use crate::spi::impl_async_spibus_for_driver_enum;
