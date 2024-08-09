@@ -1,7 +1,7 @@
 use embassy_rp::{
     bind_interrupts,
     i2c::{InterruptHandler, SclPin, SdaPin},
-    peripherals,
+    peripherals, Peripheral,
 };
 use embedded_hal_async::i2c::Operation;
 
