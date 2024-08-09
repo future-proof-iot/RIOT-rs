@@ -47,8 +47,8 @@ macro_rules! define_i2c_drivers {
                     #[must_use]
                     pub fn new(
                         twim_peripheral: impl Peripheral<P = peripherals::$peripheral> + 'static,
-                        sda_pin: impl Peripheral<P = impl GpioPin> + 'static,
-                        scl_pin: impl Peripheral<P = impl GpioPin> + 'static,
+                        sda_pin: impl Peripheral<P: GpioPin> + 'static,
+                        scl_pin: impl Peripheral<P: GpioPin> + 'static,
                         config: Config,
                     ) -> Self {
                         let mut twim_config = embassy_nrf::twim::Config::default();
