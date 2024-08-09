@@ -23,6 +23,17 @@ use riot_rs::{
 // WHO_AM_I register of the LIS3DH sensor
 const WHO_AM_I_REG_ADDR: u8 = 0x0f;
 
+// FIXME
+#[cfg(context = "esp")]
+riot_rs::define_peripherals!(Peripherals {
+    spi_peripheral: SPI2,
+    spi_sck: GPIO_0,
+    spi_miso: GPIO_1,
+    spi_mosi: GPIO_2,
+    spi_cs: GPIO_3,
+    dma: DMA,
+});
+
 #[cfg(context = "rp")]
 riot_rs::define_peripherals!(Peripherals {
     spi_peripheral: SPI0,
@@ -65,6 +76,18 @@ async fn main(peripherals: Peripherals) {
     let mut spi_config = spi::Config::default();
     spi_config.frequency = spi::Frequency::M1;
     spi_config.mode = spi::Mode::Mode3;
+
+    let dma = esp_hal::dma::Dma::new(peripherals.dma);
+
+    #[cfg(context = "esp")]
+    let spi_bus = spi::Spi::SPI2(spi::SpiSPI2::new(
+        peripherals.spi_peripheral,
+        peripherals.spi_sck,
+        peripherals.spi_miso,
+        peripherals.spi_mosi,
+        dma.channel1,
+        spi_config,
+    ));
 
     #[cfg(context = "rp")]
     let spi_bus = spi::Spi::SPI0(spi::SpiSPI0::new(
