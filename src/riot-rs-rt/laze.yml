@@ -1,3 +1,3 @@
 apps:
   - selects:
-    - "disabled_until_test_framework_fixed"
+      - "disabled_until_test_framework_fixed"

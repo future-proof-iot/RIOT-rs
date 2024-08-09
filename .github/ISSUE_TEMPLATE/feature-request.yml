@@ -17,7 +17,7 @@ body:
     attributes:
       label: Requirements
       description: Write a list of what you want this feature to do.
-      placeholder: "1." 
+      placeholder: "1."
     validations:
       required: true
   - type: textarea

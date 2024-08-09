@@ -1,0 +1,11 @@
+---
+
+extends: default
+
+# Documentation of rules:
+# https://yamllint.readthedocs.io/en/stable/rules.html
+rules:
+  document-start: disable
+  line-length: disable
+  truthy:
+    check-keys: false
