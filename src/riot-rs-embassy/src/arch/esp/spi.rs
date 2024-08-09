@@ -46,7 +46,7 @@ pub enum Frequency {
     M32 = 32_000_000,
 }
 
-impl From<Frequency> for fugit::Rate<u32, 1, 1> {
+impl From<Frequency> for fugit::HertzU32 {
     fn from(freq: Frequency) -> Self {
         match freq {
             Frequency::K125 => fugit::Rate::<u32, 1, 1>::kHz(125),
@@ -110,23 +110,21 @@ macro_rules! define_spi_drivers {
 
                 impl [<Spi $peripheral>] {
                     #[must_use]
-                    pub fn new<C>(
-                        spi_peripheral: impl Peripheral<P = peripherals::$peripheral>,
-                        sck_pin: impl Peripheral<P: OutputPin>,
-                        miso_pin: impl Peripheral<P: InputPin>,
-                        mosi_pin: impl Peripheral<P: OutputPin>,
-                        dma_ch: dma::Channel1,
+                    pub fn new(
+                        spi_peripheral: impl Peripheral<P = peripherals::$peripheral> + 'static,
+                        sck_pin: impl Peripheral<P: OutputPin> + 'static,
+                        miso_pin: impl Peripheral<P: InputPin> + 'static,
+                        mosi_pin: impl Peripheral<P: OutputPin> + 'static,
+                        dma_ch: dma::ChannelCreator<1>,
                         config: Config,
-                    ) -> Self
-                        where C: dma::ChannelTypes,
-                              C::P: dma::SpiPeripheral + dma::Spi2Peripheral
-                              {
+                    ) -> Self {
+                        let frequency = config.frequency.into();
                         let clocks = arch::CLOCKS.get().unwrap();
                         let spi = esp_hal::spi::master::Spi::new(
                             spi_peripheral,
-                            config.frequency.into(),
+                            frequency,
                             config.mode.into(),
-                            clocks, // FIXME: how to obtain this from the esp init()?
+                            clocks,
                         );
                         let spi = spi.with_bit_order(
                             config.bit_order.into(), // Read order
@@ -139,11 +137,19 @@ macro_rules! define_spi_drivers {
                            Some(miso_pin),
                            gpio::NO_PIN, // The CS pin is managed separately // FIXME: is it?
                         );
-                        let dma_channel = dma_ch.configure_for_async(false, DmaPriority::Priority0);
+
+                        // FIXME: adjust the value (copied from Embassy SPI example for now)
+                        // This value defines the maximum transaction length the DMA can handle.
+                        let (tx_dma_descriptors, rx_dma_descriptors) = esp_hal::dma_descriptors!(32000);
+
+                        let dma_channel = dma_ch.configure_for_async(
+                            false,
+                            DmaPriority::Priority0,
+                        );
                         let spi = spi.with_dma(
                             dma_channel,
-                            // tx_dma_descriptors, // FIXME: need to rebase to have https://github.com/esp-rs/esp-hal/commit/77535516713a0dabf4dbc9286c1d20b682f4e9c0
-                            // rx_dma_descriptors,
+                            tx_dma_descriptors, // FIXME: need to rebase esp-hal to have https://github.com/esp-rs/esp-hal/commit/77535516713a0dabf4dbc9286c1d20b682f4e9c0 andhttps://github.com/esp-rs/esp-hal/commit/c6207c0f591263a271e2b909f646856a8f5d6cc9
+                            rx_dma_descriptors,
                         );
 
                         Self { spim: spi }
@@ -165,5 +171,7 @@ macro_rules! define_spi_drivers {
     };
 }
 
+// FIXME: there seems to be a DMA-enabled SPI3 on ESP32-S2 and ESP32-S3
 // Define a driver per peripheral
+#[cfg(context = "esp32c6")]
 define_spi_drivers!(SPI2);
