@@ -77,9 +77,9 @@ macro_rules! define_spi_drivers {
                     #[must_use]
                     pub fn new(
                         spim_peripheral: impl Peripheral<P = peripherals::$peripheral> + 'static,
-                        sck_pin: impl Peripheral<P = impl GpioPin> + 'static,
-                        miso_pin: impl Peripheral<P = impl GpioPin> + 'static,
-                        mosi_pin: impl Peripheral<P = impl GpioPin> + 'static,
+                        sck_pin: impl Peripheral<P: GpioPin> + 'static,
+                        miso_pin: impl Peripheral<P: GpioPin> + 'static,
+                        mosi_pin: impl Peripheral<P: GpioPin> + 'static,
                         config: Config,
                     ) -> Self {
                         let mut spi_config = embassy_nrf::spim::Config::default();
