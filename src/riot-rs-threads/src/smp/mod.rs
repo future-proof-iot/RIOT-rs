@@ -40,8 +40,6 @@ pub trait Multicore {
     /// is triggered there.
     fn startup_other_cores();
 
-    fn sev();
-
     /// Triggers the scheduler on core `id`.
     fn schedule_on_core(id: CoreId);
 }
@@ -64,17 +62,11 @@ cfg_if::cfg_if! {
 
             fn startup_other_cores() {}
 
-            fn sev() {}
-
             fn schedule_on_core(_id: CoreId) {
                 Cpu::schedule();
             }
         }
     }
-}
-
-pub fn sev() {
-    Chip::sev()
 }
 
 /// Triggers the scheduler on core `id`.

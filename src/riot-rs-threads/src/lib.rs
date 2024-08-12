@@ -57,7 +57,7 @@ pub use arch::schedule;
 use arch::{Arch, Cpu, ThreadData};
 use ensure_once::EnsureOnce;
 use riot_rs_runqueue::RunQueue;
-use smp::{sev, Multicore};
+use smp::{schedule_on_core, Multicore};
 use static_cell::ConstStaticCell;
 use thread::{Thread, ThreadState};
 
@@ -87,7 +87,7 @@ struct Threads {
     /// resource access.
     thread_blocklist: [Option<ThreadId>; THREADS_NUMOF],
     /// The currently running thread.
-    current_threads: [Option<ThreadId>; CORES_NUMOF],
+    current_threads: [Option<(ThreadId, RunqueueId)>; CORES_NUMOF],
 }
 
 impl Threads {
@@ -109,19 +109,20 @@ impl Threads {
     ///
     /// Returns `None` if there is no current thread.
     fn current(&mut self) -> Option<&mut Thread> {
-        self.current_threads[usize::from(core_id())].map(|tid| &mut self.threads[usize::from(tid)])
+        self.current_threads[usize::from(core_id())]
+            .map(|(pid, _)| &mut self.threads[usize::from(pid)])
     }
 
     fn current_pid(&self) -> Option<ThreadId> {
-        self.current_threads[usize::from(core_id())]
+        self.current_threads[usize::from(core_id())].map(|(id, _)| id)
     }
 
     #[allow(
         dead_code,
         reason = "used in context-specific scheduler implementation"
     )]
-    fn current_pid_mut(&mut self) -> &mut Option<ThreadId> {
-        &mut self.current_threads[usize::from(core_id())]
+    fn set_current(&mut self, pid: ThreadId, prio: RunqueueId) {
+        self.current_threads[usize::from(core_id())] = Some((pid, prio))
     }
 
     /// Creates a new thread.
@@ -208,11 +209,9 @@ impl Threads {
             }
             (ThreadState::Running, _) => {
                 self.runqueue.add(pid, prio);
-                sev();
-                if let Some(current_prio) = self.current_pid().map(|pid| self.get_priority(pid)) {
-                    if prio > current_prio {
-                        schedule();
-                    }
+                let (core, lowest_prio) = self.lowest_running_prio();
+                if lowest_prio < prio {
+                    schedule_on_core(core);
                 }
             }
             (_, ThreadState::Running) => schedule(),
@@ -234,27 +233,30 @@ impl Threads {
         self.get_unchecked(thread_id).prio
     }
 
-    /// Changes the priority of a thread.
-    ///
-    /// Returns the information if the scheduler should be invoked because the runqueue order
-    /// might have changed.
-    /// `false` if the thread isn't in the runqueue (in which case the priority is still changed)
-    /// or if the new priority equals the current one.
-    fn set_priority(&mut self, thread_id: ThreadId, prio: RunqueueId) -> bool {
+    /// Changes the priority of a thread and triggers the scheduler if necessary.
+    fn set_priority(&mut self, thread_id: ThreadId, prio: RunqueueId) {
         if !self.is_valid_pid(thread_id) {
-            return false;
+            return;
         }
         let thread = self.get_unchecked_mut(thread_id);
         let old_prio = thread.prio;
         if old_prio == prio {
-            return false;
+            return;
         }
         thread.prio = prio;
         if thread.state != ThreadState::Running {
-            return false;
+            return;
         }
-        if self.current_threads.contains(&Some(thread_id)) {
-            return true;
+        if let Some(core) = self
+            .current_threads
+            .iter()
+            .position(|t| *t == Some((thread_id, old_prio)))
+        {
+            self.current_threads[core] = Some((thread_id, prio));
+            if old_prio > prio {
+                schedule_on_core(CoreId(core as u8));
+            }
+            return;
         }
         if self.runqueue.peek_head(old_prio) == Some(thread_id) {
             self.runqueue.pop_head(thread_id, old_prio);
@@ -262,7 +264,23 @@ impl Threads {
             self.runqueue.del(thread_id);
         }
         self.runqueue.add(thread_id, prio);
-        true
+
+        let (core, lowest_prio) = self.lowest_running_prio();
+        if lowest_prio < prio {
+            schedule_on_core(core);
+        }
+    }
+
+    fn lowest_running_prio(&self) -> (CoreId, RunqueueId) {
+        self.current_threads
+            .iter()
+            .enumerate()
+            .map(|(core, thread)| {
+                let rq = thread.map_or_else(|| RunqueueId::new(0), |(_, rq)| rq);
+                (CoreId::new(core as u8), rq)
+            })
+            .min_by_key(|(_, rq)| *rq)
+            .unwrap()
     }
 }
 
@@ -464,12 +482,7 @@ pub fn get_priority(thread_id: ThreadId) -> Option<RunqueueId> {
 ///
 /// This might trigger a context switch.
 pub fn set_priority(thread_id: ThreadId, prio: RunqueueId) {
-    THREADS.with_mut(|mut threads| {
-        if threads.set_priority(thread_id, prio) {
-            sev();
-            schedule();
-        }
-    })
+    THREADS.with_mut(|mut threads| threads.set_priority(thread_id, prio))
 }
 
 /// Returns the size of the internal structure that holds the

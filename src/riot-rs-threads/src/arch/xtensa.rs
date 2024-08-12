@@ -130,7 +130,10 @@ unsafe fn sched(trap_frame: &mut TrapFrame) {
                 }
                 threads.threads[usize::from(current_pid)].data = *trap_frame;
             }
-            *threads.current_pid_mut() = Some(next_pid);
+
+            let next_prio = threads.get_unchecked(next_pid).prio;
+            threads.set_current(next_pid, next_prio);
+
             *trap_frame = threads.threads[usize::from(next_pid)].data;
             true
         }) {

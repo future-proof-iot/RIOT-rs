@@ -208,11 +208,12 @@ unsafe fn sched() -> u128 {
                 current_high_regs = thread.data.as_ptr();
             }
 
-            *threads.current_pid_mut() =  Some(next_pid);
-
             let next = threads.get_unchecked(next_pid);
             let next_high_regs = next.data.as_ptr();
+            let next_prio = next.prio;
             let next_sp = next.sp;
+
+            threads.set_current(next_pid, next_prio);
 
             // PendSV expects these three pointers in r0, r1 and r2:
             // r0 = &next.sp
