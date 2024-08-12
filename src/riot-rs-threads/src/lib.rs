@@ -54,7 +54,7 @@ pub use thread_flags as flags;
 use arch::{schedule, Arch, Cpu, ThreadData};
 use ensure_once::EnsureOnce;
 use riot_rs_runqueue::RunQueue;
-use smp::{sev, Multicore};
+use smp::{schedule_on_core, Multicore};
 use static_cell::ConstStaticCell;
 use thread::{Thread, ThreadState};
 
@@ -84,7 +84,7 @@ struct Threads {
     /// resource access.
     thread_blocklist: [Option<ThreadId>; THREADS_NUMOF],
     /// The currently running thread.
-    current_threads: [Option<ThreadId>; CORES_NUMOF],
+    current_threads: [Option<(ThreadId, RunqueueId)>; CORES_NUMOF],
 }
 
 impl Threads {
@@ -106,19 +106,20 @@ impl Threads {
     ///
     /// Returns `None` if there is no current thread.
     fn current(&mut self) -> Option<&mut Thread> {
-        self.current_threads[usize::from(core_id())].map(|tid| &mut self.threads[usize::from(tid)])
+        self.current_threads[usize::from(core_id())]
+            .map(|(pid, _)| &mut self.threads[usize::from(pid)])
     }
 
     fn current_pid(&self) -> Option<ThreadId> {
-        self.current_threads[usize::from(core_id())]
+        self.current_threads[usize::from(core_id())].map(|(id, _)| id)
     }
 
     #[allow(
         dead_code,
         reason = "used in context-specific scheduler implementation"
     )]
-    fn current_pid_mut(&mut self) -> &mut Option<ThreadId> {
-        &mut self.current_threads[usize::from(core_id())]
+    fn set_current(&mut self, pid: ThreadId, prio: RunqueueId) {
+        self.current_threads[usize::from(core_id())] = Some((pid, prio))
     }
 
     /// Creates a new thread.
@@ -193,9 +194,8 @@ impl Threads {
     fn set_state(&mut self, pid: ThreadId, state: ThreadState) -> ThreadState {
         let thread = self.get_unchecked_mut(pid);
         let old_state = core::mem::replace(&mut thread.state, state);
-        let prio = thread.prio;
-
         if state == ThreadState::Running {
+            let prio = thread.prio;
             self.runqueue.add(pid, prio);
             self.schedule_if_higher_prio(pid, prio);
         } else if old_state == ThreadState::Running {
@@ -244,9 +244,10 @@ impl Threads {
         // This has to be done on multicore **before the runqueue changes below**, because
         // a currently running thread is not in the runqueue and therefore the runqueue changes
         // should not be applied.
-        if self.is_running(thread_id) {
+        if let Some(core) = self.is_running(thread_id, old_prio) {
+            self.current_threads[core] = Some((thread_id, prio));
             if prio < old_prio {
-                schedule();
+                schedule_on_core(CoreId(core as u8));
             }
             return;
         }
@@ -267,18 +268,26 @@ impl Threads {
 
     /// Triggers the scheduler if the thread has a higher priority than the currently running thread.
     fn schedule_if_higher_prio(&mut self, _thread_id: ThreadId, prio: RunqueueId) {
-        match self.current().map(|t| t.prio) {
-            Some(curr_prio) if curr_prio < prio => {
-                sev();
-                schedule();
-            }
+        match self.lowest_running_prio() {
+            (core, Some(lowest_prio)) if lowest_prio < prio => schedule_on_core(core),
             _ => {}
         }
     }
 
     /// Returns the info if the thread is currently running.
-    fn is_running(&self, thread_id: ThreadId) -> bool {
-        self.current_pid().is_some_and(|pid| (pid == thread_id))
+    fn is_running(&self, thread_id: ThreadId, prio: RunqueueId) -> Option<usize> {
+        self.current_threads
+            .iter()
+            .position(|pid| *pid == Some((thread_id, prio)))
+    }
+
+    fn lowest_running_prio(&self) -> (CoreId, Option<RunqueueId>) {
+        self.current_threads
+            .iter()
+            .enumerate()
+            .map(|(core, thread)| (CoreId::new(core as u8), thread.unzip().1))
+            .min_by_key(|(_, rq)| *rq)
+            .unwrap()
     }
 }
 

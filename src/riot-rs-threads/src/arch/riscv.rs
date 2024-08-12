@@ -146,8 +146,13 @@ unsafe fn sched(trap_frame: &mut TrapFrame) {
                     &mut threads.threads[usize::from(current_pid)].data,
                 );
             }
-            *threads.current_pid_mut() = Some(next_pid);
-            copy_registers(&threads.threads[usize::from(next_pid)].data, trap_frame);
+
+            let thread = threads.get_unchecked(next_pid);
+            let next_prio = thread.prio;
+            copy_registers(&thread.data, trap_frame);
+
+            threads.set_current(next_pid, next_prio);
+
             true
         }) {
             break;

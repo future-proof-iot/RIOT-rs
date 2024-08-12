@@ -37,10 +37,6 @@ impl Multicore for Chip {
         }
     }
 
-    fn sev() {
-        cortex_m::asm::sev()
-    }
-
     fn schedule_on_core(id: CoreId) {
         if id == Self::core_id() {
             crate::schedule();
