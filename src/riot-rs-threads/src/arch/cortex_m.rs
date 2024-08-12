@@ -221,12 +221,13 @@ unsafe fn sched() -> u128 {
                 current.sp = cortex_m::register::psp::read() as usize;
                 current_high_regs = current.data.as_ptr();
             }
-            *threads.current_pid_mut() = Some(next_pid);
 
             let next = threads.get_unchecked(next_pid);
-
-            let next_sp = next.sp;
             let next_high_regs = next.data.as_ptr();
+            let next_sp = next.sp;
+            let next_prio = next.prio;
+
+            threads.set_current(next_pid, next_prio);
 
             // The caller (`PendSV`) expects these three pointers in r0, r1 and r2:
             // r0 = &next.sp
