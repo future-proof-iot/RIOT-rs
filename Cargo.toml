@@ -127,7 +127,7 @@ embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for
 embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
 embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
 embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
-embassy-rp = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-rp = { git = "https://github.com/elenaf9/embassy", branch = "for-riot-rs-2024-09-19_multicore" }
 embassy-net-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
 embassy-net-driver-channel = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
 embassy-stm32 = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
