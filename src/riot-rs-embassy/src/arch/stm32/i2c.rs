@@ -9,6 +9,7 @@ use embassy_stm32::{
     Peripheral,
 };
 use embedded_hal_async::i2c::Operation;
+use riot_rs_macros::call_with_stm32_peripheral_list;
 
 use crate::i2c::impl_async_i2c_for_driver_enum;
 
@@ -53,7 +54,7 @@ impl From<Frequency> for Hertz {
 }
 
 macro_rules! define_i2c_drivers {
-    ($( $ev_interrupt:ident, $er_interrupt:ident => $peripheral:ident ),* $(,)?) => {
+    ($( $ev_interrupt:ident + $er_interrupt:ident => $peripheral:ident ),* $(,)?) => {
         // paste allows to create new identifiers by concatenation using `[<foo bar>]`.
         paste::paste! {
             $(
@@ -118,4 +119,4 @@ macro_rules! define_i2c_drivers {
 }
 
 // Define a driver per peripheral
-riot_rs_macros::define_stm32_drivers!(I2c);
+call_with_stm32_peripheral_list!(define_i2c_drivers!, I2c, PeripheralsAndInterrupts);

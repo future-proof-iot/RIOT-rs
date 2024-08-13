@@ -6,8 +6,9 @@ use embassy_stm32::{
     time::Hertz,
     Peripheral,
 };
+use riot_rs_macros::call_with_stm32_peripheral_list;
 
-use crate::spi::impl_async_spibus_for_driver_enum;
+use crate::{arch, spi::impl_async_spibus_for_driver_enum};
 
 #[derive(Clone)]
 #[non_exhaustive]
@@ -94,62 +95,84 @@ impl From<BitOrder> for embassy_stm32::spi::BitOrder {
     }
 }
 
+pub fn init(peripherals: &mut arch::OptionalPeripherals) {
+    // This macro has to be defined in this function so that the `peripherals` variables exists.
+    macro_rules! take_all_spi_peripherals {
+        ($peripherals:ident, $( $peripheral:ident ),*) => {
+            $(
+                let _ = peripherals.$peripheral.take().unwrap();
+            )*
+        }
+    }
+
+    // Take all SPI peripherals and do nothing with them.
+    call_with_stm32_peripheral_list!(take_all_spi_peripherals!, Spi, Peripherals);
+}
+
 macro_rules! define_spi_drivers {
     ($( $interrupt:ident => $peripheral:ident ),* $(,)?) => {
-        // paste allows to create new identifiers by concatenation using `[<foo bar>]`.
-        paste::paste! {
-            $(
-                /// Peripheral-specific SPI driver.
-                pub struct [<Spi $peripheral>] {
-                    spim: InnerSpi<'static, Async>,
-                }
+        $(
+            /// Peripheral-specific SPI driver.
+            pub struct $peripheral {
+                spim: InnerSpi<'static, Async>,
+            }
 
-                impl [<Spi $peripheral>] {
-                    #[must_use]
-                    pub fn new(
-                        spim_peripheral:impl Peripheral<P = peripherals::$peripheral> + 'static,
-                        sck_pin: impl Peripheral<P: SckPin<peripherals::$peripheral>> + 'static,
-                        miso_pin: impl Peripheral<P: MisoPin<peripherals::$peripheral>> + 'static,
-                        mosi_pin: impl Peripheral<P: MosiPin<peripherals::$peripheral>> + 'static,
-                        tx_dma: impl Peripheral<P: TxDma<peripherals::$peripheral>> + 'static,
-                        rx_dma: impl Peripheral<P: RxDma<peripherals::$peripheral>> + 'static,
-                        config: Config,
-                    ) -> Self {
-                        let mut spi_config = embassy_stm32::spi::Config::default();
-                        spi_config.frequency = config.frequency.into();
-                        spi_config.mode = config.mode.into();
-                        spi_config.bit_order = config.bit_order.into();
-                        spi_config.miso_pull = gpio::Pull::None; // FIXME: ?
+            impl $peripheral {
+                #[must_use]
+                pub fn new(
+                    sck_pin: impl Peripheral<P: SckPin<peripherals::$peripheral>> + 'static,
+                    miso_pin: impl Peripheral<P: MisoPin<peripherals::$peripheral>> + 'static,
+                    mosi_pin: impl Peripheral<P: MosiPin<peripherals::$peripheral>> + 'static,
+                    tx_dma: impl Peripheral<P: TxDma<peripherals::$peripheral>> + 'static,
+                    rx_dma: impl Peripheral<P: RxDma<peripherals::$peripheral>> + 'static,
+                    config: Config,
+                ) -> Spi {
+                    let mut spi_config = embassy_stm32::spi::Config::default();
+                    spi_config.frequency = config.frequency.into();
+                    spi_config.mode = config.mode.into();
+                    spi_config.bit_order = config.bit_order.into();
+                    spi_config.miso_pull = gpio::Pull::None; // FIXME: ?
 
-                        // The order of MOSI/MISO pins is inverted.
-                        let spim = InnerSpi::new(
-                            spim_peripheral,
-                            sck_pin,
-                            mosi_pin,
-                            miso_pin,
-                            tx_dma,
-                            rx_dma,
-                            spi_config,
-                        );
-
-                        Self { spim }
+                    // Make this struct a compile-time-enforced singleton: having multiple statics
+                    // defined with the same name would result in a compile-time error.
+                    paste::paste! {
+                        #[allow(dead_code)]
+                        static [<PREVENT_MULTIPLE_ $peripheral>]: () = ();
                     }
+
+                    // FIXME(safety): enforce that the init code indeed has run
+                    // SAFETY: this struct being a singleton prevents us from stealing the
+                    // peripheral multiple times.
+                    let spim_peripheral = unsafe { peripherals::$peripheral::steal() };
+
+                    // The order of MOSI/MISO pins is inverted.
+                    let spim = InnerSpi::new(
+                        spim_peripheral,
+                        sck_pin,
+                        mosi_pin,
+                        miso_pin,
+                        tx_dma,
+                        rx_dma,
+                        spi_config,
+                    );
+
+                    Spi::$peripheral(Self { spim })
                 }
-            )*
-
-            /// Peripheral-agnostic driver.
-            pub enum Spi {
-                $( $peripheral([<Spi $peripheral>]), )*
             }
+        )*
 
-            impl embedded_hal_async::spi::ErrorType for Spi {
-                type Error = embassy_stm32::spi::Error;
-            }
-
-            impl_async_spibus_for_driver_enum!(Spi, $( $peripheral ),*);
+        /// Peripheral-agnostic driver.
+        pub enum Spi {
+            $( $peripheral($peripheral) ),*
         }
+
+        impl embedded_hal_async::spi::ErrorType for Spi {
+            type Error = embassy_stm32::spi::Error;
+        }
+
+        impl_async_spibus_for_driver_enum!(Spi, $( $peripheral ),*);
     };
 }
 
 // Define a driver per peripheral
-riot_rs_macros::define_stm32_drivers!(Spi);
+call_with_stm32_peripheral_list!(define_spi_drivers!, Spi, PeripheralsAndInterrupts);

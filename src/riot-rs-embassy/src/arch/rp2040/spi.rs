@@ -4,7 +4,7 @@ use embassy_rp::{
     Peripheral,
 };
 
-use crate::spi::impl_async_spibus_for_driver_enum;
+use crate::{arch, spi::impl_async_spibus_for_driver_enum};
 
 #[derive(Clone)]
 #[non_exhaustive]
@@ -58,61 +58,81 @@ impl From<Mode> for (Polarity, Phase) {
     }
 }
 
+pub fn init(peripherals: &mut arch::OptionalPeripherals) {
+    // Take all SPI peripherals and do nothing with them.
+    cfg_if::cfg_if! {
+        if #[cfg(context = "rp2040")] {
+            let _ = peripherals.SPI0.take().unwrap();
+            let _ = peripherals.SPI1.take().unwrap();
+        } else {
+            compile_error!("this RP chip is not supported");
+        }
+    }
+}
+
 macro_rules! define_spi_drivers {
     ($( $peripheral:ident ),* $(,)?) => {
-        // paste allows to create new identifiers by concatenation using `[<foo bar>]`.
-        paste::paste! {
-            $(
-                /// Peripheral-specific SPI driver.
-                pub struct [<Spi $peripheral>] {
-                    spim: InnerSpi<'static, peripherals::$peripheral, Async>,
-                }
+        $(
+            /// Peripheral-specific SPI driver.
+            pub struct $peripheral {
+                spim: InnerSpi<'static, peripherals::$peripheral, Async>,
+            }
 
-                impl [<Spi $peripheral>] {
-                    #[must_use]
-                    pub fn new(
-                        spi_peripheral: impl Peripheral<P = peripherals::$peripheral> + 'static,
-                        sck_pin: impl Peripheral<P: ClkPin<peripherals::$peripheral>> + 'static,
-                        miso_pin: impl Peripheral<P: MisoPin<peripherals::$peripheral>> + 'static,
-                        mosi_pin: impl Peripheral<P: MosiPin<peripherals::$peripheral>> + 'static,
-                        tx_dma: impl dma::Channel,
-                        rx_dma: impl dma::Channel,
-                        config: Config,
-                    ) -> Self {
-                        let (pol, phase) = config.mode.into();
+            impl $peripheral {
+                #[must_use]
+                pub fn new(
+                    sck_pin: impl Peripheral<P: ClkPin<peripherals::$peripheral>> + 'static,
+                    miso_pin: impl Peripheral<P: MisoPin<peripherals::$peripheral>> + 'static,
+                    mosi_pin: impl Peripheral<P: MosiPin<peripherals::$peripheral>> + 'static,
+                    tx_dma: impl dma::Channel,
+                    rx_dma: impl dma::Channel,
+                    config: Config,
+                ) -> Spi {
+                    let (pol, phase) = config.mode.into();
 
-                        let mut spi_config = embassy_rp::spi::Config::default();
-                        spi_config.frequency = config.frequency as u32;
-                        spi_config.polarity = pol;
-                        spi_config.phase = phase;
+                    let mut spi_config = embassy_rp::spi::Config::default();
+                    spi_config.frequency = config.frequency as u32;
+                    spi_config.polarity = pol;
+                    spi_config.phase = phase;
 
-                        // The order of MOSI/MISO pins is inverted.
-                        let spi = InnerSpi::new(
-                            spi_peripheral,
-                            sck_pin,
-                            mosi_pin,
-                            miso_pin,
-                            tx_dma,
-                            rx_dma,
-                            spi_config,
-                        );
-
-                        Self { spim: spi }
+                    // Make this struct a compile-time-enforced singleton: having multiple statics
+                    // defined with the same name would result in a compile-time error.
+                    paste::paste! {
+                        #[allow(dead_code)]
+                        static [<PREVENT_MULTIPLE_ $peripheral>]: () = ();
                     }
+
+                    // FIXME(safety): enforce that the init code indeed has run
+                    // SAFETY: this struct being a singleton prevents us from stealing the
+                    // peripheral multiple times.
+                    let spi_peripheral = unsafe { peripherals::$peripheral::steal() };
+
+                    // The order of MOSI/MISO pins is inverted.
+                    let spi = InnerSpi::new(
+                        spi_peripheral,
+                        sck_pin,
+                        mosi_pin,
+                        miso_pin,
+                        tx_dma,
+                        rx_dma,
+                        spi_config,
+                    );
+
+                    Spi::$peripheral(Self { spim: spi })
                 }
-            )*
-
-            /// Peripheral-agnostic driver.
-            pub enum Spi {
-                $( $peripheral([<Spi $peripheral>]), )*
             }
+        )*
 
-            impl embedded_hal_async::spi::ErrorType for Spi {
-                type Error = embassy_rp::spi::Error;
-            }
-
-            impl_async_spibus_for_driver_enum!(Spi, $( $peripheral ),*);
+        /// Peripheral-agnostic driver.
+        pub enum Spi {
+            $( $peripheral($peripheral) ),*
         }
+
+        impl embedded_hal_async::spi::ErrorType for Spi {
+            type Error = embassy_rp::spi::Error;
+        }
+
+        impl_async_spibus_for_driver_enum!(Spi, $( $peripheral ),*);
     };
 }
 

@@ -97,77 +97,97 @@ impl From<BitOrder> for esp_hal::spi::SpiBitOrder {
     }
 }
 
+pub fn init(peripherals: &mut arch::OptionalPeripherals) {
+    // Take all SPI peripherals and do nothing with them.
+    cfg_if::cfg_if! {
+        if #[cfg(context = "esp32c6")] {
+            let _ = peripherals.SPI2.take().unwrap();
+        } else {
+            compile_error!("this ESP32 chip is not supported");
+        }
+    }
+}
+
 macro_rules! define_spi_drivers {
     ($( $peripheral:ident ),* $(,)?) => {
-        // paste allows to create new identifiers by concatenation using `[<foo bar>]`.
-        paste::paste! {
-            $(
-                /// Peripheral-specific SPI driver.
-                pub struct [<Spi $peripheral>] {
-                    // FIXME: do we want full- or half-duplex?
-                    spim: InnerSpi<'static, peripherals::$peripheral, dma::Channel1, FullDuplexMode, Async>,
-                }
+        $(
+            /// Peripheral-specific SPI driver.
+            pub struct $peripheral {
+                // FIXME: do we want full- or half-duplex?
+                spim: InnerSpi<'static, peripherals::$peripheral, dma::Channel1, FullDuplexMode, Async>,
+            }
 
-                impl [<Spi $peripheral>] {
-                    #[must_use]
-                    pub fn new(
-                        spi_peripheral: impl Peripheral<P = peripherals::$peripheral> + 'static,
-                        sck_pin: impl Peripheral<P: OutputPin> + 'static,
-                        miso_pin: impl Peripheral<P: InputPin> + 'static,
-                        mosi_pin: impl Peripheral<P: OutputPin> + 'static,
-                        dma_ch: dma::ChannelCreator<1>,
-                        config: Config,
-                    ) -> Self {
-                        let frequency = config.frequency.into();
-                        let clocks = arch::CLOCKS.get().unwrap();
-                        let spi = esp_hal::spi::master::Spi::new(
-                            spi_peripheral,
-                            frequency,
-                            config.mode.into(),
-                            clocks,
-                        );
-                        let spi = spi.with_bit_order(
-                            config.bit_order.into(), // Read order
-                            config.bit_order.into(), // Write order
-                        );
-                        // The order of MOSI/MISO pins is inverted.
-                        let spi = spi.with_pins(
-                           Some(sck_pin),
-                           Some(mosi_pin),
-                           Some(miso_pin),
-                           gpio::NO_PIN, // The CS pin is managed separately // FIXME: is it?
-                        );
+            impl $peripheral {
+                #[must_use]
+                pub fn new(
+                    sck_pin: impl Peripheral<P: OutputPin> + 'static,
+                    miso_pin: impl Peripheral<P: InputPin> + 'static,
+                    mosi_pin: impl Peripheral<P: OutputPin> + 'static,
+                    dma_ch: dma::ChannelCreator<1>,
+                    config: Config,
+                ) -> Spi {
+                    let frequency = config.frequency.into();
+                    let clocks = arch::CLOCKS.get().unwrap();
 
-                        // FIXME: adjust the value (copied from Embassy SPI example for now)
-                        // This value defines the maximum transaction length the DMA can handle.
-                        let (tx_dma_descriptors, rx_dma_descriptors) = esp_hal::dma_descriptors!(32000);
-
-                        let dma_channel = dma_ch.configure_for_async(
-                            false,
-                            DmaPriority::Priority0,
-                        );
-                        let spi = spi.with_dma(
-                            dma_channel,
-                            tx_dma_descriptors, // FIXME: need to rebase esp-hal to have https://github.com/esp-rs/esp-hal/commit/77535516713a0dabf4dbc9286c1d20b682f4e9c0 andhttps://github.com/esp-rs/esp-hal/commit/c6207c0f591263a271e2b909f646856a8f5d6cc9
-                            rx_dma_descriptors,
-                        );
-
-                        Self { spim: spi }
+                    // Make this struct a compile-time-enforced singleton: having multiple statics
+                    // defined with the same name would result in a compile-time error.
+                    paste::paste! {
+                        #[allow(dead_code)]
+                        static [<PREVENT_MULTIPLE_ $peripheral>]: () = ();
                     }
+
+                    // FIXME(safety): enforce that the init code indeed has run
+                    // SAFETY: this struct being a singleton prevents us from stealing the
+                    // peripheral multiple times.
+                    let spi_peripheral = unsafe { peripherals::$peripheral::steal() };
+
+                    let spi = esp_hal::spi::master::Spi::new(
+                        spi_peripheral,
+                        frequency,
+                        config.mode.into(),
+                        clocks,
+                    );
+                    let spi = spi.with_bit_order(
+                        config.bit_order.into(), // Read order
+                        config.bit_order.into(), // Write order
+                    );
+                    // The order of MOSI/MISO pins is inverted.
+                    let spi = spi.with_pins(
+                        Some(sck_pin),
+                        Some(mosi_pin),
+                        Some(miso_pin),
+                        gpio::NO_PIN, // The CS pin is managed separately // FIXME: is it?
+                    );
+
+                    // FIXME: adjust the value (copied from Embassy SPI example for now)
+                    // This value defines the maximum transaction length the DMA can handle.
+                    let (tx_dma_descriptors, rx_dma_descriptors) = esp_hal::dma_descriptors!(32000);
+
+                    let dma_channel = dma_ch.configure_for_async(
+                        false,
+                        DmaPriority::Priority0,
+                    );
+                    let spi = spi.with_dma(
+                        dma_channel,
+                        tx_dma_descriptors, // FIXME: need to rebase esp-hal to have https://github.com/esp-rs/esp-hal/commit/77535516713a0dabf4dbc9286c1d20b682f4e9c0 andhttps://github.com/esp-rs/esp-hal/commit/c6207c0f591263a271e2b909f646856a8f5d6cc9
+                        rx_dma_descriptors,
+                    );
+
+                    Spi::$peripheral(Self { spim: spi })
                 }
-            )*
-
-            /// Peripheral-agnostic driver.
-            pub enum Spi {
-                $( $peripheral([<Spi $peripheral>]), )*
             }
+        )*
 
-            impl embedded_hal_async::spi::ErrorType for Spi {
-                type Error = esp_hal::spi::Error;
-            }
-
-            impl_async_spibus_for_driver_enum!(Spi, $( $peripheral ),*);
+        /// Peripheral-agnostic driver.
+        pub enum Spi {
+            $( $peripheral($peripheral) ),*
         }
+
+        impl embedded_hal_async::spi::ErrorType for Spi {
+            type Error = esp_hal::spi::Error;
+        }
+
+        impl_async_spibus_for_driver_enum!(Spi, $( $peripheral ),*);
     };
 }
 

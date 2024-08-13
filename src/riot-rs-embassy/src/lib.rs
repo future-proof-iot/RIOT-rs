@@ -160,6 +160,8 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     #[cfg(all(context = "stm32", feature = "external-interrupts"))]
     extint_registry::EXTINT_REGISTRY.init(&mut peripherals);
 
+    arch::spi::init(&mut peripherals);
+
     #[cfg(context = "esp")]
     arch::gpio::init(&mut peripherals);
 
