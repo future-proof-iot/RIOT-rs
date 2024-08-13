@@ -11,7 +11,7 @@ use embassy_stm32::{
 use embedded_hal_async::i2c::Operation;
 use riot_rs_macros::call_with_stm32_peripheral_list;
 
-use crate::i2c::impl_async_i2c_for_driver_enum;
+use crate::{arch, i2c::impl_async_i2c_for_driver_enum};
 
 #[non_exhaustive]
 #[derive(Clone)]
@@ -53,68 +53,90 @@ impl From<Frequency> for Hertz {
     }
 }
 
+pub fn init(peripherals: &mut arch::OptionalPeripherals) {
+    // This macro has to be defined in this function so that the `peripherals` variables exists.
+    macro_rules! take_all_i2c_peripherals {
+        ($peripherals:ident, $( $peripheral:ident ),*) => {
+            $(
+                let _ = peripherals.$peripheral.take().unwrap();
+            )*
+        }
+    }
+
+    // Take all I2c peripherals and do nothing with them.
+    call_with_stm32_peripheral_list!(take_all_i2c_peripherals!, I2c, Peripherals);
+}
+
 macro_rules! define_i2c_drivers {
     ($( $ev_interrupt:ident + $er_interrupt:ident => $peripheral:ident ),* $(,)?) => {
-        // paste allows to create new identifiers by concatenation using `[<foo bar>]`.
-        paste::paste! {
-            $(
-                /// Peripheral-specific I2C driver.
-                // NOTE(arch): this is not required on this architecture, as the inner I2C type is
-                // not generic over the I2C peripheral, and is only done for consistency with
-                // other architectures.
-                pub struct [<I2c $peripheral>] {
-                    twim: InnerI2c<'static, Async>
-                }
+        $(
+            /// Peripheral-specific I2C driver.
+            // NOTE(arch): this is not required on this architecture, as the inner I2C type is
+            // not generic over the I2C peripheral, and is only done for consistency with
+            // other architectures.
+            pub struct $peripheral {
+                twim: InnerI2c<'static, Async>
+            }
 
-                impl [<I2c $peripheral>] {
-                    #[must_use]
-                    pub fn new(
-                        twim_peripheral: impl Peripheral<P = peripherals::$peripheral> + 'static,
-                        sda_pin: impl Peripheral<P: SdaPin<peripherals::$peripheral>> + 'static,
-                        scl_pin: impl Peripheral<P: SclPin<peripherals::$peripheral>> + 'static,
-                        tx_dma: impl Peripheral<P: TxDma<peripherals::$peripheral>> + 'static,
-                        rx_dma: impl Peripheral<P: RxDma<peripherals::$peripheral>> + 'static,
-                        config: Config,
-                    ) -> Self {
-                        let mut i2c_config = embassy_stm32::i2c::Config::default();
-                        i2c_config.sda_pullup = config.sda_pullup;
-                        i2c_config.scl_pullup = config.scl_pullup;
+            impl $peripheral {
+                #[must_use]
+                pub fn new(
+                    sda_pin: impl Peripheral<P: SdaPin<peripherals::$peripheral>> + 'static,
+                    scl_pin: impl Peripheral<P: SclPin<peripherals::$peripheral>> + 'static,
+                    tx_dma: impl Peripheral<P: TxDma<peripherals::$peripheral>> + 'static,
+                    rx_dma: impl Peripheral<P: RxDma<peripherals::$peripheral>> + 'static,
+                    config: Config,
+                ) -> I2c {
+                    let mut i2c_config = embassy_stm32::i2c::Config::default();
+                    i2c_config.sda_pullup = config.sda_pullup;
+                    i2c_config.scl_pullup = config.scl_pullup;
 
-                        bind_interrupts!(
-                            struct Irqs {
-                                $ev_interrupt => EventInterruptHandler<peripherals::$peripheral>;
-                                $er_interrupt => ErrorInterruptHandler<peripherals::$peripheral>;
-                            }
-                        );
+                    bind_interrupts!(
+                        struct Irqs {
+                            $ev_interrupt => EventInterruptHandler<peripherals::$peripheral>;
+                            $er_interrupt => ErrorInterruptHandler<peripherals::$peripheral>;
+                        }
+                    );
 
-                        let frequency = config.frequency;
-                        let i2c = InnerI2c::new(
-                            twim_peripheral,
-                            scl_pin,
-                            sda_pin,
-                            Irqs,
-                            tx_dma,
-                            rx_dma,
-                            frequency.into(),
-                            i2c_config,
-                        );
-
-                        Self { twim: i2c }
+                    // Make this struct a compile-time-enforced singleton: having multiple statics
+                    // defined with the same name would result in a compile-time error.
+                    paste::paste! {
+                        #[allow(dead_code)]
+                        static [<PREVENT_MULTIPLE_ $peripheral>]: () = ();
                     }
+
+                    // FIXME(safety): enforce that the init code indeed has run
+                    // SAFETY: this struct being a singleton prevents us from stealing the
+                    // peripheral multiple times.
+                    let twim_peripheral = unsafe { peripherals::$peripheral::steal() };
+
+                    let frequency = config.frequency;
+                    let i2c = InnerI2c::new(
+                        twim_peripheral,
+                        scl_pin,
+                        sda_pin,
+                        Irqs,
+                        tx_dma,
+                        rx_dma,
+                        frequency.into(),
+                        i2c_config,
+                    );
+
+                    I2c::$peripheral(Self { twim: i2c })
                 }
-            )*
-
-            /// Peripheral-agnostic driver.
-            pub enum I2c {
-                $( $peripheral([<I2c $peripheral>]), )*
             }
+        )*
 
-            impl embedded_hal_async::i2c::ErrorType for I2c {
-                type Error = embassy_stm32::i2c::Error;
-            }
-
-            impl_async_i2c_for_driver_enum!(I2c, $( $peripheral ),*);
+        /// Peripheral-agnostic driver.
+        pub enum I2c {
+            $( $peripheral($peripheral), )*
         }
+
+        impl embedded_hal_async::i2c::ErrorType for I2c {
+            type Error = embassy_stm32::i2c::Error;
+        }
+
+        impl_async_i2c_for_driver_enum!(I2c, $( $peripheral ),*);
     }
 }
 

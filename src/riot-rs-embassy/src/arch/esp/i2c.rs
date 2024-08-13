@@ -44,49 +44,65 @@ impl From<Frequency> for fugit::HertzU32 {
     }
 }
 
+pub fn init(peripherals: &mut arch::OptionalPeripherals) {
+    // Take all I2C peripherals and do nothing with them.
+    cfg_if::cfg_if! {
+        if #[cfg(context = "esp32c6")] {
+            let _ = peripherals.I2C0.take().unwrap();
+        } else {
+            compile_error!("this ESP32 chip is not supported");
+        }
+    }
+}
+
 macro_rules! define_i2c_drivers {
     ($( $peripheral:ident ),* $(,)?) => {
-        // paste allows to create new identifiers by concatenation using `[<foo bar>]`.
-        paste::paste! {
-            $(
-                /// Peripheral-specific I2C driver.
-                pub struct [<I2c $peripheral>] {
-                    twim: I2C<'static, peripherals::$peripheral, Async>,
-                }
+        $(
+            /// Peripheral-specific I2C driver.
+            pub struct $peripheral {
+                twim: I2C<'static, peripherals::$peripheral, Async>,
+            }
 
-                impl [<I2c $peripheral>] {
-                    #[must_use]
-                    pub fn new<SDA, SCL>(
-                        i2c_peripheral: impl Peripheral<P = peripherals::$peripheral> + 'static,
-                        sda_pin: impl Peripheral<P = SDA> + 'static,
-                        scl_pin: impl Peripheral<P = SCL> + 'static,
-                        config: Config,
-                    ) -> Self
-                        where SDA: OutputPin + InputPin,
-                              SCL: OutputPin + InputPin,
-                    {
-                        let frequency = config.frequency.into();
-                        let clocks = arch::CLOCKS.get().unwrap();
+            impl $peripheral {
+                #[must_use]
+                pub fn new<SDA: OutputPin + InputPin, SCL: OutputPin + InputPin>(
+                    sda_pin: impl Peripheral<P = SDA> + 'static,
+                    scl_pin: impl Peripheral<P = SCL> + 'static,
+                    config: Config,
+                ) -> I2c {
+                    let frequency = config.frequency.into();
+                    let clocks = arch::CLOCKS.get().unwrap();
 
-                        // FIXME: use `new_with_timeout_async()` instead?
-                        let twim = I2C::new_async(i2c_peripheral, sda_pin, scl_pin, frequency, &clocks);
-
-                        Self { twim }
+                    // Make this struct a compile-time-enforced singleton: having multiple statics
+                    // defined with the same name would result in a compile-time error.
+                    paste::paste! {
+                        #[allow(dead_code)]
+                        static [<PREVENT_MULTIPLE_ $peripheral>]: () = ();
                     }
+
+                    // FIXME(safety): enforce that the init code indeed has run
+                    // SAFETY: this struct being a singleton prevents us from stealing the
+                    // peripheral multiple times.
+                    let i2c_peripheral = unsafe { peripherals::$peripheral::steal() };
+
+                    // FIXME: use `new_with_timeout_async()` instead?
+                    let twim = I2C::new_async(i2c_peripheral, sda_pin, scl_pin, frequency, &clocks);
+
+                    I2c::$peripheral(Self { twim })
                 }
-            )*
-
-            /// Peripheral-agnostic driver.
-            pub enum I2c {
-                $( $peripheral([<I2c $peripheral>]), )*
             }
+        )*
 
-            impl embedded_hal_async::i2c::ErrorType for I2c {
-                type Error = esp_hal::i2c::Error;
-            }
-
-            impl_async_i2c_for_driver_enum!(I2c, $( $peripheral ),*);
+        /// Peripheral-agnostic driver.
+        pub enum I2c {
+            $( $peripheral($peripheral), )*
         }
+
+        impl embedded_hal_async::i2c::ErrorType for I2c {
+            type Error = esp_hal::i2c::Error;
+        }
+
+        impl_async_i2c_for_driver_enum!(I2c, $( $peripheral ),*);
     }
 }
 
