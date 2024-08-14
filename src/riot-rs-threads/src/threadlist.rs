@@ -1,6 +1,6 @@
 use critical_section::CriticalSection;
 
-use crate::{ThreadId, ThreadState, THREADS};
+use crate::{thread::Thread, ThreadId, ThreadState, THREADS};
 
 /// Manages blocked [`super::Thread`]s for a resource, and triggering the scheduler when needed.
 #[derive(Debug, Default)]
@@ -18,10 +18,22 @@ impl ThreadList {
     /// Puts the current (blocked) thread into this [`ThreadList`] and triggers the scheduler.
     pub fn put_current(&mut self, cs: CriticalSection, state: ThreadState) {
         THREADS.with_mut_cs(cs, |mut threads| {
-            let thread_id = threads.current_thread.unwrap();
-            threads.thread_blocklist[usize::from(thread_id)] = self.head;
-            self.head = Some(thread_id);
-            threads.set_state(thread_id, state);
+            let &mut Thread { pid, prio, .. } = threads.current().unwrap();
+            let mut curr = None;
+            let mut next = self.head;
+            while let Some(n) = next {
+                if threads.get_unchecked_mut(n).prio < prio {
+                    break;
+                }
+                curr = next;
+                next = threads.thread_blocklist[usize::from(n)];
+            }
+            threads.thread_blocklist[usize::from(pid)] = next;
+            match curr {
+                Some(curr) => threads.thread_blocklist[usize::from(curr)] = Some(pid),
+                _ => self.head = Some(pid),
+            }
+            threads.set_state(pid, state);
             crate::schedule();
         });
     }
