@@ -1,3 +1,5 @@
+use crate::arch;
+
 /// Peripheral-agnostic I2C driver implementing [`embedded_hal_async::i2c::I2c`].
 ///
 /// The driver instance is meant to be shared between tasks using
@@ -12,3 +14,7 @@
 /// The constructors of these peripheral-specific drivers depend on the architecture, please see
 /// the examples and tests for reference.
 pub enum I2c {}
+
+pub fn init(peripherals: &mut arch::OptionalPeripherals) {
+    unimplemented!();
+}
