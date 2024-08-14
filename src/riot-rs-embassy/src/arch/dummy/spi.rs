@@ -1,3 +1,5 @@
+use crate::arch;
+
 /// Peripheral-agnostic SPI driver implementing [`embedded_hal_async::spi::SpiBus`].
 ///
 /// The driver instance is meant to be shared between tasks using
@@ -12,3 +14,7 @@
 /// The constructors of these peripheral-specific drivers depend on the architecture, please see
 /// the examples and tests for reference.
 pub enum Spi {}
+
+pub fn init(peripherals: &mut arch::OptionalPeripherals) {
+    unimplemented!();
+}
