@@ -26,6 +26,7 @@ pub fn benchmark<F: Fn() -> ()>(iterations: usize, f: F) -> Result<usize, Error>
         f();
     }
 
+    // SysTick is downcounting, so `before - after` is correct.
     let total = before - SYST::get_current();
 
     if p.SYST.has_wrapped() {

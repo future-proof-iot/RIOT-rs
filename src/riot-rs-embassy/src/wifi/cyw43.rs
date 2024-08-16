@@ -7,7 +7,7 @@ use embassy_rp::{
     pio::Pio,
 };
 
-use riot_rs_debug::println;
+use riot_rs_debug::log::info;
 
 use self::rpi_pico_w::{Cyw43Periphs, CywSpi, Irqs};
 use crate::{arch::OptionalPeripherals, make_static};
@@ -21,9 +21,12 @@ pub async fn join(mut control: cyw43::Control<'static>) {
             .join_wpa2(crate::wifi::WIFI_NETWORK, crate::wifi::WIFI_PASSWORD)
             .await
         {
-            Ok(_) => break,
+            Ok(_) => {
+                info!("Wifi connected!");
+                break;
+            }
             Err(err) => {
-                println!("join failed with status={}", err.status);
+                info!(" Wifi join failed with status={}", err.status);
             }
         }
     }

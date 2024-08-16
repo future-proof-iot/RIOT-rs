@@ -2,12 +2,15 @@
 name = "rbi"
 version = "0.1.1"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
+license.workspace = true
 edition = "2021"
 
-license = "MIT OR Apache-2.0"
 keywords = ["api", "no_std"]
 homepage = "https://github.com/future-proof-iot/RIOT-rs"
 
 description = "A FIFO index queue that can be used for implementing a ring buffer."
+
+[lints]
+workspace = true
 
 [dependencies]

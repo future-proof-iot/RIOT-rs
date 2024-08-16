@@ -2,6 +2,7 @@
 name = "riot-rs-bench"
 version.workspace = true
 authors.workspace = true
+license.workspace = true
 edition.workspace = true
 repository.workspace = true
 
@@ -10,6 +11,7 @@ workspace = true
 
 [dependencies]
 cfg-if = { workspace = true }
+defmt = { workspace = true, optional = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
 cortex-m = { workspace = true, features = ["critical-section-single-core"] }

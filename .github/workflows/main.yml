@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        partition: [ "1/10", "2/10", "3/10", "4/10", "5/10", "6/10", "7/10", "8/10", "9/10", "10/10" ]
+        partition: [ "1/20", "2/20", "3/20", "4/20", "5/20", "6/20", "7/20", "8/20", "9/20", "10/20", "11/20", "12/20", "13/20", "14/20", "15/20", "16/20", "17/20", "18/20", "19/20", "20/20" ]
 
     steps:
       - name: Check out repository code
@@ -82,7 +82,7 @@ jobs:
       - name: "limit build unless nightly build"
         if: github.event_name != 'schedule'
         run: |
-          echo "LAZE_BUILDERS=ai-c3,espressif-esp32-c6-devkitc-1,microbit-v2,nrf52840dk,nrf5340dk,rpi-pico,rpi-pico-w" >> "$GITHUB_ENV"
+          echo "LAZE_BUILDERS=ai-c3,espressif-esp32-c6-devkitc-1,microbit-v2,nrf52840dk,nrf5340dk,rpi-pico,rpi-pico-w,st-nucleo-h755zi-q,st-nucleo-wb55" >> "$GITHUB_ENV"
 
       - name: "riot-rs compilation test"
         if: steps.result-cache.outputs.cache-hit != 'true'
@@ -110,7 +110,7 @@ jobs:
       # TODO: we'll eventually want to enable relevant features
       - name: Run crate tests
         run: |
-            cargo test --no-default-features --features no-boards -p riot-rs -p riot-rs-embassy -p riot-rs-threads -p riot-rs-macros
+            cargo test --no-default-features --features no-boards -p riot-rs -p riot-rs-embassy -p riot-rs-runqueue -p riot-rs-threads -p riot-rs-macros
             cargo test -p rbi -p ringbuffer -p coapcore
 
   lint:
@@ -138,10 +138,10 @@ jobs:
       - name: clippy
         uses: clechasseur/rs-clippy-check@v3
         with:
-          args: --verbose --locked --features no-boards -p riot-rs -p riot-rs-boards -p riot-rs-chips -p riot-rs-debug -p riot-rs-embassy -p riot-rs-macros -p riot-rs-random -p riot-rs-rt -p riot-rs-utils
+          args: --verbose --locked --features no-boards -p riot-rs -p riot-rs-boards -p riot-rs-chips -p riot-rs-debug -p riot-rs-embassy -p riot-rs-macros -p riot-rs-random -p riot-rs-rt -p riot-rs-threads -p riot-rs-utils
 
       - name: rustdoc
-        run: RUSTDOCFLAGS='-D warnings' cargo doc -p riot-rs --features no-boards,bench,threading,random,csprng,hwrng,coap
+        run: RUSTDOCFLAGS='-D warnings' cargo doc -p riot-rs --features no-boards,bench,external-interrupts,threading,random,csprng,hwrng,coap
 
       - name: rustfmt
         run: cargo fmt --check --all
@@ -170,6 +170,9 @@ jobs:
 
       - name: typos
         uses: crate-ci/typos@v1.22.0
+
+      - name: Check that the HTML support matrix is up to date
+        run: ./doc/gen_support_matrix_html.rs check doc/support_matrix.yml book/src/support_matrix.html
 
   CI-success:
     if: ${{ always() }}

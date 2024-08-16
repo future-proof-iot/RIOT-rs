@@ -172,6 +172,11 @@ unsafe fn sched() -> u128 {
                 Some(pid) => pid,
                 None => {
                     cortex_m::asm::wfi();
+
+                    // see https://cliffle.com/blog/stm32-wfi-bug/
+                    #[cfg(context = "stm32")]
+                    cortex_m::asm::isb();
+
                     // this fence seems necessary, see #310.
                     core::sync::atomic::fence(core::sync::atomic::Ordering::Acquire);
                     return None;

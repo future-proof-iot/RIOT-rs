@@ -1,6 +1,7 @@
 [package]
 name = "riot-rs-embassy"
 version = "0.1.0"
+license.workspace = true
 edition = "2021"
 
 [lints]
@@ -11,9 +12,11 @@ critical-section.workspace = true
 linkme.workspace = true
 static_cell.workspace = true
 cfg-if.workspace = true
+portable-atomic.workspace = true
 
 embassy-executor = { workspace = true, features = ["nightly"] }
 
+embassy-hal-internal = { workspace = true }
 embassy-net = { workspace = true, optional = true, features = [
   "dhcpv4",
   "medium-ethernet",
@@ -22,6 +25,9 @@ embassy-net-driver-channel = { workspace = true, optional = true }
 embassy-sync = { workspace = true }
 embassy-time = { workspace = true, optional = true }
 embassy-usb = { workspace = true, optional = true }
+
+embedded-hal = { workspace = true }
+embedded-hal-async = { workspace = true }
 
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-debug = { workspace = true }
@@ -41,6 +47,8 @@ cyw43-pio = { version = "0.1.0", features = ["overclock"], optional = true }
 
 # listed here for conditional feature selection
 embassy-nrf = { workspace = true, default-features = false, optional = true }
+embassy-rp = { workspace = true, default-features = false, optional = true }
+embassy-stm32 = { workspace = true, default-features = false, optional = true }
 esp-hal = { workspace = true, default-features = false, optional = true }
 esp-hal-embassy = { workspace = true, default-features = false, optional = true }
 esp-wifi = { workspace = true, optional = true }
@@ -76,7 +84,7 @@ embassy-rp = { workspace = true, features = [
 ] }
 
 [target.'cfg(context = "esp")'.dependencies]
-esp-hal = { workspace = true, features = [] }
+esp-hal = { workspace = true, features = ["async", "embedded-hal"] }
 esp-hal-embassy = { workspace = true, default-features = false, features = [
   "time-timg0",
 ] }
@@ -104,7 +112,16 @@ esp-wifi = { workspace = true, default-features = false, features = [
   "esp32c6",
 ], optional = true }
 
+[target.'cfg(context = "stm32")'.dependencies]
+embassy-stm32 = { workspace = true, features = [
+  "rt",
+  "time-driver-any",
+  "unstable-pac",
+] }
+
 [features]
+## Enables GPIO interrupt support.
+external-interrupts = ["embassy-nrf?/gpiote", "embassy-stm32?/exti"]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
 usb = ["dep:embassy-usb"]
 # embassy-net requires embassy-time and support for timeouts in the executor
@@ -138,7 +155,14 @@ executor-none = []
 defmt = [
   "embassy-net?/defmt",
   "embassy-nrf?/defmt",
+  "embassy-rp?/defmt",
+  "embassy-stm32?/defmt",
   "embassy-time?/defmt",
   "embassy-usb?/defmt",
   "esp-wifi?/defmt",
 ]
+
+# These are chosen automatically by riot-rs-boards and select the correct stm32
+# usb peripheral support.
+stm32-usb = []
+stm32-usb-synopsis = []

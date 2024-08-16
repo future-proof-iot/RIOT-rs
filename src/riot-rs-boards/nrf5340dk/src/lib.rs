@@ -1,8 +1,8 @@
 #![no_std]
 
-use riot_rs_debug::println;
+use riot_rs_debug::log::debug;
 
 pub fn init() {
-    println!("nrf5340dk::init()");
+    debug!("nrf5340dk::init()");
     nrf5340::init();
 }

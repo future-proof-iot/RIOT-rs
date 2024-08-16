@@ -2,6 +2,7 @@
 name = "riot-rs"
 version.workspace = true
 authors.workspace = true
+license.workspace = true
 edition.workspace = true
 
 [lints]
@@ -26,6 +27,8 @@ static_cell = { workspace = true }
 default = ["riot-rs-rt/_panic-handler"]
 
 #! ## System functionality
+## Enables GPIO interrupt support.
+external-interrupts = ["riot-rs-embassy/external-interrupts"]
 ## Enables threading support, see the [`macro@thread`] attribute macro.
 threading = [
   "dep:riot-rs-threads",
@@ -75,7 +78,12 @@ wifi-esp = ["riot-rs-embassy/wifi-esp"]
 ## [`println!`](riot_rs_debug::println).
 debug-console = ["riot-rs-rt/debug-console"]
 ## Enables logging support through `defmt`.
-defmt = ["riot-rs-debug/defmt", "riot-rs-embassy/defmt"]
+defmt = [
+  "riot-rs-debug/defmt",
+  "riot-rs-embassy/defmt",
+  "riot-rs-threads?/defmt",
+  "riot-rs-bench?/defmt",
+]
 ## Enables benchmarking facilities.
 bench = ["dep:riot-rs-bench"]
 ## Prints nothing in case of panics (may help reduce binary size).

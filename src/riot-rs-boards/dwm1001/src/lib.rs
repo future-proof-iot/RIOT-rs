@@ -1,8 +1,8 @@
 #![no_std]
 
-use riot_rs_debug::println;
+use riot_rs_debug::log::debug;
 
 pub fn init() {
-    println!("dwm1001::init()");
+    debug!("dwm1001::init()");
     nrf52::init();
 }

@@ -1,0 +1,6 @@
+apps:
+  - name: gpio-interrupt-nrf
+    context:
+      - nrf
+    selects:
+      - ?release

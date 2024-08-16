@@ -15,7 +15,7 @@ jobs:
         uses: hacspec/hax-actions@main
         with:
           # pin hax to known-working
-          hax_reference: d10f891a19f96bcafa9e31b1d78763e4f3cf30b4
+          hax_reference: 533f87048f68705e8884ff9516db1371e8a2773d
 
       - name: 🏃 Extract `riot-rs-runqueue`
         working-directory: ./src/riot-rs-runqueue

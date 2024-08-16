@@ -2,8 +2,12 @@
 name = "example-random"
 version = "0.1.0"
 authors.workspace = true
+license.workspace = true
 edition.workspace = true
 publish = false
+
+[lints]
+workspace = true
 
 [dependencies]
 # Enabling the feature "random" is somewhat redundant with laze.yml's selects:

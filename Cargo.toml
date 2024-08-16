@@ -10,13 +10,15 @@ members = [
   "src/riot-rs-boards",
   "src/riot-rs-boards/nrf52",
   "src/riot-rs-boards/nrf52840dk",
-  "src/riot-rs-boards/nucleo-f401re",
   "src/riot-rs-chips",
   "src/riot-rs-coap",
   "src/riot-rs-debug",
   "src/riot-rs-macros",
   "src/riot-rs-random",
   "tests/benchmarks/bench_sched_yield",
+  "tests/gpio",
+  "tests/gpio-interrupt-nrf",
+  "tests/gpio-interrupt-stm32",
 ]
 
 exclude = ["src/lib"]
@@ -27,6 +29,7 @@ resolver = "2"
 [workspace.package]
 version = "0.1.0"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
+license = "MIT OR Apache-2.0"
 edition = "2021"
 repository = "https://github.com/future-proof-iot/riot-rs"
 
@@ -38,15 +41,26 @@ cortex-m = { version = "0.7", default-features = false, features = [
 cortex-m-rt = { version = "=0.7.3" }
 cortex-m-semihosting = { version = "0.5" }
 critical-section = { version = "1.1.2" }
+# Disabling default features may reduce the code size by not providing atomics
+# for types larger than the pointer width, which we do not use.
+portable-atomic = { version = "1.6.0", default-features = false, features = [
+  "require-cas",
+] }
 
 embassy-executor = { version = "0.5", default-features = false }
+embassy-futures = { version = "0.1.1", default-features = false }
+embassy-hal-internal = { version = "0.1.0", default-features = false }
 embassy-net = { version = "0.4", default-features = false }
 embassy-net-driver-channel = { version = "0.2.0", default-features = false }
 embassy-nrf = { version = "0.1", default-features = false }
 embassy-rp = { version = "0.1", default-features = false }
+embassy-stm32 = { version = "0.1", default-features = false }
 embassy-sync = { version = "0.6", default-features = false }
 embassy-time = { version = "0.3", default-features = false }
 embassy-usb = { version = "0.1", default-features = false }
+
+embedded-hal = { version = "1.0.0", default-features = false }
+embedded-hal-async = { version = "1.0.0", default-features = false }
 
 esp-hal = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-06-14", default-features = false }
 esp-hal-embassy = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-06-14", default-features = false }
@@ -59,6 +73,7 @@ riot-rs = { path = "src/riot-rs", default-features = false }
 riot-rs-bench = { path = "src/riot-rs-bench", default-features = false }
 riot-rs-boards = { path = "src/riot-rs-boards", default-features = false }
 riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
+riot-rs-embassy = { path = "src/riot-rs-embassy", default-features = false }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 riot-rs-utils = { path = "src/riot-rs-utils", default-features = false }
@@ -98,6 +113,7 @@ embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot
 embassy-rp = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 embassy-net-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 embassy-net-driver-channel = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
+embassy-stm32 = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 embassy-sync = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 embassy-time-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }
 embassy-time-queue-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-240605" }

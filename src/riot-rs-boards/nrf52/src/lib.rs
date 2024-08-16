@@ -1,7 +1,7 @@
 #![no_std]
 
-use riot_rs_debug::println;
+use riot_rs_debug::log::debug;
 
 pub fn init() {
-    println!("nrf52::init()");
+    debug!("nrf52::init()");
 }

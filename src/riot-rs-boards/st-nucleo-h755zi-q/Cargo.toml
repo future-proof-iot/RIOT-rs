@@ -1,0 +1,16 @@
+[package]
+name = "st-nucleo-h755zi-q"
+version = "0.1.0"
+license.workspace = true
+edition = "2021"
+
+[dependencies]
+embassy-stm32 = { workspace = true, features = [
+  "stm32h755zi-cm7",
+  "memory-x",
+  "rt",
+] }
+riot-rs-debug = { workspace = true, features = ["rtt-target"] }
+riot-rs-embassy = { workspace = true, features = ["stm32-usb-synopsis"] }
+riot-rs-rt.workspace = true
+stm32 = { path = "../../riot-rs-chips/stm32" }

@@ -39,6 +39,9 @@ The following list of hardware is currently supported:
  - [Raspberry Pi Pico W](https://www.raspberrypi.com/products/raspberry-pi-pico/) (RP2040, Cortex-M0+)
  - [BBC Micro:Bit v2](https://tech.microbit.org/hardware/2-0-revision/) (Cortex-M4)
  - [Expressif ESP32-C6-DevKitC-1](https://docs.espressif.com/projects/espressif-esp-dev-kits/en/latest/esp32c6/esp32-c6-devkitc-1/user_guide.html) (RISC-V)
+ - [ST NUCLEO-F401RE](https://www.st.com/en/evaluation-tools/nucleo-f401re.html) (Cortex-M4)
+ - [ST NUCLEO-H755ZI-Q](https://www.st.com/en/evaluation-tools/nucleo-h755zi-q.html) (Cortex-M7)
+ - [ST NUCLEO-WB55RG](https://www.st.com/en/evaluation-tools/p-nucleo-wb55.html) (Cortex-M4)
  - and more to come soon.
 
 ## Status

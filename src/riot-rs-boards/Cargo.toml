@@ -2,6 +2,7 @@
 name = "riot-rs-boards"
 version.workspace = true
 authors.workspace = true
+license.workspace = true
 edition.workspace = true
 
 [lints]
@@ -22,11 +23,14 @@ nrf52840-mdk = { optional = true, path = "nrf52840-mdk" }
 nrf52840dk = { optional = true, path = "nrf52840dk" }
 nrf52dk = { optional = true, path = "nrf52dk" }
 nrf5340dk = { optional = true, path = "nrf5340dk" }
-nucleo-f401re = { optional = true, path = "nucleo-f401re" }
+st-nucleo-f401re = { optional = true, path = "st-nucleo-f401re" }
+st-nucleo-wb55 = { optional = true, path = "st-nucleo-wb55" }
 rpi-pico = { optional = true, path = "rpi-pico" }
 particle-xenon = { optional = true, path = "particle-xenon" }
+st-nucleo-h755zi-q = { optional = true, path = "st-nucleo-h755zi-q" }
 
 [features]
 # Allows to have no boards selected, useful to run platform-independent tooling
 no-boards = []
+# both "rpi-pico" and "rpi-pico-w" are valid, so no "dep:rpi-pico"
 rpi-pico-w = ["rpi-pico/rpi-pico-w"]

@@ -1,5 +1,7 @@
 [default.extend-words]
 hax = "hax"
+hsi = "hsi"
+extint = "extint" # External interrupt
 
 [default.extend-identifiers]
 celcius = "celcius" # Until embedded-aht20 is fixed

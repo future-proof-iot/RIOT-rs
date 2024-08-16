@@ -2,8 +2,12 @@
 name = "threading-channel"
 version = "0.1.0"
 authors.workspace = true
+license.workspace = true
 edition.workspace = true
 publish = false
+
+[lints]
+workspace = true
 
 [dependencies]
 riot-rs = { path = "../../src/riot-rs", features = ["threading"] }

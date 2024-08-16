@@ -3,7 +3,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::{debug::println, embassy::network};
+use riot_rs::{debug::log::*, embassy::network};
 
 #[riot_rs::task(autostart)]
 async fn udp_echo() {
@@ -25,33 +25,33 @@ async fn udp_echo() {
             &mut tx_buffer,
         );
 
-        println!("Listening on UDP:1234...");
+        info!("Listening on UDP:1234...");
         if let Err(e) = socket.bind(1234) {
-            println!("bind error: {:?}", e);
+            info!("bind error: {:?}", e);
             continue;
         }
 
         loop {
             let (n, remote_endpoint) = match socket.recv_from(&mut buf).await {
                 Ok((0, _)) => {
-                    println!("read EOF");
+                    info!("read EOF");
                     break;
                 }
                 Ok((n, remote_endpoint)) => (n, remote_endpoint),
                 Err(e) => {
-                    println!("read error: {:?}", e);
+                    info!("read error: {:?}", e);
                     break;
                 }
             };
 
-            println!("Received datagram from {:?}", remote_endpoint);
+            info!("Received datagram from {:?}", remote_endpoint);
 
-            //println!("rxd {:02x}", &buf[..n]);
+            //info!("rxd {:02x}", &buf[..n]);
 
             match socket.send_to(&buf[..n], remote_endpoint).await {
                 Ok(()) => {}
                 Err(e) => {
-                    println!("write error: {:?}", e);
+                    info!("write error: {:?}", e);
                     break;
                 }
             };

@@ -6,6 +6,7 @@ pub type ThreadFlags = u16;
 
 /// Possible waiting modes for [`ThreadFlags`].
 #[derive(Copy, Clone, PartialEq, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum WaitMode {
     Any(ThreadFlags),
     All(ThreadFlags),

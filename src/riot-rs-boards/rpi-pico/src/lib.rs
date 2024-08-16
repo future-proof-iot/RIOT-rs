@@ -1,7 +1,7 @@
 #![no_std]
 
-use riot_rs_debug::println;
+use riot_rs_debug::log::debug;
 
 pub fn init() {
-    println!("rpi-pico::init()");
+    debug!("rpi-pico::init()");
 }

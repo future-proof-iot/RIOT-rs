@@ -7,13 +7,13 @@ mod pins;
 mod routes;
 
 use riot_rs::{
-    debug::println,
+    debug::log::*,
     embassy::{network, Spawner},
 };
 
 use embassy_net::tcp::TcpSocket;
 use embassy_time::Duration;
-use picoserve::routing::get;
+use picoserve::{io::Error, routing::get};
 use static_cell::make_static;
 
 #[cfg(feature = "button-readings")]
@@ -65,24 +65,24 @@ async fn web_task(
     loop {
         let mut socket = TcpSocket::new(stack, &mut rx_buffer, &mut tx_buffer);
 
-        println!("{}: Listening on TCP:80...", id);
+        info!("{}: Listening on TCP:80...", id);
         if let Err(e) = socket.accept(80).await {
-            println!("{}: accept error: {:?}", id, e);
+            info!("{}: accept error: {:?}", id, e);
             continue;
         }
 
         let remote_endpoint = socket.remote_endpoint();
 
-        println!("{}: Received connection from {:?}", id, remote_endpoint);
+        info!("{}: Received connection from {:?}", id, remote_endpoint);
 
         match picoserve::serve_with_state(app, config, &mut [0; 2048], socket, &state).await {
             Ok(handled_requests_count) => {
-                println!(
+                info!(
                     "{} requests handled from {:?}",
                     handled_requests_count, remote_endpoint,
                 );
             }
-            Err(err) => println!("{:?}", err),
+            Err(err) => info!("{:?}", err.kind()),
         }
     }
 }

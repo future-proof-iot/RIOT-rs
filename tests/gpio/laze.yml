@@ -1,0 +1,4 @@
+apps:
+  - name: tests_gpio
+    selects:
+      - ?release

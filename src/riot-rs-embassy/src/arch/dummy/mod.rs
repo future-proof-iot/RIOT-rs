@@ -3,6 +3,10 @@
 mod executor;
 pub mod gpio;
 
+pub mod peripheral {
+    pub use embassy_hal_internal::Peripheral;
+}
+
 #[cfg(feature = "hwrng")]
 pub mod hwrng;
 

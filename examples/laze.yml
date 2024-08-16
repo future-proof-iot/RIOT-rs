@@ -5,6 +5,7 @@ defaults:
 
 subdirs:
   - benchmark
+  - blinky
   - core-sizes
   - coap
   - embassy
@@ -12,8 +13,10 @@ subdirs:
   - embassy-net-tcp
   - embassy-net-udp
   - embassy-usb-keyboard
+  - gpio
   - hello-world
   - hello-world-async
+  - log
   - minimal
   - random
   - threading
