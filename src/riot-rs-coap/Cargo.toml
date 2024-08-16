@@ -8,7 +8,7 @@ repository.workspace = true
 [dependencies]
 coapcore.path = "../lib/coapcore"
 riot-rs-random = { path = "../riot-rs-random", features = ["csprng"] }
-riot-rs-embassy.path = "../riot-rs-embassy"
+riot-rs-embassy = { path = "../riot-rs-embassy", features = ["udp"] }
 
 # actually patched with https://github.com/smoltcp-rs/smoltcp/pull/904 but
 # patch.crates-io takes care of that

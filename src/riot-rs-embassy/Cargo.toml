@@ -166,3 +166,7 @@ defmt = [
 # usb peripheral support.
 stm32-usb = []
 stm32-usb-synopsis = []
+
+# Made available so that downsteram crates such as riot-rs-coap don't need to
+# pull in embassy-net just to enable a feature they use through a pub-use.
+udp = ["net", "embassy-net/udp"]
