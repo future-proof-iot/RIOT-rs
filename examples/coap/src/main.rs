@@ -30,8 +30,8 @@ fn network_config() -> embassy_net::Config {
 
 // FIXME: Why doesn't scroll_ring provide that?
 #[derive(Clone)]
-struct Stdout<'a>(&'a scroll_ring::Buffer<512>);
-impl<'a> Write for Stdout<'a> {
+struct Stdout<'a, const N: usize>(&'a scroll_ring::Buffer<N>);
+impl<'a, const N: usize> Write for Stdout<'a, N> {
     fn write_str(&mut self, s: &str) -> Result<(), core::fmt::Error> {
         self.0.write(s.as_bytes());
         Ok(())
@@ -60,9 +60,9 @@ async fn run() {
     riot_rs::coap::coap_task(handler, Client(stdout.clone()), &mut stdout).await;
 }
 
-struct Client<'s>(Stdout<'s>);
+struct Client<W: core::fmt::Write + Clone>(W);
 
-impl<'s> Client<'s> {
+impl<W: core::fmt::Write + Clone> Client<W> {
     async fn run_logging(
         mut self,
         client: embedded_nal_coap::CoAPRuntimeClient<'_, 3>,
@@ -98,7 +98,7 @@ impl<'s> Client<'s> {
     }
 }
 
-impl<'s> coapcore::ClientRunner<3> for Client<'s> {
+impl<W: core::fmt::Write + Clone> coapcore::ClientRunner<3> for Client<W> {
     /// In parallel to server operation, this function performs some operations as a client.
     ///
     /// This doubles as an experimentation ground for the client side of embedded_nal_coap and
