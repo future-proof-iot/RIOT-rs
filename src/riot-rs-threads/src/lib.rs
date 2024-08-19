@@ -31,10 +31,10 @@ use ensure_once::EnsureOnce;
 use riot_rs_runqueue::RunQueue;
 use thread::{Thread, ThreadState};
 
-/// a global defining the number of possible priority levels
+/// The number of possible priority levels.
 pub const SCHED_PRIO_LEVELS: usize = 12;
 
-/// a global defining the number of threads that can be created
+/// The maximum number of concurrent threads that can be created.
 pub const THREADS_NUMOF: usize = 16;
 
 static THREADS: EnsureOnce<Threads> = EnsureOnce::new(Threads::new());
@@ -220,6 +220,10 @@ impl<T> Arguable for &'static T {
 ///
 /// This sets up the stack for the thread and adds it to
 /// the runqueue.
+///
+/// # Panics
+///
+/// Panics if more than [`THREADS_NUMOF`] concurrent threads have been created.
 pub fn thread_create<T: Arguable + Send>(
     func: fn(arg: T),
     arg: T,
@@ -231,6 +235,10 @@ pub fn thread_create<T: Arguable + Send>(
 }
 
 /// Low-level function to create a thread without argument
+///
+/// # Panics
+///
+/// Panics if more than [`THREADS_NUMOF`] concurrent threads have been created.
 pub fn thread_create_noarg(func: fn(), stack: &'static mut [u8], prio: u8) -> ThreadId {
     unsafe { thread_create_raw(func as usize, 0, stack, prio) }
 }
@@ -238,7 +246,8 @@ pub fn thread_create_noarg(func: fn(), stack: &'static mut [u8], prio: u8) -> Th
 /// Creates a thread, low-level.
 ///
 /// # Safety
-/// only use when you know what you are doing.
+///
+/// Only use when you know what you are doing.
 pub unsafe fn thread_create_raw(
     func: usize,
     arg: usize,
@@ -248,7 +257,7 @@ pub unsafe fn thread_create_raw(
     THREADS.with_mut(|mut threads| {
         let thread_id = threads
             .create(func, arg, stack, RunqueueId::new(prio))
-            .unwrap()
+            .expect("Max `THREADS_NUMOF` concurrent threads should be created.")
             .pid;
         threads.set_state(thread_id, ThreadState::Running);
         thread_id
@@ -263,7 +272,7 @@ pub fn current_pid() -> Option<ThreadId> {
     THREADS.with(|threads| threads.current_pid())
 }
 
-/// Checks if a given [`ThreadId`] is valid
+/// Checks if a given [`ThreadId`] is valid.
 pub fn is_valid_pid(thread_id: ThreadId) -> bool {
     THREADS.with(|threads| threads.is_valid_pid(thread_id))
 }
@@ -272,6 +281,10 @@ pub fn is_valid_pid(thread_id: ThreadId) -> bool {
 ///
 /// This gets hooked into a newly created thread stack so it gets called when
 /// the thread function returns.
+///
+/// # Panics
+///
+/// Panics if this is called outside of a thread context.
 #[allow(unused)]
 fn cleanup() -> ! {
     THREADS.with_mut(|mut threads| {
@@ -287,8 +300,10 @@ fn cleanup() -> ! {
 /// "Yields" to another thread with the same priority.
 pub fn yield_same() {
     THREADS.with_mut(|mut threads| {
-        let runqueue = threads.current().unwrap().prio;
-        threads.runqueue.advance(runqueue);
+        let Some(prio) = threads.current().map(|t| t.prio) else {
+            return;
+        };
+        threads.runqueue.advance(prio);
         schedule();
     })
 }
@@ -296,7 +311,9 @@ pub fn yield_same() {
 /// Suspends/ pauses the current thread's execution.
 pub fn sleep() {
     THREADS.with_mut(|mut threads| {
-        let pid = threads.current_pid().unwrap();
+        let Some(pid) = threads.current_pid() else {
+            return;
+        };
         threads.set_state(pid, ThreadState::Paused);
         schedule();
     });

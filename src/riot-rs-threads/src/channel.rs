@@ -14,12 +14,13 @@ enum ChannelState {
     ReceiversWaiting(ThreadList),
 }
 
-pub struct Channel<T: Copy + Send> {
+/// Blocking channel for sending data between threads.
+pub struct Channel<T> {
     state: UnsafeCell<ChannelState>,
     phantom: core::marker::PhantomData<T>,
 }
 
-unsafe impl<T: Copy + Send> Sync for Channel<T> {}
+unsafe impl<T> Sync for Channel<T> {}
 
 impl<T: Copy + Send> Channel<T> {
     pub const fn new() -> Self {
@@ -29,6 +30,14 @@ impl<T: Copy + Send> Channel<T> {
         }
     }
 
+    /// Send on the channel (blocking).
+    ///
+    /// If there is no receiver waiting yet, the current thread is suspended
+    /// until a receiver is ready.
+    ///
+    /// # Panics
+    ///
+    /// Panics if this is called outside of a thread context.
     pub fn send(&self, something: &T) {
         with(|cs| {
             let state = unsafe { &mut *self.state.get() };
@@ -66,6 +75,10 @@ impl<T: Copy + Send> Channel<T> {
         })
     }
 
+    /// Try to send on the channel (non-blocking).
+    ///
+    /// Returns `true` if a receiver was waiting and received
+    /// the data, `false` otherwise.
     pub fn try_send(&self, something: &T) -> bool {
         with(|cs| {
             let state = unsafe { &mut *self.state.get() };
@@ -91,6 +104,14 @@ impl<T: Copy + Send> Channel<T> {
         })
     }
 
+    /// Receive on the channel (blocking).
+    ///
+    /// If there is no sender waiting yet, the current thread is suspended
+    /// until a sender is ready.
+    ///
+    /// # Panics
+    ///
+    /// Panics if this is called outside of a thread context.
     pub fn recv(&self) -> T {
         let mut res: MaybeUninit<T> = MaybeUninit::uninit();
 
@@ -132,6 +153,10 @@ impl<T: Copy + Send> Channel<T> {
         unsafe { res.assume_init() }
     }
 
+    /// Try to send on the channel (non-blocking).
+    ///
+    /// Returns `Some` data if a sender was waiting and the
+    /// data could be received, `None` otherwise.
     pub fn try_recv(&self) -> Option<T> {
         let mut res: MaybeUninit<T> = MaybeUninit::uninit();
         let have_received = with(|cs| {
