@@ -114,7 +114,7 @@ macro_rules! define_spi_drivers {
             /// Peripheral-specific SPI driver.
             pub struct $peripheral {
                 // FIXME: do we want full- or half-duplex?
-                spim: InnerSpi<'static, peripherals::$peripheral, dma::Channel1, FullDuplexMode, Async>,
+                spim: InnerSpi<'static, peripherals::$peripheral, dma::DmaChannel1, FullDuplexMode, Async>,
             }
 
             impl $peripheral {
