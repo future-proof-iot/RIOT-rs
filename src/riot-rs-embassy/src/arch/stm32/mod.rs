@@ -32,10 +32,23 @@ cfg_if::cfg_if! {
 #[cfg(feature = "executor-interrupt")]
 include!(concat!(env!("OUT_DIR"), "/swi.rs"));
 
+#[cfg(capability = "hw/stm32-dual-core")]
+use {core::mem::MaybeUninit, embassy_stm32::SharedData};
+
+// RIOT-rs doesn't support the second core yet, but upstream needs this.
+#[cfg(capability = "hw/stm32-dual-core")]
+static SHARED_DATA: MaybeUninit<SharedData> = MaybeUninit::uninit();
+
 pub fn init() -> OptionalPeripherals {
     let mut config = Config::default();
     board_config(&mut config);
+
+    #[cfg(not(capability = "hw/stm32-dual-core"))]
     let peripherals = embassy_stm32::init(config);
+
+    #[cfg(capability = "hw/stm32-dual-core")]
+    let peripherals = embassy_stm32::init_primary(config, &SHARED_DATA);
+
     OptionalPeripherals::from(peripherals)
 }
 

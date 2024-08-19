@@ -351,6 +351,7 @@ contexts:
       PROBE_RS_PROTOCOL: swd
       RUSTFLAGS:
         - --cfg context=\"stm32h755zitx\"
+        - --cfg capability=\"hw/stm32-dual-core\"
       CARGO_ENV:
         # This ISR is unused on a naked board. Configured here for testing.
         - CONFIG_SWI=UART5
