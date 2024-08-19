@@ -11,4 +11,4 @@ In this folder, run
 
     laze build -b nrf52840dk run
 
-This example requires a LIS3DH sensor (3-axis accelerometer) attached to the pins configured in the example.
+This example requires a LIS3DH sensor (3-axis accelerometer) attached to the pins configured in the test.
