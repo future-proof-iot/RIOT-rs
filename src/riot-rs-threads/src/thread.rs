@@ -4,6 +4,10 @@ use crate::{thread_flags::ThreadFlags, Arch, Cpu, RunqueueId, ThreadData, Thread
 #[derive(Debug)]
 pub struct Thread {
     /// Saved stack pointer after context switch.
+    #[expect(
+        dead_code,
+        reason = "sp is used in context-specific scheduler implementation"
+    )]
     pub sp: usize,
     /// The thread's current state.
     pub state: ThreadState,
