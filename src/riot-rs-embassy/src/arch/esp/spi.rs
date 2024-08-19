@@ -123,7 +123,7 @@ macro_rules! define_spi_drivers {
                     sck_pin: impl Peripheral<P: OutputPin> + 'static,
                     miso_pin: impl Peripheral<P: InputPin> + 'static,
                     mosi_pin: impl Peripheral<P: OutputPin> + 'static,
-                    dma_ch: dma::ChannelCreator<1>,
+                    dma_ch: dma::ChannelCreator<1>, // FIXME: try not to hard-code the DMA channel
                     config: Config,
                 ) -> Spi {
                     let frequency = config.frequency.into();
