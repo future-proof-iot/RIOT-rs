@@ -14,6 +14,7 @@ embassy-sync = { workspace = true }
 embedded-hal-async = { workspace = true }
 once_cell = { workspace = true }
 riot-rs = { path = "../../src/riot-rs", features = [
+  "spi",
   "time",
 ] } # FIXME: the `time` feature seems to be required by the SPI transaction
 riot-rs-boards = { path = "../../src/riot-rs-boards" }

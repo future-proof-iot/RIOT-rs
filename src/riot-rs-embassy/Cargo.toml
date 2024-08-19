@@ -122,6 +122,11 @@ embassy-stm32 = { workspace = true, features = [
 ## Enables GPIO interrupt support.
 external-interrupts = ["embassy-nrf?/gpiote", "embassy-stm32?/exti"]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
+
+## Enables I2C support.
+i2c = []
+## Enables SPI support.
+spi = []
 usb = ["dep:embassy-usb"]
 # embassy-net requires embassy-time and support for timeouts in the executor
 net = ["dep:embassy-net", "time"]

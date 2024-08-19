@@ -9,8 +9,6 @@
 
 pub mod define_peripherals;
 pub mod gpio;
-pub mod i2c;
-pub mod spi;
 
 #[cfg(feature = "external-interrupts")]
 mod extint_registry;
@@ -38,6 +36,11 @@ cfg_if::cfg_if! {
         pub mod arch;
     }
 }
+
+#[cfg(feature = "i2c")]
+pub mod i2c;
+#[cfg(feature = "spi")]
+pub mod spi;
 
 #[cfg(feature = "usb")]
 pub mod usb;
@@ -163,8 +166,10 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     #[cfg(context = "esp")]
     arch::gpio::init(&mut peripherals);
 
+    #[cfg(feature = "i2c")]
     arch::i2c::init(&mut peripherals);
 
+    #[cfg(feature = "spi")]
     arch::spi::init(&mut peripherals);
 
     #[cfg(feature = "hwrng")]

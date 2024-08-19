@@ -44,7 +44,11 @@ csprng = ["riot-rs-random/csprng"]
 ## Enables seeding the random number generator from hardware.
 hwrng = ["riot-rs-embassy/hwrng"]
 
-#! ## Wired communication
+#! ## Communication buses
+## Enables I2C support.
+i2c = ["riot-rs-embassy/i2c"]
+## Enables SPI support.
+spi = ["riot-rs-embassy/spi"]
 ## Enables USB support.
 usb = ["riot-rs-embassy/usb"]
 
