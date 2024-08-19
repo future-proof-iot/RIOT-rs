@@ -101,6 +101,8 @@ async fn main(peripherals: Peripherals) {
         peripherals.spi_mosi,
         dma.channel1,
         spi_config,
+        #[cfg(context = "esp")]
+        dma.channel1,
     ));
 
     let spi_bus = SensorSpi::new(
