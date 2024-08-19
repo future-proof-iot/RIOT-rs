@@ -96,14 +96,6 @@ async fn main(peripherals: Peripherals) {
     // FIXME
     #[cfg(context = "esp")]
     let dma = esp_hal::dma::Dma::new(peripherals.dma);
-    #[cfg(context = "esp")]
-    let spi_bus = spi::Spi::SPI2(spi::SpiSPI2::new(
-        peripherals.spi_sck,
-        peripherals.spi_miso,
-        peripherals.spi_mosi,
-        dma.channel1,
-        spi_config,
-        #[cfg(context = "esp")]
         dma.channel1,
     ));
 
