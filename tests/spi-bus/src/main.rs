@@ -25,6 +25,8 @@ use riot_rs::{
 const WHO_AM_I_REG_ADDR: u8 = 0x0f;
 
 #[cfg(context = "esp")]
+type SensorSpi = spi::SPI2;
+#[cfg(context = "esp")]
 riot_rs::define_peripherals!(Peripherals {
     spi_sck: GPIO_0,
     spi_miso: GPIO_1,
