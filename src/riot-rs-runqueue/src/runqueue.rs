@@ -99,7 +99,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     }
 
     fn ffs(val: usize) -> u32 {
-        (USIZE_BITS as u32 - val.leading_zeros()) as u32
+        USIZE_BITS as u32 - val.leading_zeros()
     }
 
     /// Returns the pid that should run next.
@@ -112,6 +112,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
             return None;
         }
         let rq = RunqueueId::new(rq_ffs as u8 - 1);
+        #[expect(clippy::manual_map, reason = "Hax doesn't support `Option::map` yet.")]
         match self.queues.peek_head(rq.0) {
             Some(id) => Some(ThreadId::new(id)),
             None => None,
