@@ -169,7 +169,7 @@ macro_rules! define_spi_drivers {
                     );
                     let spi = spi.with_dma(
                         dma_channel,
-                        tx_dma_descriptors, // FIXME: need to rebase esp-hal to have https://github.com/esp-rs/esp-hal/commit/77535516713a0dabf4dbc9286c1d20b682f4e9c0 andhttps://github.com/esp-rs/esp-hal/commit/c6207c0f591263a271e2b909f646856a8f5d6cc9
+                        tx_dma_descriptors,
                         rx_dma_descriptors,
                     );
 
