@@ -42,8 +42,8 @@ once_cell = { version = "1.19.0", default-features = false, features = [
 ] }
 
 # rpi-pico-w cyw43
-cyw43 = { version = "0.1.0", features = ["firmware-logs"], optional = true }
-cyw43-pio = { version = "0.1.0", features = ["overclock"], optional = true }
+cyw43 = { version = "0.2.0", features = ["firmware-logs"], optional = true }
+cyw43-pio = { version = "0.2.0", features = ["overclock"], optional = true }
 
 # listed here for conditional feature selection
 embassy-nrf = { workspace = true, default-features = false, optional = true }
@@ -77,6 +77,7 @@ embassy-nrf = { workspace = true, features = ["nrf5340-app-s"] }
 
 [target.'cfg(context = "rp2040")'.dependencies]
 embassy-rp = { workspace = true, features = [
+  "rp2040",
   "rt",
   "time-driver",
   "unstable-pac",
@@ -85,9 +86,7 @@ embassy-rp = { workspace = true, features = [
 
 [target.'cfg(context = "esp")'.dependencies]
 esp-hal = { workspace = true, features = ["async", "embedded-hal"] }
-esp-hal-embassy = { workspace = true, default-features = false, features = [
-  "time-timg0",
-] }
+esp-hal-embassy = { workspace = true, default-features = false, features = [] }
 esp-wifi = { workspace = true, default-features = false, features = [
   "async",
   "embassy-net",

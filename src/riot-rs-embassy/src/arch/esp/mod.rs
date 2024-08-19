@@ -65,7 +65,8 @@ pub fn init() -> OptionalPeripherals {
 
         riot_rs_debug::log::debug!("riot-rs-embassy::arch::esp::init(): wifi");
 
-        let timer = SystemTimer::new(peripherals.SYSTIMER.take().unwrap());
+        let timer = SystemTimer::new(peripherals.SYSTIMER.take().unwrap())
+            .split::<esp_hal::timer::systimer::Target>();
 
         #[cfg(target_arch = "riscv32")]
         let init = initialize(
@@ -80,8 +81,8 @@ pub fn init() -> OptionalPeripherals {
         crate::wifi::esp_wifi::WIFI_INIT.set(init).unwrap();
     }
 
-    let timer_group0 = TimerGroup::new_async(peripherals.TIMG0.take().unwrap(), &clocks);
-    esp_hal_embassy::init(&clocks, timer_group0);
+    let timer_group0 = TimerGroup::new(peripherals.TIMG0.take().unwrap(), &clocks);
+    esp_hal_embassy::init(&clocks, timer_group0.timer0);
 
     peripherals
 }

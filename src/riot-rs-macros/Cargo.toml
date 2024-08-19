@@ -11,7 +11,7 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
-enum-iterator = "1.5.0"
+enum-iterator = "2.1.0"
 proc-macro-crate = "3.1.0"
 proc-macro2 = "1.0.78"
 quote = "1.0.35"
