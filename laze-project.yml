@@ -92,7 +92,7 @@ contexts:
 
       debug:
         cmd:
-          - cd examples/${app} && ${CARGO_ENV} cargo ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
+          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
         build: false
         ignore_ctrl_c: true
 
@@ -104,12 +104,12 @@ contexts:
 
       bloat:
         cmd:
-          - cd examples/${app} && ${CARGO_ENV} cargo ${CARGO_ARGS} bloat --${PROFILE} ${FEATURES}
+          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_ARGS} bloat --${PROFILE} ${FEATURES}
         build: false
 
       tree:
         cmd:
-          - cd examples/${app} && ${CARGO_ENV} cargo ${CARGO_ARGS} tree ${FEATURES}
+          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_ARGS} tree ${FEATURES}
         build: false
 
       flash:
