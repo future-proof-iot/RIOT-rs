@@ -6,11 +6,9 @@ license.workspace = true
 edition = "2021"
 
 [dependencies]
-bare-metal = "0.2.5"
+bare-metal = "1.0.0"
 cortex-m.workspace = true
-
-[dependencies.stm32f4xx-hal]
-version = "0.11"
+stm32f4xx-hal= "0.21"
 #features = [ "rt" ]
 
 [features]
