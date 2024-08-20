@@ -101,6 +101,8 @@ async fn main(peripherals: Peripherals) {
         peripherals.spi_sck,
         peripherals.spi_miso,
         peripherals.spi_mosi,
+        #[cfg(context = "esp")]
+        dma.channel1,
         #[cfg(any(context = "rp", context = "stm32"))]
         peripherals.spi_tx_dma,
         #[cfg(any(context = "rp", context = "stm32"))]
