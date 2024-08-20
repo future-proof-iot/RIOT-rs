@@ -12,6 +12,7 @@ workspace = true
 embassy-executor = { workspace = true }
 embassy-sync = { workspace = true }
 embedded-hal-async = { workspace = true }
+esp-hal = { workspace = true } # FIXME: temporary
 once_cell = { workspace = true }
 riot-rs = { path = "../../src/riot-rs", features = [
   "spi",
