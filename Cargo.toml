@@ -11,6 +11,7 @@ members = [
   "src/riot-rs-boards/nrf52",
   "src/riot-rs-boards/nrf52840dk",
   "src/riot-rs-chips",
+  "src/riot-rs-coap",
   "src/riot-rs-debug",
   "src/riot-rs-macros",
   "src/riot-rs-random",

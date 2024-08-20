@@ -16,6 +16,9 @@ pub mod buildinfo;
 #[cfg(feature = "bench")]
 #[doc(inline)]
 pub use riot_rs_bench as bench;
+#[cfg(feature = "coap")]
+#[doc(inline)]
+pub use riot_rs_coap as coap;
 #[doc(inline)]
 pub use riot_rs_debug as debug;
 #[doc(inline)]

@@ -21,7 +21,7 @@ use core::future::poll_fn;
 use embedded_nal_async as nal;
 use smoltcp::wire::{IpAddress, IpEndpoint};
 
-use embassy_net::udp;
+use riot_rs_embassy::embassy_net::udp;
 
 mod util;
 pub use util::Error;
@@ -78,7 +78,7 @@ impl<'a> ConnectedUdp<'a> {
     /// unconnected.
     pub async fn connect(socket: udp::UdpSocket<'a>, /*, ... */) -> Result<Self, udp::BindError> {
         // This is really just a copy of the provided `embedded_nal::udp::UdpStack::connect` method
-        todo!()
+        todo!("use {:p}", &socket)
     }
 }
 
