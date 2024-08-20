@@ -159,10 +159,6 @@ macro_rules! define_spi_drivers {
                         gpio::NO_PIN, // The CS pin is managed separately // FIXME: is it?
                     );
 
-                    // FIXME: adjust the value (copied from Embassy SPI example for now)
-                    // This value defines the maximum transaction length the DMA can handle.
-                    let (tx_dma_descriptors, rx_dma_descriptors) = esp_hal::dma_descriptors!(32000);
-
                     let dma_channel = dma_ch.configure_for_async(
                         false,
                         DmaPriority::Priority0,
