@@ -96,8 +96,6 @@ async fn main(peripherals: Peripherals) {
     // FIXME
     #[cfg(context = "esp")]
     let dma = esp_hal::dma::Dma::new(peripherals.dma);
-        dma.channel1,
-    ));
 
     let spi_bus = SensorSpi::new(
         peripherals.spi_sck,
