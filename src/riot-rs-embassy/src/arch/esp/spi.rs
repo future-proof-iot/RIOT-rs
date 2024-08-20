@@ -163,6 +163,11 @@ macro_rules! define_spi_drivers {
                         false,
                         DmaPriority::Priority0,
                     );
+                    // FIXME: adjust the value (copied from Embassy SPI example for now)
+                    // This value defines the maximum transaction length these DMA channels can
+                    // handle.
+                    let (tx_dma_descriptors, rx_dma_descriptors) = esp_hal::dma_descriptors!(32000);
+
                     let spi = spi.with_dma(
                         dma_channel,
                         tx_dma_descriptors,
