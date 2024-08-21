@@ -8,7 +8,7 @@ mod pins;
 #[allow(unused_imports)]
 use riot_rs::{
     debug::log::info,
-    embassy::gpio::{DriveStrength, Input, Level, Output, Pull, Speed},
+    gpio::{DriveStrength, Input, Level, Output, Pull, Speed},
 };
 
 #[riot_rs::task(autostart, peripherals)]

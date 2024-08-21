@@ -26,7 +26,7 @@
 /// # Examples
 ///
 /// ```ignore
-/// use riot_rs::embassy::usb::UsbBuilderHook;
+/// use riot_rs::usb::UsbBuilderHook;
 ///
 /// #[riot_rs::task(autostart, peripherals, usb_builder_hook)]
 /// async fn task(peripherals: /* your peripheral type */) {}
@@ -96,25 +96,25 @@ pub fn task(args: TokenStream, item: TokenStream) -> TokenStream {
         quote! {
             #delegates
 
-            #[#riot_rs_crate::embassy::distributed_slice(#riot_rs_crate::embassy::EMBASSY_TASKS)]
-            #[linkme(crate = #riot_rs_crate::embassy::linkme)]
+            #[#riot_rs_crate::distributed_slice(#riot_rs_crate::EMBASSY_TASKS)]
+            #[linkme(crate = #riot_rs_crate::linkme)]
             fn #new_function_name(
-                spawner: #riot_rs_crate::embassy::Spawner,
-                mut peripherals: &mut #riot_rs_crate::embassy::arch::OptionalPeripherals,
+                spawner: #riot_rs_crate::Spawner,
+                mut peripherals: &mut #riot_rs_crate::arch::OptionalPeripherals,
             ) {
                 use #riot_rs_crate::define_peripherals::TakePeripherals;
                 let task = #task_function_name(#peripheral_param);
                 spawner.spawn(task).unwrap();
             }
 
-            #[#riot_rs_crate::embassy::embassy_executor::task]
+            #[#riot_rs_crate::embassy_executor::task]
             #task_function
         }
     } else {
         let pool_size = attrs.pool_size.unwrap_or_else(|| syn::parse_quote! { 1 });
 
         quote! {
-            #[#riot_rs_crate::embassy::embassy_executor::task(pool_size = #pool_size)]
+            #[#riot_rs_crate::embassy_executor::task(pool_size = #pool_size)]
             #task_function
         }
     };
@@ -209,8 +209,8 @@ mod task {
             // initialization
             [HookDefinition {
                 kind: Self::UsbBuilder,
-                delegate_inner_type: quote! {#riot_rs_crate::embassy::usb::UsbBuilder},
-                distributed_slice_type: quote! {#riot_rs_crate::embassy::usb::USB_BUILDER_HOOKS},
+                delegate_inner_type: quote! {#riot_rs_crate::usb::UsbBuilder},
+                distributed_slice_type: quote! {#riot_rs_crate::usb::USB_BUILDER_HOOKS},
             }]
         }
     }
@@ -229,7 +229,7 @@ mod task {
     ) -> proc_macro2::TokenStream {
         use quote::{format_ident, quote};
 
-        let delegate_type = quote! {#riot_rs_crate::embassy::delegate::Delegate};
+        let delegate_type = quote! {#riot_rs_crate::delegate::Delegate};
 
         let enabled_hooks = hooks.iter().filter(|hook| match hook.kind {
             Hook::UsbBuilder => attrs.hooks.iter().any(|h| *h == Hook::UsbBuilder),
@@ -250,8 +250,8 @@ mod task {
             quote! {
                 static #delegate_hook_ident: #delegate_type<#delegate_inner_type> = #delegate_type::new();
 
-                #[#riot_rs_crate::embassy::distributed_slice(#distributed_slice_type)]
-                #[linkme(crate=#riot_rs_crate::embassy::linkme)]
+                #[#riot_rs_crate::distributed_slice(#distributed_slice_type)]
+                #[linkme(crate=#riot_rs_crate::linkme)]
                     static #delegate_hook_ref_ident: #type_name = &#delegate_hook_ident;
                 }
             }

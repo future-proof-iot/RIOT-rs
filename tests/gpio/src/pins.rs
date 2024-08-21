@@ -1,4 +1,4 @@
-use riot_rs::embassy::arch::peripherals;
+use riot_rs::arch::peripherals;
 
 #[cfg(context = "nrf52")]
 riot_rs::define_peripherals!(Peripherals {

@@ -3,7 +3,7 @@
 
 // This will not get used because the attribute macro is expected to fail
 #[allow(unused_imports)]
-use riot_rs::embassy::embassy_net;
+use riot_rs::embassy_net;
 
 // FAIL: this attribute macro requires parameters
 #[riot_rs::config]

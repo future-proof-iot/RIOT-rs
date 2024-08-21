@@ -7,10 +7,8 @@ use embassy_time::Duration;
 use embassy_usb::class::hid::{self, HidReaderWriter};
 use riot_rs::{
     debug::log::*,
-    embassy::{
-        make_static,
-        usb::{UsbBuilderHook, UsbDriver},
-    },
+    make_static,
+    usb::{UsbBuilderHook, UsbDriver},
 };
 
 use usbd_hid::descriptor::KeyboardReport;
@@ -121,8 +119,8 @@ mod buttons {
 }
 
 #[riot_rs::config(usb)]
-fn usb_config() -> riot_rs::embassy::embassy_usb::Config<'static> {
-    let mut config = riot_rs::embassy::embassy_usb::Config::new(0xc0de, 0xcafe);
+fn usb_config() -> riot_rs::embassy_usb::Config<'static> {
+    let mut config = riot_rs::embassy_usb::Config::new(0xc0de, 0xcafe);
     config.manufacturer = Some("Embassy");
     config.product = Some("HID keyboard example");
     config.serial_number = Some("12345678");

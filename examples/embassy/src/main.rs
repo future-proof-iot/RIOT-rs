@@ -6,7 +6,7 @@
 use riot_rs::debug::{exit, log::*};
 
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal};
-use riot_rs::embassy::{blocker, EXECUTOR};
+use riot_rs::{blocker, EXECUTOR};
 
 static SIGNAL: Signal<CriticalSectionRawMutex, u32> = Signal::new();
 

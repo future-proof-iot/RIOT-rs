@@ -5,10 +5,8 @@
 
 use riot_rs::{
     debug::log::info,
-    embassy::{
-        embassy_usb, make_static,
-        usb::{UsbBuilderHook, UsbDriver},
-    },
+    embassy_usb, make_static,
+    usb::{UsbBuilderHook, UsbDriver},
 };
 
 use embassy_usb::{

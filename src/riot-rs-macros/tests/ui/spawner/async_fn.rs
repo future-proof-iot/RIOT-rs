@@ -4,7 +4,7 @@
 
 // As the macro will fail, this import will not get used
 #[allow(unused_imports)]
-use riot_rs::embassy::Spawner;
+use riot_rs::Spawner;
 
 // FAIL: spawner functions cannot be async
 #[riot_rs::spawner(autostart)]
