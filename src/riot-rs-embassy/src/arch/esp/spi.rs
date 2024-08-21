@@ -10,7 +10,10 @@ use esp_hal::{
     Async,
 };
 
-use crate::{arch, spi::impl_async_spibus_for_driver_enum};
+use crate::{
+    arch,
+    spi::{impl_async_spibus_for_driver_enum, BitOrder, Mode},
+};
 
 #[derive(Clone)]
 #[non_exhaustive]
@@ -25,7 +28,7 @@ impl Default for Config {
         Self {
             frequency: Frequency::M1, // FIXME
             mode: Mode::Mode0,
-            bit_order: BitOrder::MsbFirst,
+            bit_order: BitOrder::default(),
         }
     }
 }
@@ -62,17 +65,8 @@ impl From<Frequency> for fugit::HertzU32 {
     }
 }
 
-#[derive(Copy, Clone)]
-pub enum Mode {
-    Mode0,
-    Mode1,
-    Mode2,
-    Mode3,
-}
-
-// https://en.wikipedia.org/wiki/Serial_Peripheral_Interface#Mode_numbers
-impl From<Mode> for esp_hal::spi::SpiMode {
-    fn from(mode: Mode) -> Self {
+impl From<crate::spi::Mode> for esp_hal::spi::SpiMode {
+    fn from(mode: crate::spi::Mode) -> Self {
         match mode {
             Mode::Mode0 => esp_hal::spi::SpiMode::Mode0,
             Mode::Mode1 => esp_hal::spi::SpiMode::Mode1,
@@ -80,12 +74,6 @@ impl From<Mode> for esp_hal::spi::SpiMode {
             Mode::Mode3 => esp_hal::spi::SpiMode::Mode3,
         }
     }
-}
-
-#[derive(Copy, Clone)]
-pub enum BitOrder {
-    MsbFirst,
-    LsbFirst,
 }
 
 impl From<BitOrder> for esp_hal::spi::SpiBitOrder {

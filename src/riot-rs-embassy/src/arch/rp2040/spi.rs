@@ -4,7 +4,10 @@ use embassy_rp::{
     Peripheral,
 };
 
-use crate::{arch, spi::impl_async_spibus_for_driver_enum};
+use crate::{
+    arch,
+    spi::{impl_async_spibus_for_driver_enum, Mode},
+};
 
 #[derive(Clone)]
 #[non_exhaustive]
@@ -38,15 +41,6 @@ pub enum Frequency {
     M32 = 32_000_000,
 }
 
-#[derive(Copy, Clone)]
-pub enum Mode {
-    Mode0,
-    Mode1,
-    Mode2,
-    Mode3,
-}
-
-// https://en.wikipedia.org/wiki/Serial_Peripheral_Interface#Mode_numbers
 impl From<Mode> for (Polarity, Phase) {
     fn from(mode: Mode) -> Self {
         match mode {

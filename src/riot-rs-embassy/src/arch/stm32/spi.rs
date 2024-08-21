@@ -8,7 +8,10 @@ use embassy_stm32::{
 };
 use riot_rs_macros::call_with_stm32_peripheral_list;
 
-use crate::{arch, spi::impl_async_spibus_for_driver_enum};
+use crate::{
+    arch,
+    spi::{impl_async_spibus_for_driver_enum, BitOrder, Mode},
+};
 
 #[derive(Clone)]
 #[non_exhaustive]
@@ -23,7 +26,7 @@ impl Default for Config {
         Self {
             frequency: Frequency::M1,
             mode: Mode::Mode0,
-            bit_order: BitOrder::MsbFirst,
+            bit_order: BitOrder::default(),
         }
     }
 }
@@ -60,15 +63,6 @@ impl From<Frequency> for Hertz {
     }
 }
 
-#[derive(Copy, Clone)]
-pub enum Mode {
-    Mode0,
-    Mode1,
-    Mode2,
-    Mode3,
-}
-
-// https://en.wikipedia.org/wiki/Serial_Peripheral_Interface#Mode_numbers
 impl From<Mode> for embassy_stm32::spi::Mode {
     fn from(mode: Mode) -> Self {
         match mode {
@@ -78,12 +72,6 @@ impl From<Mode> for embassy_stm32::spi::Mode {
             Mode::Mode3 => embassy_stm32::spi::MODE_3,
         }
     }
-}
-
-#[derive(Copy, Clone)]
-pub enum BitOrder {
-    MsbFirst,
-    LsbFirst,
 }
 
 impl From<BitOrder> for embassy_stm32::spi::BitOrder {

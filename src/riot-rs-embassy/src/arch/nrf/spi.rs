@@ -6,7 +6,10 @@ use embassy_nrf::{
     Peripheral,
 };
 
-use crate::{arch, spi::impl_async_spibus_for_driver_enum};
+use crate::{
+    arch,
+    spi::{impl_async_spibus_for_driver_enum, BitOrder, Mode},
+};
 
 pub use embassy_nrf::spim::Frequency;
 
@@ -23,20 +26,11 @@ impl Default for Config {
         Self {
             frequency: Frequency::M1,
             mode: Mode::Mode0,
-            bit_order: BitOrder::MsbFirst,
+            bit_order: BitOrder::default(),
         }
     }
 }
 
-#[derive(Copy, Clone)]
-pub enum Mode {
-    Mode0,
-    Mode1,
-    Mode2,
-    Mode3,
-}
-
-// https://en.wikipedia.org/wiki/Serial_Peripheral_Interface#Mode_numbers
 impl From<Mode> for embassy_nrf::spim::Mode {
     fn from(mode: Mode) -> Self {
         match mode {
@@ -46,12 +40,6 @@ impl From<Mode> for embassy_nrf::spim::Mode {
             Mode::Mode3 => embassy_nrf::spim::MODE_3,
         }
     }
-}
-
-#[derive(Copy, Clone)]
-pub enum BitOrder {
-    MsbFirst,
-    LsbFirst,
 }
 
 impl From<BitOrder> for embassy_nrf::spim::BitOrder {
