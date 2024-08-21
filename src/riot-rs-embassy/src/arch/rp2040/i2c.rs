@@ -81,6 +81,8 @@ macro_rules! define_i2c_drivers {
                     // peripheral multiple times.
                     let i2c_peripheral = unsafe { peripherals::$peripheral::steal() };
 
+                    // NOTE(arch): even though we handle bus timeout at a higher level as well, it
+                    // does not seem possible to disable the timeout feature on RP.
                     let i2c = embassy_rp::i2c::I2c::new_async(
                         i2c_peripheral,
                         scl_pin,
@@ -100,10 +102,31 @@ macro_rules! define_i2c_drivers {
         }
 
         impl embedded_hal_async::i2c::ErrorType for I2c {
-            type Error = embassy_rp::i2c::Error;
+            type Error = crate::i2c::Error;
         }
 
         impl_async_i2c_for_driver_enum!(I2c, $( $peripheral ),*);
+    }
+}
+
+impl From<embassy_rp::i2c::Error> for crate::i2c::Error {
+    fn from(err: embassy_rp::i2c::Error) -> Self {
+        use embassy_rp::i2c::{AbortReason, Error::*};
+
+        use crate::i2c::{Error, NoAcknowledgeSource};
+
+        match err {
+            Abort(reason) => match reason {
+                AbortReason::NoAcknowledge => Error::NoAcknowledge(NoAcknowledgeSource::Unknown),
+                AbortReason::ArbitrationLoss => Error::ArbitrationLoss,
+                AbortReason::TxNotEmpty(_) => Error::Other,
+                AbortReason::Other(_) => Error::Other,
+            },
+            InvalidReadBufferLength => Error::Other,
+            InvalidWriteBufferLength => Error::Other,
+            AddressOutOfRange(_) => Error::Other,
+            AddressReserved(_) => Error::Other,
+        }
     }
 }
 

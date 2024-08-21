@@ -90,6 +90,7 @@ macro_rules! define_i2c_drivers {
                     let mut i2c_config = embassy_stm32::i2c::Config::default();
                     i2c_config.sda_pullup = config.sda_pullup;
                     i2c_config.scl_pullup = config.scl_pullup;
+                    i2c_config.timeout = crate::i2c::I2C_TIMEOUT;
 
                     bind_interrupts!(
                         struct Irqs {
@@ -133,10 +134,28 @@ macro_rules! define_i2c_drivers {
         }
 
         impl embedded_hal_async::i2c::ErrorType for I2c {
-            type Error = embassy_stm32::i2c::Error;
+            type Error = crate::i2c::Error;
         }
 
         impl_async_i2c_for_driver_enum!(I2c, $( $peripheral ),*);
+    }
+}
+
+impl From<embassy_stm32::i2c::Error> for crate::i2c::Error {
+    fn from(err: embassy_stm32::i2c::Error) -> Self {
+        use embassy_stm32::i2c::Error::*;
+
+        use crate::i2c::{Error, NoAcknowledgeSource};
+
+        match err {
+            Bus => Error::Bus,
+            Arbitration => Error::ArbitrationLoss,
+            Nack => Error::NoAcknowledge(NoAcknowledgeSource::Unknown),
+            Timeout => Error::Timeout,
+            Crc => Error::Other,
+            Overrun => Error::Overrun,
+            ZeroLengthTransfer => Error::Other,
+        }
     }
 }
 

@@ -88,6 +88,8 @@ macro_rules! define_i2c_drivers {
                     // peripheral multiple times.
                     let twim_peripheral = unsafe { peripherals::$peripheral::steal() };
 
+                    // NOTE(arch): the I2C peripheral and driver do not have any built-in timeout,
+                    // we implement it at a higher level, not in this arch-specific module.
                     let twim = Twim::new(twim_peripheral, Irqs, sda_pin, scl_pin, twim_config);
 
                     I2c::$peripheral(Self { twim })
@@ -101,10 +103,31 @@ macro_rules! define_i2c_drivers {
         }
 
         impl embedded_hal_async::i2c::ErrorType for I2c {
-            type Error = embassy_nrf::twim::Error;
+            type Error = crate::i2c::Error;
         }
 
         impl_async_i2c_for_driver_enum!(I2c, $( $peripheral ),*);
+    }
+}
+
+impl From<embassy_nrf::twim::Error> for crate::i2c::Error {
+    fn from(err: embassy_nrf::twim::Error) -> Self {
+        use embassy_nrf::twim::Error::*;
+
+        use crate::i2c::{Error, NoAcknowledgeSource};
+
+        match err {
+            TxBufferTooLong => Error::Other,
+            RxBufferTooLong => Error::Other,
+            Transmit => Error::Other,
+            Receive => Error::Other,
+            BufferNotInRAM => Error::Other,
+            AddressNack => Error::NoAcknowledge(NoAcknowledgeSource::Address),
+            DataNack => Error::NoAcknowledge(NoAcknowledgeSource::Data),
+            Overrun => Error::Overrun,
+            Timeout => Error::Timeout,
+            _ => Error::Other,
+        }
     }
 }
 

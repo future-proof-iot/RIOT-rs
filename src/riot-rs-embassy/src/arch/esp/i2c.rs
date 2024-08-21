@@ -85,8 +85,18 @@ macro_rules! define_i2c_drivers {
                     // peripheral multiple times.
                     let i2c_peripheral = unsafe { peripherals::$peripheral::steal() };
 
-                    // FIXME: use `new_with_timeout_async()` instead?
-                    let twim = I2C::new_async(i2c_peripheral, sda_pin, scl_pin, frequency, &clocks);
+                    // NOTE(arch): even though we handle bus timeout at a higher level as well, it
+                    // does not seem possible to disable the timeout feature on ESP; so we keep the
+                    // default timeout instead (encoded as `None`).
+                    let timeout = None;
+                    let twim = I2C::new_with_timeout_async(
+                        i2c_peripheral,
+                        sda_pin,
+                        scl_pin,
+                        frequency,
+                        &clocks,
+                        timeout,
+                    );
 
                     I2c::$peripheral(Self { twim })
                 }
@@ -99,10 +109,27 @@ macro_rules! define_i2c_drivers {
         }
 
         impl embedded_hal_async::i2c::ErrorType for I2c {
-            type Error = esp_hal::i2c::Error;
+            type Error = crate::i2c::Error;
         }
 
         impl_async_i2c_for_driver_enum!(I2c, $( $peripheral ),*);
+    }
+}
+
+impl From<esp_hal::i2c::Error> for crate::i2c::Error {
+    fn from(err: esp_hal::i2c::Error) -> Self {
+        use esp_hal::i2c::Error::*;
+
+        use crate::i2c::{Error, NoAcknowledgeSource};
+
+        match err {
+            ExceedingFifo => Error::Overrun,
+            AckCheckFailed => Error::NoAcknowledge(NoAcknowledgeSource::Unknown),
+            TimeOut => Error::Timeout,
+            ArbitrationLost => Error::ArbitrationLoss,
+            ExecIncomplete => Error::Other,
+            CommandNrExceeded => Error::Other,
+        }
     }
 }
 
