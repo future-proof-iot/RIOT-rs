@@ -17,7 +17,7 @@ use riot_rs::{
     embassy::{
         arch::{peripherals, spi},
         gpio,
-        spi::SpiDevice,
+        spi::{Mode, SpiDevice},
     },
 };
 
@@ -92,10 +92,10 @@ async fn main(peripherals: Peripherals) {
     let mut spi_config = spi::Config::default();
     spi_config.frequency = spi::Frequency::K125;
     spi_config.mode = if !cfg!(context = "esp") {
-        spi::Mode::Mode3
+        Mode::Mode3
     } else {
         // FIXME: the sensor datasheet does match with SPI mode 3, not mode 0
-        spi::Mode::Mode0
+        Mode::Mode0
     };
 
     // FIXME
