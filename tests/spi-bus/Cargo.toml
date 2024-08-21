@@ -19,3 +19,4 @@ riot-rs = { path = "../../src/riot-rs", features = [
   "time",
 ] } # FIXME: the `time` feature seems to be required by the SPI transaction
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
+static_cell = { workspace = true }

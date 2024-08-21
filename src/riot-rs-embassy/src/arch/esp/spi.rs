@@ -15,9 +15,9 @@ use crate::{arch, spi::impl_async_spibus_for_driver_enum};
 #[derive(Clone)]
 #[non_exhaustive]
 pub struct Config {
-    pub frequency: Frequency, // FIXME
+    pub frequency: Frequency,
     pub mode: Mode,
-    pub bit_order: BitOrder, // FIXME
+    pub bit_order: BitOrder,
 }
 
 impl Default for Config {
@@ -156,18 +156,22 @@ macro_rules! define_spi_drivers {
                         Some(sck_pin),
                         Some(mosi_pin),
                         Some(miso_pin),
-                        gpio::NO_PIN, // The CS pin is managed separately // FIXME: is it?
+                        gpio::NO_PIN, // The CS pin is managed separately
                     );
 
-                    let dma_channel = dma_ch.configure_for_async(
-                        false,
-                        DmaPriority::Priority0,
-                    );
+                    // FIXME: is this correct?
+                    // Use the highest priority, as SPI is the DMA-enabled peripheral that is the
+                    // most latency-sensitive.
+                    let burst_mode = false;
+                    let dma_priority = DmaPriority::Priority5;
+                    let dma_channel = dma_ch.configure_for_async(burst_mode, dma_priority);
                     // FIXME: adjust the value (copied from Embassy SPI example for now)
                     // This value defines the maximum transaction length these DMA channels can
                     // handle.
                     let (tx_dma_descriptors, rx_dma_descriptors) = esp_hal::dma_descriptors!(32000);
 
+                    // FIXME: we need to rebase esp-hal to have the new DMA API:
+                    // https://github.com/esp-rs/esp-hal/commit/41f9925e2c393b1b753585e85e21f74cf5a8d131
                     let spi = spi.with_dma(
                         dma_channel,
                         tx_dma_descriptors,

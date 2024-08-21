@@ -83,15 +83,20 @@ riot_rs::define_peripherals!(Peripherals {
     spi_rx_dma: DMA1_CH2,
 });
 
-pub static SPI_BUS: once_cell::sync::OnceCell<
-    Mutex<embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex, spi::Spi>,
-> = once_cell::sync::OnceCell::new();
+// pub static SPI_BUS: once_cell::sync::OnceCell<
+//     Mutex<embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex, spi::Spi>,
+// > = once_cell::sync::OnceCell::new();
 
 #[riot_rs::task(autostart, peripherals)]
 async fn main(peripherals: Peripherals) {
     let mut spi_config = spi::Config::default();
-    spi_config.frequency = spi::Frequency::M1;
-    spi_config.mode = spi::Mode::Mode3;
+    spi_config.frequency = spi::Frequency::K125;
+    spi_config.mode = if !cfg!(context = "esp") {
+        spi::Mode::Mode3
+    } else {
+        // FIXME: the sensor datasheet does match with SPI mode 3, not mode 0
+        spi::Mode::Mode0
+    };
 
     // FIXME
     #[cfg(context = "esp")]
@@ -110,11 +115,12 @@ async fn main(peripherals: Peripherals) {
         spi_config,
     );
 
-    let _ = SPI_BUS.set(Mutex::new(spi_bus));
+    let spi_bus = static_cell::make_static!(Mutex::new(spi_bus));
+    // let _ = SPI_BUS.set(Mutex::new(spi_bus));
 
     let cs_output = gpio::Output::new(peripherals.spi_cs, gpio::Level::High);
 
-    let mut spi_device = SpiDevice::new(SPI_BUS.get().unwrap(), cs_output);
+    let mut spi_device = SpiDevice::new(&*spi_bus, cs_output);
 
     let mut id = [0];
     spi_device
