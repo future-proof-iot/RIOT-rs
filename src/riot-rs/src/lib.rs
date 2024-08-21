@@ -18,9 +18,10 @@ pub mod buildinfo;
 pub use riot_rs_bench as bench;
 #[doc(inline)]
 pub use riot_rs_debug as debug;
-#[doc(inline)]
+pub use riot_rs_embassy::*;
+// Keep the `embassy` module for backward compatibility, but hide it from documentation.
+#[doc(hidden)]
 pub use riot_rs_embassy as embassy;
-pub use riot_rs_embassy::{define_peripherals, group_peripherals};
 #[cfg(feature = "random")]
 #[doc(inline)]
 pub use riot_rs_random as random;
