@@ -36,15 +36,15 @@ impl Default for Config {
 #[derive(Copy, Clone)]
 #[repr(u32)]
 pub enum Frequency {
-    K125 = 125_000,
-    K250 = 250_000,
-    K500 = 500_00,
-    M1 = 1_000_000,
-    M2 = 2_000_000,
-    M4 = 4_000_000,
-    M8 = 8_000_000,
-    M16 = 16_000_000,
-    M32 = 32_000_000,
+    K125,
+    K250,
+    K500,
+    M1,
+    M2,
+    M4,
+    M8,
+    M16,
+    M32,
 }
 
 impl From<Frequency> for Hertz {
