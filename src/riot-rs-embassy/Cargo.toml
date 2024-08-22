@@ -16,7 +16,7 @@ portable-atomic.workspace = true
 fugit.workspace = true
 paste.workspace = true
 
-embassy-embedded-hal = { workspace = true }
+embassy-embedded-hal = { workspace = true, optional = true }
 embassy-executor = { workspace = true, features = ["nightly"] }
 embassy-futures = { workspace = true }
 embassy-hal-internal = { workspace = true }
@@ -125,9 +125,9 @@ external-interrupts = ["embassy-nrf?/gpiote", "embassy-stm32?/exti"]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
 
 ## Enables I2C support.
-i2c = ["dep:embassy-time"]
+i2c = ["dep:embassy-embedded-hal", "dep:embassy-time"]
 ## Enables SPI support.
-spi = []
+spi = ["dep:embassy-embedded-hal"]
 usb = ["dep:embassy-usb"]
 # embassy-net requires embassy-time and support for timeouts in the executor
 net = ["dep:embassy-net", "time"]
