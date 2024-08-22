@@ -1,4 +1,5 @@
 //! Provides support for the I2C communication bus.
+#![deny(missing_docs)]
 
 use embassy_embedded_hal::shared_bus::asynch::i2c::I2cDevice as InnerI2cDevice;
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
@@ -11,6 +12,12 @@ use crate::arch;
 /// Architectures are allowed to timeout earlier.
 pub const I2C_TIMEOUT: Duration = Duration::from_millis(100);
 
+/// An I2C driver implementing [`embedded_hal_async::i2c::I2c`].
+///
+/// Needs to be provided with an MCU-specific I2C driver tied to a specific I2C peripheral,
+/// obtainable from the [`arch::i2c`] module.
+///
+/// See [`embedded_hal::i2c`] to learn more about how to share the bus.
 // TODO: do we actually need a CriticalSectionRawMutex here?
 pub type I2cDevice = InnerI2cDevice<'static, CriticalSectionRawMutex, arch::i2c::I2c>;
 
@@ -93,13 +100,17 @@ pub(crate) use impl_async_i2c_for_driver_enum;
 // NOTE(eq): not deriving `Eq` here because it *could* semantically contain floats later.
 #[derive(Debug, Clone, PartialEq)]
 pub enum Error {
+    /// A protocol error occurred (e.g., the transaction was terminated earlier than expected).
     Bus,
+    /// Bus arbitration was lost (e.g., because there are multiple controllers on the bus).
     ArbitrationLoss,
     /// No acknowledgement was received when expected.
     NoAcknowledge(NoAcknowledgeSource),
+    /// Overrun of the receive buffer.
     Overrun,
     /// Timeout when attempting to use the bus; most likely the target device is not connected.
     Timeout,
+    /// An other error occurred.
     Other,
 }
 

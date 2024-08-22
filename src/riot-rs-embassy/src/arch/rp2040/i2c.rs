@@ -33,7 +33,7 @@ pub enum Frequency {
     K400 = 400_000,
 }
 
-pub fn init(peripherals: &mut arch::OptionalPeripherals) {
+pub(crate) fn init(peripherals: &mut arch::OptionalPeripherals) {
     // Take all I2C peripherals and do nothing with them.
     cfg_if::cfg_if! {
         if #[cfg(context = "rp2040")] {

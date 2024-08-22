@@ -83,7 +83,7 @@ impl From<BitOrder> for embassy_stm32::spi::BitOrder {
     }
 }
 
-pub fn init(peripherals: &mut arch::OptionalPeripherals) {
+pub(crate) fn init(peripherals: &mut arch::OptionalPeripherals) {
     // This macro has to be defined in this function so that the `peripherals` variables exists.
     macro_rules! take_all_spi_peripherals {
         ($peripherals:ident, $( $peripheral:ident ),*) => {

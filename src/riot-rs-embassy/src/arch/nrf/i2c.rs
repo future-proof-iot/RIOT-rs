@@ -33,7 +33,7 @@ impl Default for Config {
     }
 }
 
-pub fn init(peripherals: &mut arch::OptionalPeripherals) {
+pub(crate) fn init(peripherals: &mut arch::OptionalPeripherals) {
     // Take all I2C peripherals and do nothing with them.
     cfg_if::cfg_if! {
         if #[cfg(context = "nrf52840")] {

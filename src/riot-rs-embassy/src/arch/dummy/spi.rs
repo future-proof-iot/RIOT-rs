@@ -1,20 +1,24 @@
+//! Architecture- and MCU-specific types for SPI.
+//!
+//! This module provides a driver for each SPI peripheral, the driver name being the same as the
+//! peripheral; see the tests and examples to learn how to instantiate them.
+//! These driver instances are meant to be shared between tasks using
+//! [`SpiDevice`](crate::spi::SpiDevice).
+
 use crate::arch;
 
 /// Peripheral-agnostic SPI driver implementing [`embedded_hal_async::spi::SpiBus`].
 ///
-/// The driver instance is meant to be shared between tasks using
-/// [`SpiDevice`](crate::spi::SpiDevice).
-///
-/// This driver is not architecture-agnostic however, and has as many variants as the MCU has
-/// SPI peripherals, each variant's name being the name of that peripheral.
-/// Each enum variant has an associated value, which is the associated peripheral-specific driver
-/// instance.
-/// The names of peripheral-specific SPI drivers are `Spi$peripheral`, where `$peripheral` is the
-/// name of the SPI peripheral (e.g, driver names can be `SpiSPI2`, `SpiSPI0`, or `SpiSERIAL2`).
-/// The constructors of these peripheral-specific drivers depend on the architecture, please see
-/// the examples and tests for reference.
-pub enum Spi {}
+/// This type is not meant to be instantiated directly; instead instantiate a peripheral-specific
+/// driver provided by this module.
+// NOTE: we keep this type public because it may still required in user-written type signatures.
+pub enum Spi {
+    // Make the docs show that this enum has variants, but do not show any because they are
+    // MCU-specific.
+    #[doc(hidden)]
+    Hidden,
+}
 
-pub fn init(peripherals: &mut arch::OptionalPeripherals) {
+pub(crate) fn init(peripherals: &mut arch::OptionalPeripherals) {
     unimplemented!();
 }

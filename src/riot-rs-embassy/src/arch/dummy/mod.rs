@@ -1,4 +1,4 @@
-//! Dummy module used to satisfy platform-independent tooling.
+//! Architecture- and MCU-specific types.
 
 mod executor;
 pub mod gpio;

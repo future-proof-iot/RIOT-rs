@@ -52,7 +52,7 @@ impl From<Mode> for (Polarity, Phase) {
     }
 }
 
-pub fn init(peripherals: &mut arch::OptionalPeripherals) {
+pub(crate) fn init(peripherals: &mut arch::OptionalPeripherals) {
     // Take all SPI peripherals and do nothing with them.
     cfg_if::cfg_if! {
         if #[cfg(context = "rp2040")] {
