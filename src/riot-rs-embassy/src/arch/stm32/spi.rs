@@ -24,41 +24,39 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            frequency: Frequency::M1,
+            frequency: Frequency::_1M,
             mode: Mode::Mode0,
             bit_order: BitOrder::default(),
         }
     }
 }
 
-// Possible values are copied from embassy-nrf
-// TODO: check how well this matches the STM32 capabilities
 #[derive(Copy, Clone)]
 #[repr(u32)]
 pub enum Frequency {
-    K125,
-    K250,
-    K500,
-    M1,
-    M2,
-    M4,
-    M8,
-    M16,
-    M32,
+    _125k,
+    _250k,
+    _500k,
+    _1M,
+    _2M,
+    _4M,
+    _8M,
+    _16M,
+    _32M,
 }
 
 impl From<Frequency> for Hertz {
     fn from(freq: Frequency) -> Self {
         match freq {
-            Frequency::K125 => Hertz::khz(125),
-            Frequency::K250 => Hertz::khz(250),
-            Frequency::K500 => Hertz::khz(500),
-            Frequency::M1 => Hertz::mhz(1),
-            Frequency::M2 => Hertz::mhz(2),
-            Frequency::M4 => Hertz::mhz(4),
-            Frequency::M8 => Hertz::mhz(8),
-            Frequency::M16 => Hertz::mhz(16),
-            Frequency::M32 => Hertz::mhz(32),
+            Frequency::_125k => Hertz::khz(125),
+            Frequency::_250k => Hertz::khz(250),
+            Frequency::_500k => Hertz::khz(500),
+            Frequency::_1M => Hertz::mhz(1),
+            Frequency::_2M => Hertz::mhz(2),
+            Frequency::_4M => Hertz::mhz(4),
+            Frequency::_8M => Hertz::mhz(8),
+            Frequency::_16M => Hertz::mhz(16),
+            Frequency::_32M => Hertz::mhz(32),
         }
     }
 }

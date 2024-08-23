@@ -19,7 +19,7 @@ use riot_rs::{
     embassy::{
         arch::spi,
         gpio,
-        spi::{Mode, SpiDevice},
+        spi::{Frequency, Mode, SpiDevice},
     },
 };
 
@@ -33,7 +33,7 @@ const WHO_AM_I_REG_ADDR: u8 = 0x0f;
 #[riot_rs::task(autostart, peripherals)]
 async fn main(peripherals: pins::Peripherals) {
     let mut spi_config = spi::Config::default();
-    spi_config.frequency = spi::Frequency::K125;
+    spi_config.frequency = Frequency::_125k.into();
     spi_config.mode = if !cfg!(context = "esp") {
         Mode::Mode3
     } else {

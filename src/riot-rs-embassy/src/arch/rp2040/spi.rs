@@ -19,26 +19,24 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            frequency: Frequency::M1,
+            frequency: Frequency::_1M,
             mode: Mode::Mode0,
         }
     }
 }
 
-// Possible values are copied from embassy-nrf
-// TODO: check how well this matches the RP2040 capabilities
 #[derive(Copy, Clone)]
 #[repr(u32)]
 pub enum Frequency {
-    K125 = 125_000,
-    K250 = 250_000,
-    K500 = 500_00,
-    M1 = 1_000_000,
-    M2 = 2_000_000,
-    M4 = 4_000_000,
-    M8 = 8_000_000,
-    M16 = 16_000_000,
-    M32 = 32_000_000,
+    _125k = 125_000,
+    _250k = 250_000,
+    _500k = 500_00,
+    _1M = 1_000_000,
+    _2M = 2_000_000,
+    _4M = 4_000_000,
+    _8M = 8_000_000,
+    _16M = 16_000_000,
+    _32M = 32_000_000,
 }
 
 impl From<Mode> for (Polarity, Phase) {

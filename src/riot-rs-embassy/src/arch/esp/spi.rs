@@ -26,7 +26,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            frequency: Frequency::M1, // FIXME
+            frequency: Frequency::_1M,
             mode: Mode::Mode0,
             bit_order: BitOrder::default(),
         }
@@ -38,29 +38,29 @@ impl Default for Config {
 #[derive(Copy, Clone)]
 #[repr(u32)]
 pub enum Frequency {
-    K125,
-    K250,
-    K500,
-    M1,
-    M2,
-    M4,
-    M8,
-    M16,
-    M32,
+    _125k,
+    _250k,
+    _500k,
+    _1M,
+    _2M,
+    _4M,
+    _8M,
+    _16M,
+    _32M,
 }
 
 impl From<Frequency> for fugit::HertzU32 {
     fn from(freq: Frequency) -> Self {
         match freq {
-            Frequency::K125 => fugit::Rate::<u32, 1, 1>::kHz(125),
-            Frequency::K250 => fugit::Rate::<u32, 1, 1>::kHz(250),
-            Frequency::K500 => fugit::Rate::<u32, 1, 1>::kHz(500),
-            Frequency::M1 => fugit::Rate::<u32, 1, 1>::MHz(1),
-            Frequency::M2 => fugit::Rate::<u32, 1, 1>::MHz(2),
-            Frequency::M4 => fugit::Rate::<u32, 1, 1>::MHz(4),
-            Frequency::M8 => fugit::Rate::<u32, 1, 1>::MHz(8),
-            Frequency::M16 => fugit::Rate::<u32, 1, 1>::MHz(16),
-            Frequency::M32 => fugit::Rate::<u32, 1, 1>::MHz(32),
+            Frequency::_125k => fugit::Rate::<u32, 1, 1>::kHz(125),
+            Frequency::_250k => fugit::Rate::<u32, 1, 1>::kHz(250),
+            Frequency::_500k => fugit::Rate::<u32, 1, 1>::kHz(500),
+            Frequency::_1M => fugit::Rate::<u32, 1, 1>::MHz(1),
+            Frequency::_2M => fugit::Rate::<u32, 1, 1>::MHz(2),
+            Frequency::_4M => fugit::Rate::<u32, 1, 1>::MHz(4),
+            Frequency::_8M => fugit::Rate::<u32, 1, 1>::MHz(8),
+            Frequency::_16M => fugit::Rate::<u32, 1, 1>::MHz(16),
+            Frequency::_32M => fugit::Rate::<u32, 1, 1>::MHz(32),
         }
     }
 }

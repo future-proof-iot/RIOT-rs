@@ -11,8 +11,6 @@ use crate::{
     spi::{impl_async_spibus_for_driver_enum, BitOrder, Mode},
 };
 
-pub use embassy_nrf::spim::Frequency;
-
 #[derive(Clone)]
 #[non_exhaustive]
 pub struct Config {
@@ -24,9 +22,41 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            frequency: Frequency::M1,
+            frequency: Frequency::_1M,
             mode: Mode::Mode0,
             bit_order: BitOrder::default(),
+        }
+    }
+}
+
+#[derive(Copy, Clone)]
+#[repr(u32)]
+pub enum Frequency {
+    _125k,
+    _250k,
+    _500k,
+    _1M,
+    _2M,
+    _4M,
+    _8M,
+    // FIXME(embassy): these frequencies are supported by hardware but do not seem supported by
+    // Embassy.
+    // #[cfg(context = "nrf5340")]
+    // _16M,
+    // #[cfg(context = "nrf5340")]
+    // _32M,
+}
+
+impl From<Frequency> for embassy_nrf::spim::Frequency {
+    fn from(freq: Frequency) -> Self {
+        match freq {
+            Frequency::_125k => embassy_nrf::spim::Frequency::K125,
+            Frequency::_250k => embassy_nrf::spim::Frequency::K250,
+            Frequency::_500k => embassy_nrf::spim::Frequency::K500,
+            Frequency::_1M => embassy_nrf::spim::Frequency::M1,
+            Frequency::_2M => embassy_nrf::spim::Frequency::M2,
+            Frequency::_4M => embassy_nrf::spim::Frequency::M4,
+            Frequency::_8M => embassy_nrf::spim::Frequency::M8,
         }
     }
 }
@@ -83,7 +113,7 @@ macro_rules! define_spi_drivers {
                     config: Config,
                 ) -> Spi {
                     let mut spi_config = embassy_nrf::spim::Config::default();
-                    spi_config.frequency = config.frequency;
+                    spi_config.frequency = config.frequency.into();
                     spi_config.mode = config.mode.into();
                     spi_config.bit_order = config.bit_order.into();
 

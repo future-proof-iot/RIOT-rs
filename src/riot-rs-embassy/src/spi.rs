@@ -59,6 +59,43 @@ macro_rules! impl_async_spibus_for_driver_enum {
 #[allow(unused_imports, reason = "used by arch modules")]
 pub(crate) use impl_async_spibus_for_driver_enum;
 
+// FIXME: rename this to Bitrate and use bps instead?
+/// SPI bus frequency.
+#[derive(Copy, Clone)]
+pub enum Frequency {
+    /// MCU-specific frequency.
+    Arch(arch::spi::Frequency),
+    /// 125 kHz.
+    _125k,
+    /// 250 kHz.
+    _250k,
+    /// 500 kHz.
+    _500k,
+    /// 1 MHz.
+    _1M,
+    /// 2 MHz.
+    _2M,
+    /// 4 MHz.
+    _4M,
+    /// 8 MHz.
+    _8M,
+}
+
+impl From<Frequency> for arch::spi::Frequency {
+    fn from(freq: Frequency) -> Self {
+        match freq {
+            Frequency::Arch(freq) => freq,
+            Frequency::_125k => arch::spi::Frequency::_125k,
+            Frequency::_250k => arch::spi::Frequency::_250k,
+            Frequency::_500k => arch::spi::Frequency::_500k,
+            Frequency::_1M => arch::spi::Frequency::_1M,
+            Frequency::_2M => arch::spi::Frequency::_2M,
+            Frequency::_4M => arch::spi::Frequency::_4M,
+            Frequency::_8M => arch::spi::Frequency::_8M,
+        }
+    }
+}
+
 /// SPI mode.
 ///
 /// - CPOL: Clock polarity.
