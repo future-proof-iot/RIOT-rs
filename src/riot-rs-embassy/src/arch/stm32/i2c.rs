@@ -24,31 +24,33 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            frequency: Frequency::K100,
+            frequency: Frequency::_100k,
             sda_pullup: false,
             scl_pullup: false,
         }
     }
 }
 
-// FIXME: check how well this matches the STM32 capabilities
-// TODO: allow more free-from values?
+// NOTE(arch): intermediate frequencies are also supported.
+// TODO: also support arbitrary frequencies?
 #[derive(Copy, Clone)]
 #[repr(u32)]
 pub enum Frequency {
-    K100 = 100_000,
-    K250 = 250_000,
-    K400 = 400_000,
-    M1 = 1_000_000,
+    /// Standard mode.
+    _100k = 100_000,
+    _250k = 250_000,
+    /// Fast mode.
+    _400k = 400_000,
+    // FIXME: frequencies up to 1 MHz are supported, but requires additional configuration of GPIOs
+    // used.
 }
 
 impl From<Frequency> for Hertz {
     fn from(freq: Frequency) -> Self {
         match freq {
-            Frequency::K100 => Hertz::khz(100),
-            Frequency::K250 => Hertz::khz(250),
-            Frequency::K400 => Hertz::khz(400),
-            Frequency::M1 => Hertz::mhz(1),
+            Frequency::_100k => Hertz::khz(100),
+            Frequency::_250k => Hertz::khz(250),
+            Frequency::_400k => Hertz::khz(400),
         }
     }
 }

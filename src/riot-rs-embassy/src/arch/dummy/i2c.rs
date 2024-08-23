@@ -19,6 +19,16 @@ pub enum I2c {
     Hidden,
 }
 
+/// MCU-specific I2C bus frequency.
+pub enum Frequency {
+    /// Standard mode.
+    _100k,
+    /// Fast mode.
+    _400k,
+    #[doc(hidden)]
+    Hidden,
+}
+
 pub(crate) fn init(peripherals: &mut arch::OptionalPeripherals) {
     unimplemented!();
 }

@@ -16,7 +16,10 @@ use embassy_sync::mutex::Mutex;
 use embedded_hal_async::i2c::I2c as _;
 use riot_rs::{
     debug::{exit, log::info, EXIT_SUCCESS},
-    embassy::{arch::i2c, i2c::I2cDevice},
+    embassy::{
+        arch::i2c,
+        i2c::{Frequency, I2cDevice},
+    },
 };
 
 const LIS3DH_I2C_ADDR: u8 = 0x19;
@@ -31,7 +34,7 @@ pub static I2C_BUS: once_cell::sync::OnceCell<
 #[riot_rs::task(autostart, peripherals)]
 async fn main(peripherals: pins::Peripherals) {
     let mut i2c_config = i2c::Config::default();
-    i2c_config.frequency = i2c::Frequency::K100;
+    i2c_config.frequency = Frequency::_100k.into();
 
     let i2c_bus = pins::SensorI2c::new(
         peripherals.i2c_sda,

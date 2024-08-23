@@ -18,19 +18,23 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            frequency: Frequency::K100,
+            frequency: Frequency::_100k,
         }
     }
 }
 
-// Possible values are copied from embassy-nrf
-// TODO: check how well this matches the RP2040 capabilities
+// NOTE(arch): intermediate frequencies are also supported.
+// TODO: also support arbitrary frequencies up to 400 kHz?
 #[derive(Copy, Clone)]
 #[repr(u32)]
 pub enum Frequency {
-    K100 = 100_000,
-    K250 = 250_000,
-    K400 = 400_000,
+    /// Standard mode.
+    _100k = 100_000,
+    _250k = 250_000,
+    /// Fast mode.
+    _400k = 400_000,
+    // FIXME(embassy): fast mode plus is supported by hardware but requires additional
+    // configuration that Embassy does not seem to currently provide.
 }
 
 pub(crate) fn init(peripherals: &mut arch::OptionalPeripherals) {

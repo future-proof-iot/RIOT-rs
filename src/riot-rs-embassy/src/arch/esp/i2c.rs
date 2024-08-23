@@ -17,29 +17,34 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            frequency: Frequency::K100,
+            frequency: Frequency::_100k,
         }
     }
 }
 
-// FIXME: check how well this matches the ESP32 capabilities
-// TODO: allow more free-from values?
+// TODO: also support arbitrary frequencies up to 800 kHz?
+// NOTE(arch): the technical references only mention these frequencies, except above fast mode
+// where intermediate frequencies are supported.
+#[cfg(any(context = "esp32c3", context = "esp32c6"))]
 #[derive(Copy, Clone)]
 #[repr(u32)]
 pub enum Frequency {
-    K100 = 100_000,
-    K250 = 250_000,
-    K400 = 400_000,
-    M1 = 1_000_000,
+    /// Standard mode.
+    _100k = 100_000,
+    /// Fast mode.
+    _400k = 400_000,
+    #[cfg(any(context = "esp32s3", context = "esp32c3"))]
+    /// Maximum frequency.
+    _800k = 800_000,
 }
 
 impl From<Frequency> for fugit::HertzU32 {
     fn from(freq: Frequency) -> Self {
         match freq {
-            Frequency::K100 => fugit::Rate::<u32, 1, 1>::kHz(100),
-            Frequency::K250 => fugit::Rate::<u32, 1, 1>::kHz(250),
-            Frequency::K400 => fugit::Rate::<u32, 1, 1>::kHz(400),
-            Frequency::M1 => fugit::Rate::<u32, 1, 1>::MHz(1),
+            Frequency::_100k => fugit::Rate::<u32, 1, 1>::kHz(100),
+            Frequency::_400k => fugit::Rate::<u32, 1, 1>::kHz(400),
+            #[cfg(any(context = "esp32s3", context = "esp32c3"))]
+            Frequency::_800k => fugit::Rate::<u32, 1, 1>::kHz(800),
         }
     }
 }

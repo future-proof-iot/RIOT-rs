@@ -9,8 +9,6 @@ use embedded_hal_async::i2c::Operation;
 
 use crate::{arch, i2c::impl_async_i2c_for_driver_enum};
 
-pub use embassy_nrf::twim::Frequency;
-
 #[non_exhaustive]
 #[derive(Clone)]
 pub struct Config {
@@ -24,11 +22,37 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            frequency: Frequency::K100,
+            frequency: Frequency::_100k,
             sda_pullup: false,
             scl_pullup: false,
             sda_high_drive: false,
             scl_high_drive: false,
+        }
+    }
+}
+
+// NOTE(arch): the datasheets only mention these frequencies.
+#[cfg(any(context = "nrf52840", context = "nrf5340"))]
+#[derive(Copy, Clone)]
+pub enum Frequency {
+    /// Standard mode.
+    _100k,
+    #[cfg(context = "nrf5340")]
+    _250k,
+    /// Fast mode.
+    _400k,
+    // FIXME(embassy): the upstream Embassy crate does not support this frequency
+    // #[cfg(context = "nrf5340")]
+    // K1000,
+}
+
+impl From<Frequency> for embassy_nrf::twim::Frequency {
+    fn from(freq: Frequency) -> Self {
+        match freq {
+            Frequency::_100k => embassy_nrf::twim::Frequency::K100,
+            #[cfg(context = "nrf5340")]
+            Frequency::_250k => embassy_nrf::twim::Frequency::K250,
+            Frequency::_400k => embassy_nrf::twim::Frequency::K400,
         }
     }
 }
@@ -64,7 +88,7 @@ macro_rules! define_i2c_drivers {
                     config: Config,
                 ) -> I2c {
                     let mut twim_config = embassy_nrf::twim::Config::default();
-                    twim_config.frequency = config.frequency;
+                    twim_config.frequency = config.frequency.into();
                     twim_config.sda_pullup = config.sda_pullup;
                     twim_config.scl_pullup = config.scl_pullup;
                     twim_config.sda_high_drive = config.sda_high_drive;

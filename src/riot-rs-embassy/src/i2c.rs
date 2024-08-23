@@ -149,3 +149,24 @@ impl From<NoAcknowledgeSource> for embedded_hal::i2c::NoAcknowledgeSource {
         }
     }
 }
+
+/// I2C bus frequency.
+// FIXME: rename this to Bitrate, and use kbit/s instead?
+pub enum Frequency {
+    /// MCU-specific frequency.
+    Arch(arch::i2c::Frequency),
+    /// Standard mode: 100 kHz.
+    _100k,
+    /// Fast mode: 400 kHz.
+    _400k,
+}
+
+impl From<crate::i2c::Frequency> for arch::i2c::Frequency {
+    fn from(freq: crate::i2c::Frequency) -> Self {
+        match freq {
+            crate::i2c::Frequency::Arch(freq) => freq,
+            crate::i2c::Frequency::_100k => arch::i2c::Frequency::_100k,
+            crate::i2c::Frequency::_400k => arch::i2c::Frequency::_400k,
+        }
+    }
+}
