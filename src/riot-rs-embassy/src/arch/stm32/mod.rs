@@ -1,5 +1,10 @@
 pub mod gpio;
 
+#[cfg(feature = "i2c")]
+pub mod i2c;
+#[cfg(feature = "spi")]
+pub mod spi;
+
 pub mod peripheral {
     pub use embassy_stm32::Peripheral;
 }
@@ -27,10 +32,23 @@ cfg_if::cfg_if! {
 #[cfg(feature = "executor-interrupt")]
 include!(concat!(env!("OUT_DIR"), "/swi.rs"));
 
+#[cfg(capability = "hw/stm32-dual-core")]
+use {core::mem::MaybeUninit, embassy_stm32::SharedData};
+
+// RIOT-rs doesn't support the second core yet, but upstream needs this.
+#[cfg(capability = "hw/stm32-dual-core")]
+static SHARED_DATA: MaybeUninit<SharedData> = MaybeUninit::uninit();
+
 pub fn init() -> OptionalPeripherals {
     let mut config = Config::default();
     board_config(&mut config);
+
+    #[cfg(not(capability = "hw/stm32-dual-core"))]
     let peripherals = embassy_stm32::init(config);
+
+    #[cfg(capability = "hw/stm32-dual-core")]
+    let peripherals = embassy_stm32::init_primary(config, &SHARED_DATA);
+
     OptionalPeripherals::from(peripherals)
 }
 
@@ -75,7 +93,8 @@ fn board_config(config: &mut Config) {
             prediv: PllPreDiv::DIV4,
             mul: PllMul::MUL50,
             divp: Some(PllDiv::DIV2),
-            divq: None,
+            // Required for SPI (configured by `spi123sel`)
+            divq: Some(PllDiv::DIV16), // FIXME: adjust this divider
             divr: None,
         });
         config.rcc.sys = Sysclk::PLL1_P; // 400 Mhz
@@ -88,6 +107,9 @@ fn board_config(config: &mut Config) {
         // Set SMPS power config otherwise MCU will not powered after next power-off
         config.rcc.supply_config = SupplyConfig::DirectSMPS;
         config.rcc.mux.usbsel = mux::Usbsel::HSI48;
+        // Select the clock signal used for SPI1, SPI2, and SPI3.
+        config.rcc.mux.spi123sel = mux::Saisel::PLL1_Q; // Reset value
+        // FIXME: what to do about SPI4, SPI5, and SPI6?
     }
 
     // mark used

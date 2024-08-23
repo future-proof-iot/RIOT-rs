@@ -1,7 +1,9 @@
-//! Dummy module used to satisfy platform-independent tooling.
+//! Architecture- and MCU-specific types.
 
 mod executor;
 pub mod gpio;
+pub mod i2c;
+pub mod spi;
 
 pub mod peripheral {
     pub use embassy_hal_internal::Peripheral;

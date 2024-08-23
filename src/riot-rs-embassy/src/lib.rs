@@ -2,6 +2,7 @@
 
 #![no_std]
 #![feature(type_alias_impl_trait)]
+#![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 #![feature(lint_reasons)]
 #![feature(trait_alias)]
@@ -35,6 +36,11 @@ cfg_if::cfg_if! {
         pub mod arch;
     }
 }
+
+#[cfg(feature = "i2c")]
+pub mod i2c;
+#[cfg(feature = "spi")]
+pub mod spi;
 
 #[cfg(feature = "usb")]
 pub mod usb;
@@ -160,6 +166,12 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     #[cfg(context = "esp")]
     arch::gpio::init(&mut peripherals);
 
+    #[cfg(feature = "i2c")]
+    arch::i2c::init(&mut peripherals);
+
+    #[cfg(feature = "spi")]
+    arch::spi::init(&mut peripherals);
+
     #[cfg(feature = "hwrng")]
     arch::hwrng::construct_rng(&mut peripherals);
     // Clock startup and entropy collection may lend themselves to parallelization, provided that
@@ -191,7 +203,6 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         let builder = usb::UsbBuilder::new(
             usb_driver,
             usb_config,
-            &mut make_static!([0; 256])[..],
             &mut make_static!([0; 256])[..],
             &mut make_static!([0; 256])[..],
             &mut make_static!([0; 128])[..],

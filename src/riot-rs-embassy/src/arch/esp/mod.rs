@@ -1,5 +1,10 @@
 pub mod gpio;
 
+#[cfg(feature = "i2c")]
+pub mod i2c;
+#[cfg(feature = "spi")]
+pub mod spi;
+
 pub mod peripheral {
     pub use esp_hal::peripheral::Peripheral;
 }
@@ -46,12 +51,21 @@ pub mod peripherals {
     }
 }
 
-use esp_hal::{clock::ClockControl, system::SystemControl, timer::timg::TimerGroup};
+use esp_hal::{
+    clock::{ClockControl, Clocks},
+    system::SystemControl,
+    timer::timg::TimerGroup,
+};
+use once_cell::sync::OnceCell;
 
 pub use esp_hal::peripherals::OptionalPeripherals;
 
 #[cfg(feature = "executor-single-thread")]
 pub use esp_hal_embassy::Executor;
+
+// NOTE(once-cell): using a `once_cell::OnceCell` here for critical-section support, just to be
+// sure.
+pub static CLOCKS: OnceCell<Clocks> = OnceCell::new();
 
 pub fn init() -> OptionalPeripherals {
     let mut peripherals = OptionalPeripherals::from(peripherals::Peripherals::take());
@@ -65,7 +79,8 @@ pub fn init() -> OptionalPeripherals {
 
         riot_rs_debug::log::debug!("riot-rs-embassy::arch::esp::init(): wifi");
 
-        let timer = SystemTimer::new(peripherals.SYSTIMER.take().unwrap());
+        let timer = SystemTimer::new(peripherals.SYSTIMER.take().unwrap())
+            .split::<esp_hal::timer::systimer::Target>();
 
         #[cfg(target_arch = "riscv32")]
         let init = initialize(
@@ -80,8 +95,10 @@ pub fn init() -> OptionalPeripherals {
         crate::wifi::esp_wifi::WIFI_INIT.set(init).unwrap();
     }
 
-    let timer_group0 = TimerGroup::new_async(peripherals.TIMG0.take().unwrap(), &clocks);
-    esp_hal_embassy::init(&clocks, timer_group0);
+    let timer_group0 = TimerGroup::new(peripherals.TIMG0.take().unwrap(), &clocks);
+    esp_hal_embassy::init(&clocks, timer_group0.timer0);
+
+    let _ = CLOCKS.set(clocks);
 
     peripherals
 }

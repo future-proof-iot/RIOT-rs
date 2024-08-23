@@ -1,5 +1,10 @@
 pub mod gpio;
 
+#[cfg(feature = "i2c")]
+pub mod i2c;
+#[cfg(feature = "spi")]
+pub mod spi;
+
 pub mod peripheral {
     pub use embassy_rp::Peripheral;
 }

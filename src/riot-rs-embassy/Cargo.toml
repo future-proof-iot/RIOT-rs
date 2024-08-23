@@ -13,9 +13,12 @@ linkme.workspace = true
 static_cell.workspace = true
 cfg-if.workspace = true
 portable-atomic.workspace = true
+fugit.workspace = true
+paste.workspace = true
 
+embassy-embedded-hal = { workspace = true, optional = true }
 embassy-executor = { workspace = true, features = ["nightly"] }
-
+embassy-futures = { workspace = true }
 embassy-hal-internal = { workspace = true }
 embassy-net = { workspace = true, optional = true, features = [
   "dhcpv4",
@@ -37,13 +40,11 @@ riot-rs-random = { path = "../riot-rs-random", optional = true }
 riot-rs-utils = { workspace = true }
 
 heapless = "0.8.0"
-once_cell = { version = "1.19.0", default-features = false, features = [
-  "critical-section",
-] }
+once_cell = { workspace = true }
 
 # rpi-pico-w cyw43
-cyw43 = { version = "0.1.0", features = ["firmware-logs"], optional = true }
-cyw43-pio = { version = "0.1.0", features = ["overclock"], optional = true }
+cyw43 = { version = "0.2.0", features = ["firmware-logs"], optional = true }
+cyw43-pio = { version = "0.2.0", features = ["overclock"], optional = true }
 
 # listed here for conditional feature selection
 embassy-nrf = { workspace = true, default-features = false, optional = true }
@@ -77,6 +78,7 @@ embassy-nrf = { workspace = true, features = ["nrf5340-app-s"] }
 
 [target.'cfg(context = "rp2040")'.dependencies]
 embassy-rp = { workspace = true, features = [
+  "rp2040",
   "rt",
   "time-driver",
   "unstable-pac",
@@ -85,9 +87,7 @@ embassy-rp = { workspace = true, features = [
 
 [target.'cfg(context = "esp")'.dependencies]
 esp-hal = { workspace = true, features = ["async", "embedded-hal"] }
-esp-hal-embassy = { workspace = true, default-features = false, features = [
-  "time-timg0",
-] }
+esp-hal-embassy = { workspace = true, default-features = false, features = [] }
 esp-wifi = { workspace = true, default-features = false, features = [
   "async",
   "embassy-net",
@@ -123,6 +123,11 @@ embassy-stm32 = { workspace = true, features = [
 ## Enables GPIO interrupt support.
 external-interrupts = ["embassy-nrf?/gpiote", "embassy-stm32?/exti"]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
+
+## Enables I2C support.
+i2c = ["dep:embassy-embedded-hal", "dep:embassy-time"]
+## Enables SPI support.
+spi = ["dep:embassy-embedded-hal"]
 usb = ["dep:embassy-usb"]
 # embassy-net requires embassy-time and support for timeouts in the executor
 net = ["dep:embassy-net", "time"]

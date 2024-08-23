@@ -35,6 +35,12 @@ functionalities:
   - name: ethernet_over_usb
     title: Ethernet over USB
     description:
+  - name: i2c-controller
+    title: I2C Controller
+    description: Controller for the I2C communication bus
+  - name: spi-main
+    title: SPI Main Role
+    description: Main role for the SPI communication bus
 
 # Encodes support status for each chip.
 chips:
@@ -43,6 +49,8 @@ chips:
     support:
       gpio: supported
       debug_output: supported
+      i2c-controller: supported
+      spi-main: supported
       logging: supported
       wifi: not_available
 
@@ -51,6 +59,8 @@ chips:
     support:
       gpio: supported
       debug_output: supported
+      i2c-controller: supported
+      spi-main: supported
       logging: supported
       wifi: not_available
 
@@ -59,6 +69,8 @@ chips:
     support:
       gpio: supported
       debug_output: supported
+      i2c-controller: supported
+      spi-main: supported
       logging: supported
       wifi: not_available
 
@@ -67,6 +79,11 @@ chips:
     support:
       gpio: supported
       debug_output: supported
+      i2c-controller: supported
+      spi-main:
+        status: supported_with_caveats
+        comments:
+          - the SPI driver is not `Send`
       logging: supported
       wifi: not_available
 
@@ -75,6 +92,8 @@ chips:
     support:
       gpio: supported
       debug_output: supported
+      i2c-controller: supported
+      spi-main: supported
       logging: supported
       wifi: not_available
 
@@ -83,6 +102,8 @@ chips:
     support:
       gpio: supported
       debug_output: supported
+      i2c-controller: supported
+      spi-main: supported
       logging: supported
       wifi: not_available
 
@@ -91,6 +112,8 @@ chips:
     support:
       gpio: supported
       debug_output: supported
+      i2c-controller: supported
+      spi-main: supported
       logging: supported
       wifi: not_available
 
