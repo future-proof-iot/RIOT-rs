@@ -196,7 +196,20 @@ unsafe fn sched() -> u128 {
     loop {
         if let Some(res) = THREADS.with_mut(|mut threads| {
 
+            #[cfg(not(feature = "core-affinity"))]
             let next_pid = threads.runqueue.pop_next()?;
+            #[cfg(feature = "core-affinity")]
+            let next_pid = {
+                let (mut next, prio) = threads.runqueue.peek_next()?;
+                if !threads.is_affine_to_curr_core(next) {
+                    let iter = threads.runqueue.iter_from(next, prio);
+                    next = iter
+                        .filter(|pid| threads.is_affine_to_curr_core(*pid))
+                        .next()?;
+                }
+                threads.runqueue.del(next);
+                next
+            };
 
             let mut current_high_regs = core::ptr::null();
             if let Some(current_pid) = threads.current_pid() {
