@@ -47,3 +47,4 @@ embassy-rp = { workspace = true, features = ["fifo-handler"] }
 
 [features]
 defmt = ["dep:defmt", "riot-rs-runqueue/defmt"]
+core-affinity = []

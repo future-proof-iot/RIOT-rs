@@ -206,7 +206,16 @@ unsafe fn sched() -> u128 {
     loop {
         if let Some(res) = THREADS.with_mut(|mut threads| {
 
+            #[cfg(not(feature = "core-affinity"))]
             let next_pid = threads.runqueue.pop_next()?;
+            #[cfg(feature = "core-affinity")]
+            let next_pid = {
+                let next = threads
+                    .runqueue
+                    .get_next_filter(|&t| threads.is_affine_to_curr_core(t))?;
+                threads.runqueue.del(next);
+                next
+            };
 
             // `current_high_regs` will be null if there is no current thread.
             // This is only the case once, when the very first thread starts running.

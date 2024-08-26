@@ -74,3 +74,37 @@ cfg_if::cfg_if! {
 pub fn schedule_on_core(id: CoreId) {
     Chip::schedule_on_core(id)
 }
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub struct CoreAffinity(u8);
+
+impl CoreAffinity {
+    /// Allows a thread to be scheduled on any core and to migrate
+    /// from one core to another between executions.
+    pub const fn no_affinity() -> Self {
+        Self(2u8.pow(Chip::CORES) - 1)
+    }
+
+    /// Restricts the thread execution to a specific core.
+    ///
+    /// The thread can only be scheduled on this core, even
+    /// if other cores are idle or execute a lower priority thread.
+    #[cfg(feature = "core-affinity")]
+    pub fn one(core: CoreId) -> Self {
+        Self(1 << core.0)
+    }
+
+    /// Checks if the affinity mask "allows" this `core`.
+    #[cfg(feature = "core-affinity")]
+    pub fn contains(&self, core: CoreId) -> bool {
+        self.0 & (1 << core.0) > 0
+    }
+}
+
+#[cfg(feature = "core-affinity")]
+impl Default for CoreAffinity {
+    fn default() -> Self {
+        Self::no_affinity()
+    }
+}

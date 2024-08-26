@@ -51,12 +51,18 @@ pub use riot_rs_runqueue::{RunqueueId, ThreadId};
 pub use smp::CoreId;
 pub use thread_flags as flags;
 
+#[cfg(feature = "core-affinity")]
+pub use smp::CoreAffinity;
+
 use arch::{schedule, Arch, Cpu, ThreadData};
 use ensure_once::EnsureOnce;
 use riot_rs_runqueue::RunQueue;
 use smp::{schedule_on_core, Multicore};
 use static_cell::ConstStaticCell;
 use thread::{Thread, ThreadState};
+
+#[cfg(not(feature = "core-affinity"))]
+use smp::CoreAffinity;
 
 /// The number of possible priority levels.
 pub const SCHED_PRIO_LEVELS: usize = 12;
@@ -133,12 +139,18 @@ impl Threads {
         arg: usize,
         stack: &'static mut [u8],
         prio: RunqueueId,
+        _core_affinity: Option<CoreAffinity>,
     ) -> Option<ThreadId> {
         let (thread, pid) = self.get_unused()?;
         Cpu::setup_stack(thread, stack, func, arg);
         thread.prio = prio;
         thread.pid = pid;
         thread.state = ThreadState::Paused;
+        #[cfg(feature = "core-affinity")]
+        {
+            thread.core_affinity = _core_affinity.unwrap_or_default();
+        }
+
         Some(pid)
     }
 
@@ -267,8 +279,8 @@ impl Threads {
     }
 
     /// Triggers the scheduler if the thread has a higher priority than the currently running thread.
-    fn schedule_if_higher_prio(&mut self, _thread_id: ThreadId, prio: RunqueueId) {
-        match self.lowest_running_prio() {
+    fn schedule_if_higher_prio(&mut self, thread_id: ThreadId, prio: RunqueueId) {
+        match self.lowest_running_prio(thread_id) {
             (core, Some(lowest_prio)) if lowest_prio < prio => schedule_on_core(core),
             _ => {}
         }
@@ -281,13 +293,32 @@ impl Threads {
             .position(|pid| *pid == Some((thread_id, prio)))
     }
 
-    fn lowest_running_prio(&self) -> (CoreId, Option<RunqueueId>) {
+    fn lowest_running_prio(&self, _thread_id: ThreadId) -> (CoreId, Option<RunqueueId>) {
+        #[cfg(feature = "core-affinity")]
+        let affinity = self.get_unchecked(_thread_id).core_affinity;
+
         self.current_threads
             .iter()
             .enumerate()
-            .map(|(core, thread)| (CoreId::new(core as u8), thread.unzip().1))
+            .filter_map(|(core, thread)| {
+                let core = CoreId::new(core as u8);
+                #[cfg(feature = "core-affinity")]
+                if !affinity.contains(core) {
+                    return None;
+                }
+                Some(((core), thread.unzip().1))
+            })
             .min_by_key(|(_, rq)| *rq)
             .unwrap()
+    }
+
+    /// Checks if a thread can be scheduled on the current core.
+    #[allow(dead_code, reason = "used in scheduler implementation")]
+    #[cfg(feature = "core-affinity")]
+    fn is_affine_to_curr_core(&self, pid: ThreadId) -> bool {
+        self.get_unchecked(pid)
+            .core_affinity
+            .contains(crate::core_id())
     }
 }
 
@@ -318,7 +349,7 @@ pub unsafe fn start_threading() {
 
     // Create one idle thread for each core with lowest priority.
     for stack in &STACKS {
-        thread_create_noarg(idle_thread, stack.take(), 0);
+        thread_create_noarg(idle_thread, stack.take(), 0, None);
     }
 
     smp::Chip::startup_other_cores();
@@ -366,9 +397,10 @@ pub fn thread_create<T: Arguable + Send>(
     arg: T,
     stack: &'static mut [u8],
     prio: u8,
+    core_affinity: Option<CoreAffinity>,
 ) -> ThreadId {
     let arg = arg.into_arg();
-    unsafe { thread_create_raw(func as usize, arg, stack, prio) }
+    unsafe { thread_create_raw(func as usize, arg, stack, prio, core_affinity) }
 }
 
 /// Low-level function to create a thread without argument
@@ -376,8 +408,13 @@ pub fn thread_create<T: Arguable + Send>(
 /// # Panics
 ///
 /// Panics if more than [`THREADS_NUMOF`] concurrent threads have been created.
-pub fn thread_create_noarg(func: fn(), stack: &'static mut [u8], prio: u8) -> ThreadId {
-    unsafe { thread_create_raw(func as usize, 0, stack, prio) }
+pub fn thread_create_noarg(
+    func: fn(),
+    stack: &'static mut [u8],
+    prio: u8,
+    core_affinity: Option<CoreAffinity>,
+) -> ThreadId {
+    unsafe { thread_create_raw(func as usize, 0, stack, prio, core_affinity) }
 }
 
 /// Creates a thread, low-level.
@@ -390,10 +427,11 @@ pub unsafe fn thread_create_raw(
     arg: usize,
     stack: &'static mut [u8],
     prio: u8,
+    core_affinity: Option<CoreAffinity>,
 ) -> ThreadId {
     THREADS.with_mut(|mut threads| {
         let thread_id = threads
-            .create(func, arg, stack, RunqueueId::new(prio))
+            .create(func, arg, stack, RunqueueId::new(prio), core_affinity)
             .expect("Max `THREADS_NUMOF` concurrent threads should be created.");
         threads.set_state(thread_id, ThreadState::Running);
         thread_id
