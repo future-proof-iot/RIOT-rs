@@ -121,6 +121,18 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         self.queues.peek_head(rq).map(ThreadId::new)
     }
 
+    /// Returns the next thread from the runqueue that fulfils the predicate.
+    pub fn get_next_filter<F: FnMut(&ThreadId) -> bool>(
+        &self,
+        mut predicate: F,
+    ) -> Option<ThreadId> {
+        let (next, prio) = self.peek_next()?;
+        if predicate(&next) {
+            return Some(next);
+        }
+        self.iter_from(next, prio).filter(predicate).next()
+    }
+
     /// Returns the pid that should run next.
     ///
     /// Returns the next runnable thread of

@@ -5,7 +5,7 @@
 
 use riot_rs::{
     debug::log::*,
-    thread::{sync::Channel, yield_same},
+    thread::{sync::Channel, yield_same, CoreAffinity, CoreId},
 };
 
 static CHANNEL: Channel<bool> = Channel::new();
@@ -38,8 +38,15 @@ fn thread2() {
     loop {}
 }
 
-#[riot_rs::thread(autostart, priority = 3)]
+#[riot_rs::thread(autostart, priority = 3, affinity = CoreAffinity::one(CoreId::new(1)))]
 fn thread3() {
+    let core = riot_rs::thread::core_id();
+    let pid = riot_rs::thread::current_pid().unwrap();
+    info!("Hello from high prio thread {:?} on core {:?}", pid, core);
+}
+
+#[riot_rs::thread(autostart, priority = 3, affinity = CoreAffinity::one(CoreId::new(1)))]
+fn thread4() {
     let core = riot_rs::thread::core_id();
     let pid = riot_rs::thread::current_pid().unwrap();
     info!("Hello from high prio thread {:?} on core {:?}", pid, core);
