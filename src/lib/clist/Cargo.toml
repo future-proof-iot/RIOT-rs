@@ -2,7 +2,7 @@
 name = "clist"
 version = "0.1.1"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
-license = "Apache-2.0"
+license.workspace = true
 edition = "2021"
 homepage = "https://github.com/future-proof-iot/RIOT-rs"
 description = "A hairy circular linked list for no_std environments."
