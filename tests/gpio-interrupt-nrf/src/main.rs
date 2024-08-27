@@ -4,11 +4,9 @@
 #![feature(used_with_arg)]
 
 use riot_rs::{
+    arch::peripherals,
     debug::log::info,
-    embassy::{
-        arch::peripherals,
-        gpio::{self, Input, Pull},
-    },
+    gpio::{self, Input, Pull},
 };
 
 #[cfg(context = "nrf51")]

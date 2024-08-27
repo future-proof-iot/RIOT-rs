@@ -18,7 +18,7 @@
 /// # Examples
 ///
 /// ```ignore
-/// use riot_rs::embassy::Spawner;
+/// use riot_rs::Spawner;
 ///
 /// #[riot_rs::spawner(autostart)]
 /// fn spawner(spawner: Spawner, peripherals: /* your peripheral type */) {}
@@ -84,11 +84,11 @@ pub fn spawner(args: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     let expanded = quote! {
-        #[#riot_rs_crate::embassy::distributed_slice(#riot_rs_crate::embassy::EMBASSY_TASKS)]
-        #[linkme(crate = #riot_rs_crate::embassy::linkme)]
+        #[#riot_rs_crate::distributed_slice(#riot_rs_crate::EMBASSY_TASKS)]
+        #[linkme(crate = #riot_rs_crate::linkme)]
         fn #new_function_name(
-            spawner: #riot_rs_crate::embassy::Spawner,
-            mut peripherals: &mut #riot_rs_crate::embassy::arch::OptionalPeripherals,
+            spawner: #riot_rs_crate::Spawner,
+            mut peripherals: &mut #riot_rs_crate::arch::OptionalPeripherals,
         ) {
             use #riot_rs_crate::define_peripherals::TakePeripherals;
             #spawner_function_name(spawner #peripheral_param);

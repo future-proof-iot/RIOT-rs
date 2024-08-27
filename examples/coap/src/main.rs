@@ -3,7 +3,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::{debug::log::*, embassy::network};
+use riot_rs::{debug::log::*, network};
 
 use embassy_net::udp::{PacketMetadata, UdpSocket};
 use embedded_nal_coap::TransportError;

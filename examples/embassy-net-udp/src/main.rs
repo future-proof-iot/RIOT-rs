@@ -3,7 +3,7 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::{debug::log::*, embassy::network};
+use riot_rs::{debug::log::*, network};
 
 #[riot_rs::task(autostart)]
 async fn udp_echo() {

@@ -18,9 +18,7 @@ pub mod buildinfo;
 pub use riot_rs_bench as bench;
 #[doc(inline)]
 pub use riot_rs_debug as debug;
-#[doc(inline)]
-pub use riot_rs_embassy as embassy;
-pub use riot_rs_embassy::{define_peripherals, group_peripherals};
+pub use riot_rs_embassy::*;
 #[cfg(feature = "random")]
 #[doc(inline)]
 pub use riot_rs_random as random;
