@@ -2,9 +2,9 @@
 name = "riot-rs-threads"
 version = "0.1.0"
 edition = "2021"
-license = "Apache-2.0"
+license.workspace = true
 description = "generic embedded scheduler & IPC"
-include = ["src/**/*", "LICENSE", "README.md"]
+include = ["src/**/*", "README.md"]
 repository.workspace = true
 
 [lints]
