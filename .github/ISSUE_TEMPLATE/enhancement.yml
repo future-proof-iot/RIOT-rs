@@ -4,7 +4,7 @@ body:
   - type: textarea
     attributes:
       label: Description
-      description: Describe the enhancement that you are proposing.    
+      description: Describe the enhancement that you are proposing.
     validations:
       required: true
   - type: textarea
