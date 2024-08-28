@@ -15,6 +15,7 @@ members = [
   "src/riot-rs-embassy-common",
   "src/riot-rs-macros",
   "src/riot-rs-random",
+  "src/riot-rs-stm32",
   "tests/benchmarks/bench_sched_yield",
   "tests/gpio",
   "tests/gpio-interrupt-nrf",

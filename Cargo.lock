@@ -3684,7 +3684,6 @@ dependencies = [
  "embassy-net-driver-channel",
  "embassy-nrf",
  "embassy-rp",
- "embassy-stm32",
  "embassy-sync 0.6.0",
  "embassy-time",
  "embassy-usb",
@@ -3702,6 +3701,7 @@ dependencies = [
  "riot-rs-macros",
  "riot-rs-random",
  "riot-rs-rt",
+ "riot-rs-stm32",
  "riot-rs-threads",
  "riot-rs-utils",
  "static_cell",
@@ -3762,6 +3762,18 @@ version = "0.1.2"
 dependencies = [
  "defmt",
  "hax-lib",
+]
+
+[[package]]
+name = "riot-rs-stm32"
+version = "0.1.0"
+dependencies = [
+ "cfg-if",
+ "embassy-executor",
+ "embassy-stm32",
+ "portable-atomic",
+ "riot-rs-embassy-common",
+ "static_cell",
 ]
 
 [[package]]

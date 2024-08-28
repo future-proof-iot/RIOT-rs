@@ -1,8 +1,15 @@
+#![no_std]
+#![feature(doc_auto_cfg)]
+#![feature(type_alias_impl_trait)]
+
 pub mod gpio;
 
 pub mod peripheral {
     pub use embassy_stm32::Peripheral;
 }
+
+#[cfg(feature = "external-interrupts")]
+pub mod extint_registry;
 
 use embassy_stm32::Config;
 
@@ -76,7 +83,6 @@ fn board_config(config: &mut Config) {
     #[cfg(context = "stm32h755zitx")]
     {
         use embassy_stm32::rcc::*;
-        use riot_rs_debug::println;
 
         config.rcc.hsi = Some(HSIPrescaler::DIV1);
         config.rcc.csi = true;

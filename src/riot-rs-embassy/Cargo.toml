@@ -49,7 +49,6 @@ cyw43-pio = { version = "0.2.0", features = ["overclock"], optional = true }
 # listed here for conditional feature selection
 embassy-nrf = { workspace = true, default-features = false, optional = true }
 embassy-rp = { workspace = true, default-features = false, optional = true }
-embassy-stm32 = { workspace = true, default-features = false, optional = true }
 esp-hal = { workspace = true, default-features = false, optional = true }
 esp-hal-embassy = { workspace = true, default-features = false, optional = true }
 esp-wifi = { workspace = true, optional = true }
@@ -113,21 +112,20 @@ esp-wifi = { workspace = true, default-features = false, features = [
 ], optional = true }
 
 [target.'cfg(context = "stm32")'.dependencies]
-embassy-stm32 = { workspace = true, features = [
-  "rt",
-  "time-driver-any",
-  "unstable-pac",
-] }
+riot-rs-stm32 = { path = "../riot-rs-stm32" }
 
 [features]
 ## Enables GPIO interrupt support.
 external-interrupts = [
   "embassy-nrf?/gpiote",
-  "embassy-stm32?/exti",
   "riot-rs-embassy-common/external-interrupts",
+  "riot-rs-stm32/external-interrupts",
 ]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
-usb = ["dep:embassy-usb"]
+usb = [
+  "dep:embassy-usb",
+  "riot-rs-stm32/usb",
+]
 # embassy-net requires embassy-time and support for timeouts in the executor
 net = ["dep:embassy-net", "time"]
 usb-ethernet = ["usb", "net"]
@@ -160,7 +158,7 @@ defmt = [
   "embassy-net?/defmt",
   "embassy-nrf?/defmt",
   "embassy-rp?/defmt",
-  "embassy-stm32?/defmt",
+  "riot-rs-stm32/defmt",
   "embassy-time?/defmt",
   "embassy-usb?/defmt",
   "esp-wifi?/defmt",
@@ -168,5 +166,5 @@ defmt = [
 
 # These are chosen automatically by riot-rs-boards and select the correct stm32
 # usb peripheral support.
-stm32-usb = []
-stm32-usb-synopsis = []
+stm32-usb = ["riot-rs-stm32/stm32-usb"]
+stm32-usb-synopsis = ["riot-rs-stm32/stm32-usb-synopsis"]

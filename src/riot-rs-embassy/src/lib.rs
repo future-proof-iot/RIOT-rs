@@ -26,8 +26,7 @@ cfg_if::cfg_if! {
         #[path = "arch/esp/mod.rs"]
         pub mod arch;
     } else if #[cfg(context = "stm32")] {
-        #[path = "arch/stm32/mod.rs"]
-        pub mod arch;
+        pub use riot_rs_stm32 as arch;
     } else if #[cfg(context = "riot-rs")] {
         compile_error!("this architecture is not supported");
     } else {
@@ -159,7 +158,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     debug!("riot-rs-embassy::init_task()");
 
     #[cfg(all(context = "stm32", feature = "external-interrupts"))]
-    extint_registry::EXTINT_REGISTRY.init(&mut peripherals);
+    arch::extint_registry::EXTINT_REGISTRY.init(&mut peripherals);
 
     #[cfg(context = "esp")]
     arch::gpio::init(&mut peripherals);

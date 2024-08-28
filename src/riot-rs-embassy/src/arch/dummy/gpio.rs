@@ -117,8 +117,12 @@ pub mod input {
     impl super::IntoLevel for riot_rs_embassy_common::gpio::Level {
         fn into(level: Self) -> riot_rs_embassy_common::gpio::Level {
             match level {
-                riot_rs_embassy_common::gpio::Level::Low => riot_rs_embassy_common::gpio::Level::Low,
-                riot_rs_embassy_common::gpio::Level::High => riot_rs_embassy_common::gpio::Level::High,
+                riot_rs_embassy_common::gpio::Level::Low => {
+                    riot_rs_embassy_common::gpio::Level::Low
+                }
+                riot_rs_embassy_common::gpio::Level::High => {
+                    riot_rs_embassy_common::gpio::Level::High
+                }
             }
         }
     }
