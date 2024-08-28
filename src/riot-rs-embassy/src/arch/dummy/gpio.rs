@@ -76,8 +76,12 @@ macro_rules! define_input_like {
     };
 }
 
+pub trait IntoLevel {
+    fn into(level: Self) -> riot_rs_embassy_common::gpio::Level;
+}
+
 pub mod input {
-    use crate::{arch::peripheral::Peripheral, gpio};
+    use crate::arch::peripheral::Peripheral;
 
     pub(crate) const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
@@ -87,7 +91,7 @@ pub mod input {
         _pin: impl Peripheral<P: InputPin> + 'static,
         _pull: crate::gpio::Pull,
         _schmitt_trigger: bool,
-    ) -> Result<Input<'static>, gpio::input::Error> {
+    ) -> Result<Input<'static>, riot_rs_embassy_common::gpio::input::Error> {
         unimplemented!();
     }
 
@@ -96,22 +100,35 @@ pub mod input {
         _pin: impl Peripheral<P: InputPin> + 'static,
         _pull: crate::gpio::Pull,
         _schmitt_trigger: bool,
-    ) -> Result<IntEnabledInput<'static>, gpio::input::Error> {
+    ) -> Result<IntEnabledInput<'static>, riot_rs_embassy_common::gpio::input::Error> {
         unimplemented!();
     }
 
     define_input_like!(Input);
     #[cfg(feature = "external-interrupts")]
     define_input_like!(IntEnabledInput);
+
+    enum Level {
+        Low,
+        High,
+    }
+
+    // FIXME
+    impl super::IntoLevel for riot_rs_embassy_common::gpio::Level {
+        fn into(level: Self) -> riot_rs_embassy_common::gpio::Level {
+            match level {
+                riot_rs_embassy_common::gpio::Level::Low => riot_rs_embassy_common::gpio::Level::Low,
+                riot_rs_embassy_common::gpio::Level::High => riot_rs_embassy_common::gpio::Level::High,
+            }
+        }
+    }
 }
 
 pub mod output {
     use embedded_hal::digital::StatefulOutputPin;
+    use riot_rs_embassy_common::gpio::{FromDriveStrength, FromSpeed};
 
-    use crate::{
-        arch::peripheral::Peripheral,
-        gpio::{FromDriveStrength, FromSpeed},
-    };
+    use crate::arch::peripheral::Peripheral;
 
     pub(crate) const DRIVE_STRENGTH_CONFIGURABLE: bool = false;
     pub(crate) const SPEED_CONFIGURABLE: bool = false;
@@ -132,7 +149,7 @@ pub mod output {
     pub enum DriveStrength {}
 
     impl FromDriveStrength for DriveStrength {
-        fn from(_drive_strength: crate::gpio::DriveStrength) -> Self {
+        fn from(_drive_strength: crate::gpio::DriveStrength<DriveStrength>) -> Self {
             unimplemented!();
         }
     }
@@ -142,7 +159,7 @@ pub mod output {
     pub enum Speed {}
 
     impl FromSpeed for Speed {
-        fn from(_speed: crate::gpio::Speed) -> Self {
+        fn from(_speed: crate::gpio::Speed<Speed>) -> Self {
             unimplemented!();
         }
     }

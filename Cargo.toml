@@ -12,6 +12,7 @@ members = [
   "src/riot-rs-boards/nrf52840dk",
   "src/riot-rs-chips",
   "src/riot-rs-debug",
+  "src/riot-rs-embassy-common",
   "src/riot-rs-macros",
   "src/riot-rs-random",
   "tests/benchmarks/bench_sched_yield",
@@ -75,6 +76,7 @@ riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
 riot-rs-embassy = { path = "src/riot-rs-embassy", default-features = false }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
+riot-rs-embassy-common = { path = "src/riot-rs-embassy-common" }
 riot-rs-utils = { path = "src/riot-rs-utils", default-features = false }
 
 const_panic = { version = "0.2.8", default-features = false }

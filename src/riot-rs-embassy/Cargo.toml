@@ -29,6 +29,7 @@ embassy-usb = { workspace = true, optional = true }
 embedded-hal = { workspace = true }
 embedded-hal-async = { workspace = true }
 
+riot-rs-embassy-common = { workspace = true }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-debug = { workspace = true }
 riot-rs-macros = { path = "../riot-rs-macros" }
@@ -120,7 +121,11 @@ embassy-stm32 = { workspace = true, features = [
 
 [features]
 ## Enables GPIO interrupt support.
-external-interrupts = ["embassy-nrf?/gpiote", "embassy-stm32?/exti"]
+external-interrupts = [
+  "embassy-nrf?/gpiote",
+  "embassy-stm32?/exti",
+  "riot-rs-embassy-common/external-interrupts",
+]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
 usb = ["dep:embassy-usb"]
 # embassy-net requires embassy-time and support for timeouts in the executor

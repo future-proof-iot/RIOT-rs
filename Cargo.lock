@@ -3698,12 +3698,20 @@ dependencies = [
  "once_cell",
  "portable-atomic",
  "riot-rs-debug",
+ "riot-rs-embassy-common",
  "riot-rs-macros",
  "riot-rs-random",
  "riot-rs-rt",
  "riot-rs-threads",
  "riot-rs-utils",
  "static_cell",
+]
+
+[[package]]
+name = "riot-rs-embassy-common"
+version = "0.1.0"
+dependencies = [
+ "embedded-hal 1.0.0",
 ]
 
 [[package]]
