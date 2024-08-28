@@ -1,0 +1,5 @@
+apps:
+  - name: threading-dynamic-prios
+    selects:
+      - ?release
+      - sw/threading
