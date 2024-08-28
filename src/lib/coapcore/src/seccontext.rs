@@ -69,9 +69,9 @@ impl COwn {
     }
 }
 
-impl Into<lakers::ConnId> for COwn {
-    fn into(self) -> lakers::ConnId {
-        lakers::ConnId::from_int_raw(self.0)
+impl From<COwn> for lakers::ConnId {
+    fn from(id: COwn) -> Self {
+        lakers::ConnId::from_int_raw(id.0)
     }
 }
 
@@ -103,9 +103,9 @@ impl AifStaticRest {
             .is_some_and(|o| o.value() == b"stdout")
             && uri_path_options.next().is_none()
         {
-            return self.may_use_stdout;
+            self.may_use_stdout
         } else {
-            return true;
+            true
         }
     }
 }
@@ -130,6 +130,10 @@ impl<Crypto: lakers::Crypto> Default for SecContextState<Crypto> {
 }
 
 #[derive(Debug)]
+#[expect(
+    clippy::large_enum_variant,
+    reason = "having no allocator, we cannot add a level of indirection"
+)]
 enum SecContextStage<Crypto: lakers::Crypto> {
     Empty,
 
@@ -461,7 +465,7 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
 
                 let first_byte = request
                     .payload()
-                    .get(0)
+                    .first()
                     .ok_or_else(CoAPError::bad_request)?;
                 let starts_with_true = first_byte == &0xf5;
 
@@ -472,8 +476,8 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
 
                     let (responder, c_i, ead_1) = lakers::EdhocResponder::new(
                         (self.crypto_factory)(),
-                        &self.own_identity.1,
-                        self.own_identity.0.clone(),
+                        self.own_identity.1,
+                        *self.own_identity.0,
                     )
                     .process_message_1(message_1)
                     .map_err(render_error)?;
@@ -491,12 +495,7 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                             .filter_map(|entry| entry.corresponding_cown())
                             // C_R does not only need to be unique, it also must not be identical
                             // to C_I
-                            .chain(
-                                COwn::from_kid(c_i.as_slice())
-                                    .as_slice()
-                                    .into_iter()
-                                    .cloned(),
-                            ),
+                            .chain(COwn::from_kid(c_i.as_slice()).as_slice().iter().cloned()),
                     );
 
                     writeln!(self.log, "Entries in pool:").unwrap();
@@ -507,7 +506,7 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                     for index in self.pool.sorted.iter() {
                         write!(self.log, "{index},").unwrap();
                     }
-                    writeln!(self.log, "").unwrap();
+                    writeln!(self.log).unwrap();
                     let evicted = self.pool.force_insert(SecContextState {
                         protocol_stage: SecContextStage::EdhocResponderProcessedM1 {
                             c_r,
@@ -539,10 +538,7 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                 // isn't processable, it's unlikely that another one would come up and be.
                 let mut taken = self
                     .pool
-                    .lookup(
-                        |c| c.corresponding_cown() == Some(kid),
-                        |matched| core::mem::replace(matched, Default::default()),
-                    )
+                    .lookup(|c| c.corresponding_cown() == Some(kid), core::mem::take)
                     // following RFC8613 Section 8.2 item 2.2
                     // FIXME unauthorized (unreleased in coap-message-utils)
                     .ok_or_else(CoAPError::bad_request)?;
@@ -651,8 +647,8 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
 
                         let immutables = liboscore::PrimitiveImmutables::derive(
                             hkdf,
-                            &oscore_secret,
-                            &oscore_salt,
+                            oscore_secret,
+                            oscore_salt,
                             None,
                             aead,
                             sender_id,
@@ -776,7 +772,7 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
     ) -> Result<(), Self::BuildResponseError<M>> {
         use OrInner::{Inner, Own};
 
-        Ok(match req {
+        match req {
             Own(EdhocResponse::OkSend2(c_r)) => {
                 // FIXME: Why does the From<O> not do the map_err?
                 response.set_code(
@@ -788,7 +784,7 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                     |matched| {
                         // temporary default will not live long (and may be only constructed if
                         // prepare_message_2 fails)
-                        let taken = core::mem::replace(matched, Default::default());
+                        let taken = core::mem::take(matched);
                         let SecContextState {
                             protocol_stage:
                                 SecContextStage::EdhocResponderProcessedM1 {
@@ -934,13 +930,15 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                     });
             }
             Inner(AuthorizationChecked::Allowed(i)) => {
-                self.inner.build_response(response, i).map_err(Inner)?
+                self.inner.build_response(response, i).map_err(Inner)?;
             }
             Inner(AuthorizationChecked::NotAllowed) => {
                 response.set_code(
                     M::Code::new(coap_numbers::code::UNAUTHORIZED).map_err(|x| Own(x.into()))?,
                 );
             }
-        })
+        }
+
+        Ok(())
     }
 }
