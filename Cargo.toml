@@ -16,6 +16,7 @@ members = [
   "src/riot-rs-macros",
   "src/riot-rs-nrf",
   "src/riot-rs-random",
+  "src/riot-rs-rp",
   "src/riot-rs-stm32",
   "tests/benchmarks/bench_sched_yield",
   "tests/gpio",

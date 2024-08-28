@@ -2,15 +2,14 @@
 mod rpi_pico_w;
 
 use cyw43::{Control, Runner};
+use embassy_executor::Spawner;
 use embassy_rp::{
     gpio::{Level, Output},
     pio::Pio,
 };
-
 use riot_rs_debug::log::info;
-
-use self::rpi_pico_w::{Cyw43Periphs, CywSpi, Irqs};
-use crate::{arch::OptionalPeripherals, StaticCell};
+use rpi_pico_w::{CywSpi, Irqs};
+use static_cell::StaticCell;
 
 pub type NetworkDevice = cyw43::NetDriver<'static>;
 
@@ -38,12 +37,10 @@ async fn wifi_cyw43_task(runner: Runner<'static, Output<'static>, CywSpi>) -> ! 
 }
 
 pub async fn device<'a, 'b: 'a>(
-    mut p: &'a mut OptionalPeripherals,
-    spawner: &crate::Spawner,
+    peripherals: &'a mut crate::OptionalPeripherals,
+    spawner: &Spawner,
 ) -> (embassy_net_driver_channel::Device<'b, 1514>, Control<'b>) {
-    use crate::define_peripherals::TakePeripherals;
-
-    let pins: Cyw43Periphs = p.take_peripherals();
+    let pins = rpi_pico_w::take_pins(peripherals);
 
     let fw = include_bytes!("cyw43/firmware/43439A0.bin");
     let clm = include_bytes!("cyw43/firmware/43439A0_clm.bin");

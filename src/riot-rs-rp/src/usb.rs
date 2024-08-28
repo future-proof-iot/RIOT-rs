@@ -3,15 +3,13 @@ use embassy_rp::{
     usb::{Driver, InterruptHandler},
 };
 
-use crate::arch;
-
 bind_interrupts!(struct Irqs {
     USBCTRL_IRQ => InterruptHandler<peripherals::USB>;
 });
 
 pub type UsbDriver = Driver<'static, peripherals::USB>;
 
-pub fn driver(peripherals: &mut arch::OptionalPeripherals) -> UsbDriver {
+pub fn driver(peripherals: &mut crate::OptionalPeripherals) -> UsbDriver {
     let usb = peripherals.USB.take().unwrap();
     Driver::new(usb, Irqs)
 }

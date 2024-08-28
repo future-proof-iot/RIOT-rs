@@ -12,9 +12,8 @@ pub mod gpio;
 cfg_if::cfg_if! {
     if #[cfg(context = "nrf")] {
         pub use riot_rs_nrf as arch;
-    } else if #[cfg(context = "rp2040")] {
-        #[path = "arch/rp2040/mod.rs"]
-        pub mod arch;
+    } else if #[cfg(context = "rp")] {
+        pub use riot_rs_rp as arch;
     } else if #[cfg(context = "esp")] {
         #[path = "arch/esp/mod.rs"]
         pub mod arch;
@@ -161,15 +160,8 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     // Clock startup and entropy collection may lend themselves to parallelization, provided that
     // doesn't impact runtime RAM or flash use.
 
-    #[cfg(all(context = "nrf", feature = "usb"))]
-    {
-        // nrf52840
-        let clock: embassy_nrf::pac::CLOCK = unsafe { core::mem::transmute(()) };
-
-        debug!("nrf: enabling ext hfosc...");
-        clock.tasks_hfclkstart.write(|w| unsafe { w.bits(1) });
-        while clock.events_hfclkstarted.read().bits() != 1 {}
-    }
+    #[cfg(all(feature = "usb", context = "nrf"))]
+    arch::usb::init();
 
     let spawner = Spawner::for_current_executor().await;
 
@@ -243,7 +235,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "wifi-cyw43")]
     let (device, control) = {
-        let (net_device, control) = wifi::cyw43::device(&mut peripherals, &spawner).await;
+        let (net_device, control) = riot_rs_rp::cyw43::device(&mut peripherals, &spawner).await;
         (net_device, control)
     };
 
@@ -294,7 +286,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "wifi-cyw43")]
     {
-        wifi::cyw43::join(control).await;
+        riot_rs_rp::cyw43::join(control).await;
     };
 
     // mark used

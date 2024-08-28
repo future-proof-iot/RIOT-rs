@@ -3683,13 +3683,10 @@ version = "0.1.0"
 dependencies = [
  "cfg-if",
  "critical-section",
- "cyw43",
- "cyw43-pio",
  "embassy-executor",
  "embassy-hal-internal",
  "embassy-net",
  "embassy-net-driver-channel",
- "embassy-rp",
  "embassy-sync 0.6.0",
  "embassy-time",
  "embassy-usb",
@@ -3706,6 +3703,7 @@ dependencies = [
  "riot-rs-macros",
  "riot-rs-nrf",
  "riot-rs-random",
+ "riot-rs-rp",
  "riot-rs-rt",
  "riot-rs-stm32",
  "riot-rs-threads",
@@ -3756,6 +3754,21 @@ dependencies = [
  "rand_chacha",
  "rand_core",
  "rand_pcg",
+]
+
+[[package]]
+name = "riot-rs-rp"
+version = "0.1.0"
+dependencies = [
+ "cyw43",
+ "cyw43-pio",
+ "embassy-executor",
+ "embassy-net-driver-channel",
+ "embassy-rp",
+ "riot-rs-debug",
+ "riot-rs-embassy-common",
+ "riot-rs-utils",
+ "static_cell",
 ]
 
 [[package]]

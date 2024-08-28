@@ -1,8 +1,20 @@
+#![no_std]
+#![feature(doc_auto_cfg)]
+#![feature(impl_trait_in_assoc_type)]
+#![feature(type_alias_impl_trait)]
+#![feature(lint_reasons)]
+
 pub mod gpio;
 
 pub mod peripheral {
     pub use embassy_rp::Peripheral;
 }
+
+#[cfg(feature = "wifi")]
+mod wifi;
+
+#[cfg(feature = "wifi-cyw43")]
+pub mod cyw43;
 
 #[cfg(feature = "usb")]
 pub mod usb;
@@ -10,12 +22,15 @@ pub mod usb;
 pub use embassy_rp::{peripherals, OptionalPeripherals};
 
 #[cfg(feature = "executor-interrupt")]
-pub(crate) use embassy_executor::InterruptExecutor as Executor;
+pub use embassy_executor::InterruptExecutor as Executor;
 #[cfg(feature = "executor-interrupt")]
 pub use embassy_rp::interrupt;
 
 #[cfg(feature = "executor-interrupt")]
-crate::executor_swi!(SWI_IRQ_1);
+riot_rs_embassy_common::executor_swi!(SWI_IRQ_1);
+
+#[cfg(feature = "executor-interrupt")]
+pub static EXECUTOR: Executor = Executor::new();
 
 pub fn init() -> OptionalPeripherals {
     #[cfg(feature = "executor-interrupt")]
