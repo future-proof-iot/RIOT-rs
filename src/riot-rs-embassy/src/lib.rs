@@ -4,7 +4,7 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 #![feature(lint_reasons)]
-#![feature(trait_alias)]
+#![feature(doc_auto_cfg)]
 
 pub mod define_peripherals;
 pub mod gpio;
@@ -15,8 +15,7 @@ cfg_if::cfg_if! {
     } else if #[cfg(context = "rp")] {
         pub use riot_rs_rp as arch;
     } else if #[cfg(context = "esp")] {
-        #[path = "arch/esp/mod.rs"]
-        pub mod arch;
+        pub use riot_rs_esp as arch;
     } else if #[cfg(context = "stm32")] {
         pub use riot_rs_stm32 as arch;
     } else if #[cfg(context = "riot-rs")] {
@@ -240,7 +239,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     };
 
     #[cfg(feature = "wifi-esp")]
-    let device = wifi::esp_wifi::init(&mut peripherals, spawner);
+    let device = arch::wifi::esp_wifi::init(&mut peripherals, spawner);
 
     #[cfg(feature = "net")]
     {

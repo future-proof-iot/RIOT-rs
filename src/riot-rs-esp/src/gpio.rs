@@ -1,6 +1,8 @@
-use crate::arch;
+pub trait IntoLevel {
+    fn into(level: Self) -> riot_rs_embassy_common::gpio::Level;
+}
 
-pub fn init(peripherals: &mut arch::OptionalPeripherals) {
+pub fn init(peripherals: &mut crate::OptionalPeripherals) {
     let io = esp_hal::gpio::Io::new(
         peripherals.GPIO.take().unwrap(),
         peripherals.IO_MUX.take().unwrap(),
@@ -45,93 +47,122 @@ pub fn init(peripherals: &mut arch::OptionalPeripherals) {
 }
 
 pub mod input {
-    use esp_hal::gpio::{CreateErasedPin, InputPin as EspInputPin, Level, Pull};
+    use esp_hal::{
+        gpio::{CreateErasedPin, InputPin as EspInputPin, Level, Pull},
+        peripheral::Peripheral,
+    };
 
-    use crate::{arch::peripheral::Peripheral, gpio};
+    #[cfg(feature = "external-interrupts")]
+    use riot_rs_embassy_common::gpio::input::InterruptError;
 
-    pub(crate) use esp_hal::gpio::AnyInput as Input;
+    pub use esp_hal::gpio::AnyInput as Input;
 
     // Re-export `AnyInput` as `IntEnabledInput` as they are interrupt-enabled.
     #[cfg(feature = "external-interrupts")]
-    pub(crate) use esp_hal::gpio::AnyInput as IntEnabledInput;
+    pub use esp_hal::gpio::AnyInput as IntEnabledInput;
 
-    pub(crate) const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
+    pub const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
     // NOTE(unstable-feature(trait_alias)): we may not have to use that unstable feature if we
     // define our own Pin trait and implement it on all GPIO types.
     // TODO: ask upstream whether it's acceptable to use `CreateErasedPin` in this scenario
     pub trait InputPin = EspInputPin + CreateErasedPin;
 
-    pub(crate) fn new(
+    pub fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
-        pull: crate::gpio::Pull,
+        pull: riot_rs_embassy_common::gpio::Pull,
         _schmitt_trigger: bool, // Not supported by this architecture
-    ) -> Result<Input<'static>, gpio::input::Error> {
-        let pull = Pull::from(pull);
+    ) -> Result<Input<'static>, core::convert::Infallible> {
+        let pull = from_pull(pull);
 
         Ok(Input::new(pin, pull))
     }
 
     #[cfg(feature = "external-interrupts")]
-    pub(crate) fn new_int_enabled(
+    pub fn new_int_enabled(
         pin: impl Peripheral<P: InputPin> + 'static,
-        pull: crate::gpio::Pull,
+        pull: riot_rs_embassy_common::gpio::Pull,
         _schmitt_trigger: bool, // Not supported by this architecture
-    ) -> Result<IntEnabledInput<'static>, gpio::input::Error> {
-        new(pin, pull, _schmitt_trigger)
-    }
-
-    impl From<crate::gpio::Pull> for Pull {
-        fn from(pull: crate::gpio::Pull) -> Self {
-            match pull {
-                crate::gpio::Pull::None => Pull::None,
-                crate::gpio::Pull::Up => Pull::Up,
-                crate::gpio::Pull::Down => Pull::Down,
-            }
+    ) -> Result<IntEnabledInput<'static>, InterruptError> {
+        match new(pin, pull, _schmitt_trigger) {
+            Ok(input) => Ok(input),
+            Err(err) => match err {
+                // Compile-time check that this never happens as the Result is Infallible.
+            },
         }
     }
 
-    impl From<Level> for crate::gpio::Level {
-        fn from(level: Level) -> Self {
+    fn from_pull(pull: riot_rs_embassy_common::gpio::Pull) -> Pull {
+        match pull {
+            riot_rs_embassy_common::gpio::Pull::None => Pull::None,
+            riot_rs_embassy_common::gpio::Pull::Up => Pull::Up,
+            riot_rs_embassy_common::gpio::Pull::Down => Pull::Down,
+        }
+    }
+
+    impl crate::gpio::IntoLevel for Level {
+        fn into(level: Self) -> riot_rs_embassy_common::gpio::Level {
             match level {
-                Level::Low => crate::gpio::Level::Low,
-                Level::High => crate::gpio::Level::High,
+                Level::Low => riot_rs_embassy_common::gpio::Level::Low,
+                Level::High => riot_rs_embassy_common::gpio::Level::High,
             }
         }
     }
+
+    // impl From<crate::gpio::Pull> for Pull {
+    //     fn from(pull: crate::gpio::Pull) -> Self {
+    //         match pull {
+    //             crate::gpio::Pull::None => Pull::None,
+    //             crate::gpio::Pull::Up => Pull::Up,
+    //             crate::gpio::Pull::Down => Pull::Down,
+    //         }
+    //     }
+    // }
+    //
+    // impl From<Level> for crate::gpio::Level {
+    //     fn from(level: Level) -> Self {
+    //         match level {
+    //             Level::Low => crate::gpio::Level::Low,
+    //             Level::High => crate::gpio::Level::High,
+    //         }
+    //     }
+    // }
 }
 
 pub mod output {
-    use esp_hal::gpio::{CreateErasedPin, Level, OutputPin as EspOutputPin};
-
-    use crate::{
-        arch::peripheral::Peripheral,
-        gpio::{FromDriveStrength, FromSpeed},
+    use esp_hal::{
+        gpio::{CreateErasedPin, Level, OutputPin as EspOutputPin},
+        peripheral::Peripheral,
     };
+    use riot_rs_embassy_common::gpio::{FromDriveStrength, FromSpeed};
 
-    pub(crate) use esp_hal::gpio::AnyOutput as Output;
+    pub use esp_hal::gpio::AnyOutput as Output;
 
     // FIXME: ESP32 *does* support setting the drive strength, but esp-hal seems to currently make
     // this impossible on `AnyOutput` (unlike on `Output`), because it internally uses an
     // `ErasedPin`.
-    pub(crate) const DRIVE_STRENGTH_CONFIGURABLE: bool = false;
-    pub(crate) const SPEED_CONFIGURABLE: bool = false;
+    pub const DRIVE_STRENGTH_CONFIGURABLE: bool = false;
+    pub const SPEED_CONFIGURABLE: bool = false;
 
     pub trait OutputPin = EspOutputPin + CreateErasedPin;
 
-    pub(crate) fn new(
+    pub fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
-        initial_level: crate::gpio::Level,
+        initial_level: riot_rs_embassy_common::gpio::Level,
         _drive_strength: DriveStrength,
         _speed: Speed, // Not supported by this architecture
     ) -> Output<'static> {
-        let output = Output::new(pin, initial_level.into());
+        let initial_level = match initial_level {
+            riot_rs_embassy_common::gpio::Level::Low => Level::Low,
+            riot_rs_embassy_common::gpio::Level::High => Level::High,
+        };
+        let output = Output::new(pin, initial_level);
         // TODO
         // output.set_drive_strength(drive_strength.into());
         output
     }
 
-    crate::gpio::impl_from_level!(Level);
+    // crate::gpio::impl_from_level!(Level);
 
     // We do not provide a `Default` impl as not all pins have the same reset value.
     #[derive(Copy, Clone, PartialEq, Eq)]
@@ -143,8 +174,8 @@ pub mod output {
     }
 
     impl FromDriveStrength for DriveStrength {
-        fn from(drive_strength: crate::gpio::DriveStrength) -> Self {
-            use crate::gpio::DriveStrength::*;
+        fn from(drive_strength: riot_rs_embassy_common::gpio::DriveStrength<Self>) -> Self {
+            use riot_rs_embassy_common::gpio::DriveStrength::*;
 
             // ESPs are able to output up to 40 mA, so we somewhat normalize this.
             match drive_strength {
@@ -164,7 +195,7 @@ pub mod output {
     }
 
     impl FromSpeed for Speed {
-        fn from(_speed: crate::gpio::Speed) -> Self {
+        fn from(_speed: riot_rs_embassy_common::gpio::Speed<Self>) -> Self {
             Self::UnsupportedByArchitecture
         }
     }

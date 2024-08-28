@@ -13,6 +13,7 @@ members = [
   "src/riot-rs-chips",
   "src/riot-rs-debug",
   "src/riot-rs-embassy-common",
+  "src/riot-rs-esp",
   "src/riot-rs-macros",
   "src/riot-rs-nrf",
   "src/riot-rs-random",
@@ -89,6 +90,9 @@ document-features = "0.2.8"
 heapless = { version = "0.8.0", default-features = false }
 konst = { version = "0.3.8", default-features = false }
 ld-memory = { version = "0.2.9" }
+once_cell = { version = "1.19.0", default-features = false, features = [
+  "critical-section",
+] }
 paste = { version = "1.0" }
 static_cell = { version = "2.0.0", features = ["nightly"] }
 

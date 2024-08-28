@@ -1,0 +1,72 @@
+[package]
+name = "riot-rs-esp"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+cfg-if = { workspace = true }
+embassy-executor = { workspace = true, default-features = false }
+embassy-time = { workspace = true, optional = true }
+esp-hal = { workspace = true, default-features = false, features = [
+  "async",
+  "embedded-hal",
+] }
+esp-hal-embassy = { workspace = true, default-features = false }
+esp-wifi = { workspace = true, default-features = false, features = [
+  "async",
+  "embassy-net",
+  "wifi",
+], optional = true }
+once_cell = { workspace = true }
+riot-rs-debug = { workspace = true }
+riot-rs-embassy-common = { workspace = true }
+riot-rs-utils = { workspace = true }
+
+[target.'cfg(context = "cortex-m")'.dependencies]
+embassy-executor = { workspace = true, default-features = false, features = [
+  "arch-cortex-m",
+] }
+
+[target.'cfg(context = "esp32c3")'.dependencies]
+esp-hal = { workspace = true, features = ["esp32c3"] }
+esp-hal-embassy = { workspace = true, default-features = false, features = [
+  "esp32c3",
+] }
+esp-wifi = { workspace = true, default-features = false, features = [
+  "esp32c3",
+], optional = true }
+
+[target.'cfg(context = "esp32c6")'.dependencies]
+esp-hal = { workspace = true, features = ["esp32c6"] }
+esp-hal-embassy = { workspace = true, default-features = false, features = [
+  "esp32c6",
+] }
+esp-wifi = { workspace = true, default-features = false, features = [
+  "esp32c6",
+], optional = true }
+
+[features]
+## Enables GPIO interrupt support.
+external-interrupts = ["riot-rs-embassy-common/external-interrupts"]
+
+## Enables defmt support.
+defmt = ["esp-wifi?/defmt"]
+
+## Enables Wi-Fi support.
+wifi = []
+
+## Enables built-in Wi-Fi hardware.
+wifi-esp = ["dep:esp-wifi", "dep:embassy-time", "wifi"]
+
+#! ## Executor type selection for the (autostarted) main executor
+#! Exactly one of the features below must be enabled at once.
+## Enables the interrupt executor.
+executor-interrupt = ["embassy-executor/executor-interrupt"]
+## Enables the single thread-mode executor.
+executor-single-thread = ["esp-hal-embassy/executors"]

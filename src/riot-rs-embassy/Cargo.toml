@@ -20,7 +20,6 @@ embassy-net = { workspace = true, optional = true, features = [
   "dhcpv4",
   "medium-ethernet",
 ] }
-embassy-net-driver-channel = { workspace = true, optional = true }
 embassy-sync = { workspace = true }
 embassy-time = { workspace = true, optional = true }
 embassy-usb = { workspace = true, optional = true }
@@ -37,52 +36,23 @@ riot-rs-random = { path = "../riot-rs-random", optional = true }
 riot-rs-utils = { workspace = true }
 
 heapless = "0.8.0"
-once_cell = { version = "1.19.0", default-features = false, features = [
-  "critical-section",
-] }
+once_cell = { workspace = true }
 
-# listed here for conditional feature selection
-esp-hal = { workspace = true, default-features = false, optional = true }
-esp-hal-embassy = { workspace = true, default-features = false, optional = true }
-esp-wifi = { workspace = true, optional = true }
-
+# ISA-specific
 [target.'cfg(context = "cortex-m")'.dependencies]
 embassy-executor = { workspace = true, default-features = false, features = [
   "arch-cortex-m",
 ] }
+
+# Manufacturer-specific
+[target.'cfg(context = "esp")'.dependencies]
+riot-rs-esp = { path = "../riot-rs-esp" }
 
 [target.'cfg(context = "nrf")'.dependencies]
 riot-rs-nrf = { path = "../riot-rs-nrf" }
 
 [target.'cfg(context = "rp")'.dependencies]
 riot-rs-rp = { path = "../riot-rs-rp" }
-
-[target.'cfg(context = "esp")'.dependencies]
-esp-hal = { workspace = true, features = ["async", "embedded-hal"] }
-esp-hal-embassy = { workspace = true, default-features = false, features = [] }
-esp-wifi = { workspace = true, default-features = false, features = [
-  "async",
-  "embassy-net",
-  "wifi",
-], optional = true }
-
-[target.'cfg(context = "esp32c3")'.dependencies]
-esp-hal = { workspace = true, features = ["esp32c3"] }
-esp-hal-embassy = { workspace = true, default-features = false, features = [
-  "esp32c3",
-] }
-esp-wifi = { workspace = true, default-features = false, features = [
-  "esp32c3",
-], optional = true }
-
-[target.'cfg(context = "esp32c6")'.dependencies]
-esp-hal = { workspace = true, features = ["esp32c6"] }
-esp-hal-embassy = { workspace = true, default-features = false, features = [
-  "esp32c6",
-] }
-esp-wifi = { workspace = true, default-features = false, features = [
-  "esp32c6",
-], optional = true }
 
 [target.'cfg(context = "stm32")'.dependencies]
 riot-rs-stm32 = { path = "../riot-rs-stm32" }
@@ -91,6 +61,7 @@ riot-rs-stm32 = { path = "../riot-rs-stm32" }
 ## Enables GPIO interrupt support.
 external-interrupts = [
   "riot-rs-embassy-common/external-interrupts",
+  "riot-rs-esp/external-interrupts",
   "riot-rs-nrf/external-interrupts",
   "riot-rs-rp/external-interrupts",
   "riot-rs-stm32/external-interrupts",
@@ -110,7 +81,7 @@ hwrng = ["riot-rs-nrf/hwrng"]
 
 wifi = []
 wifi-cyw43 = ["riot-rs-rp/wifi-cyw43", "net", "wifi"]
-wifi-esp = ["dep:esp-wifi", "dep:embassy-net-driver-channel", "net", "wifi"]
+wifi-esp = ["riot-rs-esp/wifi-esp", "net", "wifi"]
 
 threading = ["dep:riot-rs-threads"]
 override-network-config = []
@@ -118,10 +89,9 @@ override-usb-config = []
 
 executor-single-thread = [
   "riot-rs-rt/executor-single-thread",
-  "esp-hal-embassy?/executors",
+  "riot-rs-esp/executor-single-thread",
 ]
 executor-interrupt = [
-  # "embassy-executor/executor-interrupt", # FIXME: remove this one when all architectures are extracted
   "riot-rs-nrf/executor-interrupt",
   "riot-rs-rp/executor-interrupt",
 ]
@@ -130,12 +100,12 @@ executor-none = []
 
 defmt = [
   "embassy-net?/defmt",
-  "riot-rs-nrf/defmt",
-  "riot-rs-stm32/defmt",
   "embassy-time?/defmt",
   "embassy-usb?/defmt",
-  "esp-wifi?/defmt",
+  "riot-rs-esp/defmt",
+  "riot-rs-nrf/defmt",
   "riot-rs-rp/defmt",
+  "riot-rs-stm32/defmt",
 ]
 
 # These are chosen automatically by riot-rs-boards and select the correct stm32

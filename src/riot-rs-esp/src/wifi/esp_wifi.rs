@@ -1,3 +1,4 @@
+use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_wifi::{
     wifi::{
@@ -9,8 +10,6 @@ use esp_wifi::{
 use once_cell::sync::OnceCell;
 use riot_rs_debug::log::{debug, info};
 
-use crate::{arch::OptionalPeripherals, Spawner};
-
 pub type NetworkDevice = WifiDevice<'static, WifiStaDevice>;
 
 // Ideally, all Wi-Fi initialization would happen here.
@@ -20,7 +19,7 @@ pub type NetworkDevice = WifiDevice<'static, WifiStaDevice>;
 // sure.
 pub static WIFI_INIT: OnceCell<EspWifiInitialization> = OnceCell::new();
 
-pub fn init(peripherals: &mut OptionalPeripherals, spawner: Spawner) -> NetworkDevice {
+pub fn init(peripherals: &mut crate::OptionalPeripherals, spawner: Spawner) -> NetworkDevice {
     let wifi = peripherals.WIFI.take().unwrap();
     let init = WIFI_INIT.get().unwrap();
     let (device, controller) = esp_wifi::wifi::new_with_mode(init, wifi, WifiStaDevice).unwrap();

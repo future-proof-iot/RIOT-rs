@@ -3686,20 +3686,17 @@ dependencies = [
  "embassy-executor",
  "embassy-hal-internal",
  "embassy-net",
- "embassy-net-driver-channel",
  "embassy-sync 0.6.0",
  "embassy-time",
  "embassy-usb",
  "embedded-hal 1.0.0",
  "embedded-hal-async",
- "esp-hal",
- "esp-hal-embassy",
- "esp-wifi",
  "heapless 0.8.0",
  "linkme",
  "once_cell",
  "riot-rs-debug",
  "riot-rs-embassy-common",
+ "riot-rs-esp",
  "riot-rs-macros",
  "riot-rs-nrf",
  "riot-rs-random",
@@ -3716,6 +3713,22 @@ name = "riot-rs-embassy-common"
 version = "0.1.0"
 dependencies = [
  "embedded-hal 1.0.0",
+]
+
+[[package]]
+name = "riot-rs-esp"
+version = "0.1.0"
+dependencies = [
+ "cfg-if",
+ "embassy-executor",
+ "embassy-time",
+ "esp-hal",
+ "esp-hal-embassy",
+ "esp-wifi",
+ "once_cell",
+ "riot-rs-debug",
+ "riot-rs-embassy-common",
+ "riot-rs-utils",
 ]
 
 [[package]]
