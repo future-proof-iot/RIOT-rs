@@ -9,16 +9,9 @@
 pub mod define_peripherals;
 pub mod gpio;
 
-#[cfg(feature = "external-interrupts")]
-mod extint_registry;
-
-#[cfg(context = "cortex-m")]
-pub mod executor_swi;
-
 cfg_if::cfg_if! {
     if #[cfg(context = "nrf")] {
-        #[path = "arch/nrf/mod.rs"]
-        pub mod arch;
+        pub use riot_rs_nrf as arch;
     } else if #[cfg(context = "rp2040")] {
         #[path = "arch/rp2040/mod.rs"]
         pub mod arch;
@@ -53,6 +46,9 @@ pub use static_cell::{ConstStaticCell, StaticCell};
 // Used by a macro we provide
 pub use embassy_executor;
 pub use embassy_executor::Spawner;
+
+#[cfg(feature = "executor-interrupt")]
+pub use arch::EXECUTOR;
 
 // Crates used in driver configuration functions
 #[cfg(feature = "net")]
@@ -96,9 +92,6 @@ compile_error!(
 compile_error!(r#""executor-single-thread" and "threading" are mutually exclusive!"#);
 
 #[cfg(feature = "executor-interrupt")]
-pub static EXECUTOR: arch::Executor = arch::Executor::new();
-
-#[cfg(feature = "executor-interrupt")]
 #[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
     debug!("riot-rs-embassy::init(): using interrupt mode executor");
@@ -106,8 +99,8 @@ pub(crate) fn init() {
 
     #[cfg(any(context = "nrf", context = "rp2040", context = "stm32"))]
     {
-        EXECUTOR.start(arch::SWI);
-        EXECUTOR.spawner().must_spawn(init_task(p));
+        arch::EXECUTOR.start(arch::SWI);
+        arch::EXECUTOR.spawner().must_spawn(init_task(p));
     }
 
     #[cfg(context = "esp")]

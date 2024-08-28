@@ -5,3 +5,6 @@
 #![deny(missing_docs)]
 
 pub mod gpio;
+
+#[cfg(context = "cortex-m")]
+pub mod executor_swi;

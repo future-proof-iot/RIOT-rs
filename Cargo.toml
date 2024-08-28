@@ -14,6 +14,7 @@ members = [
   "src/riot-rs-debug",
   "src/riot-rs-embassy-common",
   "src/riot-rs-macros",
+  "src/riot-rs-nrf",
   "src/riot-rs-random",
   "src/riot-rs-stm32",
   "tests/benchmarks/bench_sched_yield",
@@ -75,9 +76,10 @@ riot-rs-bench = { path = "src/riot-rs-bench", default-features = false }
 riot-rs-boards = { path = "src/riot-rs-boards", default-features = false }
 riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
 riot-rs-embassy = { path = "src/riot-rs-embassy", default-features = false }
+riot-rs-embassy-common = { path = "src/riot-rs-embassy-common" }
+riot-rs-random = { path = "src/riot-rs-random" }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
-riot-rs-embassy-common = { path = "src/riot-rs-embassy-common" }
 riot-rs-utils = { path = "src/riot-rs-utils", default-features = false }
 
 const_panic = { version = "0.2.8", default-features = false }

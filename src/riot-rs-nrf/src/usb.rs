@@ -6,8 +6,7 @@ use embassy_nrf::{
         Driver,
     },
 };
-
-use crate::arch;
+use riot_rs_debug::log::debug;
 
 #[cfg(context = "nrf52")]
 bind_interrupts!(struct Irqs {
@@ -23,7 +22,16 @@ bind_interrupts!(struct Irqs {
 
 pub type UsbDriver = Driver<'static, peripherals::USBD, HardwareVbusDetect>;
 
-pub fn driver(peripherals: &mut arch::OptionalPeripherals) -> UsbDriver {
+pub fn init() {
+    // nrf52840
+    let clock: embassy_nrf::pac::CLOCK = unsafe { core::mem::transmute(()) };
+
+    debug!("nrf: enabling ext hfosc...");
+    clock.tasks_hfclkstart.write(|w| unsafe { w.bits(1) });
+    while clock.events_hfclkstarted.read().bits() != 1 {}
+}
+
+pub fn driver(peripherals: &mut crate::OptionalPeripherals) -> UsbDriver {
     let usbd = peripherals.USBD.take().unwrap();
     Driver::new(usbd, Irqs, HardwareVbusDetect::new(Irqs))
 }
