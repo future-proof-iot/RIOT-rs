@@ -132,6 +132,23 @@ jobs:
       - name: rust cache
         uses: Swatinem/rust-cache@v2
 
+      - uses: taiki-e/install-action@v2
+        with:
+          tool: cargo-binstall
+
+      # Should run as soon as possible to avoid using unwanted crates
+      - name: cargo-deny
+        run: |
+          cargo binstall --no-confirm --no-discover-github-token cargo-deny
+          cargo deny check bans licenses sources
+
+      # Must run after the cargo-deny job as it requires the downloaded
+      # cargo-deny binary.
+      - name: cargo-deny advisories
+        run: cargo deny check advisories
+        # Prevent sudden announcement of a new advisory from failing CI
+        continue-on-error: true
+
       # TODO: we'll eventually want to check the whole workspace with --workspace
       # TODO: we'll eventually want to check relevant feature combinations
       # TODO: we may want to use --no-deps as well
@@ -150,10 +167,6 @@ jobs:
         uses: karancode/yamllint-github-action@master
         with:
           yamllint_comment: true  # Insert inline PR comments
-
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-binstall
 
       - name: Install taplo
         run: cargo binstall --no-confirm --no-symlinks --no-discover-github-token --force taplo-cli
