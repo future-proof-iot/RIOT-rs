@@ -1,8 +1,5 @@
 apps:
   - name: embassy
-    context:
-      - nrf
-      - rp
     selects:
       - ?release
       - sw/threading
