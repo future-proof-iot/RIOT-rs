@@ -111,6 +111,9 @@ jobs:
       - name: Run crate tests
         run: |
             cargo test --no-default-features --features no-boards -p riot-rs -p riot-rs-embassy -p riot-rs-runqueue -p riot-rs-threads -p riot-rs-macros
+            cargo test --features external-interrupts,embassy-rp/rp2040 -p riot-rs-rp
+            cargo test --features external-interrupts,'embassy-nrf/nrf52840' -p riot-rs-nrf
+            cargo test --features external-interrupts,'embassy-stm32/stm32wb55rg' -p riot-rs-stm32
             cargo test -p rbi -p ringbuffer -p coapcore
 
   lint:
@@ -157,7 +160,27 @@ jobs:
       - name: clippy
         uses: clechasseur/rs-clippy-check@v3
         with:
-          args: --verbose --locked --features no-boards -p riot-rs -p riot-rs-boards -p riot-rs-chips -p riot-rs-debug -p riot-rs-embassy -p riot-rs-macros -p riot-rs-random -p riot-rs-rt -p riot-rs-threads -p riot-rs-utils
+          args: --verbose --locked --features no-boards,external-interrupts -p riot-rs -p riot-rs-boards -p riot-rs-chips -p riot-rs-debug -p riot-rs-embassy -p riot-rs-macros -p riot-rs-random -p riot-rs-rt -p riot-rs-threads -p riot-rs-utils
+
+      - name: clippy for ESP32
+        uses: clechasseur/rs-clippy-check@v3
+        with:
+          args: --verbose --locked --target=riscv32imac-unknown-none-elf --features external-interrupts,esp-hal/esp32c6,esp-hal-embassy/esp32c6 -p riot-rs-esp
+
+      - name: clippy for RP
+        uses: clechasseur/rs-clippy-check@v3
+        with:
+          args: --verbose --locked --features external-interrupts,embassy-rp/rp2040 -p riot-rs-rp
+
+      - name: clippy for nRF
+        uses: clechasseur/rs-clippy-check@v3
+        with:
+          args: --verbose --locked --features external-interrupts,embassy-nrf/nrf52840 -p riot-rs-nrf
+
+      - name: clippy for STM32
+        uses: clechasseur/rs-clippy-check@v3
+        with:
+          args: --verbose --locked --features external-interrupts,embassy-stm32/stm32wb55rg -p riot-rs-stm32
 
       - name: rustdoc
         run: RUSTDOCFLAGS='-D warnings' cargo doc -p riot-rs --features bench,csprng,external-interrupts,hwrng,no-boards,random,threading,usb
