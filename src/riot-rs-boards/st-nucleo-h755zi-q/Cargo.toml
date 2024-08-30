@@ -11,6 +11,6 @@ embassy-stm32 = { workspace = true, features = [
   "rt",
 ] }
 riot-rs-debug = { workspace = true, features = ["rtt-target"] }
-riot-rs-embassy = { workspace = true, features = ["stm32-usb-synopsis"] }
 riot-rs-rt.workspace = true
+riot-rs-stm32 = { workspace = true, features = ["stm32-usb-synopsis"] }
 stm32 = { path = "../../riot-rs-chips/stm32" }

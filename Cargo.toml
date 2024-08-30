@@ -82,6 +82,7 @@ riot-rs-embassy-common = { path = "src/riot-rs-embassy-common" }
 riot-rs-random = { path = "src/riot-rs-random" }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
+riot-rs-stm32 = { path = "src/riot-rs-stm32" }
 riot-rs-utils = { path = "src/riot-rs-utils", default-features = false }
 
 const_panic = { version = "0.2.8", default-features = false }
