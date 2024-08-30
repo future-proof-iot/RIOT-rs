@@ -130,6 +130,8 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
+          # Required for checking riot-rs-esp
+          targets: riscv32imac-unknown-none-elf
           components: clippy, rustfmt
 
       - name: rust cache
@@ -184,6 +186,18 @@ jobs:
 
       - name: rustdoc
         run: RUSTDOCFLAGS='-D warnings' cargo doc -p riot-rs --features bench,csprng,external-interrupts,hwrng,no-boards,random,threading,usb
+
+      - name: rustdoc for ESP32
+        run: RUSTDOCFLAGS='-D warnings' cargo doc --target=riscv32imac-unknown-none-elf --features external-interrupts,esp-hal/esp32c6,esp-hal-embassy/esp32c6 -p riot-rs-esp
+
+      - name: rustdoc for RP
+        run: RUSTDOCFLAGS='-D warnings' cargo doc --features external-interrupts,embassy-rp/rp2040 -p riot-rs-rp
+
+      - name: rustdoc for nRF
+        run: RUSTDOCFLAGS='-D warnings' cargo doc --features external-interrupts,embassy-nrf/nrf52840 -p riot-rs-nrf
+
+      - name: rustdoc for STM32
+        run: RUSTDOCFLAGS='-D warnings' cargo doc --features external-interrupts,embassy-stm32/stm32wb55rg -p riot-rs-stm32
 
       - name: rustfmt
         run: cargo fmt --check --all
