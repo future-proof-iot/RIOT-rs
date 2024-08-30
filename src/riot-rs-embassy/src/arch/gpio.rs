@@ -13,7 +13,7 @@ macro_rules! define_input_like {
                 unimplemented!();
             }
 
-            pub fn get_level(&self) -> crate::gpio::Level {
+            pub fn get_level(&self) -> crate::arch::gpio::input::Level {
                 unimplemented!();
             }
 
@@ -108,7 +108,7 @@ pub mod input {
     #[cfg(feature = "external-interrupts")]
     define_input_like!(IntEnabledInput);
 
-    enum Level {
+    pub enum Level {
         Low,
         High,
     }
