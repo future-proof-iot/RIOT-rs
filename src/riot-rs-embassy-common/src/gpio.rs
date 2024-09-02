@@ -41,14 +41,14 @@ impl From<Level> for embedded_hal::digital::PinState {
 
 #[doc(hidden)]
 #[macro_export]
-macro_rules! impl_into_level {
-    ($level:ident) => {
-        impl From<$crate::gpio::Level> for $level {
-            fn from(level: $crate::gpio::Level) -> Self {
-                match level {
-                    $crate::gpio::Level::Low => $level::Low,
-                    $crate::gpio::Level::High => $level::High,
-                }
+macro_rules! define_into_level {
+    () => {
+        // The `Level` taken as parameter is the arch-specific type.
+        #[doc(hidden)]
+        pub fn into_level(level: Level) -> $crate::gpio::Level {
+            match level {
+                Level::Low => $crate::gpio::Level::Low,
+                Level::High => $crate::gpio::Level::High,
             }
         }
     };
@@ -65,6 +65,21 @@ pub enum Pull {
     Up,
     /// Pull-down resistor.
     Down,
+}
+
+#[doc(hidden)]
+#[macro_export]
+macro_rules! define_from_pull {
+    () => {
+        // The returned `Pull` is the arch-specific type.
+        fn from_pull(pull: $crate::gpio::Pull) -> Pull {
+            match pull {
+                $crate::gpio::Pull::None => Pull::None,
+                $crate::gpio::Pull::Up => Pull::Up,
+                $crate::gpio::Pull::Down => Pull::Down,
+            }
+        }
+    };
 }
 
 /// Drive strength of an output.

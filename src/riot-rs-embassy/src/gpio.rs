@@ -45,7 +45,7 @@ macro_rules! inner_impl_input_methods {
 
         /// Returns the input level.
         pub fn get_level(&self) -> Level {
-            arch::gpio::IntoLevel::into(self.$inner.get_level())
+            arch::gpio::input::into_level(self.$inner.get_level())
         }
     };
 }

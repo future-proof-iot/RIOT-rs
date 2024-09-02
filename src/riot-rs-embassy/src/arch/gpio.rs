@@ -76,10 +76,6 @@ macro_rules! define_input_like {
     };
 }
 
-pub trait IntoLevel {
-    fn into(level: Self) -> riot_rs_embassy_common::gpio::Level;
-}
-
 pub mod input {
     use crate::arch::peripheral::Peripheral;
 
@@ -113,19 +109,7 @@ pub mod input {
         High,
     }
 
-    // FIXME
-    impl super::IntoLevel for riot_rs_embassy_common::gpio::Level {
-        fn into(level: Self) -> riot_rs_embassy_common::gpio::Level {
-            match level {
-                riot_rs_embassy_common::gpio::Level::Low => {
-                    riot_rs_embassy_common::gpio::Level::Low
-                }
-                riot_rs_embassy_common::gpio::Level::High => {
-                    riot_rs_embassy_common::gpio::Level::High
-                }
-            }
-        }
-    }
+    riot_rs_embassy_common::define_into_level!();
 }
 
 pub mod output {

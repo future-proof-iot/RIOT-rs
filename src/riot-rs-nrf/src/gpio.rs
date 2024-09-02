@@ -1,7 +1,3 @@
-pub trait IntoLevel {
-    fn into(level: Self) -> riot_rs_embassy_common::gpio::Level;
-}
-
 pub mod input {
     use embassy_nrf::{
         gpio::{Level, Pull},
@@ -37,41 +33,8 @@ pub mod input {
         Ok(Input::new(pin, pull))
     }
 
-    fn from_pull(pull: riot_rs_embassy_common::gpio::Pull) -> Pull {
-        match pull {
-            riot_rs_embassy_common::gpio::Pull::None => Pull::None,
-            riot_rs_embassy_common::gpio::Pull::Up => Pull::Up,
-            riot_rs_embassy_common::gpio::Pull::Down => Pull::Down,
-        }
-    }
-
-    impl crate::gpio::IntoLevel for Level {
-        fn into(level: Self) -> riot_rs_embassy_common::gpio::Level {
-            match level {
-                Level::Low => riot_rs_embassy_common::gpio::Level::Low,
-                Level::High => riot_rs_embassy_common::gpio::Level::High,
-            }
-        }
-    }
-
-    // impl From<crate::gpio::Pull> for Pull {
-    //     fn from(pull: crate::gpio::Pull) -> Self {
-    //         match pull {
-    //             crate::gpio::Pull::None => Pull::None,
-    //             crate::gpio::Pull::Up => Pull::Up,
-    //             crate::gpio::Pull::Down => Pull::Down,
-    //         }
-    //     }
-    // }
-    //
-    // impl From<Level> for crate::gpio::Level {
-    //     fn from(level: Level) -> Self {
-    //         match level {
-    //             Level::Low => crate::gpio::Level::Low,
-    //             Level::High => crate::gpio::Level::High,
-    //         }
-    //     }
-    // }
+    riot_rs_embassy_common::define_from_pull!();
+    riot_rs_embassy_common::define_into_level!();
 }
 
 pub mod output {
@@ -102,8 +65,6 @@ pub mod output {
         };
         Output::new(pin, initial_level, output_drive)
     }
-
-    // crate::gpio::impl_from_level!(Level);
 
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum DriveStrength {

@@ -1,7 +1,3 @@
-pub trait IntoLevel {
-    fn into(level: Self) -> riot_rs_embassy_common::gpio::Level;
-}
-
 pub mod input {
     use embassy_stm32::{
         gpio::{Level, Pull},
@@ -19,7 +15,6 @@ pub mod input {
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: riot_rs_embassy_common::gpio::Pull,
         _schmitt_trigger: bool, // Not supported by this architecture
-        // let pull = Pull::from(pull);
     ) -> Result<Input<'static>, riot_rs_embassy_common::gpio::input::Error> {
         let pull = from_pull(pull);
         Ok(Input::new(pin, pull))
@@ -31,7 +26,6 @@ pub mod input {
         pull: riot_rs_embassy_common::gpio::Pull,
         _schmitt_trigger: bool, // Not supported by this architecture
     ) -> Result<IntEnabledInput<'static>, riot_rs_embassy_common::gpio::input::Error> {
-        // let pull = Pull::from(pull);
         let pull = from_pull(pull);
         let mut pin = pin.into_ref();
         let ch = crate::extint_registry::EXTINT_REGISTRY.get_interrupt_channel_for_pin(&mut pin)?;
@@ -39,41 +33,8 @@ pub mod input {
         Ok(IntEnabledInput::new(pin, ch, pull))
     }
 
-    impl crate::gpio::IntoLevel for Level {
-        fn into(level: Self) -> riot_rs_embassy_common::gpio::Level {
-            match level {
-                Level::Low => riot_rs_embassy_common::gpio::Level::Low,
-                Level::High => riot_rs_embassy_common::gpio::Level::High,
-            }
-        }
-    }
-
-    fn from_pull(pull: riot_rs_embassy_common::gpio::Pull) -> Pull {
-        match pull {
-            riot_rs_embassy_common::gpio::Pull::None => Pull::None,
-            riot_rs_embassy_common::gpio::Pull::Up => Pull::Up,
-            riot_rs_embassy_common::gpio::Pull::Down => Pull::Down,
-        }
-    }
-
-    // impl From<riot_rs_embassy_common::gpio::Pull> for Pull {
-    //     fn from(pull: riot_rs_embassy_common::gpio::Pull) -> Self {
-    //         match pull {
-    //             riot_rs_embassy_common::gpio::Pull::None => Pull::None,
-    //             riot_rs_embassy_common::gpio::Pull::Up => Pull::Up,
-    //             riot_rs_embassy_common::gpio::Pull::Down => Pull::Down,
-    //         }
-    //     }
-    // }
-    //
-    // impl From<Level> for riot_rs_embassy_common::gpio::Level {
-    //     fn from(level: Level) -> Self {
-    //         match level {
-    //             Level::Low => riot_rs_embassy_common::gpio::Level::Low,
-    //             Level::High => riot_rs_embassy_common::gpio::Level::High,
-    //         }
-    //     }
-    // }
+    riot_rs_embassy_common::define_from_pull!();
+    riot_rs_embassy_common::define_into_level!();
 }
 
 pub mod output {
@@ -101,8 +62,6 @@ pub mod output {
         };
         Output::new(pin, initial_level, speed.into())
     }
-
-    // riot_rs_embassy_common::impl_from_level!(Level);
 
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum DriveStrength {
