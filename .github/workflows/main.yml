@@ -137,9 +137,11 @@ jobs:
           tool: cargo-binstall
 
       # Should run as soon as possible to avoid using unwanted crates
+      # `--force`ing is required as the installed binary could have been
+      # restored from cache.
       - name: cargo-deny
         run: |
-          cargo binstall --no-confirm --no-discover-github-token cargo-deny
+          cargo binstall --no-confirm --no-discover-github-token --force cargo-deny
           cargo deny check bans licenses sources
 
       # Must run after the cargo-deny job as it requires the downloaded
