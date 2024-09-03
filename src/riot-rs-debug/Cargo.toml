@@ -23,12 +23,6 @@ cortex-m-semihosting = { workspace = true, optional = true }
 rtt-target = { version = "0.5.0", optional = true }
 defmt-rtt-target = { git = "https://github.com/kaspar030/defmt-rtt-target", rev = "5668c92ac5a0689b165a6a07bb14e173fc47cd34" }
 
-[target.'cfg(context = "nrf")'.dependencies]
-cortex-m = { workspace = true, features = ["critical-section-single-core"] }
-
-[target.'cfg(context = "rp2040")'.dependencies]
-embassy-rp = { workspace = true, features = ["critical-section-impl"] }
-
 [target.'cfg(context = "esp")'.dependencies]
 esp-println = { workspace = true, features = ["log"] }
 log = { version = "0.4.20" }

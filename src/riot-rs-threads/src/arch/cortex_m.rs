@@ -183,35 +183,30 @@ unsafe extern "C" fn PendSV() {
 /// This function is called in PendSV.
 #[no_mangle]
 unsafe fn sched() -> u128 {
-    THREADS.with_mut(|mut threads| {
-        let Some(thread) = threads.current() else {
-            return;
-        };
-        if thread.state == crate::ThreadState::Running {
-            let prio = thread.prio;
-            let pid = thread.pid;
-            threads.runqueue.add(pid, prio);
-        }
-    });
     loop {
-        if let Some(res) = THREADS.with_mut(|mut threads| {
+        if let Some(res) = critical_section::with(|cs| {
+            let threads = unsafe { &mut *THREADS.as_ptr(cs) };
 
-            #[cfg(not(feature = "core-affinity"))]
-            let next_pid = threads.runqueue.pop_next()?;
-            #[cfg(feature = "core-affinity")]
-            let next_pid = {
-                let (mut next, prio) = threads.runqueue.peek_next()?;
-                if !threads.is_affine_to_curr_core(next) {
-                    let iter = threads.runqueue.iter_from(next, prio);
-                    next = iter
-                        .filter(|pid| threads.is_affine_to_curr_core(*pid))
-                        .next()?;
+            #[cfg(feature = "multicore")]
+            threads.add_current_thread_to_rq();
+
+            let next_pid = match threads.get_next_pid() {
+                Some(pid) => pid,
+                None => {
+                    #[cfg(feature = "multicore")]
+                    unreachable!("At least one idle thread is always present for each core.");
+
+                    #[cfg(not(feature = "multicore"))]
+                    {
+                        Cpu::wfi();
+                        // this fence seems necessary, see #310.
+                        core::sync::atomic::fence(core::sync::atomic::Ordering::Acquire);
+                        return None;
+                    }
                 }
-                threads.runqueue.del(next);
-                next
             };
 
-            let mut current_high_regs = core::ptr::null();
+            let current_high_regs;
             if let Some(current_pid) = threads.current_pid() {
                 if next_pid == current_pid {
                     return Some(0);
@@ -219,14 +214,15 @@ unsafe fn sched() -> u128 {
                 let thread = threads.get_unchecked_mut(current_pid);
                 thread.sp = cortex_m::register::psp::read() as usize;
                 current_high_regs = thread.data.as_ptr();
+            } else {
+                current_high_regs = core::ptr::null();
             }
+
+            *threads.current_pid_mut() = Some(next_pid);
 
             let next = threads.get_unchecked(next_pid);
             let next_high_regs = next.data.as_ptr();
-            let next_prio = next.prio;
             let next_sp = next.sp;
-
-            threads.set_current(next_pid, next_prio);
 
             // PendSV expects these three pointers in r0, r1 and r2:
             // r0 = &next.sp
@@ -241,6 +237,5 @@ unsafe fn sched() -> u128 {
         }) {
             break res;
         }
-        Cpu::wfi();
     }
 }

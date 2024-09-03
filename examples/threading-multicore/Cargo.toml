@@ -7,8 +7,5 @@ license.workspace = true
 publish = false
 
 [dependencies]
-riot-rs = { path = "../../src/riot-rs", features = [
-  "threading",
-  "core-affinity",
-] }
+riot-rs = { path = "../../src/riot-rs", features = ["core-affinity"] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }

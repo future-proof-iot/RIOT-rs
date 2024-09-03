@@ -3689,7 +3689,6 @@ dependencies = [
  "cfg-if",
  "cortex-m",
  "defmt",
- "embassy-rp",
  "esp-hal",
 ]
 
@@ -3732,7 +3731,6 @@ dependencies = [
  "cortex-m-semihosting",
  "defmt",
  "defmt-rtt-target",
- "embassy-rp",
  "esp-println",
  "log 0.4.22",
  "rtt-target",
