@@ -75,10 +75,13 @@ pub fn schedule_on_core(id: CoreId) {
     Chip::schedule_on_core(id)
 }
 
+/// Affinity mask that defines on what cores a thread can be scheduled.
 #[derive(Clone, Copy, Debug, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+#[cfg(feature = "core-affinity")]
 pub struct CoreAffinity(u8);
 
+#[cfg(feature = "core-affinity")]
 impl CoreAffinity {
     /// Allows a thread to be scheduled on any core and to migrate
     /// from one core to another between executions.

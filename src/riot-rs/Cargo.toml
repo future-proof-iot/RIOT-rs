@@ -106,4 +106,7 @@ executor-thread = ["riot-rs-embassy/executor-thread", "threading"]
 # *Used for internal testing only.*
 executor-none = ["riot-rs-embassy/executor-none"]
 
-core-affinity = ["threading", "riot-rs-threads/core-affinity"]
+#! ## Multicore functionality.
+single-core = ["riot-rs-rt/single-core"]
+multicore = ["riot-rs-threads?/multicore", "riot-rs-rt/multicore"]
+core-affinity = ["multicore", "riot-rs-threads?/core-affinity"]

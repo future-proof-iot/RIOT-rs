@@ -86,7 +86,7 @@ extern "C" fn FROM_CPU_INTR0(trap_frame: &mut TrapFrame) {
 unsafe fn sched(trap_frame: &mut TrapFrame) {
     loop {
         if THREADS.with_mut(|mut threads| {
-            let Some(next_pid) = threads.runqueue.get_next() else {
+            let Some(next_pid) = threads.get_next_pid() else {
                 return false;
             };
 
@@ -96,12 +96,9 @@ unsafe fn sched(trap_frame: &mut TrapFrame) {
                 }
                 threads.threads[usize::from(current_pid)].data = *trap_frame;
             }
+            *threads.current_pid_mut() = Some(next_pid);
 
-            let thread = threads.get_unchecked(next_pid);
-            *trap_frame = thread.data;
-            let next_prio = thread.prio;
-            threads.set_current(next_pid, next_prio);
-
+            *trap_frame = threads.threads[usize::from(next_pid)].data;
             true
         }) {
             break;
