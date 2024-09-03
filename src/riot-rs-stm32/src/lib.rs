@@ -11,6 +11,9 @@ pub mod peripheral {
 #[cfg(feature = "external-interrupts")]
 pub mod extint_registry;
 
+#[cfg(feature = "i2c")]
+pub mod i2c;
+
 use embassy_stm32::Config;
 
 pub use embassy_stm32::{interrupt, peripherals, OptionalPeripherals, Peripherals};

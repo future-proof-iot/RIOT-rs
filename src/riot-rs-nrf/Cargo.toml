@@ -11,6 +11,7 @@ workspace = true
 
 [dependencies]
 cfg-if = { workspace = true }
+defmt = { workspace = true, optional = true }
 embassy-executor = { workspace = true, default-features = false, features = [
   "arch-cortex-m",
 ] }
@@ -20,6 +21,8 @@ embassy-nrf = { workspace = true, default-features = false, features = [
   "unstable-pac",
   "rt",
 ] }
+embedded-hal-async = { workspace = true }
+paste = { workspace = true }
 portable-atomic = { workspace = true }
 riot-rs-debug = { workspace = true }
 riot-rs-embassy-common = { workspace = true }
@@ -44,11 +47,14 @@ external-interrupts = [
 ## Enables seeding the random number generator from hardware.
 hwrng = ["dep:riot-rs-random"]
 
+## Enables I2C support.
+i2c = ["riot-rs-embassy-common/i2c", "embassy-executor/integrated-timers"]
+
 ## Enables USB support.
 usb = []
 
 ## Enables defmt support.
-defmt = ["embassy-nrf/defmt"]
+defmt = ["dep:defmt", "embassy-nrf/defmt"]
 
 ## Enables the interrupt executor.
 executor-interrupt = ["embassy-executor/executor-interrupt"]

@@ -360,9 +360,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.1.19"
+version = "1.1.20"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2d74707dde2ba56f86ae90effb3b43ddd369504387e718014de010cec7959800"
+checksum = "45bcde016d64c21da4be18b655631e5ab6d3107607e71a73a9f53eb48aae23fb"
 dependencies = [
  "shlex",
 ]
@@ -2065,6 +2065,7 @@ version = "0.3.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "17186ad64927d5ac8f02c1e77ccefa08ccd9eaa314d5a4772278aa204a22f7e7"
 dependencies = [
+ "defmt",
  "gcd",
 ]
 
@@ -2439,6 +2440,19 @@ name = "httparse"
 version = "1.9.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0fcc0b4a115bf80b728eb8ea024ad5bd707b615bfed49e0665b6e0f86fd082d9"
+
+[[package]]
+name = "i2c-controller"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embassy-sync 0.6.0",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "once_cell",
+ "riot-rs",
+ "riot-rs-boards",
+]
 
 [[package]]
 name = "ident_case"
@@ -2822,9 +2836,9 @@ checksum = "29be4f60e41fde478b36998b88821946aafac540e53591e76db53921a0cc225b"
 
 [[package]]
 name = "minijinja"
-version = "2.2.0"
+version = "2.3.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6d7d3e3a3eece1fa4618237ad41e1de855ced47eab705cec1c9a920e1d1c5aad"
+checksum = "333d5c65ea267f8aa0516c4ddeeb6547a53bd2d003659307eda21ceff9d19dbf"
 dependencies = [
  "serde",
 ]
@@ -3682,7 +3696,9 @@ name = "riot-rs-embassy"
 version = "0.1.0"
 dependencies = [
  "cfg-if",
+ "const_panic",
  "critical-section",
+ "embassy-embedded-hal",
  "embassy-executor",
  "embassy-hal-internal",
  "embassy-net",
@@ -3712,7 +3728,11 @@ dependencies = [
 name = "riot-rs-embassy-common"
 version = "0.1.0"
 dependencies = [
+ "defmt",
+ "embassy-futures",
+ "embassy-time",
  "embedded-hal 1.0.0",
+ "embedded-hal-async",
 ]
 
 [[package]]
@@ -3720,12 +3740,17 @@ name = "riot-rs-esp"
 version = "0.1.0"
 dependencies = [
  "cfg-if",
+ "defmt",
  "embassy-executor",
  "embassy-time",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
  "esp-hal",
  "esp-hal-embassy",
  "esp-wifi",
+ "fugit",
  "once_cell",
+ "paste",
  "riot-rs-debug",
  "riot-rs-embassy-common",
  "riot-rs-utils",
@@ -3751,8 +3776,11 @@ name = "riot-rs-nrf"
 version = "0.1.0"
 dependencies = [
  "cfg-if",
+ "defmt",
  "embassy-executor",
  "embassy-nrf",
+ "embedded-hal-async",
+ "paste",
  "portable-atomic",
  "riot-rs-debug",
  "riot-rs-embassy-common",
@@ -3773,11 +3801,15 @@ dependencies = [
 name = "riot-rs-rp"
 version = "0.1.0"
 dependencies = [
+ "cfg-if",
  "cyw43",
  "cyw43-pio",
+ "defmt",
  "embassy-executor",
  "embassy-net-driver-channel",
  "embassy-rp",
+ "embedded-hal-async",
+ "paste",
  "riot-rs-debug",
  "riot-rs-embassy-common",
  "riot-rs-random",
@@ -3815,8 +3847,12 @@ name = "riot-rs-stm32"
 version = "0.1.0"
 dependencies = [
  "cfg-if",
+ "defmt",
+ "embassy-embedded-hal",
  "embassy-executor",
  "embassy-stm32",
+ "embedded-hal-async",
+ "paste",
  "portable-atomic",
  "riot-rs-embassy-common",
  "riot-rs-random",
@@ -4536,9 +4572,9 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.22.20"
+version = "0.22.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "583c44c02ad26b0c3f3066fe629275e50627026c51ac2e595cca4c230ce1ce1d"
+checksum = "3b072cee73c449a636ffd6f32bd8de3a9f7119139aff882f44943ce2986dc5cf"
 dependencies = [
  "indexmap 2.5.0",
  "serde",

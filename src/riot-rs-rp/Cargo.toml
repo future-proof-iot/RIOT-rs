@@ -10,6 +10,8 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
+cfg-if = { workspace = true }
+defmt = { workspace = true, optional = true }
 embassy-net-driver-channel = { workspace = true, optional = true }
 embassy-rp = { workspace = true, default-features = false, features = [
   "rt",
@@ -17,6 +19,8 @@ embassy-rp = { workspace = true, default-features = false, features = [
   "unstable-pac",
   # "unstable-traits",
 ] }
+embedded-hal-async = { workspace = true }
+paste = { workspace = true }
 riot-rs-debug = { workspace = true }
 riot-rs-embassy-common = { workspace = true }
 riot-rs-random = { workspace = true, optional = true }
@@ -44,11 +48,14 @@ external-interrupts = ["riot-rs-embassy-common/external-interrupts"]
 ## Enables seeding the random number generator from hardware.
 hwrng = ["dep:riot-rs-random"]
 
+## Enables I2C support.
+i2c = ["riot-rs-embassy-common/i2c", "embassy-executor/integrated-timers"]
+
 ## Enables USB support.
 usb = []
 
 ## Enables defmt support.
-defmt = ["embassy-rp/defmt"]
+defmt = ["dep:defmt", "embassy-rp/defmt"]
 
 ## Enables Wi-Fi support.
 wifi = []

@@ -8,13 +8,14 @@ edition = "2021"
 workspace = true
 
 [dependencies]
+const_panic.workspace = true
 critical-section.workspace = true
 linkme.workspace = true
 static_cell.workspace = true
 cfg-if.workspace = true
 
+embassy-embedded-hal = { workspace = true, optional = true }
 embassy-executor = { workspace = true, features = ["nightly"] }
-
 embassy-hal-internal = { workspace = true }
 embassy-net = { workspace = true, optional = true, features = [
   "dhcpv4",
@@ -67,6 +68,16 @@ external-interrupts = [
   "riot-rs-stm32/external-interrupts",
 ]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
+
+## Enables I2C support.
+i2c = [
+  "dep:embassy-embedded-hal",
+  "riot-rs-embassy-common/i2c",
+  "riot-rs-esp/i2c",
+  "riot-rs-nrf/i2c",
+  "riot-rs-rp/i2c",
+  "riot-rs-stm32/i2c",
+]
 usb = [
   "dep:embassy-usb",
   "riot-rs-nrf/usb",
