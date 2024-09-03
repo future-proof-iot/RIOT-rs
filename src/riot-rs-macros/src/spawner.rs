@@ -20,7 +20,7 @@
 /// ```ignore
 /// use riot_rs::Spawner;
 ///
-/// #[riot_rs::spawner(autostart)]
+/// #[riot_rs::spawner(autostart, peripherals)]
 /// fn spawner(spawner: Spawner, peripherals: /* your peripheral type */) {}
 /// ```
 ///
