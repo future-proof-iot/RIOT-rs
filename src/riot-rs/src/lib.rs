@@ -50,3 +50,8 @@ pub mod reexports {
     pub use linkme;
     pub use static_cell;
 }
+
+#[cfg(all(feature = "single-core", feature = "multicore"))]
+compile_error!(
+    "feature \"single-core\" and feature \"multicore\" cannot be enabled at the same time"
+);

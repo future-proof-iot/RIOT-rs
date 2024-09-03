@@ -9,6 +9,7 @@ contexts:
     parent: default
     selects:
       - executor-default
+      - ?critical-section-single-core
       - ?defmt
     env:
       RUSTFLAGS:
@@ -583,6 +584,8 @@ modules:
   - name: sw/threading
     conflicts:
       - executor-single-thread
+    selects:
+      - ?multicore
     env:
       global:
         FEATURES:
@@ -717,6 +720,26 @@ modules:
       - ?executor-interrupt
       - ?executor-single-thread
       - ?executor-thread
+
+  - name: critical-section-single-core
+    help: single-core implementation of `critical-section`
+    provides_unique:
+      - critical-section
+    env:
+      global:
+        FEATURES:
+          - riot-rs/critical-section-single-core
+
+  - name: multicore
+    help: multicore threading
+    context:
+      - rp
+    provides_unique:
+      - critical-section
+    env:
+      global:
+        FEATURES:
+          - riot-rs/multicore
 
 builders:
   # host builder (for housekeeping tasks)

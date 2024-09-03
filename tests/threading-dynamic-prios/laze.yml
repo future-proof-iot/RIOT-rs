@@ -2,4 +2,5 @@ apps:
   - name: threading-dynamic-prios
     selects:
       - ?release
+      - critical-section-single-core
       - sw/threading
