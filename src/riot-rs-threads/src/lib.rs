@@ -17,8 +17,8 @@
 //! # Synchronization
 //!
 //! The `threading` module supports three basic synchronization primitives:
-//! - [`Channel`](channel::Channel): synchronous (blocking) channel for sending data between threads
-//! - [`Lock`](lock::Lock): basic locking object
+//! - [`Channel`](sync::Channel): synchronous (blocking) channel for sending data between threads
+//! - [`Lock`](sync::Lock): basic locking object
 //! - [`thread_flags`]: thread-flag implementation for signaling between threads
 
 #![cfg_attr(not(test), no_std)]
@@ -35,8 +35,7 @@ mod ensure_once;
 mod thread;
 mod threadlist;
 
-pub mod channel;
-pub mod lock;
+pub mod sync;
 pub mod thread_flags;
 
 #[doc(hidden)]
