@@ -1,12 +1,12 @@
 use critical_section::CriticalSection;
 
-use crate::{thread::Thread, ThreadId, ThreadState, SCHEDULER};
+use crate::{thread::Thread, RunqueueId, ThreadId, ThreadState, SCHEDULER};
 
 /// Manages blocked [`super::Thread`]s for a resource, and triggering the scheduler when needed.
 #[derive(Debug, Default)]
 pub struct ThreadList {
     /// Next thread to run once the resource is available.
-    pub head: Option<ThreadId>,
+    head: Option<ThreadId>,
 }
 
 impl ThreadList {
@@ -17,10 +17,12 @@ impl ThreadList {
 
     /// Puts the current (blocked) thread into this [`ThreadList`] and triggers the scheduler.
     ///
+    /// Returns a `RunqueueId` if the highest priority among the waiters in the list has changed.
+    ///
     /// # Panics
     ///
     /// Panics if this is called outside of a thread context.
-    pub fn put_current(&mut self, cs: CriticalSection, state: ThreadState) {
+    pub fn put_current(&mut self, cs: CriticalSection, state: ThreadState) -> Option<RunqueueId> {
         SCHEDULER.with_mut_cs(cs, |mut scheduler| {
             let &mut Thread { pid, prio, .. } = scheduler
                 .current()
@@ -35,12 +37,19 @@ impl ThreadList {
                 next = scheduler.thread_blocklist[usize::from(n)];
             }
             scheduler.thread_blocklist[usize::from(pid)] = next;
-            match curr {
-                Some(curr) => scheduler.thread_blocklist[usize::from(curr)] = Some(pid),
-                _ => self.head = Some(pid),
-            }
+            let inherit_priority = match curr {
+                Some(curr) => {
+                    scheduler.thread_blocklist[usize::from(curr)] = Some(pid);
+                    None
+                }
+                None => {
+                    self.head = Some(pid);
+                    Some(prio)
+                }
+            };
             scheduler.set_state(pid, state);
-        });
+            inherit_priority
+        })
     }
 
     /// Removes the head from this [`ThreadList`].
