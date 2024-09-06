@@ -1792,6 +1792,7 @@ dependencies = [
  "embassy-usb-driver",
  "embassy-usb-synopsys-otg",
  "embedded-can",
+ "embedded-hal 0.2.7",
  "embedded-hal 1.0.0",
  "embedded-hal-async",
  "embedded-hal-nb",
@@ -3796,6 +3797,7 @@ version = "0.1.0"
 dependencies = [
  "cfg-if",
  "defmt",
+ "embassy-embedded-hal",
  "embassy-executor",
  "embassy-time",
  "embedded-hal 1.0.0",
@@ -3860,6 +3862,7 @@ dependencies = [
  "cyw43",
  "cyw43-pio",
  "defmt",
+ "embassy-embedded-hal",
  "embassy-executor",
  "embassy-net-driver-channel",
  "embassy-rp",
@@ -4244,6 +4247,19 @@ dependencies = [
  "defmt",
  "heapless 0.8.0",
  "managed",
+]
+
+[[package]]
+name = "spi-main"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embassy-sync 0.6.0",
+ "embedded-hal-async",
+ "once_cell",
+ "riot-rs",
+ "riot-rs-boards",
+ "static_cell",
 ]
 
 [[package]]
