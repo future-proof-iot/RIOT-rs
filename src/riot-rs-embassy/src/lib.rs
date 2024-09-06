@@ -27,6 +27,9 @@ cfg_if::cfg_if! {
 #[cfg(feature = "i2c")]
 pub mod i2c;
 
+#[cfg(feature = "spi")]
+pub mod spi;
+
 #[cfg(feature = "usb")]
 pub mod usb;
 
@@ -46,6 +49,9 @@ pub use static_cell::{ConstStaticCell, StaticCell};
 pub mod api {
     #[cfg(feature = "i2c")]
     pub use crate::i2c;
+
+    #[cfg(feature = "spi")]
+    pub use crate::spi;
 
     #[cfg(feature = "threading")]
     pub use crate::blocker;
@@ -178,6 +184,9 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "i2c")]
     arch::i2c::init(&mut peripherals);
+
+    #[cfg(feature = "spi")]
+    arch::spi::init(&mut peripherals);
 
     #[cfg(feature = "hwrng")]
     arch::hwrng::construct_rng(&mut peripherals);
