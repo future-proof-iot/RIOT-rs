@@ -33,6 +33,10 @@ cfg_if::cfg_if! {
         mod riscv;
         pub use riscv::Cpu;
     }
+    else if #[cfg(context = "esp32s3")] {
+        mod xtensa;
+        pub use xtensa::Cpu;
+    }
     else {
         pub struct Cpu;
         impl Arch for Cpu {

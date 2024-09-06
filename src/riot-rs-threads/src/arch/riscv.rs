@@ -42,7 +42,8 @@ impl Arch for Cpu {
     fn start_threading() {
         interrupt::disable(EspHalCpu::ProCpu, Interrupt::FROM_CPU_INTR1);
         Self::schedule();
-        // TODO: handle unwrap error?
+        // Panics if `FROM_CPU_INTR1` is among `esp_hal::interrupt::RESERVED_INTERRUPTS`,
+        // which isn't the case.
         interrupt::enable(Interrupt::FROM_CPU_INTR1, interrupt::Priority::min()).unwrap();
     }
 }
