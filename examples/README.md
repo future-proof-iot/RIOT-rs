@@ -10,6 +10,7 @@ This directory contains example applications that showcase how to use Ariel OS.
 - [gpio/](./gpio): GPIO pin control example.
 - [hello-world/](./hello-world): a classic, async version
 - [hello-world-threading/](./hello-world-threading): a classic, using a thread
+- [http-client/](./http-client): HTTP client example
 - [http-server/](./http-server): HTTP server example
 - [log](./log): Example demonstrating different log levels for printing feedback messages.
 - [minimal/](./minimal): minimized to the max Ariel OS config
