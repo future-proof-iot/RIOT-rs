@@ -74,8 +74,7 @@ example](https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/hello-wo
 
 1. install [laze](https://github.com/kaspar030/laze): `cargo install laze`
 
-1. install [probe-rs](https://github.com/probe-rs/probe-rs): `cargo install probe-rs --features cli`
-   (2023-10-17: if that fails, try from git: `cargo install --git https://github.com/probe-rs/probe-rs --features cli probe-rs`)
+1. install [probe-rs](https://github.com/probe-rs/probe-rs): `cargo install probe-rs-tools --locked`
 
 1. clone this repository and cd into it
 
