@@ -33,7 +33,10 @@ pub fn init(peripherals: &mut OptionalPeripherals, spawner: Spawner) -> NetworkD
 #[embassy_executor::task]
 async fn connection(mut controller: WifiController<'static>) {
     debug!("start connection task");
+
+    #[cfg(not(feature = "defmt"))]
     debug!("Device capabilities: {:?}", controller.get_capabilities());
+
     loop {
         match esp_wifi::wifi::get_wifi_state() {
             WifiState::StaConnected => {
@@ -44,6 +47,7 @@ async fn connection(mut controller: WifiController<'static>) {
             _ => {}
         }
         if !matches!(controller.is_started(), Ok(true)) {
+            debug!("Configuring Wi-Fi");
             let client_config = Configuration::Client(ClientConfiguration {
                 ssid: crate::wifi::WIFI_NETWORK.try_into().unwrap(),
                 password: crate::wifi::WIFI_PASSWORD.try_into().unwrap(),
