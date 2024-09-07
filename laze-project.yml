@@ -746,6 +746,7 @@ modules:
     help: usage platform as multicore system
     context:
       - rp
+      - esp32s3
     provides_unique:
       - critical-section
     env:

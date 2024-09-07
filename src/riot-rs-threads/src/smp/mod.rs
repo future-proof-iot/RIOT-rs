@@ -49,6 +49,9 @@ cfg_if::cfg_if! {
     if #[cfg(context = "rp2040")] {
         mod rp2040;
         pub use rp2040::Chip;
+    } else if #[cfg(context = "esp32s3")] {
+        mod esp32s3;
+        pub use esp32s3::Chip;
     }
     else {
         use crate::{Arch as _, Cpu};
