@@ -32,6 +32,7 @@ esp-hal = { workspace = true, features = ["esp32c6"] }
 
 [target.'cfg(context = "esp32s3")'.dependencies]
 esp-hal = { workspace = true, features = ["esp32s3"] }
+static_cell = { workspace = true, optional = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
 # cortex-m specifics
