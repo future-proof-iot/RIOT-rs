@@ -13,7 +13,7 @@ on:
       - book/**
       - src/**
       - Cargo.toml
-      - rust-toolchain
+      - rust-toolchain.toml
 
   # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
@@ -39,7 +39,7 @@ jobs:
         uses: actions/checkout@v4
 
       - id: get_toolchain
-        run: echo "toolchain=$(cat rust-toolchain)" >> $GITHUB_OUTPUT
+        run: echo "toolchain=$(scripts/rust-toolchain.sh)" >> $GITHUB_OUTPUT
 
       - name: Install toolchain
         uses: dtolnay/rust-toolchain@master
