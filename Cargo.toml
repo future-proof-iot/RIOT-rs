@@ -124,6 +124,9 @@ cyw43-pio = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-r
 smoltcp = { git = "https://github.com/smoltcp-rs/smoltcp.git", rev = "125773e282bc2e0c914a49e9c75573926e26e558" }
 
 [workspace.lints.rust]
+# rustc lints are documented here: https://doc.rust-lang.org/rustc/lints/listing/index.html
+private_interfaces = "deny"
+private_bounds = "deny"
 unsafe_op_in_unsafe_fn = "warn"
 unused_must_use = "deny"
 # ... until we figure out a way to generate a list of all used cfg variables
@@ -134,3 +137,6 @@ unexpected_cfgs = "allow"
 # Clippy lints are documented here: https://rust-lang.github.io/rust-clippy/master/index.html
 indexing_slicing = "deny"
 missing_safety_doc = { level = "warn" }
+
+[workspace.lints.rustdoc]
+broken_intra_doc_links = "deny"

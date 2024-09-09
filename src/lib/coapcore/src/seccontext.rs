@@ -9,6 +9,7 @@ use core::fmt::Write;
 const MAX_CONTEXTS: usize = 4;
 
 /// A pool of security contexts shareable by several users inside a thread.
+#[expect(private_interfaces, reason = "should be addressed eventually")]
 pub type SecContextPool<Crypto> =
     crate::oluru::OrderedPool<SecContextState<Crypto>, MAX_CONTEXTS, LEVEL_COUNT>;
 
@@ -303,10 +304,12 @@ pub enum AuthorizationChecked<I> {
 
 pub enum EdhocResponse<I> {
     // Taking a small state here: We already have a slot in the pool, storing the big data there
+    #[expect(private_interfaces, reason = "should be addressed eventually")]
     OkSend2(COwn),
     // Could have a state Message3Processed -- but do we really want to implement that? (like, just
     // use the EDHOC option)
     OscoreRequest {
+        #[expect(private_interfaces, reason = "should be addressed eventually")]
         kid: COwn,
         correlation: liboscore::raw::oscore_requestid_t,
         extracted: AuthorizationChecked<I>,
