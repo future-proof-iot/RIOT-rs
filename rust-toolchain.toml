@@ -1,0 +1,14 @@
+# this file is parsed with grep & sed for parsing out the actual toolchain
+# from the "channel" line. Please keep that in mind when modifying.
+[toolchain]
+channel = "nightly-2024-05-20"
+targets = [
+  "thumbv6m-none-eabi",
+  "thumbv7m-none-eabi",
+  "thumbv7em-none-eabi",
+  "thumbv7em-none-eabihf",
+  "thumbv8m.main-none-eabi",
+  "riscv32imc-unknown-none-elf",
+  "riscv32imac-unknown-none-elf",
+]
+components = ["rust-src"]
