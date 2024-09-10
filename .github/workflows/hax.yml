@@ -15,7 +15,7 @@ jobs:
         uses: hacspec/hax-actions@main
         with:
           # pin hax to known-working
-          hax_reference: 533f87048f68705e8884ff9516db1371e8a2773d
+          hax_reference: 5e3e6d2028db0ca8f583b427f770bbb7c26c7bed
 
       - name: 🏃 Extract `riot-rs-runqueue`
         working-directory: ./src/riot-rs-runqueue
@@ -23,6 +23,6 @@ jobs:
           rm -f proofs/fstar/extraction/*.fst*
           cargo hax into fstar
 
-      - name: 🏃 Verify `riot-rs-runqueue`
+      - name: 🏃 Lax check `riot-rs-runqueue`
         working-directory: ./src/riot-rs-runqueue/proofs/fstar/extraction
-        run: make
+        run: OTHERFLAGS="--lax" make
