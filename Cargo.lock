@@ -892,7 +892,7 @@ dependencies = [
 [[package]]
 name = "cyw43"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
@@ -909,7 +909,7 @@ dependencies = [
 [[package]]
 name = "cyw43-pio"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 dependencies = [
  "cyw43",
  "embassy-rp",
@@ -1153,7 +1153,7 @@ dependencies = [
 [[package]]
 name = "embassy-executor"
 version = "0.6.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -1187,7 +1187,7 @@ dependencies = [
 [[package]]
 name = "embassy-hal-internal"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -1217,7 +1217,7 @@ dependencies = [
 [[package]]
 name = "embassy-net"
 version = "0.4.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 dependencies = [
  "defmt",
  "document-features",
@@ -1234,7 +1234,7 @@ dependencies = [
 [[package]]
 name = "embassy-net-driver"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 dependencies = [
  "defmt",
 ]
@@ -1242,7 +1242,7 @@ dependencies = [
 [[package]]
 name = "embassy-net-driver-channel"
 version = "0.3.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 dependencies = [
  "embassy-futures",
  "embassy-net-driver",
@@ -1278,7 +1278,7 @@ dependencies = [
 [[package]]
 name = "embassy-nrf"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 dependencies = [
  "bitflags 2.6.0",
  "cfg-if",
@@ -1319,7 +1319,7 @@ dependencies = [
 [[package]]
 name = "embassy-rp"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 dependencies = [
  "atomic-polyfill",
  "cfg-if",
@@ -1356,7 +1356,7 @@ dependencies = [
 [[package]]
 name = "embassy-stm32"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 dependencies = [
  "aligned",
  "bit_field",
@@ -1414,7 +1414,7 @@ dependencies = [
 [[package]]
 name = "embassy-sync"
 version = "0.6.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -1446,7 +1446,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-driver"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 dependencies = [
  "document-features",
 ]
@@ -1454,7 +1454,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-queue-driver"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 
 [[package]]
 name = "embassy-usb"
@@ -1475,7 +1475,7 @@ dependencies = [
 [[package]]
 name = "embassy-usb-driver"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 dependencies = [
  "defmt",
 ]
@@ -1498,7 +1498,7 @@ dependencies = [
 [[package]]
 name = "embassy-usb-synopsys-otg"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
 dependencies = [
  "critical-section",
  "embassy-sync 0.6.0",
@@ -2671,9 +2671,9 @@ checksum = "744a4c881f502e98c2241d2e5f50040ac73b30194d64452bb6260393b53f0dc9"
 
 [[package]]
 name = "libc"
-version = "0.2.158"
+version = "0.2.159"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d8adc4bb1803a324070e64a98ae98f38934d91957a99cfb3a43dcbc01bc56439"
+checksum = "561d97a539a36e26a9a5fad1ea11a3039a67714694aaa379433e580854bc3dc5"
 
 [[package]]
 name = "libloading"
@@ -3595,9 +3595,9 @@ version = "0.1.1"
 
 [[package]]
 name = "redox_syscall"
-version = "0.5.4"
+version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0884ad60e090bf1345b93da0a5de8923c93884cd03f40dfcfddd3b4bee661853"
+checksum = "62871f2d65009c0256aed1b9cfeeb8ac272833c404e13d53d400cd0dad7a2ac0"
 dependencies = [
  "bitflags 2.6.0",
 ]
@@ -3689,6 +3689,7 @@ dependencies = [
  "cfg-if",
  "cortex-m",
  "defmt",
+ "esp-hal",
 ]
 
 [[package]]
@@ -4631,9 +4632,9 @@ dependencies = [
 
 [[package]]
 name = "toml_edit"
-version = "0.22.21"
+version = "0.22.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b072cee73c449a636ffd6f32bd8de3a9f7119139aff882f44943ce2986dc5cf"
+checksum = "4ae48d6208a266e853d946088ed816055e556cc6028c5e8e2b84d9fa5dd7c7f5"
 dependencies = [
  "indexmap 2.5.0",
  "serde",
@@ -4977,9 +4978,9 @@ checksum = "589f6da84c646204747d1270a2a5661ea66ed1cced2631d546fdfb155959f9ec"
 
 [[package]]
 name = "winnow"
-version = "0.6.18"
+version = "0.6.19"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "68a9bda4691f099d435ad181000724da8e5899daa10713c2d432552b9ccd3a6f"
+checksum = "c52ac009d615e79296318c1bcce2d422aaca15ad08515e344feeda07df67a587"
 dependencies = [
  "memchr",
 ]
