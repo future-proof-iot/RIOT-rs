@@ -1,6 +1,6 @@
 use embassy_stm32::{bind_interrupts, peripherals, usb, usb::Driver};
 
-use crate::arch;
+use crate::{arch, ConstStaticCell};
 
 bind_interrupts!(struct Irqs {
     OTG_FS => usb::InterruptHandler<peripherals::USB_OTG_FS>;
@@ -17,7 +17,8 @@ pub fn driver(peripherals: &mut arch::OptionalPeripherals) -> UsbDriver {
     // "An internal buffer used to temporarily store received packets.
     // Must be large enough to fit all OUT endpoint max packet sizes.
     // Endpoint allocation will fail if it is too small."
-    let ep_out_buffer = crate::make_static!([0u8; 256]);
+    static EP_OUT_BUFFER: ConstStaticCell<[u8; 256]> = ConstStaticCell::new([0u8; 256]);
+    let ep_out_buffer = EP_OUT_BUFFER.take();
     let mut config = embassy_stm32::usb::Config::default();
 
     // Enable vbus_detection
