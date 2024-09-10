@@ -28,16 +28,13 @@ cfg_if::cfg_if! {
     if #[cfg(context = "cortex-m")] {
         mod cortex_m;
         pub use cortex_m::Cpu;
-    }
-    else if #[cfg(any(context = "esp32c3", context = "esp32c6"))] {
+    } else if #[cfg(context = "riscv")] {
         mod riscv;
         pub use riscv::Cpu;
-    }
-    else if #[cfg(context = "esp32s3")] {
+    } else if #[cfg(context = "xtensa")] {
         mod xtensa;
         pub use xtensa::Cpu;
-    }
-    else {
+    } else {
         pub struct Cpu;
         impl Arch for Cpu {
             type ThreadData = ();

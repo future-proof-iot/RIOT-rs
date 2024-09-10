@@ -284,6 +284,8 @@ contexts:
 
   - name: esp32c3
     parent: esp
+    selects:
+      - riscv
     env:
       RUSTFLAGS:
         - --cfg context=\"esp32c3\"
@@ -292,6 +294,8 @@ contexts:
 
   - name: esp32c6
     parent: esp
+    selects:
+      - riscv
     env:
       RUSTFLAGS:
         - --cfg context=\"esp32c6\"
@@ -300,6 +304,8 @@ contexts:
 
   - name: esp32s3
     parent: esp
+    selects:
+      - xtensa
     env:
       CARGO_TOOLCHAIN: +esp
       RUSTFLAGS:
@@ -420,6 +426,18 @@ modules:
         CARGO_ENV_TARGET: CARGO_TARGET_THUMBV7EM_NONE_EABIHF
         RUSTFLAGS:
           - --cfg armv7m
+
+  - name: xtensa
+    env:
+      global:
+        RUSTFLAGS:
+          - --cfg context=\"xtensa\"
+
+  - name: riscv
+    env:
+      global:
+        RUSTFLAGS:
+          - --cfg context=\"riscv\"
 
   - name: rp-link-arg
     help: helper module that ensures link-rp.x is added behind cortex-m ld scripts
