@@ -1,7 +1,7 @@
 name: Matrix bot
 on:
   pull_request_target:
-    types: [opened, closed]
+    types: [opened, ready_for_review, closed]
 
 jobs:
   new-pr:
@@ -15,6 +15,19 @@ jobs:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
           message: "New PR: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})"
+          server: "matrix.org"
+
+  ready-for-review-pr:
+    if: github.event.action == 'ready_for_review' && github.repository == 'future-proof-iot/RIOT-rs'
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - name: send message
+        uses: s3krit/matrix-message-action@v0.0.3
+        with:
+          room_id: ${{ secrets.MATRIX_ROOM_ID }}
+          access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
+          message: "PR is now ready for review: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})"
           server: "matrix.org"
 
   merged-pr:
