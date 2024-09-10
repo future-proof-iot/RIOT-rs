@@ -1,7 +1,7 @@
 error: custom attribute panicked
-  --> tests/ui/spawner/async_fn.rs:10:1
-   |
-10 | #[riot_rs::spawner(autostart)]
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = help: message: spawner functions cannot be async, consider using `task` instead
+ --> tests/ui/spawner/async_fn.rs:9:1
+  |
+9 | #[riot_rs::spawner(autostart)]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = help: message: spawner functions cannot be async, consider using `task` instead
