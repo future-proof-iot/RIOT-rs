@@ -13,8 +13,8 @@ for critical modules. To learn more about our motivations, see this
 Hardware targets include varieties of IoT hardware based on 
 32-bit microcontroller architectures (such as Cortex-M, RISC-V).
 
-In practice, RIOT-rs builds on top of [embassy](https://github.com/embassy-rs/embassy).
-Compared to what [embassy](https://github.com/embassy-rs/embassy) already provides,
+In practice, RIOT-rs builds on top of [Embassy](https://github.com/embassy-rs/embassy).
+Compared to what [Embassy](https://github.com/embassy-rs/embassy) already provides,
 RIOT-rs brings additional value in terms of 
 abstraction, operating system functionalities, 
 and integration for a (curated) set of software modules, tools and libraries, as well as 
@@ -23,7 +23,7 @@ a stronger focus on cybersecurity and formal verification.
 In particular, RIOT-rs aims to combine:
 
 - **application code portability** across all supported hardware, via consistent memory/energy efficient APIs;
-- **async programming** paradigms, based on [embassy](https://github.com/embassy-rs/embassy);
+- **async programming** paradigms, based on [Embassy](https://github.com/embassy-rs/embassy);
 - **preemptive scheduler** programming paradigms, based on formally verified modules using [hax](https://hacspec.org/blog/posts/hax-v0-1/);
 - **booting & update security**, via measured boot and secure software updates, using formally verified modules.
 
@@ -49,7 +49,7 @@ The following list of hardware is currently supported:
 **This is currently work-in-progress. Expect missing functionalities and frequent changes!** 
 If you are not so adventurous, but nevertheless looking for a way 
 to run your Rust module on a microcontroller, you could try to 
-glue it directly on top of [embassy](https://github.com/embassy-rs/embassy), 
+glue it directly on top of [Embassy](https://github.com/embassy-rs/embassy), 
 or instead, run your module in a [riot-wrappers](https://github.com/RIOT-OS/rust-riot-wrappers).
 
 ## Quickstart
