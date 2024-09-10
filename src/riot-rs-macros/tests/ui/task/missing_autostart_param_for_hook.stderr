@@ -1,7 +1,7 @@
 error: custom attribute panicked
-  --> tests/ui/task/missing_autostart_param_for_hook.rs:11:1
+  --> tests/ui/task/missing_autostart_param_for_hook.rs:10:1
    |
-11 | #[riot_rs::task(usb_builder_hook)]
+10 | #[riot_rs::task(usb_builder_hook)]
    | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
    |
    = help: message: the task must be `autostart` to instantiate hooks

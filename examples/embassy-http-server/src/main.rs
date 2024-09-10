@@ -7,12 +7,11 @@
 mod pins;
 mod routes;
 
-use riot_rs::{debug::log::*, network, Spawner};
+use riot_rs::{debug::log::*, network, ConstStaticCell, Spawner, StaticCell};
 
 use embassy_net::tcp::TcpSocket;
 use embassy_time::Duration;
 use picoserve::{io::Error, routing::get};
-use static_cell::make_static;
 
 #[cfg(feature = "button-readings")]
 use embassy_nrf::gpio::{Input, Pin, Pull};
@@ -101,7 +100,9 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
             button4: Input::new(buttons.btn4.degrade(), Pull::Up),
         };
 
-        ButtonInputs(make_static!(Mutex::new(buttons)))
+        static BUTTON_INPUTS: StaticCell<Mutex<CriticalSectionRawMutex, Buttons>> =
+            StaticCell::new();
+        ButtonInputs(BUTTON_INPUTS.init_with(|| Mutex::new(buttons)))
     };
 
     fn make_app() -> picoserve::Router<AppRouter, AppState> {
@@ -111,13 +112,17 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
         router
     }
 
-    let app = make_static!(make_app());
+    static APP: StaticCell<picoserve::Router<AppRouter, AppState>> = StaticCell::new();
+    let app = APP.init_with(|| make_app());
 
-    let config = make_static!(picoserve::Config::new(picoserve::Timeouts {
-        start_read_request: Some(Duration::from_secs(5)),
-        read_request: Some(Duration::from_secs(1)),
-        write: Some(Duration::from_secs(1)),
-    }));
+    static CONFIG: ConstStaticCell<picoserve::Config<Duration>> =
+        ConstStaticCell::new(picoserve::Config::new(picoserve::Timeouts {
+            start_read_request: Some(Duration::from_secs(5)),
+            read_request: Some(Duration::from_secs(1)),
+            write: Some(Duration::from_secs(1)),
+        }));
+
+    let config = CONFIG.take();
 
     for id in 0..WEB_TASK_POOL_SIZE {
         let app_state = AppState {

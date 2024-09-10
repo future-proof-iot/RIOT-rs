@@ -1,7 +1,6 @@
 //! This module provides an opinionated integration of `embassy`.
 
 #![no_std]
-#![feature(type_alias_impl_trait)]
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 #![feature(lint_reasons)]
@@ -50,7 +49,7 @@ use riot_rs_debug::log::debug;
 
 // re-exports
 pub use linkme::{self, distributed_slice};
-pub use static_cell::make_static;
+pub use static_cell::{ConstStaticCell, StaticCell};
 
 // Used by a macro we provide
 pub use embassy_executor;
@@ -122,8 +121,10 @@ fn init() -> ! {
     debug!("riot-rs-embassy::init(): using single thread executor");
     let p = arch::init();
 
-    let executor = make_static!(arch::Executor::new());
-    executor.run(|spawner| spawner.must_spawn(init_task(p)))
+    static EXECUTOR: StaticCell<arch::Executor> = StaticCell::new();
+    EXECUTOR
+        .init_with(|| arch::Executor::new())
+        .run(|spawner| spawner.must_spawn(init_task(p)))
 }
 
 #[cfg(feature = "executor-thread")]
@@ -147,8 +148,10 @@ fn init() {
     debug!("riot-rs-embassy::init(): using thread executor");
     let p = arch::init();
 
-    let executor = make_static!(thread_executor::Executor::new());
-    executor.run(|spawner| spawner.must_spawn(init_task(p)));
+    static EXECUTOR: StaticCell<thread_executor::Executor> = StaticCell::new();
+    EXECUTOR
+        .init_with(|| thread_executor::Executor::new())
+        .run(|spawner| spawner.must_spawn(init_task(p)));
 }
 
 #[embassy_executor::task]
@@ -188,14 +191,18 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
         let usb_driver = arch::usb::driver(&mut peripherals);
 
+        static CONFIG_DESC: ConstStaticCell<[u8; 256]> = ConstStaticCell::new([0; 256]);
+        static BOS_DESC: ConstStaticCell<[u8; 256]> = ConstStaticCell::new([0; 256]);
+        static MSOS_DESC: ConstStaticCell<[u8; 128]> = ConstStaticCell::new([0; 128]);
+        static CONTROL_BUF: ConstStaticCell<[u8; 128]> = ConstStaticCell::new([0; 128]);
         // Create embassy-usb DeviceBuilder using the driver and config.
         let builder = usb::UsbBuilder::new(
             usb_driver,
             usb_config,
-            &mut make_static!([0; 256])[..],
-            &mut make_static!([0; 256])[..],
-            &mut make_static!([0; 128])[..],
-            &mut make_static!([0; 128])[..],
+            CONFIG_DESC.take(),
+            BOS_DESC.take(),
+            MSOS_DESC.take(),
+            CONTROL_BUF.take(),
         );
 
         builder
@@ -211,18 +218,20 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         let host_mac_addr = [0x8A, 0x88, 0x88, 0x88, 0x88, 0x88];
 
         // Create classes on the builder.
+        static CDC_ECM_STATE: StaticCell<CdcNcmState> = StaticCell::new();
         let usb_cdc_ecm = CdcNcmClass::new(
             &mut usb_builder,
-            make_static!(CdcNcmState::new()),
+            CDC_ECM_STATE.init_with(|| CdcNcmState::new()),
             host_mac_addr,
             64,
         );
 
         let our_mac_addr = [0xCA, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC];
 
+        static NET_STATE: StaticCell<NetState<{ network::ETHERNET_MTU }, 4, 4>> = StaticCell::new();
         let (runner, device) = usb_cdc_ecm
             .into_embassy_net_device::<{ network::ETHERNET_MTU }, 4, 4>(
-                make_static!(NetState::new()),
+                NET_STATE.init_with(|| NetState::new()),
                 our_mac_addr,
             );
 
@@ -251,7 +260,6 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "net")]
     {
-        use crate::network::STACK;
         use crate::sendcell::SendCell;
         use embassy_net::{Stack, StackResources};
 
@@ -271,16 +279,23 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         let seed = 1234u64;
 
         // Init network stack
-        let stack = &*make_static!(Stack::new(
-            device,
-            config,
-            make_static!(StackResources::<MAX_CONCURRENT_SOCKETS>::new()),
-            seed
-        ));
+        static RESOURCES: StaticCell<StackResources<MAX_CONCURRENT_SOCKETS>> = StaticCell::new();
+        static STACK: StaticCell<NetworkStack> = StaticCell::new();
+        let stack = &*STACK.init_with(|| {
+            Stack::new(
+                device,
+                config,
+                RESOURCES.init_with(|| StackResources::new()),
+                seed,
+            )
+        });
 
         spawner.spawn(network::net_task(stack)).unwrap();
 
-        if STACK.init(SendCell::new(stack, spawner)).is_err() {
+        if crate::network::STACK
+            .init(SendCell::new(stack, spawner))
+            .is_err()
+        {
             unreachable!();
         }
     }

@@ -1,6 +1,5 @@
 #![no_main]
 #![feature(impl_trait_in_assoc_type)]
-#![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
 // FAIL: the function is expected to take a type having a `take_peripherals()` method as first

@@ -1,13 +1,13 @@
 error: `peripherals` macro parameter missing here ...
-  --> tests/ui/spawner/missing_peripherals_param.rs:10:1
-   |
-10 | #[riot_rs::spawner(autostart)]
-   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-   |
-   = note: this error originates in the attribute macro `riot_rs::spawner` (in Nightly builds, run with -Z macro-backtrace for more info)
+ --> tests/ui/spawner/missing_peripherals_param.rs:9:1
+  |
+9 | #[riot_rs::spawner(autostart)]
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  |
+  = note: this error originates in the attribute macro `riot_rs::spawner` (in Nightly builds, run with -Z macro-backtrace for more info)
 
 error: ... because this function has a second parameter
-  --> tests/ui/spawner/missing_peripherals_param.rs:11:9
+  --> tests/ui/spawner/missing_peripherals_param.rs:10:9
    |
-11 | fn main(_spawner: Spawner, _peripherals: Peripherals) {}
+10 | fn main(_spawner: Spawner, _peripherals: Peripherals) {}
    |         ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^

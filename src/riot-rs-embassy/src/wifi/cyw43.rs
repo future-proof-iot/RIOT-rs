@@ -10,7 +10,7 @@ use embassy_rp::{
 use riot_rs_debug::log::info;
 
 use self::rpi_pico_w::{Cyw43Periphs, CywSpi, Irqs};
-use crate::{arch::OptionalPeripherals, make_static};
+use crate::{arch::OptionalPeripherals, StaticCell};
 
 pub type NetworkDevice = cyw43::NetDriver<'static>;
 
@@ -68,8 +68,9 @@ pub async fn device<'a, 'b: 'a>(
         pins.dma,
     );
 
-    let state = make_static!(cyw43::State::new());
-    let (net_device, mut control, runner) = cyw43::new(state, pwr, spi, fw).await;
+    static STATE: StaticCell<cyw43::State> = StaticCell::new();
+    let (net_device, mut control, runner) =
+        cyw43::new(STATE.init_with(|| cyw43::State::new()), pwr, spi, fw).await;
 
     // this needs to be spawned here (before using `control`)
     spawner.spawn(wifi_cyw43_task(runner)).unwrap();

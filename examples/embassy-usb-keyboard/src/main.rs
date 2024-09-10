@@ -1,15 +1,14 @@
 #![no_std]
 #![no_main]
 #![feature(impl_trait_in_assoc_type)]
-#![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
 use embassy_time::Duration;
 use embassy_usb::class::hid::{self, HidReaderWriter};
 use riot_rs::{
     debug::log::*,
-    make_static,
     usb::{UsbBuilderHook, UsbDriver},
+    ConstStaticCell,
 };
 
 use usbd_hid::descriptor::KeyboardReport;
@@ -27,7 +26,9 @@ async fn usb_keyboard(button_peripherals: pins::Buttons) {
             max_packet_size: 64,
         };
 
-    let hid_state = make_static!(hid::State::new());
+    static HID_STATE: ConstStaticCell<hid::State> = ConstStaticCell::new(hid::State::new());
+    let hid_state = HID_STATE.take();
+
     let hid_rw: HidReaderWriter<'static, UsbDriver, 1, 8> = USB_BUILDER_HOOK
         .with(|usb_builder| hid::HidReaderWriter::new(usb_builder, hid_state, config))
         .await;

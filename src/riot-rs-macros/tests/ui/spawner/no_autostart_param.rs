@@ -1,5 +1,4 @@
 #![no_main]
-#![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
 // As the macro will fail, this import will not get used

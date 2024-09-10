@@ -8,8 +8,9 @@ macro_rules! autostart_thread {
             #[$crate::macro_reexports::linkme::distributed_slice($crate::THREAD_FNS)]
             #[linkme(crate = $crate::macro_reexports::linkme)]
             fn [<__start_thread_ $fn_name>] () {
-                let stack = $crate::macro_reexports::static_cell::make_static!([0u8; $stacksize as usize]);
-                $crate::thread_create_noarg($fn_name, stack, $priority);
+                use $crate::macro_reexports::static_cell::ConstStaticCell;
+                static STACK: ConstStaticCell<[u8; $stacksize]> = ConstStaticCell::new([0u8; $stacksize]);
+                $crate::thread_create_noarg($fn_name, STACK.take(), $priority);
             }
         }
     };

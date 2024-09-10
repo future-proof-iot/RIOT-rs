@@ -1,13 +1,13 @@
 #![no_std]
 #![no_main]
 #![feature(impl_trait_in_assoc_type)]
-#![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
 use riot_rs::{
     debug::log::info,
-    embassy_usb, make_static,
+    embassy_usb,
     usb::{UsbBuilderHook, UsbDriver},
+    StaticCell,
 };
 
 use embassy_usb::{
@@ -36,11 +36,11 @@ fn usb_config() -> embassy_usb::Config<'static> {
 async fn main() {
     info!("Hello World!");
 
-    let state = make_static!(State::new());
+    static STATE: StaticCell<State> = StaticCell::new();
 
     // Inject class on the system USB builder.
     let mut class = USB_BUILDER_HOOK
-        .with(|builder| CdcAcmClass::new(builder, state, 64))
+        .with(|builder| CdcAcmClass::new(builder, STATE.init_with(|| State::new()), 64))
         .await;
 
     // Do stuff with the class!
