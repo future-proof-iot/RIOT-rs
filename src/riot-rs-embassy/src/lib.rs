@@ -1,7 +1,6 @@
 //! This module provides an opinionated integration of `embassy`.
 
 #![no_std]
-#![feature(type_alias_impl_trait)]
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 #![feature(lint_reasons)]
@@ -124,7 +123,7 @@ fn init() -> ! {
 
     static EXECUTOR: StaticCell<arch::Executor> = StaticCell::new();
     EXECUTOR
-        .init(arch::Executor::new())
+        .init_with(|| arch::Executor::new())
         .run(|spawner| spawner.must_spawn(init_task(p)))
 }
 
@@ -151,7 +150,7 @@ fn init() {
 
     static EXECUTOR: StaticCell<thread_executor::Executor> = StaticCell::new();
     EXECUTOR
-        .init(thread_executor::Executor::new())
+        .init_with(|| thread_executor::Executor::new())
         .run(|spawner| spawner.must_spawn(init_task(p)));
 }
 
@@ -222,7 +221,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         static CDC_ECM_STATE: StaticCell<CdcNcmState> = StaticCell::new();
         let usb_cdc_ecm = CdcNcmClass::new(
             &mut usb_builder,
-            CDC_ECM_STATE.init(CdcNcmState::new()),
+            CDC_ECM_STATE.init_with(|| CdcNcmState::new()),
             host_mac_addr,
             64,
         );
@@ -232,7 +231,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         static NET_STATE: StaticCell<NetState<{ network::ETHERNET_MTU }, 4, 4>> = StaticCell::new();
         let (runner, device) = usb_cdc_ecm
             .into_embassy_net_device::<{ network::ETHERNET_MTU }, 4, 4>(
-                NET_STATE.init(NetState::new()),
+                NET_STATE.init_with(|| NetState::new()),
                 our_mac_addr,
             );
 
@@ -282,12 +281,14 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         // Init network stack
         static RESOURCES: StaticCell<StackResources<MAX_CONCURRENT_SOCKETS>> = StaticCell::new();
         static STACK: StaticCell<NetworkStack> = StaticCell::new();
-        let stack = &*STACK.init(Stack::new(
-            device,
-            config,
-            RESOURCES.init_with(|| StackResources::new()),
-            seed,
-        ));
+        let stack = &*STACK.init_with(|| {
+            Stack::new(
+                device,
+                config,
+                RESOURCES.init_with(|| StackResources::new()),
+                seed,
+            )
+        });
 
         spawner.spawn(network::net_task(stack)).unwrap();
 
