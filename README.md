@@ -64,7 +64,7 @@ example](https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/hello-wo
 
 ### Prerequisites
 
-1.install needed system dependencies. On Ubuntu, the following is sufficient:
+1. install needed system dependencies. On Ubuntu, the following is sufficient:
 
         apt install build-essential curl git python3 pkg-config \
                    libssl-dev llvm-dev cmake libclang-dev gcc-arm-none-eabi \
