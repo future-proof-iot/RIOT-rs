@@ -69,7 +69,10 @@ pub fn task(args: TokenStream, item: TokenStream) -> TokenStream {
             );
         }
     } else {
-        assert!(!attrs.peripherals, "the task must be `{AUTOSTART_PARAM}` to receive peripherals");
+        assert!(
+            !attrs.peripherals,
+            "the task must be `{AUTOSTART_PARAM}` to receive peripherals"
+        );
 
         assert!(
             attrs.hooks.is_empty(),
@@ -96,8 +99,8 @@ pub fn task(args: TokenStream, item: TokenStream) -> TokenStream {
         quote! {
             #delegates
 
-            #[#riot_rs_crate::distributed_slice(#riot_rs_crate::EMBASSY_TASKS)]
-            #[linkme(crate = #riot_rs_crate::linkme)]
+            #[#riot_rs_crate::reexports::linkme::distributed_slice(#riot_rs_crate::EMBASSY_TASKS)]
+            #[linkme(crate = #riot_rs_crate::reexports::linkme)]
             fn #new_function_name(
                 spawner: #riot_rs_crate::Spawner,
                 mut peripherals: &mut #riot_rs_crate::arch::OptionalPeripherals,
@@ -107,14 +110,14 @@ pub fn task(args: TokenStream, item: TokenStream) -> TokenStream {
                 spawner.spawn(task).unwrap();
             }
 
-            #[#riot_rs_crate::embassy_executor::task]
+            #[#riot_rs_crate::reexports::embassy_executor::task]
             #task_function
         }
     } else {
         let pool_size = attrs.pool_size.unwrap_or_else(|| syn::parse_quote! { 1 });
 
         quote! {
-            #[#riot_rs_crate::embassy_executor::task(pool_size = #pool_size)]
+            #[#riot_rs_crate::reexports::embassy_executor::task(pool_size = #pool_size)]
             #task_function
         }
     };
@@ -250,8 +253,8 @@ mod task {
             quote! {
                 static #delegate_hook_ident: #delegate_type<#delegate_inner_type> = #delegate_type::new();
 
-                #[#riot_rs_crate::distributed_slice(#distributed_slice_type)]
-                #[linkme(crate=#riot_rs_crate::linkme)]
+                #[#riot_rs_crate::reexports::linkme::distributed_slice(#distributed_slice_type)]
+                #[linkme(crate=#riot_rs_crate::reexports::linkme)]
                     static #delegate_hook_ref_ident: #type_name = &#delegate_hook_ident;
                 }
             }

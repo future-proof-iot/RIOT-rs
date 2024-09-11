@@ -84,8 +84,8 @@ pub fn spawner(args: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     let expanded = quote! {
-        #[#riot_rs_crate::distributed_slice(#riot_rs_crate::EMBASSY_TASKS)]
-        #[linkme(crate = #riot_rs_crate::linkme)]
+        #[#riot_rs_crate::reexports::linkme::distributed_slice(#riot_rs_crate::EMBASSY_TASKS)]
+        #[linkme(crate = #riot_rs_crate::reexports::linkme)]
         fn #new_function_name(
             spawner: #riot_rs_crate::Spawner,
             mut peripherals: &mut #riot_rs_crate::arch::OptionalPeripherals,

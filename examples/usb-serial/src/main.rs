@@ -5,7 +5,7 @@
 
 use riot_rs::{
     debug::log::info,
-    embassy_usb,
+    reexports::embassy_usb,
     usb::{UsbBuilderHook, UsbDriver},
     StaticCell,
 };

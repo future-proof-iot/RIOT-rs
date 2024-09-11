@@ -121,8 +121,8 @@ mod buttons {
 }
 
 #[riot_rs::config(usb)]
-fn usb_config() -> riot_rs::embassy_usb::Config<'static> {
-    let mut config = riot_rs::embassy_usb::Config::new(0xc0de, 0xcafe);
+fn usb_config() -> riot_rs::reexports::embassy_usb::Config<'static> {
+    let mut config = riot_rs::reexports::embassy_usb::Config::new(0xc0de, 0xcafe);
     config.manufacturer = Some("Embassy");
     config.product = Some("HID keyboard example");
     config.serial_number = Some("12345678");

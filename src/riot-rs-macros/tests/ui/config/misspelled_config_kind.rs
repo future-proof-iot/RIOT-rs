@@ -3,7 +3,7 @@
 
 // This will not get used because the attribute macro is expected to fail
 #[allow(unused_imports)]
-use riot_rs::embassy_net;
+use riot_rs::reexports::embassy_net;
 
 // FAIL: misspelled config kind
 #[riot_rs::config(networkk)]

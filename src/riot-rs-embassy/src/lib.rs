@@ -40,18 +40,33 @@ use riot_rs_debug::log::debug;
 pub use linkme::{self, distributed_slice};
 pub use static_cell::{ConstStaticCell, StaticCell};
 
-// Used by a macro we provide
-pub use embassy_executor;
+// All items of this module are re-exported at the root of `riot_rs`.
+pub mod api {
+    #[cfg(feature = "threading")]
+    pub use crate::blocker;
+    #[cfg(feature = "usb")]
+    pub use crate::usb;
+    pub use crate::{
+        arch, define_peripherals, delegate, gpio, group_peripherals, Spawner, EMBASSY_TASKS,
+    };
+    #[cfg(feature = "net")]
+    pub use crate::{network, NetworkStack};
+
+    #[cfg(feature = "executor-interrupt")]
+    pub use crate::arch::EXECUTOR;
+}
+
+// These are made available in `riot_rs::reexports`.
+pub mod reexports {
+    #[cfg(feature = "net")]
+    pub use embassy_net;
+    #[cfg(feature = "usb")]
+    pub use embassy_usb;
+    // Used by a macro we provide
+    pub use embassy_executor;
+}
+
 pub use embassy_executor::Spawner;
-
-#[cfg(feature = "executor-interrupt")]
-pub use arch::EXECUTOR;
-
-// Crates used in driver configuration functions
-#[cfg(feature = "net")]
-pub use embassy_net;
-#[cfg(feature = "usb")]
-pub use embassy_usb;
 
 #[cfg(feature = "usb-ethernet")]
 use usb::ethernet::NetworkDevice;
