@@ -11,3 +11,9 @@ workspace = true
 
 [dependencies]
 defmt = { workspace = true, optional = true }
+
+# This is required so that F* can find the required F* model of the Rust core
+# lib, as documented in the hax documentation:
+# https://hacspec.org/book/quick_start/intro.html#setup-the-crate-you-want-to-verify
+[target.'cfg(hax)'.dependencies]
+hax-lib = { git = "https://github.com/hacspec/hax", rev = "5e3e6d2028db0ca8f583b427f770bbb7c26c7bed" }

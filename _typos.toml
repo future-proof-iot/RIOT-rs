@@ -10,4 +10,5 @@ celcius = "celcius" # Until embedded-aht20 is fixed
 extend-exclude = [
   "doc/*.svg",
   "src/riot-rs-embassy/src/wifi/cyw43/firmware/README.md",
+  "src/riot-rs-runqueue/proofs/fstar/extraction/Makefile",
 ]

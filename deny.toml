@@ -47,6 +47,7 @@ unknown-registry = "deny"
 unknown-git = "deny"
 # List of URLs for allowed Git repositories
 allow-git = [
+  "https://github.com/hacspec/hax",
   "https://github.com/smoltcp-rs/smoltcp",
   "https://github.com/twitchyliquid64/usbd-hid",
   "https://gitlab.com/oscore/liboscore",
