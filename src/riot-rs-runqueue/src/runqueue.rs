@@ -112,11 +112,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
             return None;
         }
         let rq = RunqueueId::new(rq_ffs as u8 - 1);
-        #[expect(clippy::manual_map, reason = "Hax doesn't support `Option::map` yet.")]
-        match self.queues.peek_head(rq.0) {
-            Some(id) => Some(ThreadId::new(id)),
-            None => None,
-        }
+        self.queues.peek_head(rq.0).map(ThreadId::new)
     }
 
     /// Advances runqueue number `rq`.
