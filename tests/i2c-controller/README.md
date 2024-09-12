@@ -3,7 +3,6 @@
 ## About
 
 This application is testing raw I2C bus usage in RIOT-rs.
-Please use `riot_rs::sensors` instead for a high-level sensor abstraction that is architecture-agnostic.
 
 ## How to run
 
@@ -11,4 +10,6 @@ In this folder, run
 
     laze build -b nrf52840dk run
 
-This example requires a LIS3DH sensor (3-axis accelerometer) attached to the pins configured in the test.
+This test requires an LIS3DH sensor (3-axis accelerometer) attached to the pins configured in the
+`pins` module.
+It attempts to read the `WHO_AM_I` register and checks the received value against the expected id.
