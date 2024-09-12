@@ -91,12 +91,12 @@ incremental = false
 codegen-units = 1
 debug = true
 lto = false
-opt-level = 1
+opt-level = "s"     # Optimize for size even in debug builds
 
 [profile.release]
 incremental = false
 codegen-units = 1
-debug = true
+debug = true        # Required for defmt
 lto = false
 opt-level = "s"
 
