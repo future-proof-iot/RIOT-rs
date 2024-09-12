@@ -3780,6 +3780,7 @@ dependencies = [
  "embassy-rp",
  "riot-rs-debug",
  "riot-rs-embassy-common",
+ "riot-rs-random",
  "riot-rs-utils",
  "static_cell",
 ]

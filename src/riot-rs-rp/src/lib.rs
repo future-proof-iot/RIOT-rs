@@ -16,6 +16,9 @@ mod wifi;
 #[cfg(feature = "wifi-cyw43")]
 pub mod cyw43;
 
+#[cfg(feature = "hwrng")]
+pub mod hwrng;
+
 #[cfg(feature = "usb")]
 pub mod usb;
 
