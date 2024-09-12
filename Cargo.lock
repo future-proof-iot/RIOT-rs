@@ -3818,6 +3818,7 @@ dependencies = [
  "embassy-stm32",
  "portable-atomic",
  "riot-rs-embassy-common",
+ "riot-rs-random",
  "static_cell",
 ]
 
