@@ -8,13 +8,5 @@ fn main() {
     std::fs::copy("isr_stack.ld.in", out.join("isr_stack.x")).unwrap();
     std::fs::copy("linkme.x", out.join("linkme.x")).unwrap();
 
-    if env::var_os("CARGO_FEATURE__ESP32C3").is_some() {
-        std::fs::copy("linkme-esp32c3-fixup.x", out.join("linkme-esp-fixup.x")).unwrap();
-    }
-
-    if env::var_os("CARGO_FEATURE__ESP32C6").is_some() {
-        std::fs::copy("linkme-esp32c6-fixup.x", out.join("linkme-esp-fixup.x")).unwrap();
-    }
-
     println!("cargo:rustc-link-search={}", out.display());
 }

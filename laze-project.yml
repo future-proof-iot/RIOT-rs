@@ -278,8 +278,6 @@ contexts:
         - --cfg context=\"esp\"
         # linkall first
         - -Clink-arg=-Tlinkall.x
-        - -Clink-arg=-Tlinkme-esp-fixup.x
-        - -Clink-arg=-Tlinkme.x
         # this might be needed for backtraces
         # - -C force-frame-pointers
       CARGO_ARGS:
