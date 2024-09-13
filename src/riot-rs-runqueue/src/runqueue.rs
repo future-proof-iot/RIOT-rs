@@ -53,6 +53,7 @@ impl From<ThreadId> for usize {
 /// The current implementation needs an usize for the bit cache,
 /// an `[u8; N_QUEUES]` array for the list tail indexes
 /// and an `[u8; N_THREADS]` for the list next indexes.
+#[derive(Default)]
 pub struct RunQueue<const N_QUEUES: usize, const N_THREADS: usize> {
     /// Bitcache that represents the currently used queues
     /// in `0..N_QUEUES`.
@@ -61,9 +62,6 @@ pub struct RunQueue<const N_QUEUES: usize, const N_THREADS: usize> {
 }
 
 impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_THREADS }> {
-    // NOTE: we don't impl Default here because hax does not support it yet. When it does, we
-    // should impl it.
-    #[allow(clippy::new_without_default)]
     pub const fn new() -> RunQueue<{ N_QUEUES }, { N_THREADS }> {
         // unfortunately we cannot assert!() on N_QUEUES and N_THREADS,
         // as panics in const fn's are not (yet) implemented.
@@ -133,6 +131,12 @@ mod clist {
     pub struct CList<const N_QUEUES: usize, const N_THREADS: usize> {
         tail: [u8; N_QUEUES],
         next_idxs: [u8; N_THREADS],
+    }
+
+    impl<const N_QUEUES: usize, const N_THREADS: usize> Default for CList<N_QUEUES, N_THREADS> {
+        fn default() -> Self {
+            Self::new()
+        }
     }
 
     impl<const N_QUEUES: usize, const N_THREADS: usize> CList<N_QUEUES, N_THREADS> {
