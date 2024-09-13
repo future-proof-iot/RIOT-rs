@@ -51,6 +51,7 @@ allow-git = [
   "https://github.com/smoltcp-rs/smoltcp",
   "https://github.com/twitchyliquid64/usbd-hid",
   "https://gitlab.com/oscore/liboscore",
+  "https://github.com/seanmonstar/try-lock",
 ]
 
 [sources.allow-org]
