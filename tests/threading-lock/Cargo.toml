@@ -1,0 +1,13 @@
+[package]
+name = "threading-lock"
+version = "0.1.0"
+authors = ["Elena Frank <elena.frank@proton.me>"]
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+embassy-executor = { workspace = true }
+riot-rs = { path = "../../src/riot-rs", features = ["threading", "time"] }
+riot-rs-boards = { path = "../../src/riot-rs-boards" }
+portable-atomic = "1.6.0"
