@@ -12,7 +12,6 @@ critical-section.workspace = true
 linkme.workspace = true
 static_cell.workspace = true
 cfg-if.workspace = true
-portable-atomic.workspace = true
 
 embassy-executor = { workspace = true, features = ["nightly"] }
 
@@ -21,7 +20,6 @@ embassy-net = { workspace = true, optional = true, features = [
   "dhcpv4",
   "medium-ethernet",
 ] }
-embassy-net-driver-channel = { workspace = true, optional = true }
 embassy-sync = { workspace = true }
 embassy-time = { workspace = true, optional = true }
 embassy-usb = { workspace = true, optional = true }
@@ -29,6 +27,7 @@ embassy-usb = { workspace = true, optional = true }
 embedded-hal = { workspace = true }
 embedded-hal-async = { workspace = true }
 
+riot-rs-embassy-common = { workspace = true }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-debug = { workspace = true }
 riot-rs-macros = { path = "../riot-rs-macros" }
@@ -37,107 +36,52 @@ riot-rs-random = { path = "../riot-rs-random", optional = true }
 riot-rs-utils = { workspace = true }
 
 heapless = "0.8.0"
-once_cell = { version = "1.19.0", default-features = false, features = [
-  "critical-section",
-] }
+once_cell = { workspace = true }
 
-# rpi-pico-w cyw43
-cyw43 = { version = "0.2.0", features = ["firmware-logs"], optional = true }
-cyw43-pio = { version = "0.2.0", features = ["overclock"], optional = true }
-
-# listed here for conditional feature selection
-embassy-nrf = { workspace = true, default-features = false, optional = true }
-embassy-rp = { workspace = true, default-features = false, optional = true }
-embassy-stm32 = { workspace = true, default-features = false, optional = true }
-esp-hal = { workspace = true, default-features = false, optional = true }
-esp-hal-embassy = { workspace = true, default-features = false, optional = true }
-esp-wifi = { workspace = true, optional = true }
-
+# ISA-specific
 [target.'cfg(context = "cortex-m")'.dependencies]
 embassy-executor = { workspace = true, default-features = false, features = [
   "arch-cortex-m",
 ] }
 
-[target.'cfg(context = "nrf")'.dependencies]
-embassy-nrf = { workspace = true, features = [
-  "time-driver-rtc1",
-  "time",
-  "unstable-pac",
-  "rt",
-] }
-
-[target.'cfg(context = "nrf52832")'.dependencies]
-embassy-nrf = { workspace = true, features = ["nrf52832"] }
-
-[target.'cfg(context = "nrf52840")'.dependencies]
-embassy-nrf = { workspace = true, features = ["nrf52840"] }
-
-[target.'cfg(context = "nrf5340")'.dependencies]
-embassy-nrf = { workspace = true, features = ["nrf5340-app-s"] }
-
-[target.'cfg(context = "rp2040")'.dependencies]
-embassy-rp = { workspace = true, features = [
-  "rp2040",
-  "rt",
-  "time-driver",
-  "unstable-pac",
-  #  "unstable-traits",
-] }
-
+# Manufacturer-specific
 [target.'cfg(context = "esp")'.dependencies]
-esp-hal = { workspace = true, features = ["async", "embedded-hal"] }
-esp-hal-embassy = { workspace = true, default-features = false, features = [] }
-esp-wifi = { workspace = true, default-features = false, features = [
-  "async",
-  "embassy-net",
-  "wifi",
-], optional = true }
+riot-rs-esp = { path = "../riot-rs-esp" }
 
-[target.'cfg(context = "esp32c3")'.dependencies]
-esp-hal = { workspace = true, features = ["esp32c3"] }
-esp-hal-embassy = { workspace = true, default-features = false, features = [
-  "esp32c3",
-] }
-esp-wifi = { workspace = true, default-features = false, features = [
-  "esp32c3",
-], optional = true }
+[target.'cfg(context = "nrf")'.dependencies]
+riot-rs-nrf = { path = "../riot-rs-nrf" }
 
-[target.'cfg(context = "esp32c6")'.dependencies]
-esp-hal = { workspace = true, features = ["esp32c6"] }
-esp-hal-embassy = { workspace = true, default-features = false, features = [
-  "esp32c6",
-] }
-esp-wifi = { workspace = true, default-features = false, features = [
-  "esp32c6",
-], optional = true }
+[target.'cfg(context = "rp")'.dependencies]
+riot-rs-rp = { path = "../riot-rs-rp" }
 
 [target.'cfg(context = "stm32")'.dependencies]
-embassy-stm32 = { workspace = true, features = [
-  "rt",
-  "time-driver-any",
-  "unstable-pac",
-] }
+riot-rs-stm32 = { workspace = true }
 
 [features]
 ## Enables GPIO interrupt support.
-external-interrupts = ["embassy-nrf?/gpiote", "embassy-stm32?/exti"]
+external-interrupts = [
+  "riot-rs-embassy-common/external-interrupts",
+  "riot-rs-esp/external-interrupts",
+  "riot-rs-nrf/external-interrupts",
+  "riot-rs-rp/external-interrupts",
+  "riot-rs-stm32/external-interrupts",
+]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
-usb = ["dep:embassy-usb"]
+usb = [
+  "dep:embassy-usb",
+  "riot-rs-nrf/usb",
+  "riot-rs-rp/usb",
+  "riot-rs-stm32/usb",
+]
 # embassy-net requires embassy-time and support for timeouts in the executor
 net = ["dep:embassy-net", "time"]
 usb-ethernet = ["usb", "net"]
 ## Use a hardware RNG to seed into the riot-rs-random system-wide RNG
-hwrng = ["dep:riot-rs-random"]
+hwrng = ["riot-rs-nrf/hwrng"]
 
 wifi = []
-wifi-cyw43 = [
-  "dep:cyw43",
-  "dep:cyw43-pio",
-  "dep:embassy-net-driver-channel",
-  "net",
-  "wifi",
-]
-wifi-esp = ["dep:esp-wifi", "dep:embassy-net-driver-channel", "net", "wifi"]
+wifi-cyw43 = ["riot-rs-rp/wifi-cyw43", "net", "wifi"]
+wifi-esp = ["riot-rs-esp/wifi-esp", "net", "wifi"]
 
 threading = ["dep:riot-rs-threads"]
 override-network-config = []
@@ -145,23 +89,21 @@ override-usb-config = []
 
 executor-single-thread = [
   "riot-rs-rt/executor-single-thread",
-  "esp-hal-embassy?/executors",
+  "riot-rs-esp/executor-single-thread",
 ]
-executor-interrupt = ["embassy-executor/executor-interrupt"]
+executor-interrupt = [
+  "riot-rs-nrf/executor-interrupt",
+  "riot-rs-rp/executor-interrupt",
+]
 executor-thread = ["threading"]
 executor-none = []
 
 defmt = [
   "embassy-net?/defmt",
-  "embassy-nrf?/defmt",
-  "embassy-rp?/defmt",
-  "embassy-stm32?/defmt",
   "embassy-time?/defmt",
   "embassy-usb?/defmt",
-  "esp-wifi?/defmt",
+  "riot-rs-esp/defmt",
+  "riot-rs-nrf/defmt",
+  "riot-rs-rp/defmt",
+  "riot-rs-stm32/defmt",
 ]
-
-# These are chosen automatically by riot-rs-boards and select the correct stm32
-# usb peripheral support.
-stm32-usb = []
-stm32-usb-synopsis = []

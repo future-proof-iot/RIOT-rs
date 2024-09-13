@@ -11,6 +11,7 @@
 use embedded_hal::digital::StatefulOutputPin;
 
 use crate::arch::{
+    self,
     gpio::{
         input::{Input as ArchInput, InputPin as ArchInputPin},
         output::{
@@ -27,6 +28,8 @@ use crate::arch::gpio::input::IntEnabledInput as ArchIntEnabledInput;
 use input::InputBuilder;
 use output::OutputBuilder;
 
+pub use riot_rs_embassy_common::gpio::{DriveStrength, Level, Pull, Speed};
+
 // We do not provide an `impl` block because it would be grouped separately in the documentation.
 macro_rules! inner_impl_input_methods {
     ($inner:ident) => {
@@ -42,7 +45,7 @@ macro_rules! inner_impl_input_methods {
 
         /// Returns the input level.
         pub fn get_level(&self) -> Level {
-            self.$inner.get_level().into()
+            arch::gpio::input::into_level(self.$inner.get_level())
         }
     };
 }
@@ -176,71 +179,21 @@ impl_embedded_hal_input_trait!(Input, ArchInput);
 #[cfg(feature = "external-interrupts")]
 impl_embedded_hal_input_trait!(IntEnabledInput, ArchIntEnabledInput);
 
-/// Digital level of an input or output.
-#[derive(Copy, Clone, PartialEq, Eq)]
-pub enum Level {
-    /// Digital low level.
-    Low,
-    /// Digital high level.
-    High,
-}
-
-impl From<Level> for bool {
-    fn from(level: Level) -> Self {
-        match level {
-            Level::Low => false,
-            Level::High => true,
-        }
-    }
-}
-
-impl From<bool> for Level {
-    fn from(boolean: bool) -> Self {
-        match boolean {
-            false => Level::Low,
-            true => Level::High,
-        }
-    }
-}
-
-impl From<embedded_hal::digital::PinState> for Level {
-    fn from(pin_state: embedded_hal::digital::PinState) -> Self {
-        bool::from(pin_state).into()
-    }
-}
-
-impl From<Level> for embedded_hal::digital::PinState {
-    fn from(level: Level) -> Self {
-        bool::from(level).into()
-    }
-}
-
-macro_rules! impl_from_level {
-    ($level:ident) => {
-        impl From<crate::gpio::Level> for $level {
-            fn from(level: crate::gpio::Level) -> Self {
-                match level {
-                    crate::gpio::Level::Low => $level::Low,
-                    crate::gpio::Level::High => $level::High,
-                }
-            }
-        }
-    };
-}
-pub(crate) use impl_from_level;
-
 pub mod input {
     //! Input-specific types.
+    use riot_rs_embassy_common::gpio::Pull;
 
-    use crate::{
-        arch::{self, gpio::input::InputPin as ArchInputPin, peripheral::Peripheral},
-        gpio::Pull,
-    };
+    use crate::arch::{self, gpio::input::InputPin as ArchInputPin, peripheral::Peripheral};
 
     use super::Input;
 
     #[cfg(feature = "external-interrupts")]
     use super::IntEnabledInput;
+
+    pub use riot_rs_embassy_common::gpio::input::Error;
+
+    #[cfg(feature = "external-interrupts")]
+    pub use riot_rs_embassy_common::gpio::input::InterruptError;
 
     /// Builder type for [`Input`], can be obtained with [`Input::builder()`].
     pub struct InputBuilder<P: Peripheral<P: ArchInputPin>> {
@@ -320,36 +273,6 @@ pub mod input {
             Ok(IntEnabledInput { input })
         }
     }
-
-    /// Input-related errors.
-    #[derive(Debug)]
-    pub enum Error {
-        /// Error when hitting hardware limitations regarding interrupt registration.
-        /// See
-        /// [`InputBuilder::build_with_interrupt()`](super::InputBuilder::build_with_interrupt).
-        #[cfg(feature = "external-interrupts")]
-        InterruptChannel(crate::extint_registry::Error),
-    }
-
-    #[cfg(feature = "external-interrupts")]
-    impl From<crate::extint_registry::Error> for Error {
-        fn from(err: crate::extint_registry::Error) -> Self {
-            Error::InterruptChannel(err)
-        }
-    }
-}
-
-/// Pull-up/pull-down resistor configuration.
-///
-/// All the architectures we support have pull-up and pull-down resistors.
-#[derive(Copy, Clone, PartialEq, Eq)]
-pub enum Pull {
-    /// No pull-up or pull-down resistor.
-    None,
-    /// Pull-up resistor.
-    Up,
-    /// Pull-down resistor.
-    Down,
 }
 
 /// A GPIO output.
@@ -402,80 +325,11 @@ impl Output {
     }
 }
 
-/// Drive strength of an output.
-///
-/// This enum allows to either use high-level, portable values, roughly normalized across
-/// architectures, or to use architecture-specific values if needed.
-// TODO: should this be marked non_exhaustive?
-#[derive(Copy, Clone, PartialEq, Eq)]
-pub enum DriveStrength {
-    /// Architecture-specific drive strength setting.
-    Arch(ArchDriveStrength),
-    /// Lowest drive strength available on this architecture.
-    Lowest,
-    /// Most common reset value of drive strength on this architecture.
-    Standard,
-    /// Medium drive strength.
-    Medium,
-    /// High drive strength.
-    High,
-    /// Highest drive strength available on this architecture.
-    Highest,
-}
-
-impl Default for DriveStrength {
-    fn default() -> Self {
-        Self::Standard
-    }
-}
-
-// We introduce our own trait instead of using `From` because this conversion is not
-// value-preserving.
-pub(crate) trait FromDriveStrength {
-    fn from(drive_strength: DriveStrength) -> ArchDriveStrength;
-}
-
-/// Speed setting of an output.
-///
-/// Speed can be increased when needed, at the price of increasing high-frequency noise.
-///
-/// This enum allows to either use high-level, portable values, roughly normalized across
-/// architectures, or to use architecture-specific values if needed.
-#[doc(alias = "SlewRate")]
-#[derive(Copy, Clone, PartialEq, Eq)]
-// FIXME: should we call this slew rate instead?
-pub enum Speed {
-    /// Architecture-specific speed setting.
-    Arch(ArchSpeed),
-    /// Low speed.
-    Low,
-    /// Medium speed.
-    Medium,
-    /// High speed.
-    High,
-    /// Very high speed.
-    VeryHigh,
-}
-
-impl Default for Speed {
-    fn default() -> Self {
-        Self::Low
-    }
-}
-
-// We introduce our own trait instead of using `From` because this conversion is not
-// value-preserving.
-pub(crate) trait FromSpeed {
-    fn from(speed: Speed) -> ArchSpeed;
-}
-
 pub mod output {
     //! Output-specific types.
+    use riot_rs_embassy_common::gpio::{DriveStrength, FromDriveStrength, FromSpeed, Level, Speed};
 
-    use crate::{
-        arch::{self, gpio::output::OutputPin as ArchOutputPin, peripheral::Peripheral},
-        gpio::{DriveStrength, FromDriveStrength, FromSpeed, Level, Speed},
-    };
+    use crate::arch::{self, gpio::output::OutputPin as ArchOutputPin, peripheral::Peripheral};
 
     use super::{ArchDriveStrength, ArchSpeed, Output};
 
@@ -483,8 +337,8 @@ pub mod output {
     pub struct OutputBuilder<P: Peripheral<P: ArchOutputPin>> {
         pub(crate) pin: P,
         pub(crate) initial_level: Level,
-        pub(crate) drive_strength: DriveStrength,
-        pub(crate) speed: Speed,
+        pub(crate) drive_strength: DriveStrength<ArchDriveStrength>,
+        pub(crate) speed: Speed<ArchSpeed>,
     }
 
     // We define this in a macro because it will be useful for open-drain outputs.
@@ -497,7 +351,7 @@ pub mod output {
                 ///
                 /// Fails to compile if the architecture does not support configuring drive
                 /// strength of outputs.
-                pub fn drive_strength(self, drive_strength: DriveStrength) -> Self {
+                pub fn drive_strength(self, drive_strength: DriveStrength<ArchDriveStrength>) -> Self {
                     const {
                         assert!(
                             arch::gpio::output::DRIVE_STRENGTH_CONFIGURABLE,
@@ -516,7 +370,7 @@ pub mod output {
                 // We may remove them in the future if we realize they are never useful.
                 #[doc(hidden)]
                 // TODO: or `drive_strength_opt`?
-                pub fn opt_drive_strength(self, drive_strength: DriveStrength) -> Self {
+                pub fn opt_drive_strength(self, drive_strength: DriveStrength<ArchDriveStrength>) -> Self {
                     if arch::gpio::output::DRIVE_STRENGTH_CONFIGURABLE {
                         // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
                         // be triggered.
@@ -535,7 +389,7 @@ pub mod output {
                 ///
                 /// Fails to compile if the architecture does not support configuring speed of
                 /// outputs.
-                pub fn speed(self, speed: Speed) -> Self {
+                pub fn speed(self, speed: Speed<ArchSpeed>) -> Self {
                     const {
                         assert!(
                             arch::gpio::output::SPEED_CONFIGURABLE,
@@ -551,7 +405,7 @@ pub mod output {
                 // We may remove them in the future if we realize they are never useful.
                 #[doc(hidden)]
                 // TODO: or `speed_opt`?
-                pub fn opt_speed(self, speed: Speed) -> Self {
+                pub fn opt_speed(self, speed: Speed<ArchSpeed>) -> Self {
                     if arch::gpio::output::SPEED_CONFIGURABLE {
                         // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
                         // be triggered.

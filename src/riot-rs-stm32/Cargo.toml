@@ -1,0 +1,47 @@
+[package]
+name = "riot-rs-stm32"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+cfg-if = { workspace = true }
+embassy-executor = { workspace = true, default-features = false, features = [
+  "arch-cortex-m",
+] }
+embassy-stm32 = { workspace = true, default-features = false }
+riot-rs-embassy-common = { workspace = true }
+portable-atomic = { workspace = true }
+static_cell = { workspace = true }
+
+[target.'cfg(context = "stm32")'.dependencies]
+embassy-stm32 = { workspace = true, features = [
+  "rt",
+  "time-driver-any",
+  "unstable-pac",
+] }
+
+[features]
+## Enables GPIO interrupt support.
+external-interrupts = [
+  "embassy-stm32/exti",
+  "riot-rs-embassy-common/external-interrupts",
+]
+
+## Enables USB support.
+usb = []
+# These are chosen automatically by riot-rs-boards and select the correct stm32
+# usb peripheral support.
+stm32-usb = []
+stm32-usb-synopsis = []
+
+## Enables defmt support.
+defmt = ["embassy-stm32/defmt"]
+
+## Enables the interrupt executor.
+executor-interrupt = ["embassy-executor/executor-interrupt"]

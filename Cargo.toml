@@ -12,8 +12,13 @@ members = [
   "src/riot-rs-boards/nrf52840dk",
   "src/riot-rs-chips",
   "src/riot-rs-debug",
+  "src/riot-rs-embassy-common",
+  "src/riot-rs-esp",
   "src/riot-rs-macros",
+  "src/riot-rs-nrf",
   "src/riot-rs-random",
+  "src/riot-rs-rp",
+  "src/riot-rs-stm32",
   "tests/benchmarks/bench_sched_yield",
   "tests/gpio",
   "tests/gpio-interrupt-nrf",
@@ -73,8 +78,11 @@ riot-rs-bench = { path = "src/riot-rs-bench", default-features = false }
 riot-rs-boards = { path = "src/riot-rs-boards", default-features = false }
 riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
 riot-rs-embassy = { path = "src/riot-rs-embassy", default-features = false }
+riot-rs-embassy-common = { path = "src/riot-rs-embassy-common" }
+riot-rs-random = { path = "src/riot-rs-random" }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
+riot-rs-stm32 = { path = "src/riot-rs-stm32" }
 riot-rs-utils = { path = "src/riot-rs-utils", default-features = false }
 
 const_panic = { version = "0.2.8", default-features = false }
@@ -83,6 +91,9 @@ document-features = "0.2.8"
 heapless = { version = "0.8.0", default-features = false }
 konst = { version = "0.3.8", default-features = false }
 ld-memory = { version = "0.2.9" }
+once_cell = { version = "1.19.0", default-features = false, features = [
+  "critical-section",
+] }
 paste = { version = "1.0" }
 static_cell = { version = "2.0.0", features = ["nightly"] }
 
