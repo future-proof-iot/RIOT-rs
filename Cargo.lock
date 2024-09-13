@@ -4190,6 +4190,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8b2975e035ce16539eecee08d7c6e5626ca26f299c6e90af343b302c6dd2e61e"
 dependencies = [
  "alloc-traits",
+ "atomic-polyfill",
 ]
 
 [[package]]
@@ -4536,8 +4537,10 @@ dependencies = [
 [[package]]
 name = "try-lock"
 version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "e421abadd41a4225275504ea4d6566923418b7f05506fbc9c0fe86ba7396114b"
+source = "git+https://github.com/seanmonstar/try-lock?rev=a1aadfac9840fe23672159c12af7272e44bc684c#a1aadfac9840fe23672159c12af7272e44bc684c"
+dependencies = [
+ "portable-atomic",
+]
 
 [[package]]
 name = "trybuild"
