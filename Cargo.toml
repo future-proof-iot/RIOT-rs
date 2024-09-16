@@ -48,7 +48,7 @@ cortex-m-semihosting = { version = "0.5" }
 critical-section = { version = "1.1.2" }
 # Disabling default features may reduce the code size by not providing atomics
 # for types larger than the pointer width, which we do not use.
-portable-atomic = { version = "1.6.0", default-features = false, features = [
+portable-atomic = { version = "1.7.0", default-features = false, features = [
   "require-cas",
 ] }
 
@@ -92,7 +92,7 @@ document-features = "0.2.8"
 heapless = { version = "0.8.0", default-features = false }
 konst = { version = "0.3.8", default-features = false }
 ld-memory = { version = "0.2.9" }
-once_cell = { version = "1.19.0", default-features = false, features = [
+once_cell = { version = "=1.19.0", default-features = false, features = [
   "critical-section",
 ] }
 paste = { version = "1.0" }

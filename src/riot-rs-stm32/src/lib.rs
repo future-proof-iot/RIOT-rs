@@ -18,6 +18,9 @@ pub use embassy_stm32::{interrupt, peripherals, OptionalPeripherals, Peripherals
 #[cfg(feature = "executor-interrupt")]
 pub(crate) use embassy_executor::InterruptExecutor as Executor;
 
+#[cfg(feature = "hwrng")]
+pub mod hwrng;
+
 #[cfg(feature = "usb")]
 cfg_if::cfg_if! {
     if #[cfg(feature = "stm32-usb")] {

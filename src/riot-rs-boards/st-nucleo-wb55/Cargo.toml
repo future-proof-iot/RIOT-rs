@@ -9,5 +9,5 @@ edition = "2021"
 [dependencies]
 embassy-stm32 = { workspace = true, features = ["stm32wb55rg"] }
 riot-rs-debug = { workspace = true, features = ["rtt-target"] }
-riot-rs-stm32 = { workspace = true, features = ["stm32-usb"] }
+riot-rs-stm32 = { workspace = true, features = ["stm32-rng", "stm32-usb"] }
 riot-rs-rt.workspace = true

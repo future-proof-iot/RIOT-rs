@@ -35,6 +35,9 @@ functionalities:
   - name: ethernet_over_usb
     title: Ethernet over USB
     description:
+  - name: hwrng
+    title: Hardware Random Number Generator
+    description:
 
 # Encodes support status for each chip.
 chips:
@@ -43,6 +46,7 @@ chips:
     support:
       gpio: supported
       debug_output: supported
+      hwrng: supported
       logging: supported
       wifi: not_available
 
@@ -51,6 +55,7 @@ chips:
     support:
       gpio: supported
       debug_output: supported
+      hwrng: supported
       logging: supported
       wifi: not_available
 
@@ -59,6 +64,7 @@ chips:
     support:
       gpio: supported
       debug_output: supported
+      hwrng: supported
       logging: supported
       wifi: not_available
 
@@ -67,6 +73,7 @@ chips:
     support:
       gpio: supported
       debug_output: supported
+      hwrng: not_currently_supported
       logging: supported
       wifi: not_available
 
@@ -75,6 +82,7 @@ chips:
     support:
       gpio: supported
       debug_output: supported
+      hwrng: not_available
       logging: supported
       wifi: not_available
 
@@ -83,6 +91,7 @@ chips:
     support:
       gpio: supported
       debug_output: supported
+      hwrng: supported
       logging: supported
       wifi: not_available
 
@@ -91,6 +100,7 @@ chips:
     support:
       gpio: supported
       debug_output: supported
+      hwrng: supported
       logging: supported
       wifi: not_available
 

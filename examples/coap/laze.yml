@@ -8,3 +8,6 @@ apps:
       - ?release
       - network
       - random
+    conflicts:
+      # see https://github.com/future-proof-iot/RIOT-rs/issues/418
+      - thumbv6m-none-eabi

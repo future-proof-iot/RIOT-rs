@@ -77,7 +77,7 @@ usb = [
 net = ["dep:embassy-net", "time"]
 usb-ethernet = ["usb", "net"]
 ## Use a hardware RNG to seed into the riot-rs-random system-wide RNG
-hwrng = ["riot-rs-nrf/hwrng"]
+hwrng = ["riot-rs-nrf/hwrng", "riot-rs-rp/hwrng", "riot-rs-stm32/hwrng"]
 
 wifi = []
 wifi-cyw43 = ["riot-rs-rp/wifi-cyw43", "net", "wifi"]

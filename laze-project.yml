@@ -602,6 +602,9 @@ modules:
       # doesn't have an entry in the cfg(feature = "hwrng") part of init_task
       - nrf51
       - nrf52
+      - rp
+      - stm32h755zitx
+      - stm32wb55rgvx
     env:
       global:
         FEATURES:
