@@ -1127,7 +1127,7 @@ dependencies = [
 [[package]]
 name = "embassy-executor"
 version = "0.6.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-08-18#164b3a99efbeccc442971b63dc1b90f03db637ea"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-08-18-wakers#c17dc6cc90d6b9e8c18c8b0ea58c1a4dd868b6f1"
 dependencies = [
  "cortex-m",
  "critical-section",
