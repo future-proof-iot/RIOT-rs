@@ -7,8 +7,4 @@ extint = "extint" # External interrupt
 celcius = "celcius" # Until embedded-aht20 is fixed
 
 [files]
-extend-exclude = [
-  "doc/*.svg",
-  "src/riot-rs-rp/src/cyw43/firmware/README.md",
-  "src/riot-rs-runqueue/proofs/fstar/extraction/Makefile",
-]
+extend-exclude = ["doc/*.svg", "src/riot-rs-rp/src/cyw43/firmware/README.md"]

@@ -134,9 +134,9 @@ all-keep-going:
 # If $HACL_HOME doesn't exist, clone it
 ${HACL_HOME}:
 	$(Q)mkdir -p "${HACL_HOME}"
-	$(info Clonning Hacl* in ${HACL_HOME}...)
+	$(info Cloning Hacl* in ${HACL_HOME}...)
 	git clone --depth 1 https://github.com/hacl-star/hacl-star.git "${HACL_HOME}"
-	$(info Clonning Hacl* in ${HACL_HOME}... done!)
+	$(info Cloning Hacl* in ${HACL_HOME}... done!)
 
 # If no any F* file is detected, we run hax
 ifeq "$(wildcard *.fst *fsti)" ""
