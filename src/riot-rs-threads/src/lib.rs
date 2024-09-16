@@ -1,7 +1,6 @@
 #![cfg_attr(not(test), no_std)]
 #![feature(naked_functions)]
 #![feature(used_with_arg)]
-#![feature(lint_reasons)]
 // Disable indexing lints for now, possible panics are documented or rely on internally-enforced
 // invariants
 #![allow(clippy::indexing_slicing)]
