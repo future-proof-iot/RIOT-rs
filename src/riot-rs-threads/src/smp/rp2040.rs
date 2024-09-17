@@ -1,5 +1,6 @@
 use crate::arch::{Arch as _, Cpu};
 
+use cortex_m::peripheral::SCB;
 use embassy_rp::{
     interrupt,
     interrupt::InterruptExt as _,
@@ -39,19 +40,33 @@ impl Multicore for Chip {
 
     fn schedule_on_core(id: CoreId) {
         if id == Self::core_id() {
-            crate::schedule();
-            return;
+            schedule();
+        } else {
+            schedule_other_core();
         }
-
-        // Use the FIFO queue between the cores to trigger the scheduler
-        // on the other core.
-        let sio = SIO;
-        // If its already full, no need to send another `SCHEDULE_TOKEN`.
-        if !sio.fifo().st().read().rdy() {
-            return;
-        }
-        sio.fifo().wr().write_value(SCHEDULE_TOKEN);
     }
+}
+
+fn schedule() {
+    if SCB::is_pendsv_pending() {
+        // If a scheduling attempt is already pending, there must have been multiple
+        // changes in the runqueue at the same time.
+        // Trigger the scheduler on the other core as well to make sure that both schedulers
+        // have the most recent runqueue state.
+        return schedule_other_core();
+    }
+    crate::schedule()
+}
+
+fn schedule_other_core() {
+    // Use the FIFO queue between the cores to trigger the scheduler
+    // on the other core.
+    let sio = SIO;
+    // If its already full, no need to send another `SCHEDULE_TOKEN`.
+    if !sio.fifo().st().read().rdy() {
+        return;
+    }
+    sio.fifo().wr().write_value(SCHEDULE_TOKEN);
 }
 
 const SCHEDULE_TOKEN: u32 = 0x11;
