@@ -82,7 +82,7 @@ pub fn init() -> OptionalPeripherals {
 
     #[cfg(feature = "wifi-esp")]
     {
-        use esp_hal::{rng::Rng, timer::systimer::SystemTimer};
+        use esp_hal::rng::Rng;
         use esp_wifi::{initialize, EspWifiInitFor};
 
         riot_rs_debug::log::debug!("riot-rs-embassy::arch::esp::init(): wifi");
@@ -92,7 +92,7 @@ pub fn init() -> OptionalPeripherals {
 
         let init = initialize(
             EspWifiInitFor::Wifi,
-            timer.alarm0,
+            timer_group0.timer0,
             Rng::new(peripherals.RNG.take().unwrap()),
             peripherals.RADIO_CLK.take().unwrap(),
             &clocks,
@@ -102,8 +102,18 @@ pub fn init() -> OptionalPeripherals {
         wifi::esp_wifi::WIFI_INIT.set(init).unwrap();
     }
 
-    let timer_group0 = TimerGroup::new(peripherals.TIMG0.take().unwrap(), &clocks);
-    esp_hal_embassy::init(&clocks, timer_group0.timer0);
+    let embassy_timer = {
+        cfg_if::cfg_if! {
+            if #[cfg(context = "esp32")] {
+                TimerGroup::new(peripherals.TIMG1.take().unwrap(), &clocks).timer0
+            } else {
+                use esp_hal::timer::systimer::{SystemTimer, Target};
+                SystemTimer::new(peripherals.SYSTIMER.take().unwrap()).split::<Target>().alarm0
+            }
+        }
+    };
+
+    esp_hal_embassy::init(&clocks, embassy_timer);
 
     // Discard the error in (the impossible) case that it was already populated.
     let _ = CLOCKS.set(clocks);
