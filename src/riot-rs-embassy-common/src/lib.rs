@@ -18,17 +18,3 @@ pub use embassy_futures;
 pub use embassy_time;
 
 pub use embedded_hal_async;
-
-/// Represents a frequency expressed in kilohertz.
-// Do not implement From<u32>, we want to enforce using the constructor for instantiation.
-#[derive(Debug, Copy, Clone, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
-#[expect(non_camel_case_types)]
-pub struct kHz(pub u32);
-
-impl kHz {
-    /// Returns the frequency in kilohertz.
-    pub const fn khz(self) -> u32 {
-        self.0
-    }
-}

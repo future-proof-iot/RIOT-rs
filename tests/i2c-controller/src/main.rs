@@ -21,7 +21,7 @@ use riot_rs::{
         log::{debug, info},
         EXIT_SUCCESS,
     },
-    i2c::controller::{highest_freq_in, kHz, I2cDevice},
+    i2c::controller::{highest_freq_in, I2cDevice, Kilohertz},
 };
 
 const LIS3DH_I2C_ADDR: u8 = 0x19;
@@ -36,7 +36,7 @@ pub static I2C_BUS: once_cell::sync::OnceCell<
 #[riot_rs::task(autostart, peripherals)]
 async fn main(peripherals: pins::Peripherals) {
     let mut i2c_config = arch::i2c::controller::Config::default();
-    i2c_config.frequency = const { highest_freq_in(kHz(100)..=kHz(400)) };
+    i2c_config.frequency = const { highest_freq_in(Kilohertz::kHz(100)..=Kilohertz::kHz(400)) };
     debug!("Selected frequency: {}", i2c_config.frequency);
 
     let i2c_bus = pins::SensorI2c::new(peripherals.i2c_sda, peripherals.i2c_scl, i2c_config);

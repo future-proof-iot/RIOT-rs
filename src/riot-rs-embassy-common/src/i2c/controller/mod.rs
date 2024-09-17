@@ -3,6 +3,7 @@
 use embassy_time::Duration;
 
 pub use embedded_hal::i2c::Operation;
+pub use fugit::KilohertzU32 as Kilohertz;
 
 /// Timeout value for I2C operations.
 ///
@@ -43,10 +44,10 @@ macro_rules! impl_i2c_from_frequency_up_to {
             fn from(freq: riot_rs_embassy_common::i2c::controller::Frequency) -> Self {
                 match freq {
                     riot_rs_embassy_common::i2c::controller::Frequency::_100k => {
-                        Frequency::UpTo100k(100)
+                        Frequency::UpTo100k($crate::i2c::controller::Kilohertz::kHz(100))
                     }
                     riot_rs_embassy_common::i2c::controller::Frequency::_400k => {
-                        Frequency::UpTo400k(400)
+                        Frequency::UpTo400k($crate::i2c::controller::Kilohertz::kHz(400))
                     }
                 }
             }

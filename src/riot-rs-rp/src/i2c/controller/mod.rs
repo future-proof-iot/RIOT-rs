@@ -3,7 +3,7 @@ use embassy_rp::{
     i2c::{InterruptHandler, SclPin, SdaPin},
     peripherals, Peripheral,
 };
-use riot_rs_embassy_common::impl_async_i2c_for_driver_enum;
+use riot_rs_embassy_common::{i2c::controller::Kilohertz, impl_async_i2c_for_driver_enum};
 
 const KHZ_TO_HZ: u32 = 1000;
 
@@ -19,7 +19,7 @@ pub struct Config {
 impl Default for Config {
     fn default() -> Self {
         Self {
-            frequency: Frequency::UpTo100k(100),
+            frequency: Frequency::UpTo100k(Kilohertz::kHz(100)),
         }
     }
 }
@@ -32,34 +32,34 @@ impl Default for Config {
 #[repr(u32)]
 pub enum Frequency {
     /// Standard mode.
-    UpTo100k(u32), // FIXME: use a range integer?
+    UpTo100k(Kilohertz), // FIXME: use a ranged integer?
     /// Fast mode.
-    UpTo400k(u32), // FIXME: use a range integer?
+    UpTo400k(Kilohertz), // FIXME: use a ranged integer?
 }
 
 impl Frequency {
     pub const fn first() -> Self {
-        Self::UpTo100k(1)
+        Self::UpTo100k(Kilohertz::kHz(1))
     }
 
     pub const fn last() -> Self {
-        Self::UpTo400k(400)
+        Self::UpTo400k(Kilohertz::kHz(400))
     }
 
     pub const fn next(self) -> Option<Self> {
         match self {
             Self::UpTo100k(f) => {
-                if f < 100 {
+                if f.to_kHz() < 100 {
                     // NOTE(no-overflow): `f` is small enough due to if condition
-                    Some(Self::UpTo100k(f + 1))
+                    Some(Self::UpTo100k(Kilohertz::kHz(f.to_kHz() + 1)))
                 } else {
-                    Some(Self::UpTo400k(self.khz() + 1))
+                    Some(Self::UpTo400k(Kilohertz::kHz(self.khz() + 1)))
                 }
             }
             Self::UpTo400k(f) => {
-                if f < 400 {
+                if f.to_kHz() < 400 {
                     // NOTE(no-overflow): `f` is small enough due to if condition
-                    Some(Self::UpTo400k(f + 1))
+                    Some(Self::UpTo400k(Kilohertz::kHz(f.to_kHz() + 1)))
                 } else {
                     None
                 }
@@ -70,19 +70,19 @@ impl Frequency {
     pub const fn prev(self) -> Option<Self> {
         match self {
             Self::UpTo100k(f) => {
-                if f > 1 {
+                if f.to_kHz() > 1 {
                     // NOTE(no-overflow): `f` is large enough due to if condition
-                    Some(Self::UpTo100k(f - 1))
+                    Some(Self::UpTo100k(Kilohertz::kHz(f.to_kHz() - 1)))
                 } else {
                     None
                 }
             }
             Self::UpTo400k(f) => {
-                if f > 100 + 1 {
+                if f.to_kHz() > 100 + 1 {
                     // NOTE(no-overflow): `f` is large enough due to if condition
-                    Some(Self::UpTo400k(f - 1))
+                    Some(Self::UpTo400k(Kilohertz::kHz(f.to_kHz() - 1)))
                 } else {
-                    Some(Self::UpTo100k(self.khz() - 1))
+                    Some(Self::UpTo100k(Kilohertz::kHz(self.khz() - 1)))
                 }
             }
         }
@@ -90,7 +90,7 @@ impl Frequency {
 
     pub const fn khz(self) -> u32 {
         match self {
-            Self::UpTo100k(f) | Self::UpTo400k(f) => f,
+            Self::UpTo100k(f) | Self::UpTo400k(f) => f.to_kHz(),
         }
     }
 }
