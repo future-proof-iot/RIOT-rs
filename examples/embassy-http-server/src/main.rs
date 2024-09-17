@@ -11,15 +11,10 @@ use riot_rs::{debug::log::*, network, ConstStaticCell, Spawner, StaticCell};
 
 use embassy_net::tcp::TcpSocket;
 use embassy_time::Duration;
-use picoserve::{io::Error, routing::get};
+use picoserve::io::Error;
 
 #[cfg(feature = "button-readings")]
 use embassy_nrf::gpio::{Input, Pin, Pull};
-
-struct AppState {
-    #[cfg(feature = "button-readings")]
-    buttons: ButtonInputs,
-}
 
 #[cfg(feature = "button-readings")]
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, mutex::Mutex};
@@ -43,7 +38,27 @@ impl picoserve::extract::FromRef<AppState> for ButtonInputs {
     }
 }
 
-type AppRouter = impl picoserve::routing::PathRouter<AppState>;
+mod approuter {
+    use picoserve::routing::get;
+
+    use crate::routes;
+
+    pub struct AppState {
+        #[cfg(feature = "button-readings")]
+        pub buttons: crate::ButtonInputs,
+    }
+
+    pub type AppRouter = impl picoserve::routing::PathRouter<AppState>;
+
+    pub fn make_app() -> picoserve::Router<AppRouter, AppState> {
+        let router = picoserve::Router::new().route("/", get(routes::index));
+        #[cfg(feature = "button-readings")]
+        let router = router.route("/buttons", get(routes::buttons));
+        router
+    }
+}
+
+use approuter::*;
 
 const WEB_TASK_POOL_SIZE: usize = 2;
 
@@ -104,13 +119,6 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
             StaticCell::new();
         ButtonInputs(BUTTON_INPUTS.init_with(|| Mutex::new(buttons)))
     };
-
-    fn make_app() -> picoserve::Router<AppRouter, AppState> {
-        let router = picoserve::Router::new().route("/", get(routes::index));
-        #[cfg(feature = "button-readings")]
-        let router = router.route("/buttons", get(routes::buttons));
-        router
-    }
 
     static APP: StaticCell<picoserve::Router<AppRouter, AppState>> = StaticCell::new();
     let app = APP.init_with(|| make_app());

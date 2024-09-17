@@ -1,6 +1,5 @@
 #![no_std]
 #![feature(doc_auto_cfg)]
-#![feature(lint_reasons)]
 
 pub mod gpio;
 
