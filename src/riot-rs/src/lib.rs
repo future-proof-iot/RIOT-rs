@@ -18,7 +18,6 @@ pub mod buildinfo;
 pub use riot_rs_bench as bench;
 #[doc(inline)]
 pub use riot_rs_debug as debug;
-pub use riot_rs_embassy::*;
 #[cfg(feature = "random")]
 #[doc(inline)]
 pub use riot_rs_random as random;
@@ -35,9 +34,19 @@ pub use riot_rs_macros::task;
 #[cfg(any(feature = "threading", doc))]
 pub use riot_rs_macros::thread;
 
-// These are used by proc-macros we provide
-pub use linkme;
-pub use static_cell;
-
 // ensure this gets linked
 use riot_rs_boards as _;
+
+pub use riot_rs_embassy::api::*;
+pub use static_cell::{ConstStaticCell, StaticCell};
+
+/// This module contains all third party crates as used by RIOT-rs.
+///
+/// TODO: The version of this crate (`riot-rs`) will correspond to changes in
+/// these dependencies (keeping semver guarantees).
+pub mod reexports {
+    pub use riot_rs_embassy::reexports::*;
+    // These are used by proc-macros we provide
+    pub use linkme;
+    pub use static_cell;
+}

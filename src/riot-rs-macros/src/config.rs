@@ -24,7 +24,7 @@
 /// The following function provides configuration for the network stack:
 ///
 /// ```ignore
-/// use riot_rs::embassy_net;
+/// use riot_rs::reexports::embassy_net;
 ///
 /// #[riot_rs::config(network)]
 /// fn network_config() -> embassy_net::Config {
@@ -61,11 +61,11 @@ pub fn config(args: TokenStream, item: TokenStream) -> TokenStream {
     let (config_fn_name, return_type) = match attrs.kind {
         Some(ConfigKind::Network) => (
             format_ident!("riot_rs_network_config"),
-            quote! {#riot_rs_crate::embassy_net::Config},
+            quote! {#riot_rs_crate::reexports::embassy_net::Config},
         ),
         Some(ConfigKind::Usb) => (
             format_ident!("riot_rs_usb_config"),
-            quote! {#riot_rs_crate::embassy_usb::Config<'static>},
+            quote! {#riot_rs_crate::reexports::embassy_usb::Config<'static>},
         ),
         None => {
             panic!("a configuration kind must be specified");
