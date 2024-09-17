@@ -1889,6 +1889,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "espressif-esp32-wroom-32"
+version = "0.1.0"
+dependencies = [
+ "riot-rs-debug",
+ "riot-rs-rt",
+]
+
+[[package]]
 name = "example-random"
 version = "0.1.0"
 dependencies = [
@@ -3472,6 +3480,7 @@ dependencies = [
  "dwm1001",
  "espressif-esp32-c6-devkitc-1",
  "espressif-esp32-s3-wroom-1",
+ "espressif-esp32-wroom-32",
  "linkme",
  "microbit",
  "microbit-v2",
