@@ -94,6 +94,7 @@ executor-single-thread = [
 executor-interrupt = [
   "riot-rs-nrf/executor-interrupt",
   "riot-rs-rp/executor-interrupt",
+  "riot-rs-stm32/executor-interrupt",
 ]
 executor-thread = ["threading"]
 executor-none = []
