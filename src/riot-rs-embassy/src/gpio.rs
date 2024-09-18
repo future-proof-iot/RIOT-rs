@@ -210,6 +210,10 @@ pub mod input {
         /// Fails to compile if the architecture does not support configuring Schmitt trigger on
         /// inputs.
         pub fn schmitt_trigger(self, enable: bool) -> Self {
+            #[expect(
+                clippy::assertions_on_constants,
+                reason = "the constant depends on the architecture"
+            )]
             const {
                 assert!(
                     arch::gpio::input::SCHMITT_TRIGGER_CONFIGURABLE,

@@ -125,6 +125,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
 mod clist {
     //! This module implements an array of `N_QUEUES` circular linked lists over an
     //! array of size `N_THREADS`.
+    //!
     //! The array is used for "next" pointers, so each integer value in the array
     //! corresponds to one element, which can only be in one of the lists.
     #[derive(Debug, Copy, Clone)]

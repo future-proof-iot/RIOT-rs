@@ -134,7 +134,10 @@ pub mod output {
 
     /// Actual type is architecture-specific.
     #[derive(Copy, Clone, PartialEq, Eq)]
-    pub enum DriveStrength {}
+    pub enum DriveStrength {
+        #[doc(hidden)]
+        Hidden,
+    }
 
     impl FromDriveStrength for DriveStrength {
         fn from(_drive_strength: crate::gpio::DriveStrength<DriveStrength>) -> Self {
@@ -144,7 +147,10 @@ pub mod output {
 
     /// Actual type is architecture-specific.
     #[derive(Copy, Clone, PartialEq, Eq)]
-    pub enum Speed {}
+    pub enum Speed {
+        #[doc(hidden)]
+        Hidden,
+    }
 
     impl FromSpeed for Speed {
         fn from(_speed: crate::gpio::Speed<Speed>) -> Self {

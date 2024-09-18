@@ -34,7 +34,7 @@ use crate::sendcell::SendCell;
 /// TODO: this is a PoC implementation.
 /// - takes 24b for each delegate (on arm), which seems too much.
 /// - doesn't protect at all against calling [`lend()`](Delegate::lend) or
-/// [`with()`](Delegate::with) multiple times
+///   [`with()`](Delegate::with) multiple times
 ///   each, breaking safety assumptions. So while the API seems OK, the implementation
 ///   needs work.
 #[derive(Default)]
