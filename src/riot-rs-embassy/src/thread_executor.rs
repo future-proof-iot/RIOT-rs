@@ -1,4 +1,4 @@
-//! Provides a thread mode executor.
+//! Provides an executor that should run inside a thread.
 #![deny(missing_docs)]
 
 // This is based on the upstream embassy cortex-m interrupt executor.
