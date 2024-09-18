@@ -1794,6 +1794,7 @@ dependencies = [
  "esp-hal-procmacros",
  "esp-metadata",
  "esp-riscv-rt",
+ "esp-synopsys-usb-otg",
  "esp32",
  "esp32c2",
  "esp32c3",
@@ -1809,7 +1810,9 @@ dependencies = [
  "riscv",
  "serde",
  "strum",
+ "usb-device",
  "void",
+ "xtensa-lx",
  "xtensa-lx-rt",
 ]
 
@@ -1881,6 +1884,19 @@ dependencies = [
  "document-features",
  "riscv",
  "riscv-rt-macros",
+]
+
+[[package]]
+name = "esp-synopsys-usb-otg"
+version = "0.4.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8938451cb19032f13365328ea66ab38c8d16deecdf322067442297110eb74468"
+dependencies = [
+ "critical-section",
+ "embedded-hal 0.2.7",
+ "ral-registers",
+ "usb-device",
+ "vcell",
 ]
 
 [[package]]
@@ -2008,6 +2024,14 @@ dependencies = [
 
 [[package]]
 name = "espressif-esp32-c6-devkitc-1"
+version = "0.1.0"
+dependencies = [
+ "riot-rs-debug",
+ "riot-rs-rt",
+]
+
+[[package]]
+name = "espressif-esp32-s3-wroom-1"
 version = "0.1.0"
 dependencies = [
  "riot-rs-debug",
@@ -3526,6 +3550,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "bd7a31eed1591dcbc95d92ad7161908e72f4677f8fabf2a32ca49b4237cbf211"
 
 [[package]]
+name = "ral-registers"
+version = "0.1.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "46b71a9d9206e8b46714c74255adcaea8b11e0350c1d8456165073c3f75fc81a"
+
+[[package]]
 name = "rand"
 version = "0.8.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3669,6 +3699,7 @@ dependencies = [
  "cfg-if",
  "dwm1001",
  "espressif-esp32-c6-devkitc-1",
+ "espressif-esp32-s3-wroom-1",
  "linkme",
  "microbit",
  "microbit-v2",

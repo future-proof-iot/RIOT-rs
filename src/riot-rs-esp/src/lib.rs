@@ -90,7 +90,6 @@ pub fn init() -> OptionalPeripherals {
         let timer = SystemTimer::new(peripherals.SYSTIMER.take().unwrap())
             .split::<esp_hal::timer::systimer::Target>();
 
-        #[cfg(target_arch = "riscv32")]
         let init = initialize(
             EspWifiInitFor::Wifi,
             timer.alarm0,
