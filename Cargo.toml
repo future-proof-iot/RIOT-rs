@@ -142,7 +142,7 @@ smoltcp = { git = "https://github.com/smoltcp-rs/smoltcp.git", rev = "125773e282
 # rustc lints are documented here: https://doc.rust-lang.org/rustc/lints/listing/index.html
 private_interfaces = "deny"
 private_bounds = "deny"
-unsafe_op_in_unsafe_fn = "warn"
+unsafe_op_in_unsafe_fn = "deny"
 unused_must_use = "deny"
 # ... until we figure out a way to generate a list of all used cfg variables
 # across build configurations ...
