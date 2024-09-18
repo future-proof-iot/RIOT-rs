@@ -185,7 +185,7 @@ jobs:
           args: --verbose --locked --features external-interrupts,embassy-stm32/stm32wb55rg -p riot-rs-stm32
 
       - name: rustdoc
-        run: RUSTDOCFLAGS='-D warnings' cargo doc -p riot-rs --features bench,csprng,external-interrupts,hwrng,no-boards,random,threading,usb
+        run: RUSTDOCFLAGS='-D warnings' cargo doc -p riot-rs --features bench,csprng,executor-thread,external-interrupts,hwrng,no-boards,random,threading,usb
 
       - name: rustdoc for ESP32
         run: RUSTDOCFLAGS='-D warnings' cargo doc --target=riscv32imac-unknown-none-elf --features external-interrupts,esp-hal/esp32c6,esp-hal-embassy/esp32c6 -p riot-rs-esp
