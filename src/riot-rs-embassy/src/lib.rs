@@ -53,6 +53,9 @@ pub mod api {
 
     #[cfg(feature = "executor-interrupt")]
     pub use crate::arch::EXECUTOR;
+
+    #[cfg(feature = "executor-thread")]
+    pub use crate::thread_executor;
 }
 
 // These are made available in `riot_rs::reexports`.
