@@ -1,7 +1,7 @@
 #[cfg_attr(builder = "rpi-pico-w", path = "cyw43/rpi-pico-w.rs")]
 mod rpi_pico_w;
 
-use cyw43::{Control, Runner};
+use cyw43::{Control, JoinOptions, Runner};
 use embassy_executor::Spawner;
 use embassy_rp::{
     gpio::{Level, Output},
@@ -17,7 +17,10 @@ pub async fn join(mut control: cyw43::Control<'static>) {
     loop {
         //control.join_open(WIFI_NETWORK).await;
         match control
-            .join_wpa2(crate::wifi::WIFI_NETWORK, crate::wifi::WIFI_PASSWORD)
+            .join(
+                crate::wifi::WIFI_NETWORK,
+                JoinOptions::new(crate::wifi::WIFI_PASSWORD.as_bytes()),
+            )
             .await
         {
             Ok(_) => {
