@@ -3298,9 +3298,9 @@ dependencies = [
 
 [[package]]
 name = "picoserve"
-version = "0.8.1"
+version = "0.12.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "912e6e8713f815d30bb77fa052cc8036a2b6429dc436969311fad47705fe0f2a"
+checksum = "289ba0d65f123eb9c55ee8e34c0227f3c17b4298bb47ef05cbd0caa0e6a06d49"
 dependencies = [
  "const-sha1",
  "data-encoding",
@@ -3310,9 +3310,9 @@ dependencies = [
  "futures-util",
  "heapless 0.8.0",
  "lhash",
- "log 0.4.22",
  "ryu",
  "serde",
+ "serde-json-core",
 ]
 
 [[package]]
@@ -4053,6 +4053,17 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c8e3592472072e6e22e0a54d5904d9febf8508f65fb8552499a1abc7d1078c3a"
 dependencies = [
  "serde_derive",
+]
+
+[[package]]
+name = "serde-json-core"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5b81787e655bd59cecadc91f7b6b8651330b2be6c33246039a65e5cd6f4e0828"
+dependencies = [
+ "heapless 0.8.0",
+ "ryu",
+ "serde",
 ]
 
 [[package]]
