@@ -160,48 +160,47 @@ mod clist {
 
         pub fn push(&mut self, n: u8, rq: u8) {
             assert!(n < Self::sentinel());
-            if self.next_idxs[n as usize] == Self::sentinel() {
-                if self.tail[rq as usize] == Self::sentinel() {
-                    // rq is empty, link both tail and n.next to n
-                    self.tail[rq as usize] = n;
-                    self.next_idxs[n as usize] = n;
-                } else {
-                    // rq has an entry already, so
-                    // 1. n.next = old_tail.next ("first" in list)
-                    self.next_idxs[n as usize] = self.next_idxs[self.tail[rq as usize] as usize];
-                    // 2. old_tail.next = n
-                    self.next_idxs[self.tail[rq as usize] as usize] = n;
-                    // 3. tail = n
-                    self.tail[rq as usize] = n;
-                }
+            if self.next_idxs[n as usize] != Self::sentinel() {
+                return;
+            }
+
+            if let Some(head) = self.peek_head(rq) {
+                // rq has an entry already, so
+                // 1. n.next = old_tail.next ("first" in list)
+                self.next_idxs[n as usize] = head;
+                // 2. old_tail.next = n
+                self.next_idxs[self.tail[rq as usize] as usize] = n;
+                // 3. tail = n
+                self.tail[rq as usize] = n;
+            } else {
+                // rq is empty, link both tail and n.next to n
+                self.tail[rq as usize] = n;
+                self.next_idxs[n as usize] = n;
             }
         }
 
         pub fn pop_head(&mut self, rq: u8) -> Option<u8> {
-            if self.tail[rq as usize] == Self::sentinel() {
-                // rq is empty, do nothing
-                None
-            } else {
-                let head = self.next_idxs[self.tail[rq as usize] as usize];
-                if head == self.tail[rq as usize] {
-                    // rq's tail bites itself, so there's only one entry.
-                    // so, clear tail.
-                    self.tail[rq as usize] = Self::sentinel();
-                    // rq is now empty
-                } else {
-                    // rq has multiple entries,
-                    // so set tail.next to head.next (second in list)
-                    self.next_idxs[self.tail[rq as usize] as usize] = self.next_idxs[head as usize];
-                }
+            let head = self.peek_head(rq)?;
 
-                // now clear head's next value
-                self.next_idxs[head as usize] = Self::sentinel();
-                Some(head)
+            if head == self.tail[rq as usize] {
+                // rq's tail bites itself, so there's only one entry.
+                // so, clear tail.
+                self.tail[rq as usize] = Self::sentinel();
+                // rq is now empty
+            } else {
+                // rq has multiple entries,
+                // so set tail.next to head.next (second in list)
+                self.next_idxs[self.tail[rq as usize] as usize] = self.next_idxs[head as usize];
             }
+
+            // now clear head's next value
+            self.next_idxs[head as usize] = Self::sentinel();
+            Some(head)
         }
 
+        #[inline]
         pub fn peek_head(&self, rq: u8) -> Option<u8> {
-            if self.tail[rq as usize] == Self::sentinel() {
+            if self.is_empty(rq) {
                 None
             } else {
                 Some(self.next_idxs[self.tail[rq as usize] as usize])
@@ -209,8 +208,8 @@ mod clist {
         }
 
         pub fn advance(&mut self, rq: u8) {
-            if self.tail[rq as usize] != Self::sentinel() {
-                self.tail[rq as usize] = self.next_idxs[self.tail[rq as usize] as usize];
+            if let Some(head) = self.peek_head(rq) {
+                self.tail[rq as usize] = head;
             }
         }
     }
