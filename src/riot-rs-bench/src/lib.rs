@@ -1,7 +1,6 @@
 //! Provides on-board benchmarking facilities.
 
 #![cfg_attr(not(test), no_std)]
-#![feature(error_in_core)]
 #![deny(clippy::pedantic)]
 #![deny(missing_docs)]
 
