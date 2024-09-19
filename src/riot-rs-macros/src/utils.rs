@@ -7,7 +7,7 @@ const RIOT_RS_CRATE_NAME: &str = "riot-rs";
 /// # Panics
 ///
 /// - Panics when the `riot-rs` crate cannot be found as a dependency of the crate in which
-/// this function is called.
+///   this function is called.
 /// - Panics if `riot-rs` is used as a dependency of itself.
 pub fn riot_rs_crate() -> syn::Ident {
     find_crate(RIOT_RS_CRATE_NAME)

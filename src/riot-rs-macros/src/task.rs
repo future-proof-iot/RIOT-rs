@@ -17,8 +17,8 @@
 ///         The peripheral struct must be defined with the `riot_rs::define_peripherals!` macro.
 ///     - hooks: (*optional*) available hooks are:
 ///         - `usb_builder_hook`: when present, the macro will define a static `USB_BUILDER_HOOK`
-///         of type `UsbBuilderHook`, allowing to access and modify the system-provided
-///         `embassy_usb::Builder` through `Delegate::with()`, *before* it is built by the system.
+///           of type `UsbBuilderHook`, allowing to access and modify the system-provided
+///           `embassy_usb::Builder` through `Delegate::with()`, *before* it is built by the system.
 /// - `pool_size`: (*optional*) set the maximum number of concurrent tasks that can be spawned for
 ///     the function (defaults to `1`).
 ///     Cannot be used on `autostart` tasks.
