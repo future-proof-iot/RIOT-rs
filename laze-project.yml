@@ -12,7 +12,7 @@ contexts:
       - ?defmt
     env:
       RUSTFLAGS:
-        - "-Clink-arg=--nmagic"
+        - "-Clink-arg=${LINK_ARG_PREFIX}--nmagic"
         - "-Clink-arg=${LINK_ARG_PREFIX}--no-eh-frame-hdr"
         - --cfg builder=\"${builder}\"
         - --cfg context=\"${builder}\"
@@ -65,6 +65,7 @@ contexts:
         cmd: >-
           cd ${relpath} && ${CARGO_ENV} cargo ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
           && cp ${relroot}/${build-dir}/bin/${builder}/${app}/cargo/${RUSTC_TARGET}/${PROFILE}/${riot_binary} ${relroot}/${out}
+          ${POST_LINK}
 
       - name: GIT_DOWNLOAD
         cmd: "D=$$(dirname ${out}); rm -rf $$D && git clone ${url} $$D -n && git -C $$D reset --hard ${commit} && touch ${out}"
@@ -245,9 +246,6 @@ contexts:
   - name: rp
     help: Raspberry Pi pico MCU support (based on embassy-rp)
     parent: riot-rs
-    selects:
-      - rp-link-arg
-      - thumbv6m-none-eabi
     env:
       RUSTFLAGS:
         - --cfg context=\"rp\"
@@ -255,6 +253,8 @@ contexts:
   - name: rp2040
     parent: rp
     selects:
+      - rp-link-arg
+      - thumbv6m-none-eabi
       - ?probe-rs
     env:
       RUSTFLAGS:
@@ -268,6 +268,30 @@ contexts:
       debug-rs:
         cmd:
           - probe-rs debug --chip ${PROBE_RS_CHIP} --exe ${out}
+
+  - name: rp2350
+    parent: rp
+    selects:
+      - thumbv8m.main-none-eabi  # actually eabihf, but riot-rs doesn't support hard float yet
+      # no probe-rs support, yet
+      #  - ?probe-rs
+    disables:
+      # linker error (and no probe-rs anyways)
+      - defmt
+    env:
+      RUSTFLAGS:
+        - --cfg context=\"rp2350\"
+      POST_LINK: "&& echo 00000007: 00 | xxd -r -c 1 - ${relroot}/${out}"
+      PROBE_RS_CHIP: RP2040
+      CARGO_RUNNER:
+        - ${SCRIPTS}/debug-openocd.sh
+      OPENOCD_ARGS:
+        - "-f interface/cmsis-dap.cfg -f target/rp2040.cfg"
+    tasks:
+      flash:
+        cmd:
+          - picotool load -u -v -x -t elf ${out}
+
 
   - name: esp
     parent: riot-rs
@@ -401,6 +425,16 @@ modules:
       global:
         RUSTC_TARGET: thumbv8m.main-none-eabi
         CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV8M_MAIN_NONE_EABI
+        RUSTFLAGS:
+          - --cfg armv8m
+
+  - name: thumbv8m.main-none-eabihf
+    depends:
+      - cortex-m
+    env:
+      global:
+        RUSTC_TARGET: thumbv8m.main-none-eabihf
+        CARGO_TARGET_PREFIX: CARGO_TARGET_THUMBV8M_MAIN_NONE_EABIHF
         RUSTFLAGS:
           - --cfg armv8m
 
@@ -586,6 +620,7 @@ modules:
       - nrf52840dk
       - rpi-pico
       - rpi-pico-w
+      - rpi-pico2
       - particle-xenon
       - st-nucleo-h755zi-q
       - st-nucleo-wb55
@@ -705,6 +740,7 @@ builders:
           - rustup target add thumbv7em-none-eabi
           - rustup target add thumbv7em-none-eabihf
           - rustup target add thumbv8m.main-none-eabi
+          - rustup target add thumbv8m.main-none-eabihf
           - rustup target add riscv32imc-unknown-none-elf
           - rustup target add riscv32imac-unknown-none-elf
           - rustup component add rust-src
@@ -769,6 +805,11 @@ builders:
     parent: rpi-pico
     env:
       BOARD: rpi-pico-w
+
+  - name: rpi-pico2
+    parent: rp2350
+    env:
+      BOARD: rpi-pico2
 
   - name: ai-c3
     parent: esp32c3

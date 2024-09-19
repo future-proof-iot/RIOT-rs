@@ -1349,6 +1349,7 @@ dependencies = [
  "pio",
  "pio-proc",
  "rand_core",
+ "rp-binary-info",
  "rp-pac",
  "rp2040-boot2",
  "sha2-const-stable",
@@ -3666,6 +3667,7 @@ dependencies = [
  "particle-xenon",
  "riot-rs-rt",
  "rpi-pico",
+ "rpi-pico2",
  "st-nucleo-f401re",
  "st-nucleo-h755zi-q",
  "st-nucleo-wb55",
@@ -3885,6 +3887,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "rp-binary-info"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "534e2a451671116f5b9391cb15fae43b9abdc56817bcaca9a95ed32c3e4c6b38"
+
+[[package]]
 name = "rp-pac"
 version = "6.0.0"
 source = "git+https://github.com/embassy-rs/rp-pac.git?rev=a7f42d25517f7124ad3b4ed492dec8b0f50a0e6c#a7f42d25517f7124ad3b4ed492dec8b0f50a0e6c"
@@ -3912,12 +3920,31 @@ dependencies = [
 ]
 
 [[package]]
+name = "rp235x"
+version = "0.1.0"
+dependencies = [
+ "riot-rs-debug",
+ "riot-rs-embassy",
+ "riot-rs-rt",
+]
+
+[[package]]
 name = "rpi-pico"
 version = "0.1.0"
 dependencies = [
  "riot-rs-debug",
  "riot-rs-rt",
  "rp2040",
+]
+
+[[package]]
+name = "rpi-pico2"
+version = "0.1.0"
+dependencies = [
+ "riot-rs-debug",
+ "riot-rs-rp",
+ "riot-rs-rt",
+ "rp235x",
 ]
 
 [[package]]

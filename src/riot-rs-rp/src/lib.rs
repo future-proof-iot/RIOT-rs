@@ -9,6 +9,9 @@ pub mod peripheral {
     pub use embassy_rp::Peripheral;
 }
 
+#[cfg(feature = "picotool")]
+mod picotool;
+
 #[cfg(feature = "wifi")]
 mod wifi;
 

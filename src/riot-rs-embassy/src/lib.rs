@@ -111,7 +111,7 @@ pub(crate) fn init() {
     debug!("riot-rs-embassy::init(): using interrupt mode executor");
     let p = arch::init();
 
-    #[cfg(any(context = "nrf", context = "rp2040", context = "stm32"))]
+    #[cfg(any(context = "nrf", context = "rp", context = "stm32"))]
     {
         arch::EXECUTOR.start(arch::SWI);
         arch::EXECUTOR.spawner().must_spawn(init_task(p));

@@ -12,8 +12,11 @@ riot_rs::define_peripherals!(LedPeripherals { led: P0_13 });
 #[cfg(context = "nrf5340dk")]
 riot_rs::define_peripherals!(LedPeripherals { led: P0_28 });
 
-#[cfg(context = "rp")]
+#[cfg(context = "rp2040")]
 riot_rs::define_peripherals!(LedPeripherals { led: PIN_1 });
+
+#[cfg(context = "rp2350")]
+riot_rs::define_peripherals!(LedPeripherals { led: PIN_25 });
 
 #[cfg(context = "esp")]
 riot_rs::define_peripherals!(LedPeripherals { led: GPIO_0 });

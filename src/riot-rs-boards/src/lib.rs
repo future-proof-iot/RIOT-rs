@@ -28,6 +28,8 @@ cfg_if! {
         pub use particle_xenon as board;
     } else if #[cfg(feature = "rpi-pico")] {
         pub use rpi_pico as board;
+    } else if #[cfg(feature = "rpi-pico2")] {
+        pub use rpi_pico2 as board;
     } else if #[cfg(feature = "rpi-pico-w")] {
         // sharing rpi-pico
         pub use rpi_pico as board;

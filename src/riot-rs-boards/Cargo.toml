@@ -26,6 +26,7 @@ nrf5340dk = { optional = true, path = "nrf5340dk" }
 st-nucleo-f401re = { optional = true, path = "st-nucleo-f401re" }
 st-nucleo-wb55 = { optional = true, path = "st-nucleo-wb55" }
 rpi-pico = { optional = true, path = "rpi-pico" }
+rpi-pico2 = { optional = true, path = "rpi-pico2" }
 particle-xenon = { optional = true, path = "particle-xenon" }
 st-nucleo-h755zi-q = { optional = true, path = "st-nucleo-h755zi-q" }
 

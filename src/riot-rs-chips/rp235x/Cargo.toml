@@ -1,0 +1,12 @@
+[package]
+name = "rp235x"
+version = "0.1.0"
+license.workspace = true
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[target.'cfg(context = "rp235x")'.dependencies]
+riot-rs-debug = { workspace = true, features = ["rtt-target"] }
+riot-rs-embassy = { path = "../../riot-rs-embassy" }
+riot-rs-rt = { path = "../../riot-rs-rt" }
