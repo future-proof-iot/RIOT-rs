@@ -44,6 +44,9 @@ use {core::mem::MaybeUninit, embassy_stm32::SharedData};
 #[cfg(capability = "hw/stm32-dual-core")]
 static SHARED_DATA: MaybeUninit<SharedData> = MaybeUninit::uninit();
 
+#[cfg(feature = "executor-interrupt")]
+pub static EXECUTOR: Executor = Executor::new();
+
 pub fn init() -> OptionalPeripherals {
     let mut config = Config::default();
     board_config(&mut config);

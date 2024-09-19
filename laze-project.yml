@@ -663,6 +663,9 @@ modules:
         FEATURES:
           - riot-rs/executor-single-thread
 
+  # Enabled for architectures that provide a dedicated software interrupt (SWI),
+  # and thus do not require to sacrifice another, arbitrarily-chosen peripheral
+  # interrupt.
   - name: executor-interrupt
     help: use the Embassy interrupt executor
     context:

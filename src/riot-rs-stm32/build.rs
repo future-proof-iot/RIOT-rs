@@ -11,7 +11,7 @@ fn main() {
         if let Ok(var) = env::var("CONFIG_SWI") {
             fs::write(
                 &dest_path,
-                format!("crate::executor_swi!({});\n", var).as_bytes(),
+                format!("riot_rs_embassy_common::executor_swi!({});\n", var).as_bytes(),
             )
             .expect("write failed");
         } else {
