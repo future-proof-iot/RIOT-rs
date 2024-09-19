@@ -120,20 +120,21 @@ opt-level = 3
 
 [patch.crates-io]
 # riot-rs embassy fork
-embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-08-18-wakers" }
-embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-08-18" }
-embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-08-18" }
-embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-08-18" }
-embassy-rp = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-08-18" }
-embassy-net-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-08-18" }
-embassy-net-driver-channel = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-08-18" }
-embassy-stm32 = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-08-18" }
-embassy-sync = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-08-18" }
-embassy-time-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-08-18" }
-embassy-time-queue-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-08-18" }
-embassy-usb-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-08-18" }
-cyw43 = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-08-18" }
-cyw43-pio = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-08-18" }
+embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-rp = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-net-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-net-driver-channel = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-stm32 = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-sync = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-time-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-time-queue-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-usb-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-usb-synopsys-otg = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+cyw43 = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+cyw43-pio = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
 
 # patched to use portable-atomics <https://github.com/seanmonstar/try-lock/pull/11>
 try-lock = { git = "https://github.com/seanmonstar/try-lock", rev = "a1aadfac9840fe23672159c12af7272e44bc684c" }
