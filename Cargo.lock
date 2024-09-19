@@ -3299,8 +3299,7 @@ dependencies = [
 [[package]]
 name = "picoserve"
 version = "0.12.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "289ba0d65f123eb9c55ee8e34c0227f3c17b4298bb47ef05cbd0caa0e6a06d49"
+source = "git+https://github.com/kaspar030/picoserve?branch=update_embassy_stack_api#aaae1d90152fc0c235e200cbb00368821cf3c08a"
 dependencies = [
  "const-sha1",
  "data-encoding",
