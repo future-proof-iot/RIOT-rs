@@ -39,7 +39,7 @@ impl picoserve::extract::FromRef<AppState> for ButtonInputs {
 }
 
 mod approuter {
-    use picoserve::routing::get;
+    use picoserve::routing::{get, get_service};
 
     use crate::routes;
 
@@ -51,7 +51,13 @@ mod approuter {
     pub type AppRouter = impl picoserve::routing::PathRouter<AppState>;
 
     pub fn make_app() -> picoserve::Router<AppRouter, AppState> {
-        let router = picoserve::Router::new().route("/", get(routes::index));
+        let router = picoserve::Router::new().route(
+            "/",
+            get_service(picoserve::response::File::html(include_str!(concat!(
+                env!("CARGO_MANIFEST_DIR"),
+                "/static/index.html",
+            )))),
+        );
         #[cfg(feature = "button-readings")]
         let router = router.route("/buttons", get(routes::buttons));
         router
