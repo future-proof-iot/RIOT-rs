@@ -260,7 +260,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     #[cfg(feature = "net")]
     {
         use crate::sendcell::SendCell;
-        use embassy_net::{Stack, StackResources};
+        use embassy_net::StackResources;
 
         const MAX_CONCURRENT_SOCKETS: usize = riot_rs_utils::usize_from_env_or!(
             "CONFIG_NETWORK_MAX_CONCURRENT_SOCKETS",
@@ -280,16 +280,16 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         // Init network stack
         static RESOURCES: StaticCell<StackResources<MAX_CONCURRENT_SOCKETS>> = StaticCell::new();
         static STACK: StaticCell<NetworkStack> = StaticCell::new();
-        let stack = &*STACK.init_with(|| {
-            Stack::new(
-                device,
-                config,
-                RESOURCES.init_with(|| StackResources::new()),
-                seed,
-            )
-        });
+        let (stack, runner) = embassy_net::new(
+            device,
+            config,
+            RESOURCES.init_with(|| StackResources::new()),
+            seed,
+        );
 
-        spawner.spawn(network::net_task(stack)).unwrap();
+        STACK.init(stack);
+
+        spawner.spawn(network::net_task(runner)).unwrap();
 
         if crate::network::STACK
             .init(SendCell::new(stack, spawner))
