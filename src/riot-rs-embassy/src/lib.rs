@@ -24,6 +24,9 @@ cfg_if::cfg_if! {
     }
 }
 
+#[cfg(feature = "i2c")]
+pub mod i2c;
+
 #[cfg(feature = "usb")]
 pub mod usb;
 
@@ -41,6 +44,9 @@ pub use static_cell::{ConstStaticCell, StaticCell};
 
 // All items of this module are re-exported at the root of `riot_rs`.
 pub mod api {
+    #[cfg(feature = "i2c")]
+    pub use crate::i2c;
+
     #[cfg(feature = "threading")]
     pub use crate::blocker;
     #[cfg(feature = "usb")]
@@ -169,6 +175,9 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(context = "esp")]
     arch::gpio::init(&mut peripherals);
+
+    #[cfg(feature = "i2c")]
+    arch::i2c::init(&mut peripherals);
 
     #[cfg(feature = "hwrng")]
     arch::hwrng::construct_rng(&mut peripherals);

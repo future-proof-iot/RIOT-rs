@@ -3,4 +3,5 @@ subdirs:
   - gpio
   - gpio-interrupt-nrf
   - gpio-interrupt-stm32
+  - i2c-controller
   - threading-lock

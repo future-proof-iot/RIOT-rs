@@ -4,7 +4,12 @@
 #![feature(trait_alias)]
 #![feature(type_alias_impl_trait)]
 
+use once_cell::sync::OnceCell;
+
 pub mod gpio;
+
+#[cfg(feature = "i2c")]
+pub mod i2c;
 
 #[cfg(feature = "wifi")]
 pub mod wifi;
@@ -55,12 +60,20 @@ pub mod peripherals {
     }
 }
 
-use esp_hal::{clock::ClockControl, system::SystemControl, timer::timg::TimerGroup};
+use esp_hal::{
+    clock::{ClockControl, Clocks},
+    system::SystemControl,
+    timer::timg::TimerGroup,
+};
 
 pub use esp_hal::peripherals::OptionalPeripherals;
 
 #[cfg(feature = "executor-single-thread")]
 pub use esp_hal_embassy::Executor;
+
+// NOTE(once-cell): using a `once_cell::OnceCell` here for critical-section support, just to be
+// sure.
+pub(crate) static CLOCKS: OnceCell<Clocks> = OnceCell::new();
 
 pub fn init() -> OptionalPeripherals {
     let mut peripherals = OptionalPeripherals::from(peripherals::Peripherals::take());
@@ -92,6 +105,9 @@ pub fn init() -> OptionalPeripherals {
 
     let timer_group0 = TimerGroup::new(peripherals.TIMG0.take().unwrap(), &clocks);
     esp_hal_embassy::init(&clocks, timer_group0.timer0);
+
+    // Discard the error in (the impossible) case that it was already populated.
+    let _ = CLOCKS.set(clocks);
 
     peripherals
 }

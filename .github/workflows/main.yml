@@ -110,11 +110,19 @@ jobs:
       # TODO: we'll eventually want to enable relevant features
       - name: Run crate tests
         run: |
-            cargo test --no-default-features --features no-boards -p riot-rs -p riot-rs-embassy -p riot-rs-runqueue -p riot-rs-threads -p riot-rs-macros
-            cargo test --features external-interrupts,embassy-rp/rp2040 -p riot-rs-rp
-            cargo test --features external-interrupts,'embassy-nrf/nrf52840' -p riot-rs-nrf
-            cargo test --features external-interrupts,'embassy-stm32/stm32wb55rg' -p riot-rs-stm32
+            cargo test --no-default-features --features i2c,no-boards -p riot-rs -p riot-rs-embassy -p riot-rs-runqueue -p riot-rs-threads -p riot-rs-macros
             cargo test -p rbi -p ringbuffer -p coapcore
+
+      # We need to set `RUSTDOCFLAGS` as well in the following jobs, because it
+      # is used for doc tests.
+      - name: cargo test for RP
+        run: RUSTDOCFLAGS='--cfg context="rp2040"' RUSTFLAGS='--cfg context="rp2040"' cargo test --features external-interrupts,i2c,embassy-rp/rp2040 -p riot-rs-rp
+
+      - name: cargo test for nRF
+        run: RUSTDOCFLAGS='--cfg context="nrf52840"' RUSTFLAGS='--cfg context="nrf52840"' cargo test --features external-interrupts,i2c,'embassy-nrf/nrf52840' -p riot-rs-nrf
+
+      - name: cargo test for STM32
+        run: RUSTDOCFLAGS='--cfg context="stm32wb55rgvx"' RUSTFLAGS='--cfg context="stm32wb55rgvx"' cargo test --features external-interrupts,i2c,'embassy-stm32/stm32wb55rg' -p riot-rs-stm32
 
   lint:
     runs-on: ubuntu-latest
@@ -164,40 +172,47 @@ jobs:
         with:
           args: --verbose --locked --features no-boards,external-interrupts -p riot-rs -p riot-rs-boards -p riot-rs-chips -p riot-rs-debug -p riot-rs-embassy -p riot-rs-macros -p riot-rs-random -p riot-rs-rt -p riot-rs-threads -p riot-rs-utils
 
+      - run: echo 'RUSTFLAGS=--cfg context="esp32c6"' >> $GITHUB_ENV
       - name: clippy for ESP32
         uses: clechasseur/rs-clippy-check@v3
         with:
-          args: --verbose --locked --target=riscv32imac-unknown-none-elf --features external-interrupts,esp-hal/esp32c6,esp-hal-embassy/esp32c6 -p riot-rs-esp
+          args: --verbose --locked --target=riscv32imac-unknown-none-elf --features external-interrupts,i2c,esp-hal/esp32c6,esp-hal-embassy/esp32c6 -p riot-rs-esp
 
+      - run: echo 'RUSTFLAGS=--cfg context="rp2040"' >> $GITHUB_ENV
       - name: clippy for RP
         uses: clechasseur/rs-clippy-check@v3
         with:
-          args: --verbose --locked --features external-interrupts,embassy-rp/rp2040 -p riot-rs-rp
+          args: --verbose --locked --features external-interrupts,i2c,embassy-rp/rp2040 -p riot-rs-rp
 
+      - run: echo 'RUSTFLAGS=--cfg context="nrf52840"' >> $GITHUB_ENV
       - name: clippy for nRF
         uses: clechasseur/rs-clippy-check@v3
         with:
-          args: --verbose --locked --features external-interrupts,embassy-nrf/nrf52840 -p riot-rs-nrf
+          args: --verbose --locked --features external-interrupts,i2c,embassy-nrf/nrf52840 -p riot-rs-nrf
 
+      - run: echo 'RUSTFLAGS=--cfg context="stm32wb55rgvx"' >> $GITHUB_ENV
       - name: clippy for STM32
         uses: clechasseur/rs-clippy-check@v3
         with:
-          args: --verbose --locked --features external-interrupts,embassy-stm32/stm32wb55rg -p riot-rs-stm32
+          args: --verbose --locked --features external-interrupts,i2c,embassy-stm32/stm32wb55rg -p riot-rs-stm32
+
+      # Reset `RUSTFLAGS`
+      - run: echo 'RUSTFLAGS=' >> $GITHUB_ENV
 
       - name: rustdoc
-        run: RUSTDOCFLAGS='-D warnings' cargo doc -p riot-rs --features bench,csprng,executor-thread,external-interrupts,hwrng,no-boards,random,threading,usb
+        run: RUSTDOCFLAGS='-D warnings' cargo doc -p riot-rs --features bench,csprng,executor-thread,external-interrupts,hwrng,i2c,no-boards,random,threading,usb
 
       - name: rustdoc for ESP32
-        run: RUSTDOCFLAGS='-D warnings' cargo doc --target=riscv32imac-unknown-none-elf --features external-interrupts,esp-hal/esp32c6,esp-hal-embassy/esp32c6 -p riot-rs-esp
+        run: RUSTDOCFLAGS='-D warnings --cfg context="esp32c6"' cargo doc --target=riscv32imac-unknown-none-elf --features external-interrupts,i2c,esp-hal/esp32c6,esp-hal-embassy/esp32c6 -p riot-rs-esp
 
       - name: rustdoc for RP
-        run: RUSTDOCFLAGS='-D warnings' cargo doc --features external-interrupts,embassy-rp/rp2040 -p riot-rs-rp
+        run: RUSTDOCFLAGS='-D warnings --cfg context="rp2040"' cargo doc --features external-interrupts,i2c,embassy-rp/rp2040 -p riot-rs-rp
 
       - name: rustdoc for nRF
-        run: RUSTDOCFLAGS='-D warnings' cargo doc --features external-interrupts,embassy-nrf/nrf52840 -p riot-rs-nrf
+        run: RUSTDOCFLAGS='-D warnings --cfg context="nrf52840"' cargo doc --features external-interrupts,i2c,embassy-nrf/nrf52840 -p riot-rs-nrf
 
       - name: rustdoc for STM32
-        run: RUSTDOCFLAGS='-D warnings' cargo doc --features external-interrupts,embassy-stm32/stm32wb55rg -p riot-rs-stm32
+        run: RUSTDOCFLAGS='-D warnings --cfg context="stm32wb55rgvx"' cargo doc --features external-interrupts,i2c,embassy-stm32/stm32wb55rg -p riot-rs-stm32
 
       - name: rustfmt
         run: cargo fmt --check --all

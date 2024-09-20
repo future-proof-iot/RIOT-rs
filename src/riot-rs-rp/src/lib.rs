@@ -18,6 +18,9 @@ pub mod cyw43;
 #[cfg(feature = "hwrng")]
 pub mod hwrng;
 
+#[cfg(feature = "i2c")]
+pub mod i2c;
+
 #[cfg(feature = "usb")]
 pub mod usb;
 

@@ -11,8 +11,11 @@ workspace = true
 
 [dependencies]
 cfg-if = { workspace = true }
+defmt = { workspace = true, optional = true }
 embassy-executor = { workspace = true, default-features = false }
 embassy-time = { workspace = true, optional = true }
+embedded-hal = { workspace = true }
+embedded-hal-async = { workspace = true }
 esp-hal = { workspace = true, default-features = false, features = [
   "async",
   "embedded-hal",
@@ -23,7 +26,9 @@ esp-wifi = { workspace = true, default-features = false, features = [
   "embassy-net",
   "wifi",
 ], optional = true }
+fugit = { workspace = true, optional = true }
 once_cell = { workspace = true }
+paste = { workspace = true }
 riot-rs-debug = { workspace = true }
 riot-rs-embassy-common = { workspace = true }
 riot-rs-utils = { workspace = true }
@@ -55,8 +60,15 @@ esp-wifi = { workspace = true, default-features = false, features = [
 ## Enables GPIO interrupt support.
 external-interrupts = ["riot-rs-embassy-common/external-interrupts"]
 
+## Enables I2C support.
+i2c = [
+  "dep:fugit",
+  "riot-rs-embassy-common/i2c",
+  "embassy-executor/integrated-timers",
+]
+
 ## Enables defmt support.
-defmt = ["esp-wifi?/defmt"]
+defmt = ["dep:defmt", "esp-wifi?/defmt", "fugit?/defmt"]
 
 ## Enables Wi-Fi support.
 wifi = []
