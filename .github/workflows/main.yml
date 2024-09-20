@@ -115,6 +115,9 @@ jobs:
 
       # We need to set `RUSTDOCFLAGS` as well in the following jobs, because it
       # is used for doc tests.
+      - name: cargo test for ESP32
+        run: RUSTDOCFLAGS='--cfg context="esp32c6"' RUSTFLAGS='--cfg context="esp32c6"' cargo test --features external-interrupts,i2c,'esp-hal/esp32c6','esp-hal-embassy/esp32c6' -p riot-rs-esp
+
       - name: cargo test for RP
         run: RUSTDOCFLAGS='--cfg context="rp2040"' RUSTFLAGS='--cfg context="rp2040"' cargo test --features external-interrupts,i2c,embassy-rp/rp2040 -p riot-rs-rp
 
