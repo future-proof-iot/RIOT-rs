@@ -13,8 +13,11 @@ pub mod executor_swi;
 #[cfg(feature = "i2c")]
 pub mod i2c;
 
-// Used by macros provided by this crate.
-pub use embassy_futures;
-pub use embassy_time;
+pub mod reexports {
+    //! Crate re-exports.
 
-pub use embedded_hal_async;
+    // Used by macros provided by this crate.
+    pub use embassy_futures;
+    pub use embassy_time;
+    pub use embedded_hal_async;
+}

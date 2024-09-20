@@ -114,7 +114,7 @@ impl From<NoAcknowledgeSource> for embedded_hal::i2c::NoAcknowledgeSource {
 #[macro_export]
 macro_rules! impl_async_i2c_for_driver_enum {
     ($driver_enum:ident, $( $peripheral:ident ),*) => {
-        impl embedded_hal_async::i2c::I2c for $driver_enum {
+        impl $crate::reexports::embedded_hal_async::i2c::I2c for $driver_enum {
             async fn read(&mut self, address: u8, read: &mut [u8]) -> Result<(), Self::Error> {
                 match self {
                     $(
@@ -171,13 +171,13 @@ macro_rules! impl_async_i2c_for_driver_enum {
 #[macro_export]
 macro_rules! handle_i2c_timeout_res {
     ($i2c:ident, $op:ident, $address:ident, $( $param:ident ),+) => {{
-        let res = $crate::embassy_futures::select::select(
+        let res = $crate::reexports::embassy_futures::select::select(
             // Disambiguate between the trait methods and the direct methods.
-            $crate::embedded_hal_async::i2c::I2c::$op(&mut $i2c.twim, $address, $( $param ),+),
-            $crate::embassy_time::Timer::after($crate::i2c::controller::I2C_TIMEOUT),
+            $crate::reexports::embedded_hal_async::i2c::I2c::$op(&mut $i2c.twim, $address, $( $param ),+),
+            $crate::reexports::embassy_time::Timer::after($crate::i2c::controller::I2C_TIMEOUT),
         ).await;
 
-        if let $crate::embassy_futures::select::Either::First(op) = res {
+        if let $crate::reexports::embassy_futures::select::Either::First(op) = res {
             // `from_error` is defined in each arch
             op.map_err(from_error)
         } else {
