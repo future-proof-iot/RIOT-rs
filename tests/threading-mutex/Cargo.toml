@@ -1,0 +1,13 @@
+[package]
+name = "threading-mutex"
+version = "0.1.0"
+authors = ["Elena Frank <elena.frank@proton.me>"]
+license.workspace = true
+edition.workspace = true
+publish = false
+
+[dependencies]
+embassy-executor = { workspace = true }
+ariel-os = { path = "../../src/ariel-os" }
+ariel-os-boards = { path = "../../src/ariel-os-boards" }
+portable-atomic = "1.6.0"
