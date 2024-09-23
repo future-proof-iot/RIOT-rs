@@ -387,9 +387,9 @@ dependencies = [
 
 [[package]]
 name = "cc"
-version = "1.1.20"
+version = "1.1.21"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "45bcde016d64c21da4be18b655631e5ab6d3107607e71a73a9f53eb48aae23fb"
+checksum = "07b1695e2c7e8fc85310cde85aeaab7e3097f593c91d209d3f9df76c928100f0"
 dependencies = [
  "shlex",
 ]
@@ -490,9 +490,9 @@ dependencies = [
 
 [[package]]
 name = "clap"
-version = "4.5.17"
+version = "4.5.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3e5a21b8495e732f1b3c364c9949b201ca7bae518c502c80256c96ad79eaf6ac"
+checksum = "b0956a43b323ac1afaffc053ed5c4b7c1f1800bacd1683c353aabbb752515dd3"
 dependencies = [
  "clap_builder",
  "clap_derive",
@@ -500,9 +500,9 @@ dependencies = [
 
 [[package]]
 name = "clap_builder"
-version = "4.5.17"
+version = "4.5.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8cf2dd12af7a047ad9d6da2b6b249759a22a7abc0f474c1dae1777afa4b21a73"
+checksum = "4d72166dd41634086d5803a47eb71ae740e61d84709c36f3c34110173db3961b"
 dependencies = [
  "anstream",
  "anstyle",
@@ -512,9 +512,9 @@ dependencies = [
 
 [[package]]
 name = "clap_derive"
-version = "4.5.13"
+version = "4.5.18"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "501d359d5f3dcaf6ecdeee48833ae73ec6e42723a1e52419c79abf9507eec0a0"
+checksum = "4ac6a0c7b1a9e9a5186361f67dfa1b88213572f427fb9ab038efb2bd8c582dab"
 dependencies = [
  "heck 0.5.0",
  "proc-macro2",
@@ -570,7 +570,6 @@ dependencies = [
  "riot-rs",
  "riot-rs-boards",
  "scroll-ring",
- "smoltcp 0.11.0 (git+https://github.com/smoltcp-rs/smoltcp.git?rev=125773e282bc2e0c914a49e9c75573926e26e558)",
  "static-alloc",
 ]
 
@@ -607,9 +606,9 @@ dependencies = [
 
 [[package]]
 name = "coap-message"
-version = "0.3.3"
+version = "0.3.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "5ccab4ff10bcaab1d7f017c34ea598e9f21d187c32f6f086d7abd580b0412096"
+checksum = "a5db74a9fa42b4576cd16ac3e6a420f130f8d908989823b6fd9f401c54056666"
 dependencies = [
  "num-traits",
 ]
@@ -893,7 +892,7 @@ dependencies = [
 [[package]]
 name = "cyw43"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
@@ -910,7 +909,7 @@ dependencies = [
 [[package]]
 name = "cyw43-pio"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 dependencies = [
  "cyw43",
  "embassy-rp",
@@ -1154,7 +1153,7 @@ dependencies = [
 [[package]]
 name = "embassy-executor"
 version = "0.6.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -1188,7 +1187,7 @@ dependencies = [
 [[package]]
 name = "embassy-hal-internal"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -1218,7 +1217,7 @@ dependencies = [
 [[package]]
 name = "embassy-net"
 version = "0.4.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 dependencies = [
  "defmt",
  "document-features",
@@ -1229,13 +1228,13 @@ dependencies = [
  "embedded-nal-async",
  "heapless 0.8.0",
  "managed",
- "smoltcp 0.11.0 (git+https://github.com/smoltcp-rs/smoltcp?rev=dd43c8f189178b0ab3bda798ed8578b5b0a6f094)",
+ "smoltcp 0.11.0 (git+https://github.com/smoltcp-rs/smoltcp.git?rev=dd43c8f189178b0ab3bda798ed8578b5b0a6f094)",
 ]
 
 [[package]]
 name = "embassy-net-driver"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 dependencies = [
  "defmt",
 ]
@@ -1243,7 +1242,7 @@ dependencies = [
 [[package]]
 name = "embassy-net-driver-channel"
 version = "0.3.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 dependencies = [
  "embassy-futures",
  "embassy-net-driver",
@@ -1279,7 +1278,7 @@ dependencies = [
 [[package]]
 name = "embassy-nrf"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 dependencies = [
  "bitflags 2.6.0",
  "cfg-if",
@@ -1320,7 +1319,7 @@ dependencies = [
 [[package]]
 name = "embassy-rp"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 dependencies = [
  "atomic-polyfill",
  "cfg-if",
@@ -1357,7 +1356,7 @@ dependencies = [
 [[package]]
 name = "embassy-stm32"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 dependencies = [
  "aligned",
  "bit_field",
@@ -1415,7 +1414,7 @@ dependencies = [
 [[package]]
 name = "embassy-sync"
 version = "0.6.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -1447,7 +1446,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-driver"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 dependencies = [
  "document-features",
 ]
@@ -1455,7 +1454,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-queue-driver"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 
 [[package]]
 name = "embassy-usb"
@@ -1476,7 +1475,7 @@ dependencies = [
 [[package]]
 name = "embassy-usb-driver"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 dependencies = [
  "defmt",
 ]
@@ -1499,7 +1498,7 @@ dependencies = [
 [[package]]
 name = "embassy-usb-synopsys-otg"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#7e4a94b84934686cb21df47414886f597e7b2a04"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#973754a8329ad75a0864bd2f5da7ab95364039e1"
 dependencies = [
  "critical-section",
  "embassy-sync 0.6.0",
@@ -1855,7 +1854,7 @@ source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-08-30
 dependencies = [
  "anyhow",
  "basic-toml",
- "clap 4.5.17",
+ "clap 4.5.18",
  "lazy_static",
  "serde",
  "strum",
@@ -1914,7 +1913,7 @@ dependencies = [
  "num-traits",
  "portable-atomic",
  "portable_atomic_enum",
- "smoltcp 0.11.0 (git+https://github.com/smoltcp-rs/smoltcp.git?rev=125773e282bc2e0c914a49e9c75573926e26e558)",
+ "smoltcp 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "toml-cfg",
 ]
 
@@ -2457,6 +2456,16 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0fcc0b4a115bf80b728eb8ea024ad5bd707b615bfed49e0665b6e0f86fd082d9"
 
 [[package]]
+name = "i2c"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embedded-hal-async",
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
 name = "i2c-controller"
 version = "0.1.0"
 dependencies = [
@@ -2851,9 +2860,9 @@ checksum = "29be4f60e41fde478b36998b88821946aafac540e53591e76db53921a0cc225b"
 
 [[package]]
 name = "minijinja"
-version = "2.3.0"
+version = "2.3.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "333d5c65ea267f8aa0516c4ddeeb6547a53bd2d003659307eda21ceff9d19dbf"
+checksum = "1028b628753a7e1a88fc59c9ba4b02ecc3bc0bd3c7af23df667bc28df9b3310e"
 dependencies = [
  "serde",
 ]
@@ -3405,9 +3414,9 @@ dependencies = [
 
 [[package]]
 name = "portable-atomic"
-version = "1.7.0"
+version = "1.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "da544ee218f0d287a911e9c99a39a8c9bc8fcad3cb8db5959940044ecfc67265"
+checksum = "d30538d42559de6b034bc76fd6dd4c38961b1ee5c6c56e3808c50128fdbc22ce"
 dependencies = [
  "critical-section",
 ]
@@ -4182,7 +4191,8 @@ checksum = "3c5e1a9a646d36c3599cd173a41282daf47c44583ad367b8e6837255952e5c67"
 [[package]]
 name = "smoltcp"
 version = "0.11.0"
-source = "git+https://github.com/smoltcp-rs/smoltcp.git?rev=125773e282bc2e0c914a49e9c75573926e26e558#125773e282bc2e0c914a49e9c75573926e26e558"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5a1a996951e50b5971a2c8c0fa05a381480d70a933064245c4a223ddc87ccc97"
 dependencies = [
  "bitflags 1.3.2",
  "byteorder",
@@ -4195,7 +4205,7 @@ dependencies = [
 [[package]]
 name = "smoltcp"
 version = "0.11.0"
-source = "git+https://github.com/smoltcp-rs/smoltcp?rev=dd43c8f189178b0ab3bda798ed8578b5b0a6f094#dd43c8f189178b0ab3bda798ed8578b5b0a6f094"
+source = "git+https://github.com/smoltcp-rs/smoltcp.git?rev=dd43c8f189178b0ab3bda798ed8578b5b0a6f094#dd43c8f189178b0ab3bda798ed8578b5b0a6f094"
 dependencies = [
  "bitflags 1.3.2",
  "byteorder",
@@ -4483,18 +4493,18 @@ checksum = "23d434d3f8967a09480fb04132ebe0a3e088c173e6d0ee7897abbdf4eab0f8b9"
 
 [[package]]
 name = "thiserror"
-version = "1.0.63"
+version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "c0342370b38b6a11b6cc11d6a805569958d54cfa061a29969c3b5ce2ea405724"
+checksum = "d50af8abc119fb8bb6dbabcfa89656f46f84aa0ac7688088608076ad2b459a84"
 dependencies = [
  "thiserror-impl",
 ]
 
 [[package]]
 name = "thiserror-impl"
-version = "1.0.63"
+version = "1.0.64"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "a4558b58466b9ad7ca0f102865eccc95938dca1a74a856f2b57b6629050da261"
+checksum = "08904e7672f5eb876eaaf87e0ce17857500934f4981c4a0ab2b4aa98baac7fc3"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -4678,15 +4688,15 @@ checksum = "e91b56cd4cadaeb79bbf1a5645f6b4f8dc5bde8834ad5894a8db35fda9efa1fe"
 
 [[package]]
 name = "unicode-width"
-version = "0.1.13"
+version = "0.1.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0336d538f7abc86d282a4189614dfaa90810dfc2c6f6427eaf88e16311dd225d"
+checksum = "7dd6e30e90baa6f72411720665d41d89b9a3d039dc45b8faea1ddd07f617f6af"
 
 [[package]]
 name = "unicode-xid"
-version = "0.2.5"
+version = "0.2.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "229730647fbc343e3a80e463c1db7f78f3855d3f3739bee0dda773c9a037c90a"
+checksum = "ebc1c04c71510c7f702b52b7c350734c9ff1295c464a03335b00bb84fc54f853"
 
 [[package]]
 name = "universal-hash"
