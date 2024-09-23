@@ -199,10 +199,10 @@ mod clist {
             let mut empty_runqueue = None;
 
             // Find previous thread in circular runqueue.
-            let prev = self.next_idxs.iter().position(|&next| next == n)?;
+            let prev = position(&self.next_idxs, n)?;
 
             // Handle if thread is tail of a runqueue.
-            if let Some(rq) = self.tail.iter().position(|&tail| tail == n) {
+            if let Some(rq) = position(&self.tail, n) {
                 if prev == n as usize {
                     // Runqueue is empty now.
                     self.tail[rq] = Self::sentinel();
@@ -248,6 +248,19 @@ mod clist {
             if let Some(head) = self.peek_head(rq) {
                 self.tail[rq as usize] = head;
             }
+        }
+    }
+
+    /// Helper function that is needed because hax doesn't support `Iterator::position` yet.
+    fn position<const N: usize>(slice: &[u8; N], search_item: u8) -> Option<usize> {
+        let mut i = 0;
+        while i < N && slice[i] != search_item {
+            i += 1;
+        }
+        if i < N {
+            Some(i)
+        } else {
+            None
         }
     }
 
