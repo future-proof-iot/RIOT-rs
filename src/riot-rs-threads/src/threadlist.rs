@@ -16,9 +16,15 @@ impl ThreadList {
     }
 
     /// Puts the current (blocked) thread into this [`ThreadList`] and triggers the scheduler.
+    ///
+    /// # Panics
+    ///
+    /// Panics if this is called outside of a thread context.
     pub fn put_current(&mut self, cs: CriticalSection, state: ThreadState) {
         THREADS.with_mut_cs(cs, |mut threads| {
-            let &mut Thread { pid, prio, .. } = threads.current().unwrap();
+            let &mut Thread { pid, prio, .. } = threads
+                .current()
+                .expect("Function should be called inside a thread context.");
             let mut curr = None;
             let mut next = self.head;
             while let Some(n) = next {

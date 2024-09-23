@@ -20,21 +20,21 @@ enum LockState {
 }
 
 impl Lock {
-    /// Creates new **unlocked** Lock
+    /// Creates new **unlocked** Lock.
     pub const fn new() -> Self {
         Self {
             state: UnsafeCell::new(LockState::Unlocked),
         }
     }
 
-    /// Creates new **locked** Lock
+    /// Creates new **locked** Lock.
     pub const fn new_locked() -> Self {
         Self {
             state: UnsafeCell::new(LockState::Locked(ThreadList::new())),
         }
     }
 
-    /// Returns the current lock state
+    /// Returns the current lock state.
     ///
     /// true if locked, false otherwise
     pub fn is_locked(&self) -> bool {
@@ -44,13 +44,15 @@ impl Lock {
         })
     }
 
-    /// Get this lock (blocking)
+    /// Get this lock (blocking).
     ///
     /// If the lock was unlocked, it will be locked and the function returns.
     /// If the lock was locked, this function will block the current thread until the lock gets
     /// unlocked elsewhere.
     ///
-    /// **NOTE**: must not be called outside thread context!
+    /// # Panics
+    ///
+    /// Panics if this is called outside of a thread context.
     pub fn acquire(&self) {
         critical_section::with(|cs| {
             let state = unsafe { &mut *self.state.get() };
@@ -63,7 +65,7 @@ impl Lock {
         })
     }
 
-    /// Get the lock (non-blocking)
+    /// Get the lock (non-blocking).
     ///
     /// If the lock was unlocked, it will be locked and the function returns true.
     /// If the lock was locked, the function returns false
