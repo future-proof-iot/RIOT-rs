@@ -1,8 +1,7 @@
 //! Helpers for udp_nal -- conversion and error types
 
-use embassy_net::udp;
+use embassy_net::{udp, IpAddress, IpEndpoint};
 use embedded_nal_async as nal;
-use smoltcp::wire::{IpAddress, IpEndpoint};
 
 pub(super) fn sockaddr_nal2smol(sockaddr: nal::SocketAddr) -> Result<IpEndpoint, Error> {
     match sockaddr {
@@ -10,7 +9,7 @@ pub(super) fn sockaddr_nal2smol(sockaddr: nal::SocketAddr) -> Result<IpEndpoint,
         nal::SocketAddr::V4(sockaddr) => {
             #[cfg(feature = "proto-ipv4")]
             return Ok(IpEndpoint {
-                addr: smoltcp::wire::Ipv4Address(sockaddr.ip().octets()).into(),
+                addr: embassy_net::Ipv4Address(sockaddr.ip().octets()).into(),
                 port: sockaddr.port(),
             });
             #[cfg(not(feature = "proto-ipv4"))]
@@ -20,7 +19,7 @@ pub(super) fn sockaddr_nal2smol(sockaddr: nal::SocketAddr) -> Result<IpEndpoint,
         nal::SocketAddr::V6(sockaddr) => {
             #[cfg(feature = "proto-ipv6")]
             return Ok(IpEndpoint {
-                addr: smoltcp::wire::Ipv6Address(sockaddr.ip().octets()).into(),
+                addr: embassy_net::Ipv6Address(sockaddr.ip().octets()).into(),
                 port: sockaddr.port(),
             });
             #[cfg(not(feature = "proto-ipv6"))]

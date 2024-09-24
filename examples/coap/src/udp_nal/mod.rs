@@ -18,10 +18,8 @@
 
 use core::future::poll_fn;
 
+use embassy_net::{udp, IpAddress, IpEndpoint};
 use embedded_nal_async as nal;
-use smoltcp::wire::{IpAddress, IpEndpoint};
-
-use embassy_net::udp;
 
 mod util;
 pub use util::Error;
@@ -118,7 +116,7 @@ impl<'a> nal::UnconnectedUdp for UnconnectedUdp<'a> {
             "Port of local address, when given, must match bound port."
         );
 
-        let remote_endpoint = smoltcp::socket::udp::UdpMetadata {
+        let remote_endpoint = udp::UdpMetadata {
             local_address: if is_unspec_ip(local) {
                 None
             } else {
