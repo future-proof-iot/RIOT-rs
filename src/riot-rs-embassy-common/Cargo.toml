@@ -24,4 +24,7 @@ external-interrupts = []
 ## Enables I2C support.
 i2c = ["dep:fugit"]
 
+## Enables SPI support.
+spi = ["dep:fugit"]
+
 defmt = ["dep:defmt", "fugit?/defmt"]

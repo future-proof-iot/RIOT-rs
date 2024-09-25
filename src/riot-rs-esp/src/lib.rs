@@ -11,6 +11,9 @@ pub mod gpio;
 #[cfg(feature = "i2c")]
 pub mod i2c;
 
+#[cfg(feature = "spi")]
+pub mod spi;
+
 #[cfg(feature = "wifi")]
 pub mod wifi;
 

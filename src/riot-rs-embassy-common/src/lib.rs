@@ -13,6 +13,9 @@ pub mod executor_swi;
 #[cfg(feature = "i2c")]
 pub mod i2c;
 
+#[cfg(feature = "spi")]
+pub mod spi;
+
 pub mod reexports {
     //! Crate re-exports.
 
