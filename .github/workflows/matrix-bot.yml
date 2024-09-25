@@ -10,12 +10,13 @@ jobs:
     continue-on-error: true
     steps:
       - name: send message
-        uses: s3krit/matrix-message-action@v0.0.3
+        uses: future-proof-iot/Matrix-Message@v0.0.4
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
           message: "✨ New PR: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})"
           server: "matrix.org"
+          message_type: "notice"
 
   ready-for-review-pr:
     if: github.event.action == 'ready_for_review' && github.repository == 'future-proof-iot/RIOT-rs'
@@ -23,12 +24,13 @@ jobs:
     continue-on-error: true
     steps:
       - name: send message
-        uses: s3krit/matrix-message-action@v0.0.3
+        uses: future-proof-iot/Matrix-Message@v0.0.4
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
           message: "⏩ PR is now ready for review: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})"
           server: "matrix.org"
+          message_type: "notice"
 
   merged-pr:
     if: github.event.action == 'closed' && github.event.pull_request.merged == true && github.repository == 'future-proof-iot/RIOT-rs'
@@ -36,12 +38,13 @@ jobs:
     continue-on-error: true
     steps:
       - name: send message
-        uses: s3krit/matrix-message-action@v0.0.3
+        uses: future-proof-iot/Matrix-Message@v0.0.4
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
           message: "🚀 PR merged: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})"
           server: "matrix.org"
+          message_type: "notice"
 
   abandoned-pr:
     if: github.event.action == 'closed' && github.event.pull_request.merged == false && github.repository == 'future-proof-iot/RIOT-rs'
@@ -49,9 +52,10 @@ jobs:
     continue-on-error: true
     steps:
       - name: send message
-        uses: s3krit/matrix-message-action@v0.0.3
+        uses: future-proof-iot/Matrix-Message@v0.0.4
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
           message: "❌ PR closed without merging: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})"
           server: "matrix.org"
+          message_type: "notice"
