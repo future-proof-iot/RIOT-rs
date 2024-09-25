@@ -26,6 +26,9 @@ functionalities:
   - name: i2c_controller
     title: I2C Controller Mode
     description: I2C in controller mode
+  - name: spi_main
+    title: SPI Main Mode
+    description: SPI in main mode
   - name: logging
     title: Logging
     description:
@@ -51,6 +54,7 @@ chips:
       debug_output: supported
       hwrng: supported
       i2c_controller: supported
+      spi_main: supported
       logging: supported
       wifi: not_available
 
@@ -61,6 +65,7 @@ chips:
       debug_output: supported
       hwrng: supported
       i2c_controller: supported
+      spi_main: supported
       logging: supported
       wifi: not_available
 
@@ -71,6 +76,7 @@ chips:
       debug_output: supported
       hwrng: supported
       i2c_controller: supported
+      spi_main: supported
       logging: supported
       wifi: not_available
 
@@ -81,6 +87,7 @@ chips:
       debug_output: supported
       hwrng: not_currently_supported
       i2c_controller: supported
+      spi_main: supported
       logging: supported
       wifi: not_available
 
@@ -91,6 +98,7 @@ chips:
       debug_output: supported
       hwrng: not_available
       i2c_controller: not_currently_supported
+      spi_main: not_currently_supported
       logging: supported
       wifi: not_available
 
@@ -101,6 +109,7 @@ chips:
       debug_output: supported
       hwrng: supported
       i2c_controller: supported
+      spi_main: supported
       logging: supported
       wifi: not_available
 
@@ -111,6 +120,7 @@ chips:
       debug_output: supported
       hwrng: supported
       i2c_controller: supported
+      spi_main: supported
       logging: supported
       wifi: not_available
 
