@@ -14,7 +14,7 @@ jobs:
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
-          message: "New PR: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})"
+          message: "✨ New PR: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})"
           server: "matrix.org"
 
   ready-for-review-pr:
@@ -27,7 +27,7 @@ jobs:
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
-          message: "PR is now ready for review: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})"
+          message: "⏩ PR is now ready for review: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})"
           server: "matrix.org"
 
   merged-pr:
@@ -40,7 +40,7 @@ jobs:
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
-          message: "PR merged: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})"
+          message: "🚀 PR merged: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})"
           server: "matrix.org"
 
   abandoned-pr:
@@ -53,5 +53,5 @@ jobs:
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
-          message: "PR closed without merging: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})"
+          message: "❌ PR closed without merging: [${{ github.event.pull_request.title }}](${{ github.event.pull_request.html_url }})"
           server: "matrix.org"
