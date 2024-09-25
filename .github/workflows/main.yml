@@ -58,6 +58,11 @@ jobs:
           # rustfmt: Used by bindgen for liboscore
           components: rust-src, rustfmt
 
+      - name: Install Rust for Xtensa
+        uses: esp-rs/xtensa-toolchain@v1.5
+        with:
+          buildtargets: esp32s3
+
       - name: rust cache
         if: steps.result-cache.outputs.cache-hit != 'true'
         uses: Swatinem/rust-cache@v2
@@ -82,7 +87,7 @@ jobs:
       - name: "limit build unless nightly build"
         if: github.event_name != 'schedule'
         run: |
-          echo "LAZE_BUILDERS=ai-c3,espressif-esp32-c6-devkitc-1,microbit-v2,nrf52840dk,nrf5340dk,rpi-pico,rpi-pico-w,st-nucleo-h755zi-q,st-nucleo-wb55" >> "$GITHUB_ENV"
+          echo "LAZE_BUILDERS=ai-c3,espressif-esp32-c6-devkitc-1,espressif-esp32-s3-wroom-1,microbit-v2,nrf52840dk,nrf5340dk,rpi-pico,rpi-pico-w,st-nucleo-h755zi-q,st-nucleo-wb55" >> "$GITHUB_ENV"
 
       - name: "riot-rs compilation test"
         if: steps.result-cache.outputs.cache-hit != 'true'
