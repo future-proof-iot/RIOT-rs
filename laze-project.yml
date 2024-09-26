@@ -291,7 +291,7 @@ contexts:
         # this might be needed for backtraces
         # - -C force-frame-pointers
       CARGO_ARGS:
-        - -Zbuild-std=core
+        - -Zbuild-std=core,alloc
       CARGO_RUNNER: '"espflash flash --monitor ${ESPFLASH_LOG_FORMAT}"'
 
   - name: esp32c3

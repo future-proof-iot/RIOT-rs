@@ -94,7 +94,7 @@ pub mod input {
 
 pub mod output {
     use esp_hal::{
-        gpio::{CreateErasedPin, Level, OutputPin as EspOutputPin},
+        gpio::{Level, OutputPin as EspOutputPin},
         peripheral::Peripheral,
     };
     use riot_rs_embassy_common::gpio::{FromDriveStrength, FromSpeed};

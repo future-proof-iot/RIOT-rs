@@ -4,8 +4,6 @@
 #![feature(trait_alias)]
 #![feature(type_alias_impl_trait)]
 
-use once_cell::sync::OnceCell;
-
 pub mod gpio;
 
 #[cfg(feature = "i2c")]
@@ -60,53 +58,52 @@ pub mod peripherals {
     }
 }
 
-use esp_hal::{
-    clock::{ClockControl, Clocks},
-    system::SystemControl,
-    timer::timg::TimerGroup,
-};
-
 pub use esp_hal::peripherals::OptionalPeripherals;
 
 #[cfg(feature = "executor-single-thread")]
 pub use esp_hal_embassy::Executor;
 
-// NOTE(once-cell): using a `once_cell::OnceCell` here for critical-section support, just to be
-// sure.
-pub(crate) static CLOCKS: OnceCell<Clocks> = OnceCell::new();
-
 pub fn init() -> OptionalPeripherals {
-    let mut peripherals = OptionalPeripherals::from(peripherals::Peripherals::take());
-    let system = SystemControl::new(peripherals.SYSTEM.take().unwrap());
-    let clocks = ClockControl::max(system.clock_control).freeze();
+    let mut peripherals = OptionalPeripherals::from(esp_hal::init(esp_hal::Config::default()));
 
     #[cfg(feature = "wifi-esp")]
     {
-        use esp_hal::{rng::Rng, timer::systimer::SystemTimer};
-        use esp_wifi::{initialize, EspWifiInitFor};
+        use esp_hal::timer::timg::TimerGroup;
+
+        use esp_alloc as _;
+        esp_alloc::heap_allocator!(72 * 1024);
+
+        use esp_hal::rng::Rng;
+        use esp_wifi::{init, EspWifiInitFor};
 
         riot_rs_debug::log::debug!("riot-rs-embassy::arch::esp::init(): wifi");
 
-        let timer = SystemTimer::new(peripherals.SYSTIMER.take().unwrap())
-            .split::<esp_hal::timer::systimer::Target>();
+        let timer = TimerGroup::new(peripherals.TIMG0.take().unwrap()).timer0;
 
-        let init = initialize(
+        let init = init(
             EspWifiInitFor::Wifi,
-            timer.alarm0,
+            timer,
             Rng::new(peripherals.RNG.take().unwrap()),
             peripherals.RADIO_CLK.take().unwrap(),
-            &clocks,
         )
         .unwrap();
 
         wifi::esp_wifi::WIFI_INIT.set(init).unwrap();
     }
 
-    let timer_group0 = TimerGroup::new(peripherals.TIMG0.take().unwrap(), &clocks);
-    esp_hal_embassy::init(&clocks, timer_group0.timer0);
+    let embassy_timer = {
+        cfg_if::cfg_if! {
+            if #[cfg(context = "esp32")] {
+                use esp_hal::timer::timg::TimerGroup;
+                TimerGroup::new(peripherals.TIMG1.take().unwrap()).timer0
+            } else {
+                use esp_hal::timer::systimer::{SystemTimer, Target};
+                SystemTimer::new(peripherals.SYSTIMER.take().unwrap()).split::<Target>().alarm0
+            }
+        }
+    };
 
-    // Discard the error in (the impossible) case that it was already populated.
-    let _ = CLOCKS.set(clocks);
+    esp_hal_embassy::init(embassy_timer);
 
     peripherals
 }
