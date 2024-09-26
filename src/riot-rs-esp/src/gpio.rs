@@ -93,25 +93,21 @@ pub mod output {
 
     pub use esp_hal::gpio::{Output, OutputPin};
 
-    // FIXME: ESP32 *does* support setting the drive strength, but esp-hal seems to currently make
-    // this impossible on `AnyOutput` (unlike on `Output`), because it internally uses an
-    // `ErasedPin`.
-    pub const DRIVE_STRENGTH_CONFIGURABLE: bool = false;
+    pub const DRIVE_STRENGTH_CONFIGURABLE: bool = true;
     pub const SPEED_CONFIGURABLE: bool = false;
 
     pub fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
         initial_level: riot_rs_embassy_common::gpio::Level,
-        _drive_strength: DriveStrength,
+        drive_strength: DriveStrength,
         _speed: Speed, // Not supported by this architecture
     ) -> Output<'static> {
         let initial_level = match initial_level {
             riot_rs_embassy_common::gpio::Level::Low => Level::Low,
             riot_rs_embassy_common::gpio::Level::High => Level::High,
         };
-        let output = Output::new(pin, initial_level);
-        // TODO
-        // output.set_drive_strength(drive_strength.into());
+        let mut output = Output::new(pin, initial_level);
+        output.set_drive_strength(drive_strength.into());
         output
     }
 
@@ -122,6 +118,17 @@ pub mod output {
         _10mA,
         _20mA,
         _40mA,
+    }
+
+    impl From<DriveStrength> for esp_hal::gpio::DriveStrength {
+        fn from(drive_strength: DriveStrength) -> Self {
+            match drive_strength {
+                DriveStrength::_5mA => esp_hal::gpio::DriveStrength::I5mA,
+                DriveStrength::_10mA => esp_hal::gpio::DriveStrength::I10mA,
+                DriveStrength::_20mA => esp_hal::gpio::DriveStrength::I20mA,
+                DriveStrength::_40mA => esp_hal::gpio::DriveStrength::I40mA,
+            }
+        }
     }
 
     impl FromDriveStrength for DriveStrength {
