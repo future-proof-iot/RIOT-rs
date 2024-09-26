@@ -91,7 +91,6 @@ macro_rules! define_i2c_drivers {
                     config: Config,
                 ) -> I2c {
                     let frequency = config.frequency.into();
-                    let clocks = crate::CLOCKS.get().unwrap();
 
                     // Make this struct a compile-time-enforced singleton: having multiple statics
                     // defined with the same name would result in a compile-time error.
@@ -114,7 +113,6 @@ macro_rules! define_i2c_drivers {
                         sda_pin,
                         scl_pin,
                         frequency,
-                        &clocks,
                         timeout,
                     );
 
