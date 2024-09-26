@@ -44,25 +44,20 @@ pub fn init(peripherals: &mut crate::OptionalPeripherals) {
 
 pub mod input {
     use esp_hal::{
-        gpio::{CreateErasedPin, InputPin as EspInputPin, Level, Pull},
+        gpio::{Level, Pull},
         peripheral::Peripheral,
     };
+
+    pub use esp_hal::gpio::{Input, InputPin};
 
     #[cfg(feature = "external-interrupts")]
     use riot_rs_embassy_common::gpio::input::InterruptError;
 
-    pub use esp_hal::gpio::AnyInput as Input;
-
-    // Re-export `AnyInput` as `IntEnabledInput` as they are interrupt-enabled.
+    // Re-export `Input` as `IntEnabledInput` as they are interrupt-enabled.
     #[cfg(feature = "external-interrupts")]
-    pub use esp_hal::gpio::AnyInput as IntEnabledInput;
+    pub use esp_hal::gpio::Input as IntEnabledInput;
 
     pub const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
-
-    // NOTE(unstable-feature(trait_alias)): we may not have to use that unstable feature if we
-    // define our own Pin trait and implement it on all GPIO types.
-    // TODO: ask upstream whether it's acceptable to use `CreateErasedPin` in this scenario
-    pub trait InputPin = EspInputPin + CreateErasedPin;
 
     pub fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
@@ -93,21 +88,16 @@ pub mod input {
 }
 
 pub mod output {
-    use esp_hal::{
-        gpio::{Level, OutputPin as EspOutputPin},
-        peripheral::Peripheral,
-    };
+    use esp_hal::{gpio::Level, peripheral::Peripheral};
     use riot_rs_embassy_common::gpio::{FromDriveStrength, FromSpeed};
 
-    pub use esp_hal::gpio::AnyOutput as Output;
+    pub use esp_hal::gpio::{Output, OutputPin};
 
     // FIXME: ESP32 *does* support setting the drive strength, but esp-hal seems to currently make
     // this impossible on `AnyOutput` (unlike on `Output`), because it internally uses an
     // `ErasedPin`.
     pub const DRIVE_STRENGTH_CONFIGURABLE: bool = false;
     pub const SPEED_CONFIGURABLE: bool = false;
-
-    pub trait OutputPin = EspOutputPin + CreateErasedPin;
 
     pub fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
