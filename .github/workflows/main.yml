@@ -39,7 +39,7 @@ jobs:
         id: result-cache
         with:
           path: .tree-hash
-          key: success-${{ steps.get-tree-hash.outputs.hash }}-${{ matrix.partition }}
+          key: success-${{ steps.get-tree-hash.outputs.hash }}-${{ matrix.partition }}-${{ github.event_name == 'schedule' && 'full' || 'limited' }}
 
       - name: Run sccache-cache
         if: steps.result-cache.outputs.cache-hit != 'true'
