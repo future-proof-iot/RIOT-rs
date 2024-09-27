@@ -14,6 +14,12 @@ pub mod extint_registry;
 #[cfg(feature = "i2c")]
 pub mod i2c;
 
+pub mod identity {
+    use riot_rs_embassy_common::identity::*;
+
+    pub type DeviceId = NoDeviceId<NotImplemented>;
+}
+
 use embassy_stm32::Config;
 
 pub use embassy_stm32::{interrupt, peripherals, OptionalPeripherals, Peripherals};
