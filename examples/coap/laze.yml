@@ -8,6 +8,7 @@ apps:
       - ?release
       - network
       - random
+      - OSCORE_CLANG_CI_FIX #https://github.com/future-proof-iot/RIOT-rs/pull/443
     conflicts:
       # see https://github.com/future-proof-iot/RIOT-rs/issues/418
       - thumbv6m-none-eabi
