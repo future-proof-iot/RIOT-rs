@@ -4,7 +4,7 @@
 pub trait DeviceId {
     /// Opaque type representing a unique-ish identifier of a board.
     ///
-    /// See [`device_id()`] for precise semantics.
+    /// See [`.get()`](Self::get) for precise semantics.
     ///
     /// # Open questions
     ///
@@ -32,8 +32,8 @@ pub trait DeviceId {
     /// the processor as part of the board.
     ///
     /// For the type implementing this trait at its conventional position
-    /// [`riot_rs::arch::identity::DeviceId`], a convenience function to call it exists at
-    /// [`riot_rs::identity::device_identity()`].
+    /// `riot_rs::arch::identity::DeviceId`, a convenience function to call it exists at
+    /// `riot_rs::identity::device_identity()`.
     ///
     /// # Open questions
     ///
