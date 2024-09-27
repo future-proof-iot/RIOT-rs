@@ -8,8 +8,10 @@ cfg_if::cfg_if! {
     if #[cfg(context = "cortex-m")] {
         mod cortexm;
         use cortexm as bench;
-    }
-    else if #[cfg(context = "riot-rs")] {
+    } else if #[cfg(context = "esp")] {
+        mod esp;
+        use esp as bench;
+    } else if #[cfg(context = "riot-rs")] {
         // When run with laze but the architecture is not supported
         compile_error!("benchmarking is not supported for this architecture");
     } else {

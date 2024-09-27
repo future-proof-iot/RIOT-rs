@@ -1,6 +1,7 @@
 #![cfg_attr(not(test), no_std)]
 #![feature(naked_functions)]
 #![feature(used_with_arg)]
+#![cfg_attr(target_arch = "xtensa", feature(asm_experimental_arch))]
 // Disable indexing lints for now, possible panics are documented or rely on internally-enforced
 // invariants
 #![allow(clippy::indexing_slicing)]

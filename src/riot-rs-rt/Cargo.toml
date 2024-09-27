@@ -38,10 +38,11 @@ silent-panic = []
 _panic-handler = []
 
 # internal
-# These two features are used by `build.rs`, which doesn't "see" context
+# These features are used by `build.rs`, which doesn't "see" context
 # variables.
 _esp32c3 = []
 _esp32c6 = []
+_esp32s3 = []
 
 [dev-dependencies]
 riot-rs-boards = { path = "../riot-rs-boards" }

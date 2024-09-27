@@ -12,8 +12,6 @@ contexts:
       - ?defmt
     env:
       RUSTFLAGS:
-        - "-Clink-arg=--nmagic"
-        - "-Clink-arg=${LINK_ARG_PREFIX}--no-eh-frame-hdr"
         - --cfg builder=\"${builder}\"
         - --cfg context=\"${builder}\"
         - --cfg context=\"riot-rs\"
@@ -63,7 +61,7 @@ contexts:
         pool: console
         always: true
         cmd: >-
-          cd ${relpath} && ${CARGO_ENV} cargo ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
+          cd ${relpath} && ${CARGO_ENV} cargo ${CARGO_TOOLCHAIN} ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
           && cp ${relroot}/${build-dir}/bin/${builder}/${app}/cargo/${RUSTC_TARGET}/${PROFILE}/${riot_binary} ${relroot}/${out}
 
       - name: GIT_DOWNLOAD
@@ -77,13 +75,13 @@ contexts:
 
       cargo:
         cmd:
-          - cd ${relpath} && ${CARGO_ENV} cargo ${CARGO_ARGS}
+          - cd ${relpath} && ${CARGO_ENV} cargo ${CARGO_TOOLCHAIN} ${CARGO_ARGS}
         build: false
 
       run:
         build: false
         cmd:
-          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
+          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_TOOLCHAIN} ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
 
       cargo-test:
         cmd:
@@ -92,7 +90,7 @@ contexts:
 
       debug:
         cmd:
-          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
+          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_TOOLCHAIN} ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
         build: false
         ignore_ctrl_c: true
 
@@ -104,12 +102,12 @@ contexts:
 
       bloat:
         cmd:
-          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_ARGS} bloat --${PROFILE} ${FEATURES}
+          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_TOOLCHAIN} ${CARGO_ARGS} bloat --${PROFILE} ${FEATURES}
         build: false
 
       tree:
         cmd:
-          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_ARGS} tree ${FEATURES}
+          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_TOOLCHAIN} ${CARGO_ARGS} tree ${FEATURES}
         build: false
 
       flash:
@@ -278,8 +276,6 @@ contexts:
         - --cfg context=\"esp\"
         # linkall first
         - -Clink-arg=-Tlinkall.x
-        - -Clink-arg=-Tlinkme-esp-fixup.x
-        - -Clink-arg=-Tlinkme.x
         # this might be needed for backtraces
         # - -C force-frame-pointers
       CARGO_ARGS:
@@ -288,6 +284,8 @@ contexts:
 
   - name: esp32c3
     parent: esp
+    selects:
+      - riscv
     env:
       RUSTFLAGS:
         - --cfg context=\"esp32c3\"
@@ -296,11 +294,24 @@ contexts:
 
   - name: esp32c6
     parent: esp
+    selects:
+      - riscv
     env:
       RUSTFLAGS:
         - --cfg context=\"esp32c6\"
       RUSTC_TARGET: riscv32imac-unknown-none-elf
       CARGO_TARGET_PREFIX: CARGO_TARGET_RISCV32IMAC_UNKNOWN_NONE_ELF
+
+  - name: esp32s3
+    parent: esp
+    selects:
+      - xtensa
+    env:
+      CARGO_TOOLCHAIN: +esp
+      RUSTFLAGS:
+        - --cfg context=\"esp32s3\"
+      RUSTC_TARGET: xtensa-esp32s3-none-elf
+      CARGO_TARGET_PREFIX: CARGO_TARGET_XTENSA_ESP32S3_NONE_ELF
 
   - name: stm32
     help: STM32 support (based on embassy-stm32)
@@ -358,6 +369,8 @@ modules:
       global:
         OBJCOPY: arm-none-eabi-objcopy
         RUSTFLAGS:
+          - -Clink-arg=--nmagic
+          - -Clink-arg=${LINK_ARG_PREFIX}--no-eh-frame-hdr
           - -Clink-arg=-Tlinkme.x
           - -Clink-arg=-Tlink.x
           - -Clink-arg=-Tdevice.x
@@ -413,6 +426,18 @@ modules:
         CARGO_ENV_TARGET: CARGO_TARGET_THUMBV7EM_NONE_EABIHF
         RUSTFLAGS:
           - --cfg armv7m
+
+  - name: xtensa
+    env:
+      global:
+        RUSTFLAGS:
+          - --cfg context=\"xtensa\"
+
+  - name: riscv
+    env:
+      global:
+        RUSTFLAGS:
+          - --cfg context=\"riscv\"
 
   - name: rp-link-arg
     help: helper module that ensures link-rp.x is added behind cortex-m ld scripts
@@ -630,6 +655,7 @@ modules:
       - nrf
       - rp
       - stm32
+      - esp
 
   - name: wifi-esp
     context:
@@ -778,6 +804,9 @@ builders:
 
   - name: espressif-esp32-c6-devkitc-1
     parent: esp32c6
+
+  - name: espressif-esp32-s3-wroom-1
+    parent: esp32s3
 
   - name: nrf5340dk
     parent: nrf5340

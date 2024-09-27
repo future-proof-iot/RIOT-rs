@@ -33,6 +33,9 @@ esp-println = { workspace = true, features = ["esp32c3"] }
 [target.'cfg(context = "esp32c6")'.dependencies]
 esp-println = { workspace = true, features = ["esp32c6"] }
 
+[target.'cfg(context = "esp32s3")'.dependencies]
+esp-println = { workspace = true, features = ["esp32s3"] }
+
 [features]
 debug-console = []
 defmt = ["dep:defmt", "esp-println?/defmt-espflash"]
