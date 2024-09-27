@@ -50,3 +50,45 @@ pub trait DeviceId {
     /// This prodcues an error if no device ID is available on this board, or is not implemented.
     fn get() -> Result<Self::DeviceId, Self::Error>;
 }
+
+/// A type implementing [`DeviceId`] that always errs.
+///
+/// This can be used both on architectures that do not have a unique identifier on their boards,
+/// and when it has not yet been implemented.
+pub struct NoDeviceId<E: core::error::Error + defmt::Format + Default>(
+    core::marker::PhantomData<E>,
+);
+
+impl<E: core::error::Error + defmt::Format + Default> DeviceId for NoDeviceId<E> {
+    type DeviceId = core::convert::Infallible;
+
+    type Error = E;
+
+    fn get() -> Result<Self::DeviceId, Self::Error> {
+        Err(Default::default())
+    }
+}
+
+/// Error indicating that a [`DeviceId`] may be available on this platform, but is not implemented.
+#[derive(Debug, Default, defmt::Format)]
+pub struct NotImplemented;
+
+impl core::fmt::Display for NotImplemented {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str("Device ID not implemented on this platform")
+    }
+}
+
+impl core::error::Error for NotImplemented {}
+
+/// Error indicating that a [`DeviceId`] is not available on this platform.
+#[derive(Debug, Default, defmt::Format)]
+pub struct NotAvailable;
+
+impl core::fmt::Display for NotAvailable {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        f.write_str("Device ID not available on this platform")
+    }
+}
+
+impl core::error::Error for NotAvailable {}
