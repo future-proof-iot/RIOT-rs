@@ -3644,6 +3644,7 @@ dependencies = [
  "riot-rs-boards",
  "riot-rs-debug",
  "riot-rs-embassy",
+ "riot-rs-embassy-common",
  "riot-rs-macros",
  "riot-rs-random",
  "riot-rs-rt",
