@@ -41,7 +41,12 @@ pub fn device_id() -> Result<DeviceId, DeviceIdError> {
     // thread the access through several layers.
 
     // SAFETY: The register is used for read-only operations on constant values.
+    #[cfg(context = "nrf52840")]
     let ficr = unsafe { nrf52840_pac::Peripherals::steal().FICR };
+    #[cfg(context = "nrf52832")]
+    let ficr = unsafe { nrf52832_pac::Peripherals::steal().FICR };
+    #[cfg(context = "nrf5340")]
+    let ficr = unsafe { nrf5340_app_pac::Peripherals::steal().FICR_S }.info;
 
     let low = ficr.deviceid[0].read().bits();
     let high = ficr.deviceid[1].read().bits();
