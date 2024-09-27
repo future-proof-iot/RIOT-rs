@@ -10,6 +10,7 @@
 
 - [Tooling](./tooling/index.md)
   - [defmt](./tooling/defmt.md)
+  - [CoAP](./tooling/coap.md)
 
 # Developer Guide
 
