@@ -8,7 +8,7 @@ pub trait DeviceId {
     ///
     /// # Open questions
     ///
-    /// Do we have any concrete serializeers we want to prescribe? Or should we switch to a const
+    /// Do we have any concrete serializers we want to prescribe? Or should we switch to a const
     /// size ([u8; N]) anyway?
     type DeviceId: core::fmt::Debug + defmt::Format;
 
