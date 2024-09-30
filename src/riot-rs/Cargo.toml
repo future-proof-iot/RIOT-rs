@@ -15,7 +15,7 @@ riot-rs-bench = { workspace = true, optional = true }
 riot-rs-boards = { path = "../riot-rs-boards" }
 riot-rs-debug = { workspace = true }
 riot-rs-embassy = { path = "../riot-rs-embassy" }
-riot-rs-embassy-common = { path = "../riot-rs-embassy-common" }
+riot-rs-embassy-common.workspace = true
 riot-rs-macros = { path = "../riot-rs-macros" }
 riot-rs-random = { workspace = true, optional = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
