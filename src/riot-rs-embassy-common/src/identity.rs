@@ -1,4 +1,6 @@
-//! General structure of a device identities.
+//! Tools and traits for describing device identities.
+//!
+//! See `riot_rs::identity` for general documentation.
 
 /// Describes how a board produces unique identifiers.
 pub trait DeviceId {
