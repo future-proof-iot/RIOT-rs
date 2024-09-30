@@ -12,9 +12,9 @@ pub mod gpio;
 pub mod i2c;
 
 pub mod identity {
-    use riot_rs_embassy_common::identity::*;
+    use riot_rs_embassy_common::identity;
 
-    pub type DeviceId = NoDeviceId<NotImplemented>;
+    pub type DeviceId = identity::NoDeviceId<identity::NotImplemented>;
 }
 
 #[cfg(feature = "wifi")]
