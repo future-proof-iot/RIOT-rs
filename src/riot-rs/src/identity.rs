@@ -1,12 +1,14 @@
 //! Access to unique identifiers provided by the device.
 
+#[doc(inline)]
+pub use riot_rs_embassy_common::identity::DeviceId;
+
 use crate::arch::identity::DeviceId as ArchDeviceId;
-use riot_rs_embassy_common::identity::DeviceId as CommonDeviceId;
 
 /// Obtains a unique identifier of the device.
 ///
-/// See also [`riot_rs_embassy_common::identity`].
+/// See also [`DeviceId`].
 pub fn device_identity(
-) -> Result<<ArchDeviceId as CommonDeviceId>::DeviceId, <ArchDeviceId as CommonDeviceId>::Error> {
+) -> Result<<ArchDeviceId as DeviceId>::DeviceId, <ArchDeviceId as DeviceId>::Error> {
     riot_rs_embassy::arch::identity::DeviceId::get()
 }
