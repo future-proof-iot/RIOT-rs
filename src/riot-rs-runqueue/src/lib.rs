@@ -66,15 +66,15 @@ mod tests {
         runqueue.add(ThreadId::new(4), RunqueueId::new(1));
 
         assert_eq!(runqueue.get_next(), Some(ThreadId::new(2)));
-        runqueue.del(ThreadId::new(2), RunqueueId::new(1));
+        runqueue.pop_head(ThreadId::new(2), RunqueueId::new(1));
         assert_eq!(runqueue.get_next(), Some(ThreadId::new(4)));
-        runqueue.del(ThreadId::new(4), RunqueueId::new(1));
+        runqueue.pop_head(ThreadId::new(4), RunqueueId::new(1));
         assert_eq!(runqueue.get_next(), Some(ThreadId::new(0)));
-        runqueue.del(ThreadId::new(0), RunqueueId::new(0));
+        runqueue.pop_head(ThreadId::new(0), RunqueueId::new(0));
         assert_eq!(runqueue.get_next(), Some(ThreadId::new(1)));
-        runqueue.del(ThreadId::new(1), RunqueueId::new(0));
+        runqueue.pop_head(ThreadId::new(1), RunqueueId::new(0));
         assert_eq!(runqueue.get_next(), Some(ThreadId::new(3)));
-        runqueue.del(ThreadId::new(3), RunqueueId::new(0));
+        runqueue.pop_head(ThreadId::new(3), RunqueueId::new(0));
         assert_eq!(runqueue.get_next(), None);
     }
     #[test]
@@ -85,7 +85,7 @@ mod tests {
         runqueue.add(ThreadId::new(1), RunqueueId::new(0));
 
         assert_eq!(runqueue.get_next(), Some(ThreadId::new(0)));
-        runqueue.del(ThreadId::new(0), RunqueueId::new(0));
+        runqueue.pop_head(ThreadId::new(0), RunqueueId::new(0));
         assert_eq!(runqueue.get_next(), Some(ThreadId::new(1)));
 
         runqueue.add(ThreadId::new(0), RunqueueId::new(0));
@@ -94,5 +94,32 @@ mod tests {
 
         runqueue.advance(RunqueueId::new(0));
         assert_eq!(runqueue.get_next(), Some(ThreadId::new(0)));
+    }
+
+    #[test]
+    fn test_rq_del() {
+        let mut runqueue: RunQueue<8, 32> = RunQueue::new();
+
+        runqueue.add(ThreadId::new(0), RunqueueId::new(1));
+        runqueue.add(ThreadId::new(1), RunqueueId::new(1));
+        runqueue.add(ThreadId::new(2), RunqueueId::new(0));
+
+        assert_eq!(runqueue.get_next(), Some(ThreadId::new(0)));
+
+        // Delete thread that isn't head.
+        runqueue.del(ThreadId::new(1));
+        assert_eq!(runqueue.get_next(), Some(ThreadId::new(0)));
+
+        // Delete head.
+        runqueue.del(ThreadId::new(0));
+        assert_eq!(runqueue.get_next(), Some(ThreadId::new(2)));
+
+        // Delete invalid thread.
+        runqueue.del(ThreadId::new(3));
+        assert_eq!(runqueue.get_next(), Some(ThreadId::new(2)));
+
+        // Delete last thread in runqueue.
+        runqueue.del(ThreadId::new(2));
+        assert_eq!(runqueue.get_next(), None);
     }
 }

@@ -24,6 +24,7 @@ members = [
   "tests/gpio-interrupt-nrf",
   "tests/gpio-interrupt-stm32",
   "tests/i2c-controller",
+  "tests/threading-dynamic-prios",
   "tests/threading-lock",
 ]
 

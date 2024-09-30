@@ -79,13 +79,18 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         self.queues.push(n.0, rq.0);
     }
 
+    /// Returns the head of the runqueue without removing it.
+    pub fn peek_head(&self, rq: RunqueueId) -> Option<ThreadId> {
+        self.queues.peek_head(rq.0).map(ThreadId::new)
+    }
+
     /// Removes thread with pid `n` from runqueue number `rq`.
     ///
     /// # Panics
     ///
     /// Panics if `n` is not the queue's head.
-    /// This is fine, RIOT-rs only ever calls `del()` for the current thread.
-    pub fn del(&mut self, n: ThreadId, rq: RunqueueId) {
+    /// This is fine, RIOT-rs only ever calls `pop_head()` for the current thread.
+    pub fn pop_head(&mut self, n: ThreadId, rq: RunqueueId) {
         debug_assert!(usize::from(n) < N_THREADS);
         debug_assert!(usize::from(rq) < N_QUEUES);
         let popped = self.queues.pop_head(rq.0);
@@ -93,6 +98,13 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         assert_eq!(popped, Some(n.0));
         if self.queues.is_empty(rq.0) {
             self.bitcache &= !(1 << rq.0);
+        }
+    }
+
+    /// Removes thread with pid `n`.
+    pub fn del(&mut self, n: ThreadId) {
+        if let Some(empty_runqueue) = self.queues.del(n.0) {
+            self.bitcache &= !(1 << empty_runqueue);
         }
     }
 
@@ -179,6 +191,31 @@ mod clist {
             }
         }
 
+        /// Removes a thread from the list.
+        ///
+        /// If the thread was the only thread in its runqueue, `Some` is returned
+        /// with the ID of the now empty runqueue.
+        pub fn del(&mut self, n: u8) -> Option<u8> {
+            let mut empty_runqueue = None;
+
+            // Find previous thread in circular runqueue.
+            let prev = position(&self.next_idxs, n)?;
+
+            // Handle if thread is tail of a runqueue.
+            if let Some(rq) = position(&self.tail, n) {
+                if prev == n as usize {
+                    // Runqueue is empty now.
+                    self.tail[rq] = Self::sentinel();
+                    empty_runqueue = Some(rq as u8);
+                } else {
+                    self.tail[rq] = prev as u8;
+                }
+            }
+            self.next_idxs[prev] = self.next_idxs[n as usize];
+            self.next_idxs[n as usize] = Self::sentinel();
+            empty_runqueue
+        }
+
         pub fn pop_head(&mut self, rq: u8) -> Option<u8> {
             let head = self.peek_head(rq)?;
 
@@ -211,6 +248,19 @@ mod clist {
             if let Some(head) = self.peek_head(rq) {
                 self.tail[rq as usize] = head;
             }
+        }
+    }
+
+    /// Helper function that is needed because hax doesn't support `Iterator::position` yet.
+    fn position<const N: usize>(slice: &[u8; N], search_item: u8) -> Option<usize> {
+        let mut i = 0;
+        while i < N && slice[i] != search_item {
+            i += 1;
+        }
+        if i < N {
+            Some(i)
+        } else {
+            None
         }
     }
 
