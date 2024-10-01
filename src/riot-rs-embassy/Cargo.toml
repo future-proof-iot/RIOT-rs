@@ -96,7 +96,6 @@ storage = [
   "dep:riot-rs-storage",
   "riot-rs-nrf/storage",
   "riot-rs-rp/storage",
-  "riot-rs-esp/storage",
 ]
 
 wifi = []
