@@ -1,3 +1,26 @@
+//! Multi-threading for RIOT-rs.
+//!
+//! Implements a scheduler based on fixed priorities and preemption.
+//! Within one priority level, threads are scheduled cooperatively.
+//! This means that there is no time slicing that would equally distribute CPU time among same-priority threads.
+//! **Instead, you need to use [`yield_same()`] to explicitly yield to another thread with the same priority.**
+//! If no thread is ready, the core is prompted to enter deep sleep until a next thread is ready.
+//!
+//! Threads should be implemented using the `riot_rs_macros::thread` proc macro, which takes care
+//! of calling the necessary initialization methods and linking the thread function element it into the binary.
+//! A [`ThreadId`] between 0 and [`THREADS_NUMOF`] is assigned to each thread in the order in
+//! which the threads are declared.
+//!
+//! Optionally, the stacksize and a priority between 1 and [`SCHED_PRIO_LEVELS`] can be configured.
+//! By default, the stack size is 2048 bytes and priority is 1.
+//!
+//! # Synchronization
+//!
+//! The `threading` module supports three basic synchronization primitives:
+//! - [`Channel`](channel::Channel): synchronous (blocking) channel for sending data between threads
+//! - [`Lock`](lock::Lock): basic locking object
+//! - [`thread_flags`]: thread-flag implementation for signaling between threads
+
 #![cfg_attr(not(test), no_std)]
 #![feature(naked_functions)]
 #![feature(used_with_arg)]
