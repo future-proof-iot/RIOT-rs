@@ -375,6 +375,7 @@ modules:
           - -Clink-arg=-Tlink.x
           - -Clink-arg=-Tdevice.x
           - -Clink-arg=-Tisr_stack.x
+          - -Clink-arg=-Tstorage.x
           - --cfg context=\"cortex-m\"
 
   - name: thumbv6m-none-eabi
@@ -579,6 +580,16 @@ modules:
   - name: network
     selects:
       - network_device
+
+  - name: sw/storage
+    context:
+      - rp2040
+      - nrf52840
+      - nrf5340
+    env:
+      global:
+        FEATURES:
+          - riot-rs/storage
 
   - name: sw/threading
     conflicts:

@@ -51,6 +51,9 @@ hwrng = ["dep:riot-rs-random"]
 ## Enables I2C support.
 i2c = ["riot-rs-embassy-common/i2c", "embassy-executor/integrated-timers"]
 
+## Enables storage support.
+storage = []
+
 ## Enables USB support.
 usb = []
 
