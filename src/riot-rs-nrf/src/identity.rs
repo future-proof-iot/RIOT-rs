@@ -1,14 +1,10 @@
-pub struct DeviceId;
+#[derive(Debug, defmt::Format)]
+pub struct DeviceId(u64);
 
 impl riot_rs_embassy_common::identity::DeviceId for DeviceId {
-    /// The DEVICEID from the FICR peripheral.
-    ///
-    /// The two-word value is interpreted as a 64-bit value as per the product specification.
-    type DeviceId = u64;
-
     type Error = core::convert::Infallible;
 
-    fn get() -> Result<Self::DeviceId, Self::Error> {
+    fn get() -> Result<Self, Self::Error> {
         // Embassy does not wrap the FICR register, and given that all we need from there is a register
         // read that is perfectly fine to do through a stolen register, let's do that rather than
         // thread the access through several layers.
@@ -23,6 +19,12 @@ impl riot_rs_embassy_common::identity::DeviceId for DeviceId {
 
         let low = ficr.deviceid[0].read().bits();
         let high = ficr.deviceid[1].read().bits();
-        Ok((u64::from(high) << u32::BITS) | u64::from(low))
+        Ok(Self((u64::from(high) << u32::BITS) | u64::from(low)))
+    }
+
+    type Bytes = [u8; 8];
+
+    fn bytes(&self) -> Self::Bytes {
+        self.0.to_le_bytes()
     }
 }
