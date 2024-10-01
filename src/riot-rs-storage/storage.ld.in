@@ -1,0 +1,9 @@
+SECTIONS {
+    .storage ALIGN(${ALIGNMENT}) (NOLOAD): {
+        __storage_start = .;
+        . += ${SIZE};
+        __storage_end = .;
+    } > FLASH
+}
+
+INSERT AFTER .rodata

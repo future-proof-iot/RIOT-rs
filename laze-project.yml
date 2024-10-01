@@ -593,6 +593,18 @@ modules:
     selects:
       - network_device
 
+  - name: sw/storage
+    context:
+      - rp2040
+      - nrf52840
+      - nrf5340
+    env:
+      global:
+        FEATURES:
+          - riot-rs/storage
+        RUSTFLAGS:
+          - -Clink-arg=-Tstorage.x
+
   - name: sw/threading
     conflicts:
       - executor-single-thread

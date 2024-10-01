@@ -55,6 +55,9 @@ i2c = ["riot-rs-embassy-common/i2c", "embassy-executor/integrated-timers"]
 ## Enables SPI support.
 spi = ["riot-rs-embassy-common/spi", "embassy-executor/integrated-timers"]
 
+## Enables storage support.
+storage = []
+
 ## Enables USB support.
 usb = []
 

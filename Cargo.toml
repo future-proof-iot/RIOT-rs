@@ -20,6 +20,7 @@ members = [
   "src/riot-rs-random",
   "src/riot-rs-rp",
   "src/riot-rs-stm32",
+  "src/riot-rs-storage",
   "tests/benchmarks/bench_sched_flags",
   "tests/benchmarks/bench_sched_yield",
   "tests/gpio",
@@ -73,12 +74,15 @@ embassy-usb = { version = "0.3", default-features = false }
 
 embedded-hal = { version = "1.0.0", default-features = false }
 embedded-hal-async = { version = "1.0.0", default-features = false }
+embedded-storage = { version = "0.3.1" }
+embedded-storage-async = { version = "0.4.1" }
 
 esp-alloc = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1+pr2377", default-features = false }
 esp-hal = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1+pr2377", default-features = false }
 esp-hal-embassy = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1+pr2377", default-features = false }
 esp-println = "0.11.0"
 esp-wifi = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1+pr2377", default-features = false }
+esp-storage = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1+pr2388" }
 
 linkme = { version = "0.3.21", features = ["used_linker"] }
 
@@ -89,10 +93,14 @@ riot-rs-boards = { path = "src/riot-rs-boards", default-features = false }
 riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
 riot-rs-embassy = { path = "src/riot-rs-embassy", default-features = false }
 riot-rs-embassy-common = { path = "src/riot-rs-embassy-common" }
+riot-rs-esp = { path = "src/riot-rs-esp" }
+riot-rs-nrf = { path = "src/riot-rs-nrf" }
 riot-rs-random = { path = "src/riot-rs-random" }
+riot-rs-rp = { path = "src/riot-rs-rp" }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
 riot-rs-stm32 = { path = "src/riot-rs-stm32" }
+riot-rs-storage = { path = "src/riot-rs-storage" }
 riot-rs-utils = { path = "src/riot-rs-utils", default-features = false }
 
 const_panic = { version = "0.2.8", default-features = false }
@@ -106,7 +114,9 @@ once_cell = { version = "=1.19.0", default-features = false, features = [
   "critical-section",
 ] }
 paste = { version = "1.0" }
+
 rp-pac = { version = "6.0", default-features = false }
+serde = { version = "1.0.197", default-features = false }
 static_cell = { version = "2.0.0", features = ["nightly"] }
 
 [profile.dev]
