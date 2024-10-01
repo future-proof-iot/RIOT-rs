@@ -1,0 +1,14 @@
+[package]
+name = "storage"
+version = "0.1.0"
+authors.workspace = true
+edition.workspace = true
+publish = false
+
+[dependencies]
+riot-rs = { path = "../../src/riot-rs", features = ["storage"] }
+riot-rs-boards = { path = "../../src/riot-rs-boards" }
+embassy-executor = { workspace = true, default-features = false }
+arrayvec = { version = "0.7.4", default-features = false }
+heapless = { workspace = true, features = ["serde", "defmt-03"] }
+serde = { version = "1.0.199", default-features = false }
