@@ -5,6 +5,8 @@
 
 /// Trait desribing the unique identifier available on a board.
 ///
+/// See the module level documentation on the characteristics of the identifier.
+///
 /// # Evolution
 ///
 /// In its current state, this type is mainly a wrapper around a binary identifier with a
@@ -17,7 +19,7 @@
 pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format {
     /// Error type indicating that no identifier is available.
     ///
-    /// This is the return type of the [`::get()`][Self::get] constructor.
+    /// This is part of the return type of the [`::get()`][Self::get] constructor.
     ///
     /// It is encouraged to be [`core::convert::Infallible`] where possible.
     ///
@@ -29,6 +31,13 @@ pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format {
 
     /// Some `[u8; N]` type, returned by [`.bytes()`][Self::bytes].
     ///
+    /// This may not represent all the identifying information available on the board, but can
+    /// represent a unique portion thereof.
+    ///
+    /// (For example, if a device has two consecutive MAC addresses assigned, the type as a whole
+    /// may represent both, but the conventional serialized identity of the board may just be one
+    /// of them).
+    ///
     /// # Evolution
     ///
     /// On the long run, it will be preferable to add a `const BYTES_LEN: usize;` and enforce the
@@ -38,33 +47,24 @@ pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format {
 
     /// Obtains a unique identifier of the device.
     ///
-    /// For the type implementing this trait at its conventional position
-    /// `riot_rs::arch::identity::DeviceId`, a convenience function to call it exists at
-    /// `riot_rs::identity::device_identity()`.
-    ///
-    /// # Open questions
-    ///
-    /// Uniqueness is currently described in the scope of the board, but this is implemented as part of
-    /// the `arch`. Implementation experience will show what is more realistic.
-    ///
-    /// Ideally, those should be coordinated even outside of the project, so that a hypothetical
-    /// extension to probe-rs that connects to devices by their ID can reuse the identifiers. This will
-    /// require some more agreement on their structure as well as their scope. (probe-rs does not work
-    /// on boards but just on chips).
+    /// For callers, there is the convenience function `riot_rs::identity::device_identity()`
+    /// available, which just calls this trait method on `riot_rs::arch::identity::DeviceId`.
     ///
     /// # Errors
     ///
-    /// This prodcues an error if no device ID is available on this board, or is not implemented.
+    /// This produces an error if no device ID is available on this board, or is not implemented.
     fn get() -> Result<Self, Self::Error>;
 
     /// The device identifier in serialized bytes format.
     fn bytes(&self) -> Self::Bytes;
 }
 
-/// A type implementing [`DeviceId`] that always errs.
+/// An uninhabited type implementing [`DeviceId`] that always errs.
 ///
 /// This can be used both on architectures that do not have a unique identifier on their boards,
 /// and when it has not yet been implemented.
+///
+/// Typical types for `E` are [`NotImplemented`] or [`NotAvailable`].
 #[derive(Debug, defmt::Format)]
 pub struct NoDeviceId<E: core::error::Error + defmt::Format + Default>(
     core::convert::Infallible,
