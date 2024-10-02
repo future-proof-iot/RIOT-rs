@@ -3,7 +3,7 @@
 #![feature(used_with_arg)]
 
 use riot_rs::debug::log::*;
-use riot_rs::thread::channel::Channel;
+use riot_rs::thread::sync::Channel;
 
 static CHANNEL: Channel<u8> = Channel::new();
 

@@ -4,7 +4,7 @@
 #![feature(used_with_arg)]
 
 use portable_atomic::{AtomicUsize, Ordering};
-use riot_rs::thread::{lock::Lock, thread_flags, ThreadId};
+use riot_rs::thread::{sync::Lock, thread_flags, ThreadId};
 
 static LOCK: Lock = Lock::new();
 static RUN_ORDER: AtomicUsize = AtomicUsize::new(0);
