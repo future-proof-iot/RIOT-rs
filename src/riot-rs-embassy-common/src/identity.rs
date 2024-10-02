@@ -1,6 +1,7 @@
 //! Tools and traits for describing device identities.
 //!
 //! See `riot_rs::identity` for general documentation.
+#![deny(missing_docs)]
 
 /// Trait desribing the unique identifier available on a board.
 ///
