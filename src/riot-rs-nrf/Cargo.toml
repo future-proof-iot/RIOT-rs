@@ -22,6 +22,8 @@ embassy-nrf = { workspace = true, default-features = false, features = [
   "rt",
 ] }
 embedded-hal-async = { workspace = true }
+embassy-embedded-hal = { workspace = true, optional = true }
+embedded-storage-async = { workspace = true, optional = true }
 paste = { workspace = true }
 portable-atomic = { workspace = true }
 riot-rs-debug = { workspace = true }
@@ -49,6 +51,9 @@ hwrng = ["dep:riot-rs-random"]
 
 ## Enables I2C support.
 i2c = ["riot-rs-embassy-common/i2c", "embassy-executor/integrated-timers"]
+
+## Enables storage support.
+storage = ["dep:embedded-storage-async", "dep:embassy-embedded-hal"]
 
 ## Enables USB support.
 usb = []
