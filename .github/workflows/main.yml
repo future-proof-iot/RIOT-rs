@@ -19,6 +19,7 @@ jobs:
     env:
       SCCACHE_GHA_ENABLED: "true"
       RUSTC_WRAPPER: "sccache"
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
     strategy:
       fail-fast: false
