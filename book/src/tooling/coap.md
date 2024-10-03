@@ -84,7 +84,7 @@ in that they enable a server policy like
 
 The example [provided as "examples/coap"] also contains client steps.
 
-A program that triggers a CoAP request provides some components to the CoAP stack before phrasing the actual request:
+A program that triggers a CoAP request provides[^whatsinarequest] some components to the CoAP stack before phrasing the actual request:
 
 * A **URL describing the resource**, eg. `coap://coap.summit.riot-os.org/agenda` or `coap+tcp://[2001:db8::1]/.well-known/core`.
 
@@ -108,6 +108,12 @@ A program that triggers a CoAP request provides some components to the CoAP stac
   "expect the server to present a chain of certificates for its hostname down to a set of root certificates" (which is the default for web browsers),
   "establish an encrypted connection and trust the peer's key on first use",
   down to "do not use any encryption".
+
+[^whatsinarequest]: These components required for a request are not documented as such in the CoAP RFCs,
+    but it is the author's opinion that they are a factual requirement:
+    Implementations may implicitly make decisions on those,
+    but the decisions are still made.
+    At the time of writing, there [is an open issue](https://github.com/core-wg/corrclar/issues/41) to clarify this in the specifications.
 
 ## Details on security mechanisms
 
