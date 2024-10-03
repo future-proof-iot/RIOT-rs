@@ -23,6 +23,7 @@ we use encrypted CoAP traffic by default.
 Of the multiple means to secure CoAP,
 we have picked the OSCORE/EDHOC security mechanisms as our default,
 with the option to use ACE for authorization management.
+These were chosen because they scale down well to the smallest devices.
 Alternatives (DTLS, TLS, IPsec or link-layer encryption)
 are currently not implemented.
 
