@@ -54,8 +54,8 @@ The policy is configured depending on the enabled security mechanisms.
 Examples of described policy entries are:
 
 * This is a fixed public key, and requests authenticated with that key are allowed to GET and PUT to `/limit`.
-* The device has a shared secret from its authorization server, and any requests coming along a token from that server may do whatever the token says they may do (eg. "GET `/limit` and PUT `/led/0`").
-* Any (even unauthenticated) device GET `/hello/`.
+* The device has a shared secret from its authorization server, with which the authorization server secures the tokens it issues to clients. Clients may perform any action as long as they securely present a token that allows it. For example, a token may allow GET on `/limit` and PUT on `/led/0`".
+* Any (even unauthenticated) device may GET `/hello/`.
 
 [provided as "examples/coap"]: https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/coap
 [its `run()` function]: https://github.com/future-proof-iot/RIOT-rs/blob/2b76e560394884d3c8f7eaae51beefd59a316d7b/examples/coap/src/main.rs#L70
