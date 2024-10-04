@@ -129,6 +129,14 @@ unsafe extern "C" fn PendSV() {
             cmp r0, #0
             beq 99f
 
+            msr.n psp, r0
+            // r1 == 0 means that there was no previous thread.
+            // This is only the case if the scheduler was triggered for the first time,
+            // which also means that next thread has no stored context yet.
+            // Storing and loading of r4-r11 therefore can be skipped.
+            cmp r1, #0
+            beq 99f
+
             //stmia r1!, {{r4-r7}}
             str r4, [r1, #16]
             str r5, [r1, #20]
@@ -153,7 +161,6 @@ unsafe extern "C" fn PendSV() {
             mov r8,  r4
             ldmia r2!, {{r4-r7}}
 
-            msr.n psp, r0
             99:
             ldr r0, 999f
             mov LR, r0
@@ -206,25 +213,27 @@ unsafe fn sched() -> u128 {
                 }
             };
 
-            let current_high_regs;
+            // `current_high_regs` will be null if there is no current thread.
+            // This is only the case once, when the very first thread starts running.
+            // The returned `r1` therefore will be null, and saving/ restoring
+            // the context is skipped
+            let mut current_high_regs = core::ptr::null();
             if let Some(current_pid) = threads.current_pid() {
                 if next_pid == current_pid {
                     return Some(0);
                 }
-                let thread = threads.get_unchecked_mut(current_pid);
-                thread.sp = cortex_m::register::psp::read() as usize;
-                current_high_regs = thread.data.as_ptr();
-            } else {
-                current_high_regs = core::ptr::null();
+                let current = threads.get_unchecked_mut(current_pid);
+                current.sp = cortex_m::register::psp::read() as usize;
+                current_high_regs = current.data.as_ptr();
             }
-
             *threads.current_pid_mut() = Some(next_pid);
 
             let next = threads.get_unchecked(next_pid);
-            let next_high_regs = next.data.as_ptr();
-            let next_sp = next.sp;
 
-            // PendSV expects these three pointers in r0, r1 and r2:
+            let next_sp = next.sp;
+            let next_high_regs = next.data.as_ptr();
+
+            // The caller (`PendSV`) expects these three pointers in r0, r1 and r2:
             // r0 = &next.sp
             // r1 = &current.high_regs
             // r2 = &next.high_regs
