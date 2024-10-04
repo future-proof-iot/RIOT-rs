@@ -1,0 +1,13 @@
+[default]
+gdb.enabled = true
+
+[default.rtt]
+enabled = true
+
+up_channels = [
+  { channel = 1, mode = "BlockIfFull", format = "Defmt", socket = "[::1]:1338" },
+]
+
+tabs = [
+    { up_channel = 1, name = "defmt" },
+]
