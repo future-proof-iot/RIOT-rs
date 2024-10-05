@@ -426,14 +426,9 @@ impl Threads {
         // Otherwise iterated the runqueue until a thread with matching affinity is found.
         #[cfg(all(feature = "multicore", feature = "core-affinity"))]
         {
-            let (mut next, prio) = self.runqueue.peek_next()?;
-            if !self.is_affine_to_curr_core(next) {
-                // Use iterator to find next thread with matching affinity.
-                let iter = self.runqueue.iter_from(next, prio);
-                next = iter
-                    .filter(|pid| self.is_affine_to_curr_core(*pid))
-                    .next()?
-            }
+            let next = self
+                .runqueue
+                .get_next_filter(|&t| self.is_affine_to_curr_core(t))?;
             // Delete thread from runqueue to match the `pop_next`.
             self.runqueue.del(next);
             Some(next)
