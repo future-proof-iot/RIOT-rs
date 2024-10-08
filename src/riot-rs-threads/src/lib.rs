@@ -145,6 +145,7 @@ impl Threads {
     ///
     /// On multicore, it returns the ID of the thread that is running on the
     /// current core.
+    #[inline]
     fn current_pid(&self) -> Option<ThreadId> {
         #[cfg(feature = "multicore")]
         {
@@ -254,17 +255,11 @@ impl Threads {
         let prio = thread.prio;
         match (old_state, state) {
             (old, new) if new == old => {}
-            (ThreadState::Invalid, ThreadState::Running) if self.current_pid().is_none() => {
-                // `current_pid` is only `None` if we're in start-up phase.
-                // The scheduler will be triggered in `start_threading` after all threads have
-                // been created.
-                self.runqueue.add(pid, prio);
-            }
             (_, ThreadState::Running) => {
                 #[cfg(feature = "multicore")]
-                if self.current_threads.contains(&Some(pid)) {
+                if self.is_running(pid).is_some() {
                     // If the thread is in `current_threads`, it must have been set to a
-                    // blocked state before but the scheduler didn't have a chance to run yet.
+                    // blocked state before, but the scheduler didn't have a chance to run yet.
                     // No further action is needed because in this case a
                     // schedule call is already pending.
                     // The scheduler will re-add the thread to the runqueue in `sched`.
@@ -315,110 +310,125 @@ impl Threads {
             return;
         }
         *prio = new_prio;
+
         if *state != ThreadState::Running {
+            // No runqueue changes or scheduler invocations needed.
             return;
         }
 
+        // Check if the thread is among the current threads and trigger scheduler if
+        // its prio decreased and another thread might have a higher prio now.
+        // This has to be done on multicore **before the runqueue changes below**, because
+        // a currently running thread is not in the runqueue and therefore the runqueue changes
+        // should not be applied.
         #[cfg(feature = "multicore")]
-        if let Some(core) = self
-            .current_threads
-            .iter()
-            .position(|pid| *pid == Some(thread_id))
-        {
-            // Only need to trigger the scheduler if the prio decreased and another thread might
-            // now have higher priority.
-            if new_prio < old_prio {
-                schedule_on_core(CoreId(core as u8));
-            }
-            // The scheduler will re-add the thread with the new prio to the runqueue
-            // in `sched`.
-            return;
+        match self.is_running(thread_id) {
+            Some(core) if new_prio < old_prio => schedule_on_core(CoreId(core as u8)),
+            Some(_) => return,
+            _ => {}
         }
-        // Update runqueue.
-        if self.runqueue.peek_head(old_prio) == Some(thread_id) {
-            self.runqueue.pop_head(thread_id, old_prio);
-        } else {
-            self.runqueue.del(thread_id);
-        }
+
+        // Update the runqueue.
+        self.runqueue.del(thread_id);
         self.runqueue.add(thread_id, new_prio);
 
+        // Check & handle if the thread is among the current threads for single-core,
+        // analogous to the above multicore implementation.
         #[cfg(not(feature = "multicore"))]
-        if self.current_thread == Some(thread_id) {
-            // Only need to trigger the scheduler if the prio decreased and another thread might
-            // now have higher priority.
-            if new_prio < old_prio {
-                schedule();
-            }
-            return;
+        match self.is_running(thread_id) {
+            Some(_) if new_prio < old_prio => schedule(),
+            Some(_) => return,
+            _ => {}
         }
-        // Thread is not currently running.
-        // Only scheduler if the thread has a higher priority than a running one.
+
+        // Thread isn't running.
+        // Only schedule if the thread has a higher priority than a running one.
         if new_prio > old_prio {
             self.schedule_if_higher_prio(thread_id, new_prio);
         }
     }
 
-    /// Trigger the scheduler if the thread has higher priority than (one of0
+    /// Trigger the scheduler if the thread has higher priority than (one of)
     /// the running thread(s).
     fn schedule_if_higher_prio(&mut self, _thread_id: ThreadId, prio: RunqueueId) {
         #[cfg(not(feature = "multicore"))]
-        if self.current().map(|t| t.prio) < Some(prio) {
-            schedule()
+        match self.current().map(|t| t.prio) {
+            Some(curr_prio) if curr_prio < prio => schedule(),
+            _ => {}
         }
         #[cfg(feature = "multicore")]
+        match self.lowest_running_prio(_thread_id) {
+            (core, Some(lowest_prio)) if lowest_prio < prio => schedule_on_core(core),
+            _ => {}
+        }
+    }
+
+    /// Returns `Some` if the thread is currently running on a core.
+    ///
+    /// On multicore, the core-id is returned as usize, on single-core
+    /// the usize is always 0.
+    fn is_running(&self, thread_id: ThreadId) -> Option<usize> {
+        #[cfg(not(feature = "multicore"))]
         {
-            let (core, lowest_prio) = self.lowest_running_prio(_thread_id);
-            if lowest_prio < Some(prio) {
-                schedule_on_core(core);
-            }
+            self.current_pid()
+                .and_then(|pid| (pid == thread_id).then_some(0))
+        }
+
+        #[cfg(feature = "multicore")]
+        {
+            self.current_threads
+                .iter()
+                .position(|pid| *pid == Some(thread_id))
         }
     }
 
     /// Adds the thread that is running on the current core to the
-    /// runqueue if it's in [`ThreadState::Running`].
+    /// runqueue if it has state [`ThreadState::Running`].
     #[cfg(feature = "multicore")]
+    #[allow(dead_code, reason = "used in scheduler implementation")]
     fn add_current_thread_to_rq(&mut self) {
-        let Some(thread) = self.current() else {
-            return;
+        let (pid, prio) = match self.current() {
+            Some(&mut Thread {
+                pid,
+                prio,
+                state: ThreadState::Running,
+                ..
+            }) => (pid, prio),
+            _ => return,
         };
-        if thread.state == ThreadState::Running {
-            let prio = thread.prio;
-            let pid = thread.pid;
-            self.runqueue.add(pid, prio);
-        }
+        self.runqueue.add(pid, prio);
     }
 
     /// Returns the next thread from the runqueue.
     ///
-    /// On single-core, it only reads the head of the runqueue without
-    /// removing the thread.
+    /// On single-core, the thread remains in the runqueue, so subsequent calls
+    /// will return the same thread.
     ///
-    /// On multi-core, the thread is removed from the runqueue to avoid that
-    /// the same thread is returned multiple times.
-    ///
-    /// If core-affinities are enabled, the head of the runqueue is only returned if
-    /// its affinity matches the current core. Otherwise the runqueue is iterated until
-    /// a thread with matching affinity is found.
+    /// On multi-core, the thread is removed so that subsequent calls will each
+    /// return a different thread. This prevents that a thread is picked multiple
+    /// times by the scheduler when it is invoked on different cores.
     #[allow(dead_code, reason = "used in scheduler implementation")]
     fn get_next_pid(&mut self) -> Option<ThreadId> {
+        // On single-core, only read the head of the runqueue.
         #[cfg(not(feature = "multicore"))]
         {
-            // Read head of runqueue.
             self.runqueue.get_next()
         }
-        #[cfg(feature = "multicore")]
-        #[cfg(not(feature = "core-affinity"))]
+
+        // On multi-core, the head is popped of the runqueue.
+        #[cfg(all(feature = "multicore", not(feature = "core-affinity")))]
         {
-            // Pop head of runqueue.
             self.runqueue.pop_next()
         }
-        #[cfg(feature = "multicore")]
-        #[cfg(feature = "core-affinity")]
+
+        // On multicore with core-affinities, only return the head of the runqueue if
+        // its affinity matches the current core.
+        // Otherwise iterated the runqueue until a thread with matching affinity is found.
+        #[cfg(all(feature = "multicore", feature = "core-affinity"))]
         {
-            // Iterate through the runqueue until a thread with matching core
-            // affinity is found.
             let (mut next, prio) = self.runqueue.peek_next()?;
             if !self.is_affine_to_curr_core(next) {
+                // Use iterator to find next thread with matching affinity.
                 let iter = self.runqueue.iter_from(next, prio);
                 next = iter
                     .filter(|pid| self.is_affine_to_curr_core(*pid))

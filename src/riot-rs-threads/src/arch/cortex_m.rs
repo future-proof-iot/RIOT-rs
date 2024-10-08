@@ -218,15 +218,18 @@ unsafe fn sched() -> u128 {
             // The returned `r1` therefore will be null, and saving/ restoring
             // the context is skipped
             let mut current_high_regs = core::ptr::null();
-            if let Some(current_pid) = threads.current_pid() {
-                if next_pid == current_pid {
+            if let Some(ref mut current_pid_ref) = threads.current_pid_mut() {
+                if next_pid == *current_pid_ref {
                     return Some(0);
                 }
+                let current_pid = *current_pid_ref;
+                *current_pid_ref = next_pid;
                 let current = threads.get_unchecked_mut(current_pid);
                 current.sp = cortex_m::register::psp::read() as usize;
                 current_high_regs = current.data.as_ptr();
+            } else {
+                *threads.current_pid_mut() = Some(next_pid);
             }
-            *threads.current_pid_mut() = Some(next_pid);
 
             let next = threads.get_unchecked(next_pid);
 
