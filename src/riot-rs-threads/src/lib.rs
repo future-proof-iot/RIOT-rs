@@ -323,7 +323,7 @@ impl Threads {
         // should not be applied.
         #[cfg(feature = "multicore")]
         match self.is_running(thread_id) {
-            Some(core) if new_prio < old_prio => schedule_on_core(CoreId(core as u8)),
+            Some(core) if new_prio < old_prio => return schedule_on_core(CoreId(core as u8)),
             Some(_) => return,
             _ => {}
         }
@@ -336,7 +336,7 @@ impl Threads {
         // analogous to the above multicore implementation.
         #[cfg(not(feature = "multicore"))]
         match self.is_running(thread_id) {
-            Some(_) if new_prio < old_prio => schedule(),
+            Some(_) if new_prio < old_prio => return schedule(),
             Some(_) => return,
             _ => {}
         }
