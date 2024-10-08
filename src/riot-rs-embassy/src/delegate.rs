@@ -55,7 +55,7 @@ impl<T> Delegate<T> {
     /// Lends an object.
     ///
     /// This blocks until another task called [`with()`](Delegate::with).
-    pub async fn lend(&self, something: &mut T) {
+    pub async fn lend<'a, 'b: 'a>(&'a self, something: &'b mut T) {
         let spawner = Spawner::for_current_executor().await;
         self.send
             .signal(SendCell::new(something as *mut T, spawner));
@@ -76,6 +76,8 @@ impl<T> Delegate<T> {
         //   This function waits for the `self.send` signal, uses the dereferenced only inside the
         //   closure, then signals `self.reply`
         //   => the mutable reference is never used more than once
+        // - the lifetime bound on `lend` enforces that the raw pointer outlives this `Delegate`
+        //   instance
         // TODO: it is actually possible to call `with()` twice, which breaks assumptions.
         let result = func(unsafe { data.get(spawner).unwrap().as_mut().unwrap() });
         self.reply.signal(());
