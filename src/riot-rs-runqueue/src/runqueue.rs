@@ -128,7 +128,10 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     /// Advances runqueue number `rq`.
     ///
     /// This is used to "yield" to another thread of *the same* priority.
-    pub fn advance(&mut self, rq: RunqueueId) {
+    ///
+    /// Returns `false` if the operation had no effect, i.e. when the runqueue
+    /// is empty or only contains a single thread.
+    pub fn advance(&mut self, rq: RunqueueId) -> bool {
         debug_assert!((usize::from(rq)) < N_QUEUES);
         self.queues.advance(rq.0)
     }
@@ -196,6 +199,9 @@ mod clist {
         /// If the thread was the only thread in its runqueue, `Some` is returned
         /// with the ID of the now empty runqueue.
         pub fn del(&mut self, n: u8) -> Option<u8> {
+            if self.next_idxs[n as usize] == Self::sentinel() {
+                return None;
+            }
             let mut empty_runqueue = None;
 
             // Find previous thread in circular runqueue.
@@ -244,10 +250,16 @@ mod clist {
             }
         }
 
-        pub fn advance(&mut self, rq: u8) {
-            if let Some(head) = self.peek_head(rq) {
-                self.tail[rq as usize] = head;
+        pub fn advance(&mut self, rq: u8) -> bool {
+            let tail = self.tail[rq as usize];
+            let head = self.next_idxs[tail as usize];
+            if tail == head {
+                // Catches the case that the runqueue only has a single element,
+                // or is empty (in which case head == tail == Self::sentinel())
+                return false;
             }
+            self.tail[rq as usize] = head;
+            true
         }
     }
 
