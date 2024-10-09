@@ -7,6 +7,6 @@ license.workspace = true
 publish = false
 
 [dependencies]
-riot-rs = { path = "../../src/riot-rs", features = ["threading"] }
+riot-rs = { path = "../../src/riot-rs" }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 portable-atomic = { workspace = true }

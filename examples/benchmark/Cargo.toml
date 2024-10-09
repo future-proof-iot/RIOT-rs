@@ -11,5 +11,5 @@ publish = false
 workspace = true
 
 [dependencies]
-riot-rs = { path = "../../src/riot-rs", features = ["bench", "threading"] }
+riot-rs = { path = "../../src/riot-rs", features = ["bench"] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
