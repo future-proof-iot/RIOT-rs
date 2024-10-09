@@ -1,0 +1,6 @@
+apps:
+  - name: bench_sched_flags
+    selects:
+      - sw/benchmark
+      - sw/threading
+      - ?release
