@@ -121,8 +121,8 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         if rq_ffs == 0 {
             return None;
         }
-        let rq = RunqueueId::new(rq_ffs as u8 - 1);
-        self.queues.peek_head(rq.0).map(ThreadId::new)
+        let rq = rq_ffs as u8 - 1;
+        self.queues.peek_head(rq).map(ThreadId::new)
     }
 
     /// Advances runqueue number `rq`.
