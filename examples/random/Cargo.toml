@@ -12,7 +12,7 @@ workspace = true
 [dependencies]
 # Enabling the feature "random" is somewhat redundant with laze.yml's selects:
 # random, but helps with interactive tools.
-riot-rs = { path = "../../src/riot-rs", features = ["threading", "random"] }
+riot-rs = { path = "../../src/riot-rs", features = ["random"] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 
 rand = { version = "0.8.5", default-features = false }
