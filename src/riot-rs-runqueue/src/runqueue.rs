@@ -113,7 +113,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     /// Returns the next runnable thread of
     /// the runqueue with the highest index.
     pub fn get_next(&self) -> Option<ThreadId> {
-        self.get_next_with_rq().unzip().0
+        self.get_next_with_rq().map(|(pid, _)| pid)
     }
 
     /// Returns the pid that should run next and the runqueue it is in.
