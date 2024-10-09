@@ -238,6 +238,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "bench_sched_flags"
+version = "0.1.0"
+dependencies = [
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
 name = "bench_sched_yield"
 version = "0.1.0"
 dependencies = [
@@ -1319,7 +1327,7 @@ dependencies = [
 [[package]]
 name = "embassy-rp"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#afdd20dc1f721a3be5704b2bb5f8572f0a3f8ca3"
+source = "git+https://github.com/elenaf9/embassy?branch=for-riot-rs-2024-09-19_multicore#1b1836faae14ad2e0de0f8721a4db9c78097781a"
 dependencies = [
  "atomic-polyfill",
  "cfg-if",
@@ -1348,7 +1356,7 @@ dependencies = [
  "pio",
  "pio-proc",
  "rand_core",
- "rp-pac",
+ "rp-pac 6.0.0 (git+https://github.com/embassy-rs/rp-pac.git?rev=a7f42d25517f7124ad3b4ed492dec8b0f50a0e6c)",
  "rp2040-boot2",
  "sha2-const-stable",
 ]
@@ -3870,6 +3878,7 @@ dependencies = [
  "cfg-if",
  "cortex-m",
  "cortex-m-rt",
+ "embassy-rp",
  "esp-hal",
  "linkme",
  "portable-atomic",
@@ -3915,11 +3924,13 @@ dependencies = [
  "cortex-m-semihosting",
  "critical-section",
  "defmt",
+ "embassy-rp",
  "esp-hal",
  "linkme",
  "panic-semihosting",
  "paste",
  "riot-rs-runqueue",
+ "rp-pac 6.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
  "static_cell",
 ]
 
@@ -3950,6 +3961,15 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 1.0.109",
+]
+
+[[package]]
+name = "rp-pac"
+version = "6.0.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f30f6c4c846269293db805e9c77864ff7b923395b480550df44f0868e3765337"
+dependencies = [
+ "cortex-m",
 ]
 
 [[package]]
@@ -4564,6 +4584,14 @@ version = "0.1.0"
 dependencies = [
  "embassy-executor",
  "portable-atomic",
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
+name = "threading-multicore"
+version = "0.1.0"
+dependencies = [
  "riot-rs",
  "riot-rs-boards",
 ]
