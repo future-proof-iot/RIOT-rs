@@ -6,7 +6,7 @@ use cortex_m::{
 use crate::Error;
 
 #[allow(missing_docs)]
-pub fn benchmark<F: Fn() -> ()>(iterations: usize, f: F) -> Result<usize, Error> {
+pub fn benchmark<F: FnMut() -> ()>(iterations: usize, mut f: F) -> Result<usize, Error> {
     let mut p = unsafe { Peripherals::steal() };
     //
     p.SCB.clear_sleepdeep();
