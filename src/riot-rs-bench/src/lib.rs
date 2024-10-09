@@ -29,7 +29,7 @@ cfg_if::cfg_if! {
             /// Returns [`Error::SystemTimerWrapped`] if the system timer counter has wrapped when
             /// benchmarking.
             #[allow(unused_variables)]
-            pub fn benchmark<F: Fn()>(iterations: usize, f: F) -> Result<usize, Error> {
+            pub fn benchmark<F: FnMut()>(iterations: usize, f: F) -> Result<usize, Error> {
                 unimplemented!();
             }
         }
