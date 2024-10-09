@@ -3807,6 +3807,8 @@ dependencies = [
  "paste",
  "riot-rs-debug",
  "riot-rs-embassy-common",
+ "riot-rs-macros",
+ "riot-rs-threads",
  "riot-rs-utils",
 ]
 

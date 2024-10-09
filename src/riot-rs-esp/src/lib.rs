@@ -3,6 +3,7 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(trait_alias)]
 #![feature(type_alias_impl_trait)]
+#![feature(used_with_arg)]
 
 use once_cell::sync::OnceCell;
 
