@@ -35,7 +35,7 @@ are currently not implemented.
 
 ## Usage: Server side
 
-An example of a CoAP server is [provided as "examples/coap"], see [its `run()` function] for the practical steps.
+An example of a CoAP server is [provided as `examples/coap`], see [its `run()` function] for the practical steps.
 
 A CoAP server is created by assembling several **resource handlers on dedicated paths**:
 There might be a path `/s/0` representing a particular sensor,
@@ -57,7 +57,7 @@ Examples of described policy entries are:
 * The device has a shared secret from its authorization server, with which the authorization server secures the tokens it issues to clients. Clients may perform any action as long as they securely present a token that allows it. For example, a token may allow GET on `/limit` and PUT on `/led/0`".
 * Any (even unauthenticated) device may GET `/hello/`.
 
-[provided as "examples/coap"]: https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/coap
+[provided as `examples/coap`]: https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/coap
 [its `run()` function]: https://github.com/future-proof-iot/RIOT-rs/blob/2b76e560394884d3c8f7eaae51beefd59a316d7b/examples/coap/src/main.rs#L70
 
 ### Interacting with RIOT-rs CoAP server from the host
@@ -83,7 +83,7 @@ in that they enable a server policy like
 
 ## Usage: Client side
 
-The example [provided as "examples/coap"] also contains client steps.
+The example [provided as `examples/coap`] also contains client steps.
 
 A program that triggers a CoAP request provides[^whatsinarequest] some components to the CoAP stack before phrasing the actual request:
 
