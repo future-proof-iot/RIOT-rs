@@ -27,6 +27,7 @@ members = [
   "tests/i2c-controller",
   "tests/threading-dynamic-prios",
   "tests/threading-lock",
+  "tests/threading-mutex",
 ]
 
 exclude = ["src/lib"]
