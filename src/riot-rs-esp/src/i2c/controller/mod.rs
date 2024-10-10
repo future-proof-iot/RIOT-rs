@@ -1,6 +1,6 @@
 use esp_hal::{
     gpio::{InputPin, OutputPin},
-    i2c::I2C,
+    i2c::I2c as EspI2c,
     peripheral::Peripheral,
     peripherals, Async,
 };
@@ -79,7 +79,7 @@ macro_rules! define_i2c_drivers {
         $(
             /// Peripheral-specific I2C driver.
             pub struct $peripheral {
-                twim: I2C<'static, peripherals::$peripheral, Async>,
+                twim: EspI2c<'static, peripherals::$peripheral, Async>,
             }
 
             impl $peripheral {
@@ -108,7 +108,7 @@ macro_rules! define_i2c_drivers {
                     // does not seem possible to disable the timeout feature on ESP; so we keep the
                     // default timeout instead (encoded as `None`).
                     let timeout = None;
-                    let twim = I2C::new_with_timeout_async(
+                    let twim = EspI2c::new_with_timeout_async(
                         i2c_peripheral,
                         sda_pin,
                         scl_pin,
@@ -147,6 +147,7 @@ fn from_error(err: esp_hal::i2c::Error) -> riot_rs_embassy_common::i2c::controll
         ArbitrationLost => Error::ArbitrationLoss,
         ExecIncomplete => Error::Other,
         CommandNrExceeded => Error::Other,
+        InvalidZeroLength => Error::Other,
     }
 }
 
