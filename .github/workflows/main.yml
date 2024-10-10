@@ -227,6 +227,7 @@ jobs:
         uses: karancode/yamllint-github-action@master
         with:
           yamllint_comment: true  # Insert inline PR comments
+          yamllint_strict: true  # Set error code on warnings
 
       - name: Install taplo
         run: cargo binstall --no-confirm --no-symlinks --no-discover-github-token --force taplo-cli
