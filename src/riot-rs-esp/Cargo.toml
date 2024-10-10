@@ -16,13 +16,11 @@ embassy-executor = { workspace = true, default-features = false }
 embassy-time = { workspace = true, optional = true }
 embedded-hal = { workspace = true }
 embedded-hal-async = { workspace = true }
-esp-hal = { workspace = true, default-features = false, features = [
-  "async",
-  "embedded-hal",
-] }
+esp-hal = { workspace = true, default-features = false }
+esp-alloc = { workspace = true, default-features = false, optional = true }
 esp-hal-embassy = { workspace = true, default-features = false }
 esp-wifi = { workspace = true, default-features = false, features = [
-  "async",
+  "esp-alloc",
   "embassy-net",
   "wifi",
 ], optional = true }
@@ -37,6 +35,15 @@ riot-rs-utils = { workspace = true }
 embassy-executor = { workspace = true, default-features = false, features = [
   "arch-cortex-m",
 ] }
+
+[target.'cfg(context = "esp32")'.dependencies]
+esp-hal = { workspace = true, features = ["esp32"] }
+esp-hal-embassy = { workspace = true, default-features = false, features = [
+  "esp32",
+] }
+esp-wifi = { workspace = true, default-features = false, features = [
+  "esp32",
+], optional = true }
 
 [target.'cfg(context = "esp32c3")'.dependencies]
 esp-hal = { workspace = true, features = ["esp32c3"] }
@@ -83,7 +90,7 @@ defmt = ["dep:defmt", "esp-wifi?/defmt", "fugit?/defmt"]
 wifi = []
 
 ## Enables built-in Wi-Fi hardware.
-wifi-esp = ["dep:esp-wifi", "dep:embassy-time", "wifi"]
+wifi-esp = ["dep:embassy-time", "dep:esp-alloc", "dep:esp-wifi", "wifi"]
 
 #! ## Executor type selection for the (autostarted) main executor
 #! Exactly one of the features below must be enabled at once.
