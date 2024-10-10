@@ -74,13 +74,13 @@ pub fn init() -> OptionalPeripherals {
         esp_alloc::heap_allocator!(72 * 1024);
 
         use esp_hal::rng::Rng;
-        use esp_wifi::{initialize, EspWifiInitFor};
+        use esp_wifi::{init, EspWifiInitFor};
 
         riot_rs_debug::log::debug!("riot-rs-embassy::arch::esp::init(): wifi");
 
         let timer = TimerGroup::new(peripherals.TIMG0.take().unwrap()).timer0;
 
-        let init = initialize(
+        let init = init(
             EspWifiInitFor::Wifi,
             timer,
             Rng::new(peripherals.RNG.take().unwrap()),
