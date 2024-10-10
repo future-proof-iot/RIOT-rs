@@ -54,41 +54,7 @@ impl Arch for Cpu {
 }
 
 const fn default_trap_frame() -> TrapFrame {
-    TrapFrame {
-        PC: 0,
-        PS: 0,
-        A0: 0,
-        A1: 0,
-        A2: 0,
-        A3: 0,
-        A4: 0,
-        A5: 0,
-        A6: 0,
-        A7: 0,
-        A8: 0,
-        A9: 0,
-        A10: 0,
-        A11: 0,
-        A12: 0,
-        A13: 0,
-        A14: 0,
-        A15: 0,
-        SAR: 0,
-        EXCCAUSE: 0,
-        EXCVADDR: 0,
-        LBEG: 0,
-        LEND: 0,
-        LCOUNT: 0,
-        THREADPTR: 0,
-        SCOMPARE1: 0,
-        BR: 0,
-        ACCLO: 0,
-        ACCHI: 0,
-        M0: 0,
-        M1: 0,
-        M2: 0,
-        M3: 0,
-    }
+    TrapFrame::new()
 }
 
 /// Handler for software interrupt 0, which we use for context switching.
