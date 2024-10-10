@@ -58,8 +58,6 @@ pub mod peripherals {
     }
 }
 
-use esp_hal::timer::timg::TimerGroup;
-
 pub use esp_hal::peripherals::OptionalPeripherals;
 
 #[cfg(feature = "executor-single-thread")]
@@ -70,6 +68,8 @@ pub fn init() -> OptionalPeripherals {
 
     #[cfg(feature = "wifi-esp")]
     {
+        use esp_hal::timer::timg::TimerGroup;
+
         use esp_alloc as _;
         esp_alloc::heap_allocator!(72 * 1024);
 
@@ -94,6 +94,7 @@ pub fn init() -> OptionalPeripherals {
     let embassy_timer = {
         cfg_if::cfg_if! {
             if #[cfg(context = "esp32")] {
+                use esp_hal::timer::timg::TimerGroup;
                 TimerGroup::new(peripherals.TIMG1.take().unwrap()).timer0
             } else {
                 use esp_hal::timer::systimer::{SystemTimer, Target};
