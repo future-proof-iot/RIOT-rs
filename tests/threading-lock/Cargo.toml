@@ -10,4 +10,4 @@ publish = false
 embassy-executor = { workspace = true }
 riot-rs = { path = "../../src/riot-rs", features = ["time"] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
-portable-atomic = "1.6.0"
+portable-atomic = { workspace = true }
