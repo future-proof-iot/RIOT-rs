@@ -3,7 +3,7 @@
 //! Please use [`riot_rs::sensors`] instead for a high-level sensor abstraction that is
 //! architecture-agnostic.
 //!
-//! This example requires a LIS3DH sensor (3-axis accelerometer).
+//! This example requires a LIS3DH/LSM303AGR sensor (3-axis accelerometer).
 #![no_main]
 #![no_std]
 #![feature(type_alias_impl_trait)]
@@ -24,9 +24,9 @@ use riot_rs::{
     i2c::controller::{highest_freq_in, I2cDevice, Kilohertz},
 };
 
-const LIS3DH_I2C_ADDR: u8 = 0x19;
+const TARGET_I2C_ADDR: u8 = 0x19;
 
-// WHO_AM_I register of the LIS3DH sensor
+// WHO_AM_I register of the sensor
 const WHO_AM_I_REG_ADDR: u8 = 0x0f;
 
 pub static I2C_BUS: once_cell::sync::OnceCell<
@@ -47,12 +47,12 @@ async fn main(peripherals: pins::Peripherals) {
 
     let mut id = [0];
     i2c_device
-        .write_read(LIS3DH_I2C_ADDR, &[WHO_AM_I_REG_ADDR], &mut id)
+        .write_read(TARGET_I2C_ADDR, &[WHO_AM_I_REG_ADDR], &mut id)
         .await
         .unwrap();
 
     let who_am_i = id[0];
-    info!("LIS3DH WHO_AM_I_COMMAND register value: 0x{:x}", who_am_i);
+    info!("WHO_AM_I_COMMAND register value: 0x{:x}", who_am_i);
     assert_eq!(who_am_i, 0x33);
 
     info!("Test passed!");
