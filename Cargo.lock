@@ -2981,6 +2981,7 @@ version = "0.1.0"
 dependencies = [
  "ld-memory",
  "nrf52832-pac",
+ "nrf52833-pac",
  "nrf52840-pac",
  "riot-rs-debug",
  "riot-rs-rt",
