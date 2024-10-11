@@ -9,6 +9,9 @@ edition = "2021"
 nrf52832-pac = { version = "0.12.2", default-features = false, features = [
   "rt",
 ], optional = true }
+nrf52833-pac = { version = "0.12.2", default-features = false, features = [
+  "rt",
+], optional = true }
 nrf52840-pac = { version = "0.12.2", default-features = false, features = [
   "rt",
 ], optional = true }
@@ -17,6 +20,7 @@ riot-rs-rt = { path = "../../riot-rs-rt" }
 
 [features]
 nrf52832 = ["dep:nrf52832-pac"]
+nrf52833 = ["dep:nrf52833-pac"]
 nrf52840 = ["dep:nrf52840-pac"]
 
 [build-dependencies]

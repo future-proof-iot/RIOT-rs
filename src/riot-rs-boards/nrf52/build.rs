@@ -3,6 +3,8 @@ use ld_memory::{Memory, MemorySection};
 fn main() {
     let (ram, rom) = if std::env::var_os("CARGO_FEATURE_NRF52832").is_some() {
         (64, 256)
+    } else if std::env::var_os("CARGO_FEATURE_NRF52833").is_some() {
+        (128, 512)
     } else if std::env::var_os("CARGO_FEATURE_NRF52840").is_some() {
         (256, 1024)
     } else {

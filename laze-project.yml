@@ -223,6 +223,13 @@ contexts:
       RUSTFLAGS:
         - --cfg context=\"nrf52832\"
 
+  - name: nrf52833
+    parent: nrf52
+    env:
+      RUSTFLAGS:
+        - --cfg context=\"nrf52833\"
+      PROBE_RS_CHIP: nrf52833_xxAA
+
   - name: nrf52840
     parent: nrf52
     env:
@@ -788,7 +795,7 @@ builders:
       - periph_rtt
 
   - name: microbit-v2
-    parent: nrf52840
+    parent: nrf52833
 
   - name: particle-xenon
     parent: nrf52840
