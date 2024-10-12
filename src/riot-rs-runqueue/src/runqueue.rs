@@ -130,7 +130,7 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         if predicate(&next) {
             return Some(next);
         }
-        self.iter_from(next, prio).filter(predicate).next()
+        self.iter_from(next, prio).find(predicate)
     }
 
     /// Returns the pid that should run next.
