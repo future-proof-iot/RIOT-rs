@@ -149,4 +149,33 @@ mod tests {
         assert_eq!(iter2.next(), Some(ThreadId::new(0)));
         assert!(iter2.next().is_none());
     }
+
+    #[test]
+    fn filter() {
+        let mut runqueue: RunQueue<8, 32> = RunQueue::new();
+
+        runqueue.add(ThreadId::new(0), RunqueueId::new(0));
+        runqueue.add(ThreadId::new(1), RunqueueId::new(2));
+        runqueue.add(ThreadId::new(2), RunqueueId::new(2));
+        runqueue.add(ThreadId::new(3), RunqueueId::new(3));
+
+        assert_eq!(runqueue.get_next_filter(|_| true), Some(ThreadId::new(3)));
+        assert_eq!(runqueue.get_next_filter(|_| false), None);
+        assert_eq!(
+            runqueue.get_next_filter(|t| *t == ThreadId::new(0)),
+            Some(ThreadId::new(0))
+        );
+        assert_eq!(
+            runqueue.get_next_filter(|t| *t != ThreadId::new(0)),
+            Some(ThreadId::new(3))
+        );
+        assert_eq!(
+            runqueue.get_next_filter(|t| usize::from(*t) % 2 == 0),
+            Some(ThreadId::new(2))
+        );
+        assert_eq!(
+            runqueue.get_next_filter(|t| usize::from(*t) < 2),
+            Some(ThreadId::new(1))
+        );
+    }
 }

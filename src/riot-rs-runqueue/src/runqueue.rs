@@ -128,6 +128,18 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
             .map(|id| (ThreadId::new(id), RunqueueId::new(rq)))
     }
 
+    /// Returns the next thread from the runqueue that fulfills the predicate.
+    pub fn get_next_filter<F: FnMut(&ThreadId) -> bool>(
+        &self,
+        mut predicate: F,
+    ) -> Option<ThreadId> {
+        let (next, prio) = self.get_next_with_rq()?;
+        if predicate(&next) {
+            return Some(next);
+        }
+        self.iter_from(next, prio).find(predicate)
+    }
+
     /// Advances runqueue number `rq`.
     ///
     /// This is used to "yield" to another thread of *the same* priority.
