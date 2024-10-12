@@ -14,17 +14,15 @@ pub struct Mutex<T> {
     inner: UnsafeCell<T>,
 }
 
-unsafe impl<T> Sync for Mutex<T> {}
-
 /// State of a [`Mutex`].
 enum LockState {
     Unlocked,
     Locked {
-        // The current owner of the lock.
+        //. The current owner of the lock.
         owner_id: ThreadId,
-        // The original priority of the current owner (without priority inheritance).
+        /// The original priority of the current owner (without priority inheritance).
         owner_prio: RunqueueId,
-        // Waiters for the mutex.
+        //. Waiters for the mutex.
         waiters: ThreadList,
     },
 }
@@ -59,7 +57,9 @@ impl<T> Mutex<T> {
             inner: UnsafeCell::new(value),
         }
     }
+}
 
+impl<T> Mutex<T> {
     /// Returns whether the mutex is locked.
     pub fn is_locked(&self) -> bool {
         critical_section::with(|_| {
@@ -84,6 +84,7 @@ impl<T> Mutex<T> {
     /// Panics if called outside of a thread context.
     pub fn lock(&self) -> MutexGuard<T> {
         critical_section::with(|cs| {
+            // SAFETY: access to the state only happens in critical sections, so it's always unique.
             let state = unsafe { &mut *self.state.get() };
             match state {
                 LockState::Unlocked => {
@@ -123,6 +124,7 @@ impl<T> Mutex<T> {
     /// If the mutex was locked `None` is returned.
     pub fn try_lock(&self) -> Option<MutexGuard<T>> {
         critical_section::with(|cs| {
+            // SAFETY: access to the state only happens in critical sections, so it's always unique.
             let state = unsafe { &mut *self.state.get() };
             if let LockState::Unlocked = *state {
                 *state = LockState::locked_with_current(cs);
@@ -138,6 +140,7 @@ impl<T> Mutex<T> {
     /// If there are waiters, the first waiter will be woken up.
     fn release(&self) {
         critical_section::with(|cs| {
+            // SAFETY: access to the state only happens in critical sections, so it's always unique.
             let state = unsafe { &mut *self.state.get() };
             if let LockState::Locked {
                 waiters,
@@ -164,6 +167,8 @@ impl<T> Mutex<T> {
     }
 }
 
+unsafe impl<T> Sync for Mutex<T> {}
+
 /// Grants access to the [`Mutex`] inner data.
 ///
 /// Dropping the [`MutexGuard`] will unlock the [`Mutex`];
@@ -175,12 +180,14 @@ impl<'a, T> Deref for MutexGuard<'a, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
+        // SAFETY: MutexGuard always has unique access.
         unsafe { &*self.mutex.inner.get() }
     }
 }
 
 impl<'a, T> DerefMut for MutexGuard<'a, T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
+        // SAFETY: MutexGuard always has unique access.
         unsafe { &mut *self.mutex.inner.get() }
     }
 }
@@ -191,3 +198,7 @@ impl<'a, T> Drop for MutexGuard<'a, T> {
         self.mutex.release()
     }
 }
+
+impl<T> !Send for MutexGuard<'_, T> {}
+
+unsafe impl<T: Sync> Sync for MutexGuard<'_, T> {}

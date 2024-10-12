@@ -42,7 +42,7 @@ impl ThreadList {
                     threads.thread_blocklist[usize::from(curr)] = Some(pid);
                     None
                 }
-                _ => {
+                None => {
                     self.head = Some(pid);
                     Some(prio)
                 }
