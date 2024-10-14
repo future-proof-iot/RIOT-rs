@@ -71,6 +71,8 @@ embassy-usb = { version = "0.3", default-features = false }
 embedded-hal = { version = "1.0.0", default-features = false }
 embedded-hal-async = { version = "1.0.0", default-features = false }
 
+rp-pac = { version = "6.0", default-features = false }
+
 esp-hal = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-08-30", default-features = false }
 esp-hal-embassy = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-08-30", default-features = false }
 esp-println = "0.11.0"
@@ -126,7 +128,7 @@ embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for
 embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
 embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
 embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
-embassy-rp = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-rp = { git = "https://github.com/elenaf9/embassy", branch = "for-riot-rs-2024-09-19_multicore" }
 embassy-net-driver = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
 embassy-net-driver-channel = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
 embassy-stm32 = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
