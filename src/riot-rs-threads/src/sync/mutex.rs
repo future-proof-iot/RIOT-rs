@@ -18,7 +18,7 @@ pub struct Mutex<T> {
 enum LockState {
     Unlocked,
     Locked {
-        //. The current owner of the lock.
+        /// The current owner of the lock.
         owner_id: ThreadId,
         /// The original priority of the current owner (without priority inheritance).
         owner_prio: RunqueueId,
@@ -199,6 +199,7 @@ impl<'a, T> Drop for MutexGuard<'a, T> {
     }
 }
 
+// The `MutexGuard` is tied to a thread, it must not be possible to `Send` it to another thread.
 impl<T> !Send for MutexGuard<'_, T> {}
 
 unsafe impl<T: Sync> Sync for MutexGuard<'_, T> {}
