@@ -108,21 +108,36 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
         }
     }
 
-    fn ffs(val: usize) -> u32 {
-        USIZE_BITS as u32 - val.leading_zeros()
-    }
-
     /// Returns the pid that should run next.
     ///
     /// Returns the next runnable thread of
     /// the runqueue with the highest index.
     pub fn get_next(&self) -> Option<ThreadId> {
-        let rq_ffs = Self::ffs(self.bitcache);
+        self.get_next_with_rq().map(|(pid, _)| pid)
+    }
+
+    /// Returns the pid that should run next and the runqueue it is in.
+    pub fn get_next_with_rq(&self) -> Option<(ThreadId, RunqueueId)> {
+        let rq_ffs = ffs(self.bitcache);
         if rq_ffs == 0 {
             return None;
         }
-        let rq = RunqueueId::new(rq_ffs as u8 - 1);
-        self.queues.peek_head(rq.0).map(ThreadId::new)
+        let rq = rq_ffs as u8 - 1;
+        self.queues
+            .peek_head(rq)
+            .map(|id| (ThreadId::new(id), RunqueueId::new(rq)))
+    }
+
+    /// Returns the next thread from the runqueue that fulfills the predicate.
+    pub fn get_next_filter<F: FnMut(&ThreadId) -> bool>(
+        &self,
+        mut predicate: F,
+    ) -> Option<ThreadId> {
+        let (next, prio) = self.get_next_with_rq()?;
+        if predicate(&next) {
+            return Some(next);
+        }
+        self.iter_from(next, prio).find(predicate)
     }
 
     /// Advances runqueue number `rq`.
@@ -134,6 +149,63 @@ impl<const N_QUEUES: usize, const N_THREADS: usize> RunQueue<{ N_QUEUES }, { N_T
     pub fn advance(&mut self, rq: RunqueueId) -> bool {
         debug_assert!((usize::from(rq)) < N_QUEUES);
         self.queues.advance(rq.0)
+    }
+
+    /// Returns an iterator over the [`RunQueue`], starting after thread `start` in runqueue `rq`.
+    ///
+    /// The `start` is not included in the iterator.
+    pub fn iter_from(&self, start: ThreadId, rq: RunqueueId) -> RunQueueIter<N_QUEUES, N_THREADS> {
+        RunQueueIter {
+            prev: start.0,
+            rq_head: self.queues.peek_head(rq.0),
+            // Clear higher priority runqueues.
+            bitcache: self.bitcache % (1 << (rq.0 + 1)),
+            queues: &self.queues,
+        }
+    }
+}
+
+#[inline]
+fn ffs(val: usize) -> u32 {
+    USIZE_BITS as u32 - val.leading_zeros()
+}
+
+/// Iterator over threads in a [`RunQueue`].
+///
+/// It starts from the highest priority queue and continues switching to lower
+/// priority queues after circling through a queue once, until all queues
+/// that are included in this iterator have been iterated.
+pub struct RunQueueIter<'a, const N_QUEUES: usize, const N_THREADS: usize> {
+    queues: &'a clist::CList<N_QUEUES, N_THREADS>,
+    // Predecessor in the circular runqueue list.
+    prev: u8,
+    // Head of the currently iterated runqueue.
+    rq_head: Option<u8>,
+    // Bitcache with the remaining queues that have to be iterated.
+    bitcache: usize,
+}
+
+impl<'a, const N_QUEUES: usize, const N_THREADS: usize> Iterator
+    for RunQueueIter<'a, { N_QUEUES }, { N_THREADS }>
+{
+    type Item = ThreadId;
+    fn next(&mut self) -> Option<Self::Item> {
+        let mut next = self.queues.peek_next(self.prev);
+        if next == self.rq_head? {
+            // Circled through whole queue, so switch to next one.
+            let rq = ffs(self.bitcache) as u8 - 1;
+            // Clear current runqueue from bitcache.
+            self.bitcache &= !(1 << rq);
+            // Get head from remaining highest priority runqueue.
+            self.rq_head = if self.bitcache > 0 {
+                self.queues.peek_head(ffs(self.bitcache) as u8 - 1)
+            } else {
+                None
+            };
+            next = self.rq_head?;
+        }
+        self.prev = next;
+        Some(ThreadId(next))
     }
 }
 
@@ -248,6 +320,10 @@ mod clist {
             } else {
                 Some(self.next_idxs[self.tail[rq as usize] as usize])
             }
+        }
+
+        pub fn peek_next(&self, curr: u8) -> u8 {
+            self.next_idxs[curr as usize]
         }
 
         pub fn advance(&mut self, rq: u8) -> bool {
