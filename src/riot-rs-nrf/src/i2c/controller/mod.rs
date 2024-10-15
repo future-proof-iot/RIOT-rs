@@ -32,13 +32,13 @@ impl Default for Config {
 
 /// I2C bus frequency.
 // NOTE(arch): the datasheets only mention these frequencies.
-#[cfg(any(context = "nrf52840", context = "nrf5340"))]
+#[cfg(any(context = "nrf52833", context = "nrf52840", context = "nrf5340"))]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Frequency {
     /// Standard mode.
     _100k,
-    #[cfg(context = "nrf5340")]
+    #[cfg(any(context = "nrf52833", context = "nrf5340"))]
     _250k,
     /// Fast mode.
     _400k,
@@ -58,11 +58,11 @@ impl Frequency {
 
     pub const fn next(self) -> Option<Self> {
         match self {
-            #[cfg(not(context = "nrf5340"))]
+            #[cfg(context = "nrf52840")]
             Self::_100k => Some(Self::_400k),
-            #[cfg(context = "nrf5340")]
+            #[cfg(any(context = "nrf52833", context = "nrf5340"))]
             Self::_100k => Some(Self::_250k),
-            #[cfg(context = "nrf5340")]
+            #[cfg(any(context = "nrf52833", context = "nrf5340"))]
             Self::_250k => Some(Self::_400k),
             Self::_400k => None,
         }
@@ -71,11 +71,11 @@ impl Frequency {
     pub const fn prev(self) -> Option<Self> {
         match self {
             Self::_100k => None,
-            #[cfg(context = "nrf5340")]
+            #[cfg(any(context = "nrf52833", context = "nrf5340"))]
             Self::_250k => Some(Self::_100k),
-            #[cfg(not(context = "nrf5340"))]
+            #[cfg(context = "nrf52840")]
             Self::_400k => Some(Self::_100k),
-            #[cfg(context = "nrf5340")]
+            #[cfg(any(context = "nrf52833", context = "nrf5340"))]
             Self::_400k => Some(Self::_250k),
         }
     }
@@ -83,7 +83,7 @@ impl Frequency {
     pub const fn khz(self) -> u32 {
         match self {
             Self::_100k => 100,
-            #[cfg(context = "nrf5340")]
+            #[cfg(any(context = "nrf52833", context = "nrf5340"))]
             Self::_250k => 250,
             Self::_400k => 400,
         }
@@ -96,7 +96,7 @@ impl From<Frequency> for embassy_nrf::twim::Frequency {
     fn from(freq: Frequency) -> Self {
         match freq {
             Frequency::_100k => embassy_nrf::twim::Frequency::K100,
-            #[cfg(context = "nrf5340")]
+            #[cfg(any(context = "nrf52833", context = "nrf5340"))]
             Frequency::_250k => embassy_nrf::twim::Frequency::K250,
             Frequency::_400k => embassy_nrf::twim::Frequency::K400,
         }
@@ -188,7 +188,7 @@ fn from_error(err: embassy_nrf::twim::Error) -> riot_rs_embassy_common::i2c::con
 
 // FIXME: support other nRF archs
 // Define a driver per peripheral
-#[cfg(context = "nrf52840")]
+#[cfg(any(context = "nrf52833", context = "nrf52840"))]
 define_i2c_drivers!(
     SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0 => TWISPI0,
     SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1 => TWISPI1,
