@@ -174,9 +174,24 @@ contexts:
       flash-erase-all:
         help: Erases the whole chip including user data. Unlocks it if locked.
         build: false
+        required_vars:
+          - PROBE_RS_CHIP
         cmd:
           - probe-rs erase --chip ${PROBE_RS_CHIP} --allow-erase-all
+      flash-rs:
+        help: Flashes the target using probe-rs
+        required_vars:
+          - PROBE_RS_CHIP
+        cmd:
+          - probe-rs download ${out} --chip ${PROBE_RS_CHIP}
+          - probe-rs reset --chip ${PROBE_RS_CHIP}
 
+      debug-rs:
+        help: Starts a probe-rs gdb server
+        required_vars:
+          - PROBE_RS_CHIP
+        cmd:
+          - probe-rs gdb --chip ${PROBE_RS_CHIP}
 
   - name: nrf51
     parent: nrf
@@ -236,16 +251,6 @@ contexts:
       RUSTFLAGS:
         - --cfg context=\"nrf52840\"
       PROBE_RS_CHIP: nrf52840_xxAA
-
-    tasks:
-      flash-rs:
-        cmd:
-          - probe-rs download ${out} --chip ${PROBE_RS_CHIP}
-          - probe-rs reset --chip ${PROBE_RS_CHIP}
-
-      debug-rs:
-        cmd:
-          - probe-rs gdb --chip ${PROBE_RS_CHIP}
 
   - name: rp
     help: Raspberry Pi pico MCU support (based on embassy-rp)
