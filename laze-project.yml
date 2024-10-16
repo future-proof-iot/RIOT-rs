@@ -96,7 +96,7 @@ contexts:
         cmd:
           - ./scripts/provisioning-processor
           # just like embed
-          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_ARGS} embed --${PROFILE} ${FEATURES} --chip ${PROBE_RS_CHIP}
+          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_ARGS} embed --${PROFILE} ${FEATURES} --chip ${PROBE_RS_CHIP} --config-file ../../example-embed.toml
 
       cargo-test:
         cmd:
