@@ -51,7 +51,7 @@ cortex-m-semihosting = { version = "0.5" }
 critical-section = { version = "1.1.2" }
 # Disabling default features may reduce the code size by not providing atomics
 # for types larger than the pointer width, which we do not use.
-portable-atomic = { version = "1.7.0", default-features = false, features = [
+portable-atomic = { version = "1.8.0", default-features = false, features = [
   "require-cas",
 ] }
 
@@ -71,10 +71,11 @@ embassy-usb = { version = "0.3", default-features = false }
 embedded-hal = { version = "1.0.0", default-features = false }
 embedded-hal-async = { version = "1.0.0", default-features = false }
 
-esp-hal = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-08-30", default-features = false }
-esp-hal-embassy = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-08-30", default-features = false }
+esp-alloc = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-10-0.21.0", default-features = false }
+esp-hal = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-10-0.21.0", default-features = false }
+esp-hal-embassy = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-10-0.21.0", default-features = false }
 esp-println = "0.11.0"
-esp-wifi = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-08-30", default-features = false }
+esp-wifi = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-10-0.21.0", default-features = false }
 
 linkme = { version = "0.3.21", features = ["used_linker"] }
 

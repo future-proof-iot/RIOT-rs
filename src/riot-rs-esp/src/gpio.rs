@@ -44,25 +44,20 @@ pub fn init(peripherals: &mut crate::OptionalPeripherals) {
 
 pub mod input {
     use esp_hal::{
-        gpio::{CreateErasedPin, InputPin as EspInputPin, Level, Pull},
+        gpio::{Level, Pull},
         peripheral::Peripheral,
     };
+
+    pub use esp_hal::gpio::{Input, InputPin};
 
     #[cfg(feature = "external-interrupts")]
     use riot_rs_embassy_common::gpio::input::InterruptError;
 
-    pub use esp_hal::gpio::AnyInput as Input;
-
-    // Re-export `AnyInput` as `IntEnabledInput` as they are interrupt-enabled.
+    // Re-export `Input` as `IntEnabledInput` as they are interrupt-enabled.
     #[cfg(feature = "external-interrupts")]
-    pub use esp_hal::gpio::AnyInput as IntEnabledInput;
+    pub use esp_hal::gpio::Input as IntEnabledInput;
 
     pub const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
-
-    // NOTE(unstable-feature(trait_alias)): we may not have to use that unstable feature if we
-    // define our own Pin trait and implement it on all GPIO types.
-    // TODO: ask upstream whether it's acceptable to use `CreateErasedPin` in this scenario
-    pub trait InputPin = EspInputPin + CreateErasedPin;
 
     pub fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
@@ -93,35 +88,26 @@ pub mod input {
 }
 
 pub mod output {
-    use esp_hal::{
-        gpio::{CreateErasedPin, Level, OutputPin as EspOutputPin},
-        peripheral::Peripheral,
-    };
+    use esp_hal::{gpio::Level, peripheral::Peripheral};
     use riot_rs_embassy_common::gpio::{FromDriveStrength, FromSpeed};
 
-    pub use esp_hal::gpio::AnyOutput as Output;
+    pub use esp_hal::gpio::{Output, OutputPin};
 
-    // FIXME: ESP32 *does* support setting the drive strength, but esp-hal seems to currently make
-    // this impossible on `AnyOutput` (unlike on `Output`), because it internally uses an
-    // `ErasedPin`.
-    pub const DRIVE_STRENGTH_CONFIGURABLE: bool = false;
+    pub const DRIVE_STRENGTH_CONFIGURABLE: bool = true;
     pub const SPEED_CONFIGURABLE: bool = false;
-
-    pub trait OutputPin = EspOutputPin + CreateErasedPin;
 
     pub fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
         initial_level: riot_rs_embassy_common::gpio::Level,
-        _drive_strength: DriveStrength,
+        drive_strength: DriveStrength,
         _speed: Speed, // Not supported by this architecture
     ) -> Output<'static> {
         let initial_level = match initial_level {
             riot_rs_embassy_common::gpio::Level::Low => Level::Low,
             riot_rs_embassy_common::gpio::Level::High => Level::High,
         };
-        let output = Output::new(pin, initial_level);
-        // TODO
-        // output.set_drive_strength(drive_strength.into());
+        let mut output = Output::new(pin, initial_level);
+        output.set_drive_strength(drive_strength.into());
         output
     }
 
@@ -132,6 +118,17 @@ pub mod output {
         _10mA,
         _20mA,
         _40mA,
+    }
+
+    impl From<DriveStrength> for esp_hal::gpio::DriveStrength {
+        fn from(drive_strength: DriveStrength) -> Self {
+            match drive_strength {
+                DriveStrength::_5mA => esp_hal::gpio::DriveStrength::I5mA,
+                DriveStrength::_10mA => esp_hal::gpio::DriveStrength::I10mA,
+                DriveStrength::_20mA => esp_hal::gpio::DriveStrength::I20mA,
+                DriveStrength::_40mA => esp_hal::gpio::DriveStrength::I40mA,
+            }
+        }
     }
 
     impl FromDriveStrength for DriveStrength {
