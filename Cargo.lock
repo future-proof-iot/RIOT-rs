@@ -1659,7 +1659,7 @@ dependencies = [
 [[package]]
 name = "esp-alloc"
 version = "0.5.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-10-0.21.0#4a565b9d19ed85da7172a749d8cfaa500f134eed"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-16-0.21.1#4e2280b7c7deb1251e335b90c272558cdc333702"
 dependencies = [
  "critical-section",
  "enumset",
@@ -1680,7 +1680,7 @@ dependencies = [
 [[package]]
 name = "esp-build"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-10-0.21.0#4a565b9d19ed85da7172a749d8cfaa500f134eed"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-16-0.21.1#4e2280b7c7deb1251e335b90c272558cdc333702"
 dependencies = [
  "quote",
  "syn 2.0.79",
@@ -1690,15 +1690,15 @@ dependencies = [
 [[package]]
 name = "esp-config"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-10-0.21.0#4a565b9d19ed85da7172a749d8cfaa500f134eed"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-16-0.21.1#4e2280b7c7deb1251e335b90c272558cdc333702"
 dependencies = [
  "document-features",
 ]
 
 [[package]]
 name = "esp-hal"
-version = "0.21.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-10-0.21.0#4a565b9d19ed85da7172a749d8cfaa500f134eed"
+version = "0.21.1"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-16-0.21.1#4e2280b7c7deb1251e335b90c272558cdc333702"
 dependencies = [
  "basic-toml",
  "bitfield 0.16.1",
@@ -1722,7 +1722,7 @@ dependencies = [
  "embedded-io 0.6.1",
  "embedded-io-async",
  "enumset",
- "esp-build 0.1.0 (git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-10-0.21.0)",
+ "esp-build 0.1.0 (git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-16-0.21.1)",
  "esp-config",
  "esp-hal-procmacros",
  "esp-metadata",
@@ -1753,13 +1753,13 @@ dependencies = [
 [[package]]
 name = "esp-hal-embassy"
 version = "0.4.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-10-0.21.0#4a565b9d19ed85da7172a749d8cfaa500f134eed"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-16-0.21.1#4e2280b7c7deb1251e335b90c272558cdc333702"
 dependencies = [
  "critical-section",
  "document-features",
  "embassy-executor",
  "embassy-time-driver",
- "esp-build 0.1.0 (git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-10-0.21.0)",
+ "esp-build 0.1.0 (git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-16-0.21.1)",
  "esp-hal",
  "esp-hal-procmacros",
  "esp-metadata",
@@ -1770,7 +1770,7 @@ dependencies = [
 [[package]]
 name = "esp-hal-procmacros"
 version = "0.14.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-10-0.21.0#4a565b9d19ed85da7172a749d8cfaa500f134eed"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-16-0.21.1#4e2280b7c7deb1251e335b90c272558cdc333702"
 dependencies = [
  "darling",
  "document-features",
@@ -1786,7 +1786,7 @@ dependencies = [
 [[package]]
 name = "esp-metadata"
 version = "0.4.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-10-0.21.0#4a565b9d19ed85da7172a749d8cfaa500f134eed"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-16-0.21.1#4e2280b7c7deb1251e335b90c272558cdc333702"
 dependencies = [
  "anyhow",
  "basic-toml",
@@ -1810,7 +1810,7 @@ dependencies = [
 [[package]]
 name = "esp-riscv-rt"
 version = "0.9.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-10-0.21.0#4a565b9d19ed85da7172a749d8cfaa500f134eed"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-16-0.21.1#4e2280b7c7deb1251e335b90c272558cdc333702"
 dependencies = [
  "document-features",
  "riscv",
@@ -1832,8 +1832,8 @@ dependencies = [
 
 [[package]]
 name = "esp-wifi"
-version = "0.10.0"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-10-0.21.0#4a565b9d19ed85da7172a749d8cfaa500f134eed"
+version = "0.10.1"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-16-0.21.1#4e2280b7c7deb1251e335b90c272558cdc333702"
 dependencies = [
  "bt-hci",
  "cfg-if",
@@ -1846,7 +1846,7 @@ dependencies = [
  "embedded-io-async",
  "enumset",
  "esp-alloc",
- "esp-build 0.1.0 (git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-10-0.21.0)",
+ "esp-build 0.1.0 (git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-16-0.21.1)",
  "esp-config",
  "esp-hal",
  "esp-metadata",
@@ -1854,7 +1854,6 @@ dependencies = [
  "fugit",
  "heapless 0.8.0",
  "libm",
- "no-std-net",
  "num-derive",
  "num-traits",
  "portable-atomic",
@@ -1865,8 +1864,9 @@ dependencies = [
 
 [[package]]
 name = "esp-wifi-sys"
-version = "0.5.0"
-source = "git+https://github.com/esp-rs/esp-wifi-sys?rev=30d43461335cf5f58317dfc78a5397f48dae2e27#30d43461335cf5f58317dfc78a5397f48dae2e27"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f339ddb1664812e79992a8231a3f8603456c80b769066313150831f2b0bf66e7"
 dependencies = [
  "anyhow",
  "defmt",
@@ -4903,7 +4903,7 @@ dependencies = [
 [[package]]
 name = "xtensa-lx-rt"
 version = "0.17.1"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-10-0.21.0#4a565b9d19ed85da7172a749d8cfaa500f134eed"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-16-0.21.1#4e2280b7c7deb1251e335b90c272558cdc333702"
 dependencies = [
  "anyhow",
  "bare-metal 1.0.0",
@@ -4921,7 +4921,7 @@ dependencies = [
 [[package]]
 name = "xtensa-lx-rt-proc-macros"
 version = "0.2.2"
-source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-10-0.21.0#4a565b9d19ed85da7172a749d8cfaa500f134eed"
+source = "git+https://github.com/kaspar030/esp-hal?branch=for-riot-rs-2024-10-16-0.21.1#4e2280b7c7deb1251e335b90c272558cdc333702"
 dependencies = [
  "darling",
  "proc-macro2",
