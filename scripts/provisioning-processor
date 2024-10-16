@@ -1,0 +1,57 @@
+#!/usr/bin/env python3
+
+"""Helper to take provisioning data from another process.
+
+This binds to [::1]:1338, where it parses text from there for provisioning data
+(semantically a statement that "This is a device with board=... and
+DeviceId=..., and the public key it has generated is ...").
+
+So far, that information is merely logged; on the long run, this should store
+keys in a local Authorization Server, revoking earlier identities of that
+device.
+
+To play race-free with other scripts, it terminates its main process when
+everything is ready to connect, and listens for up to 60 seconds for a
+connection on :1338. Other input methods than TCP sockets might be added if
+they are needed for where there is no `cargo embed` that pipes around stdout.
+At that point, the input method will be guided by arguments.
+"""
+
+import json
+import logging
+import os
+import socket
+import sys
+
+logging.basicConfig(level=logging.INFO)
+
+s = socket.create_server(("::1", 1338), family=socket.AF_INET6, backlog=1)
+s.settimeout(60)
+logging.info("Provisioning processor ready, listening on %s", s)
+if os.fork() != 0:
+    sys.exit(0)
+
+(conn, addr) = s.accept()
+s.close()
+logging.info("Connection received from %s", addr)
+needle = "Device provisioned: "
+for line in socket.SocketIO(conn, "r"):
+    line = line.decode('utf-8')
+    (_, _, found) = line.partition(needle)
+    if not found:
+        logging.debug("Ignoring line without provisioning information: %r", line)
+        continue
+    remaining = found.strip()
+    logging.info("Processing provisioning line: %r", remaining)
+
+    details = {}
+    while remaining:
+        current, _, remaining = remaining.partition('\t')
+        key, _, value = current.partition('=')
+        if value.startswith('['):
+            value = json.loads(value)
+        details[key] = value
+
+    logging.error("No method for provisioning established yet, discarding data %r", details)
+    break
+conn.close()

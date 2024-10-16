@@ -83,6 +83,19 @@ contexts:
         cmd:
           - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_TOOLCHAIN} ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
 
+      embed:
+        build: false
+        cmd:
+          # why not PROBE_RS_PROTOCOL?
+          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_ARGS} embed --${PROFILE} ${FEATURES} --chip ${PROBE_RS_CHIP}
+
+      provision:
+        build: false
+        cmd:
+          - ./scripts/provisioning-processor
+          # just like embed
+          - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_ARGS} embed --${PROFILE} ${FEATURES} --chip ${PROBE_RS_CHIP} --config-file ../../example-embed.toml
+
       cargo-test:
         cmd:
           - cd ${relpath} && ${CARGO_ENV} cargo test --${PROFILE} --features=riot-rs-boards/${builder},riot-rs-rt/debug-console --manifest-path ${app}/Cargo.toml

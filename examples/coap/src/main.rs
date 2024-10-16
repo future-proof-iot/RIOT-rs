@@ -22,6 +22,14 @@ static A: Bump<[u8; 1 << 16]> = Bump::uninit();
 
 #[riot_rs::task(autostart)]
 async fn coap_run() {
+    use riot_rs::identity::DeviceId;
+    info!(
+        "Device provisioned: board={}\tdevice_id={}\tedhoc_kccs={}",
+        riot_rs::buildinfo::BOARD,
+        riot_rs::identity::device_identity().unwrap().bytes(),
+        &[1, 2, 3]
+    );
+
     let stack = network::network_stack().await.unwrap();
 
     // FIXME trim to CoAP requirements
