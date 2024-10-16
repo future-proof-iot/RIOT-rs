@@ -26,9 +26,9 @@ coap-message-utils = "0.3.3"
 coap-numbers = "0.2.3"
 hexlit = "0.5.5"
 lakers-crypto-rustcrypto = "0.6.0"
-liboscore = { git = "https://gitlab.com/oscore/liboscore/", rev = "e7a4ecd037cbb9c7f085047fec5896f4bdc68d50" }
+liboscore = { git = "https://gitlab.com/oscore/liboscore/", rev = "3e4d96334a4a07e6836a4577e0d8e3a95d87ff44" }
 liboscore-msgbackend = { git = "https://gitlab.com/oscore/liboscore/", features = [
   "alloc",
-], rev = "e7a4ecd037cbb9c7f085047fec5896f4bdc68d50" }
+], rev = "3e4d96334a4a07e6836a4577e0d8e3a95d87ff44" }
 minicbor = "0.23.0"
 heapless = "0.8.0"
