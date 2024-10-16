@@ -119,7 +119,7 @@ A program that triggers a CoAP request provides[^whatsinarequest] some component
 ## Details on security mechanisms
 
 RIOT-rs uses three pieces of security components:
-OSCORE, EDHOC and ACE.
+OSCORE (for symmetric encryption), EDHOC (for key exchange) and ACE (for authentication).
 
 All have in common that they sit on top of CoAP:
 Their communication consists of CoAP requests and responses.
