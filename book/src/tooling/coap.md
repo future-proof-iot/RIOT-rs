@@ -126,6 +126,14 @@ Their communication consists of CoAP requests and responses.
 Thus, they work homogeneously across all CoAP transports,
 and provide end-to-end security across untrusted proxies.
 
+These components are optional, but enabled by default --
+when disabled, the only sensible policy that is left <!-- "deny everything" is not sensible, could just not include CoAP then -->
+is to allow unauthenticated access everywhere.
+For example, this may make sense on a link layer with tight access control.
+The components also have internal dependencies:
+EDHOC can only practically be used in connection with OSCORE;
+ACE depends on either depending on the profiles used.
+
 ### OSCORE
 
 OSCORE ([RFC8613]) provides symmetric encryption for CoAP requests:
