@@ -3,7 +3,7 @@
 > **Warning**: This documentation is currently ahead of the implementation roadmap.
 
 [CoAP] is an **application layer protocol similar to HTTP** in its use
-(you can POST data onto a resource on a server that is identified by a URL)
+(eg. you could POST data onto a resource on a server that is identified by a URL)
 but geared towards IoT devices in its format and its security mechanisms.
 
 CoAP provides a versatile set of transports
