@@ -20,7 +20,8 @@
 //! Constructing an identifier fails rather than producing a dummy identifier.
 //!
 //! It is considered a breaking change in a board or this module if a board's identifier changes or
-//! becomes an error as result of an update to RIOT-rs; errors may change to valid identifiers.
+//! becomes an error as result of an update to RIOT-rs. Errors changing to valid identifiers is a
+//! compatible change.
 
 #[doc(inline)]
 pub use riot_rs_embassy_common::identity::DeviceId;
