@@ -1,7 +1,6 @@
 #![no_std]
 #![feature(doc_auto_cfg)]
 #![feature(impl_trait_in_assoc_type)]
-#![feature(trait_alias)]
 #![feature(type_alias_impl_trait)]
 
 pub mod gpio;
