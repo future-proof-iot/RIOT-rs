@@ -41,7 +41,7 @@ debug-console = ["riot-rs-debug/debug-console"]
 executor-single-thread = []
 silent-panic = []
 _panic-handler = []
-critical-section-single-core = ["cortex-m/critical-section-single-core"]
+single-core = ["cortex-m/critical-section-single-core"]
 multicore = ["embassy-rp/critical-section-impl"]
 
 # internal

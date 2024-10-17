@@ -9,7 +9,7 @@ contexts:
     parent: default
     selects:
       - executor-default
-      - ?critical-section-single-core
+      - ?critical-section
       - ?defmt
     env:
       RUSTFLAGS:
@@ -721,20 +721,24 @@ modules:
       - ?executor-single-thread
       - ?executor-thread
 
-  - name: critical-section-single-core
-    help: single-core implementation of `critical-section`
+  - name: single-core
+    help: usage platform as single-core system
     provides_unique:
       - critical-section
+    conflicts:
+      - multicore
     env:
       global:
         FEATURES:
-          - riot-rs/critical-section-single-core
+          - riot-rs/single-core
 
   - name: multicore
-    help: multicore threading
+    help: usage platform as multicore system
     context:
       - rp
       - esp32s3
+    conflicts:
+      - single-core
     provides_unique:
       - critical-section
     env:
