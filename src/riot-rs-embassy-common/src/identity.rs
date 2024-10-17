@@ -28,12 +28,7 @@ pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format + crate::Sealed {
     /// This is part of the return type of the [`Self::get()`] constructor.
     ///
     /// It is encouraged to be [`core::convert::Infallible`] where possible.
-    ///
-    /// # Open questions
-    ///
-    /// Some architectures will have to read this (eg. at QSPI initialization time); is there guidance
-    /// on how to report "Not yet available"?
-    type Error: core::error::Error + defmt::Format;
+    type Error: Error;
 
     /// Some `[u8; N]` type, returned by [`.bytes()`][Self::bytes].
     ///
@@ -65,6 +60,17 @@ pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format + crate::Sealed {
     fn bytes(&self) -> Self::Bytes;
 }
 
+/// Error trait for obtaining [`DeviceId`].
+///
+/// This type exists to ease the evolution of [`DeviceId::Error`], and to make it expressible in
+/// other crates without duplicating the requirements set.
+///
+/// Like [`DeviceId`], it is sealed; the same considerations for stability as listed there apply.
+pub trait Error: core::error::Error + defmt::Format + crate::Sealed {}
+
+impl crate::Sealed for core::convert::Infallible {}
+impl Error for core::convert::Infallible {}
+
 /// An uninhabited type implementing [`DeviceId`] that always errs.
 ///
 /// This can be used both on architectures that do not have a unique identifier on their boards,
@@ -72,14 +78,11 @@ pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format + crate::Sealed {
 ///
 /// Typical types for `E` are [`NotImplemented`] or [`NotAvailable`].
 #[derive(Debug, defmt::Format)]
-pub struct NoDeviceId<E: core::error::Error + defmt::Format + Default>(
-    core::convert::Infallible,
-    core::marker::PhantomData<E>,
-);
+pub struct NoDeviceId<E: Error + Default>(core::convert::Infallible, core::marker::PhantomData<E>);
 
-impl<E: core::error::Error + defmt::Format + Default> crate::Sealed for NoDeviceId<E> {}
+impl<E: Error + Default> crate::Sealed for NoDeviceId<E> {}
 
-impl<E: core::error::Error + defmt::Format + Default> DeviceId for NoDeviceId<E> {
+impl<E: Error + Default> DeviceId for NoDeviceId<E> {
     type Error = E;
 
     // We could also come up with a custom never type that AsRef's into [u8], but that won't fly
@@ -105,7 +108,9 @@ impl core::fmt::Display for NotImplemented {
     }
 }
 
+impl crate::Sealed for NotImplemented {}
 impl core::error::Error for NotImplemented {}
+impl Error for NotImplemented {}
 
 /// Error indicating that a [`DeviceId`] is not available on this platform.
 #[derive(Debug, Default, defmt::Format)]
@@ -117,4 +122,6 @@ impl core::fmt::Display for NotAvailable {
     }
 }
 
+impl crate::Sealed for NotAvailable {}
 impl core::error::Error for NotAvailable {}
+impl Error for NotAvailable {}
