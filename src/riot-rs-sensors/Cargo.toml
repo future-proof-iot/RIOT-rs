@@ -1,0 +1,28 @@
+[package]
+name = "riot-rs-sensors"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+embassy-sync = { workspace = true }
+linkme = { workspace = true }
+pin-project = { workspace = true }
+riot-rs-macros = { workspace = true }
+
+[features]
+# These features could be codegened
+max-reading-value-min-count-2 = ["riot-rs-macros/max-reading-value-min-count-2"]
+max-reading-value-min-count-3 = ["riot-rs-macros/max-reading-value-min-count-3"]
+max-reading-value-min-count-4 = ["riot-rs-macros/max-reading-value-min-count-4"]
+max-reading-value-min-count-6 = ["riot-rs-macros/max-reading-value-min-count-6"]
+max-reading-value-min-count-7 = ["riot-rs-macros/max-reading-value-min-count-7"]
+max-reading-value-min-count-9 = ["riot-rs-macros/max-reading-value-min-count-9"]
+max-reading-value-min-count-12 = [
+  "riot-rs-macros/max-reading-value-min-count-12",
+]

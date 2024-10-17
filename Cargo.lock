@@ -3263,6 +3263,26 @@ dependencies = [
 ]
 
 [[package]]
+name = "pin-project"
+version = "1.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "baf123a161dde1e524adf36f90bc5d8d3462824a9c43553ad07a8183161189ec"
+dependencies = [
+ "pin-project-internal",
+]
+
+[[package]]
+name = "pin-project-internal"
+version = "1.1.6"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a4502d8515ca9f32f1fb543d987f63d95a14934883db45bdb48060b6b69257f8"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.79",
+]
+
+[[package]]
 name = "pin-project-lite"
 version = "0.2.14"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3610,6 +3630,7 @@ dependencies = [
  "riot-rs-macros",
  "riot-rs-random",
  "riot-rs-rt",
+ "riot-rs-sensors",
  "riot-rs-threads",
  "riot-rs-utils",
  "static_cell",
@@ -3820,6 +3841,16 @@ version = "0.1.2"
 dependencies = [
  "defmt",
  "hax-lib",
+]
+
+[[package]]
+name = "riot-rs-sensors"
+version = "0.1.0"
+dependencies = [
+ "embassy-sync 0.6.0",
+ "linkme",
+ "pin-project",
+ "riot-rs-macros",
 ]
 
 [[package]]
