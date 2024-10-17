@@ -134,7 +134,7 @@ The components also have internal dependencies:
 EDHOC can only practically be used in connection with OSCORE;
 ACE depends on either depending on the profiles used.
 
-### OSCORE
+### Symmetric encryption: OSCORE
 
 OSCORE ([RFC8613]) provides symmetric encryption for CoAP requests:
 It allows clients to phrase their CoAP request,
@@ -159,7 +159,7 @@ Policies are not described in terms of OSCORE keys.
   the parts that link a response to a request,
   and housekeeping details such as whether a request is for an observation and thus needs to be kept alive longer.
 
-### EDHOC
+### Key establishment: EDHOC
 
 EDHOC ([RFC9528]) is a key establishment protocol
 that uses asymmetric keys to obtain mutual authentication and forward secrecy.
@@ -179,7 +179,7 @@ and whether our public key needs to be sent as a full public key or can be sent 
 
 [RFC9528]: https://datatracker.ietf.org/doc/html/rfc9528
 
-### ACE
+### Authorization: ACE
 
 The ACE framework ([RFC9200]) describes how a trusted service (the Authorization Server, "AS")
 can facilitate secure connections between devices that are not explicitly configured to be used together.
