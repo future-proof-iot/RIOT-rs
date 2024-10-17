@@ -585,7 +585,7 @@ modules:
     conflicts:
       - executor-single-thread
     selects:
-      - ?multicore
+      - ?multi-core
     env:
       global:
         FEATURES:
@@ -726,14 +726,14 @@ modules:
     provides_unique:
       - critical-section
     conflicts:
-      - multicore
+      - multi-core
     env:
       global:
         FEATURES:
           - riot-rs/single-core
 
-  - name: multicore
-    help: usage platform as multicore system
+  - name: multi-core
+    help: usage platform as multi-core system
     context:
       - rp
       - esp32s3
@@ -744,7 +744,7 @@ modules:
     env:
       global:
         FEATURES:
-          - riot-rs/multicore
+          - riot-rs/multi-core
 
 builders:
   # host builder (for housekeeping tasks)
