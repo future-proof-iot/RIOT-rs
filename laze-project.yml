@@ -294,6 +294,17 @@ contexts:
         - -Zbuild-std=core,alloc
       CARGO_RUNNER: '"espflash flash --monitor ${ESPFLASH_LOG_FORMAT}"'
 
+  - name: esp32
+    parent: esp
+    selects:
+      - xtensa
+    env:
+      CARGO_TOOLCHAIN: +esp
+      RUSTFLAGS:
+        - --cfg context=\"esp32\"
+      RUSTC_TARGET: xtensa-esp32-none-elf
+      CARGO_TARGET_PREFIX: CARGO_TARGET_XTENSA_ESP32_NONE_ELF
+
   - name: esp32c3
     parent: esp
     selects:
@@ -817,6 +828,9 @@ builders:
 
   - name: ai-c3
     parent: esp32c3
+
+  - name: espressif-esp32-wroom-32
+    parent: esp32
 
   - name: espressif-esp32-c6-devkitc-1
     parent: esp32c6
