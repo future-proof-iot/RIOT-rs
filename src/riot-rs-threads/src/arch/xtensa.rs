@@ -13,13 +13,13 @@ impl Arch for Cpu {
     const DEFAULT_THREAD_DATA: Self::ThreadData = default_trap_frame();
 
     fn schedule() {
-        #[cfg(not(feature = "multicore"))]
+        #[cfg(not(feature = "multi-core"))]
         unsafe {
             (&*SYSTEM::PTR)
                 .cpu_intr_from_cpu_0()
                 .modify(|_, w| w.cpu_intr_from_cpu_0().set_bit());
         }
-        #[cfg(feature = "multicore")]
+        #[cfg(feature = "multi-core")]
         crate::smp::schedule_on_core(crate::core_id())
     }
 
@@ -78,7 +78,7 @@ extern "C" fn FROM_CPU_INTR0(trap_frame: &mut TrapFrame) {
     }
 }
 
-#[cfg(feature = "multicore")]
+#[cfg(feature = "multi-core")]
 /// Handler for software interrupt 1, which we use for context switching on core 1.
 #[allow(non_snake_case)]
 #[no_mangle]
@@ -104,7 +104,7 @@ extern "C" fn FROM_CPU_INTR1(trap_frame: &mut TrapFrame) {
 unsafe fn sched(trap_frame: &mut TrapFrame) {
     loop {
         if THREADS.with_mut(|mut threads| {
-            #[cfg(feature = "multicore")]
+            #[cfg(feature = "multi-core")]
             threads.add_current_thread_to_rq();
 
             let Some(next_pid) = threads.get_next_pid() else {

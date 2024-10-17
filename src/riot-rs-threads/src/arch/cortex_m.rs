@@ -197,16 +197,16 @@ unsafe fn sched() -> u128 {
         if let Some(res) = critical_section::with(|cs| {
             let threads = unsafe { &mut *THREADS.as_ptr(cs) };
 
-            #[cfg(feature = "multicore")]
+            #[cfg(feature = "multi-core")]
             threads.add_current_thread_to_rq();
 
             let next_pid = match threads.get_next_pid() {
                 Some(pid) => pid,
                 None => {
-                    #[cfg(feature = "multicore")]
+                    #[cfg(feature = "multi-core")]
                     unreachable!("At least one idle thread is always present for each core.");
 
-                    #[cfg(not(feature = "multicore"))]
+                    #[cfg(not(feature = "multi-core"))]
                     {
                         Cpu::wfi();
                         // this fence seems necessary, see #310.

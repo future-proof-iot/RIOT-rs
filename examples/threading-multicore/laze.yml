@@ -3,4 +3,4 @@ apps:
     selects:
       - ?release
       - sw/threading
-      - multicore
+      - multi-core

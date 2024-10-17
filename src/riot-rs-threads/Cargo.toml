@@ -48,10 +48,10 @@ embassy-rp = { workspace = true, optional = true }
 
 [features]
 defmt = ["dep:defmt", "riot-rs-runqueue/defmt"]
-multicore = [
+multi-core = [
   "dep:static_cell",
   "dep:rp-pac",
   "dep:embassy-rp",
   "embassy-rp/fifo-handler",
 ]
-core-affinity = ["multicore"]
+core-affinity = ["multi-core"]

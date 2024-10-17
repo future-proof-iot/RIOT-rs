@@ -35,7 +35,7 @@ mod ensure_once;
 mod thread;
 mod threadlist;
 
-#[cfg(feature = "multicore")]
+#[cfg(feature = "multi-core")]
 mod smp;
 
 pub mod sync;
@@ -54,7 +54,7 @@ pub use thread_flags as flags;
 
 #[cfg(feature = "core-affinity")]
 pub use smp::CoreAffinity;
-#[cfg(feature = "multicore")]
+#[cfg(feature = "multi-core")]
 pub use smp::CoreId;
 
 use arch::{schedule, Arch, Cpu, ThreadData};
@@ -62,9 +62,9 @@ use ensure_once::EnsureOnce;
 use riot_rs_runqueue::RunQueue;
 use thread::{Thread, ThreadState};
 
-#[cfg(feature = "multicore")]
+#[cfg(feature = "multi-core")]
 use smp::{schedule_on_core, Multicore};
-#[cfg(feature = "multicore")]
+#[cfg(feature = "multi-core")]
 use static_cell::ConstStaticCell;
 
 /// Dummy type that is needed because [`CoreAffinity`] is part of the general API.
@@ -82,9 +82,9 @@ pub const SCHED_PRIO_LEVELS: usize = 12;
 /// The maximum number of concurrent threads that can be created.
 pub const THREADS_NUMOF: usize = 16;
 
-#[cfg(feature = "multicore")]
+#[cfg(feature = "multi-core")]
 pub const CORES_NUMOF: usize = smp::Chip::CORES as usize;
-#[cfg(feature = "multicore")]
+#[cfg(feature = "multi-core")]
 pub const IDLE_THREAD_STACK_SIZE: usize = smp::Chip::IDLE_THREAD_STACK_SIZE;
 
 static THREADS: EnsureOnce<Threads> = EnsureOnce::new(Threads::new());
@@ -105,9 +105,9 @@ struct Threads {
     thread_blocklist: [Option<ThreadId>; THREADS_NUMOF],
 
     /// The currently running thread(s).
-    #[cfg(feature = "multicore")]
+    #[cfg(feature = "multi-core")]
     current_threads: [Option<ThreadId>; CORES_NUMOF],
-    #[cfg(not(feature = "multicore"))]
+    #[cfg(not(feature = "multi-core"))]
     current_thread: Option<ThreadId>,
 }
 
@@ -117,9 +117,9 @@ impl Threads {
             runqueue: RunQueue::new(),
             threads: [const { Thread::default() }; THREADS_NUMOF],
             thread_blocklist: [const { None }; THREADS_NUMOF],
-            #[cfg(feature = "multicore")]
+            #[cfg(feature = "multi-core")]
             current_threads: [None; CORES_NUMOF],
-            #[cfg(not(feature = "multicore"))]
+            #[cfg(not(feature = "multi-core"))]
             current_thread: None,
         }
     }
@@ -140,15 +140,15 @@ impl Threads {
     /// Returns the ID of the current thread, or [`None`] if no thread is currently
     /// running.
     ///
-    /// On multicore, it returns the ID of the thread that is running on the
+    /// On multi-core, it returns the ID of the thread that is running on the
     /// current core.
     #[inline]
     fn current_pid(&self) -> Option<ThreadId> {
-        #[cfg(feature = "multicore")]
+        #[cfg(feature = "multi-core")]
         {
             self.current_threads[usize::from(core_id())]
         }
-        #[cfg(not(feature = "multicore"))]
+        #[cfg(not(feature = "multi-core"))]
         {
             self.current_thread
         }
@@ -157,15 +157,15 @@ impl Threads {
     /// Returns a mutable reference to the current thread ID, or [`None`]
     /// if no thread is currently running.
     ///
-    /// On multicore, it refers to the ID of the thread that is running on the
+    /// On multi-core, it refers to the ID of the thread that is running on the
     /// current core.
     #[allow(dead_code, reason = "used in scheduler implementation")]
     fn current_pid_mut(&mut self) -> &mut Option<ThreadId> {
-        #[cfg(feature = "multicore")]
+        #[cfg(feature = "multi-core")]
         {
             &mut self.current_threads[usize::from(core_id())]
         }
-        #[cfg(not(feature = "multicore"))]
+        #[cfg(not(feature = "multi-core"))]
         {
             &mut self.current_thread
         }
@@ -258,9 +258,9 @@ impl Threads {
             // if it itself initiated it.
             debug_assert_eq!(Some(pid), self.current_pid());
 
-            // On multicore, the currently running thread is not in the runqueue
+            // On multi-core, the currently running thread is not in the runqueue
             // anyway, so we don't need to remove it here.
-            #[cfg(not(feature = "multicore"))]
+            #[cfg(not(feature = "multi-core"))]
             self.runqueue.pop_head(pid, prio);
 
             schedule();
@@ -301,10 +301,10 @@ impl Threads {
 
         // Check if the thread is among the current threads and trigger scheduler if
         // its prio decreased and another thread might have a higher prio now.
-        // This has to be done on multicore **before the runqueue changes below**, because
+        // This has to be done on multi-core **before the runqueue changes below**, because
         // a currently running thread is not in the runqueue and therefore the runqueue changes
         // should not be applied.
-        #[cfg(feature = "multicore")]
+        #[cfg(feature = "multi-core")]
         match self.is_running(thread_id) {
             Some(core) if prio < old_prio => return schedule_on_core(CoreId(core as u8)),
             Some(_) => return,
@@ -320,8 +320,8 @@ impl Threads {
         self.runqueue.add(thread_id, prio);
 
         // Check & handle if the thread is among the current threads for single-core,
-        // analogous to the above multicore implementation.
-        #[cfg(not(feature = "multicore"))]
+        // analogous to the above multi-core implementation.
+        #[cfg(not(feature = "multi-core"))]
         match self.is_running(thread_id) {
             Some(_) if prio < old_prio => return schedule(),
             Some(_) => return,
@@ -338,12 +338,12 @@ impl Threads {
     /// Triggers the scheduler if the thread has a higher priority than (one of)
     /// the running thread(s).
     fn schedule_if_higher_prio(&mut self, _thread_id: ThreadId, prio: RunqueueId) {
-        #[cfg(not(feature = "multicore"))]
+        #[cfg(not(feature = "multi-core"))]
         match self.current().map(|t| t.prio) {
             Some(curr_prio) if curr_prio < prio => schedule(),
             _ => {}
         }
-        #[cfg(feature = "multicore")]
+        #[cfg(feature = "multi-core")]
         match self.lowest_running_prio(_thread_id) {
             (core, Some(lowest_prio)) if lowest_prio < prio => schedule_on_core(core),
             _ => {}
@@ -352,17 +352,17 @@ impl Threads {
 
     /// Returns `Some` if the thread is currently running on a core.
     ///
-    /// On multicore, the core-id is returned as usize, on single-core
+    /// On multi-core, the core-id is returned as usize, on single-core
     /// the usize is always 0.
     fn is_running(&self, thread_id: ThreadId) -> Option<usize> {
-        #[cfg(not(feature = "multicore"))]
+        #[cfg(not(feature = "multi-core"))]
         {
             self.current_pid()
                 .filter(|pid| *pid == thread_id)
                 .map(|_| 0)
         }
 
-        #[cfg(feature = "multicore")]
+        #[cfg(feature = "multi-core")]
         {
             self.current_threads
                 .iter()
@@ -372,7 +372,7 @@ impl Threads {
 
     /// Adds the thread that is running on the current core to the
     /// runqueue if it has state [`ThreadState::Running`].
-    #[cfg(feature = "multicore")]
+    #[cfg(feature = "multi-core")]
     #[allow(dead_code, reason = "used in scheduler implementation")]
     fn add_current_thread_to_rq(&mut self) {
         let (pid, prio) = match self.current() {
@@ -398,19 +398,19 @@ impl Threads {
     #[allow(dead_code, reason = "used in scheduler implementation")]
     fn get_next_pid(&mut self) -> Option<ThreadId> {
         // On single-core, only read the head of the runqueue.
-        #[cfg(not(feature = "multicore"))]
+        #[cfg(not(feature = "multi-core"))]
         {
             self.runqueue.get_next()
         }
 
         // On multi-core, the head is popped of the runqueue.
-        #[cfg(all(feature = "multicore", not(feature = "core-affinity")))]
+        #[cfg(all(feature = "multi-core", not(feature = "core-affinity")))]
         {
             self.runqueue.pop_next()
         }
 
-        // On multicore with core-affinities, get next thread with matching affinity.
-        #[cfg(all(feature = "multicore", feature = "core-affinity"))]
+        // On multi-core with core-affinities, get next thread with matching affinity.
+        #[cfg(all(feature = "multi-core", feature = "core-affinity"))]
         {
             // TODO: this would benefit from a `del_one_with_filter` to avoid
             // iterating twice.
@@ -431,7 +431,7 @@ impl Threads {
     ///
     /// If core-affinities are enabled, the parameter `_pid` restricts the search to only
     /// consider the cores that match this thread's [`CoreAffinity`].
-    #[cfg(feature = "multicore")]
+    #[cfg(feature = "multi-core")]
     fn lowest_running_prio(&self, _pid: ThreadId) -> (CoreId, Option<RunqueueId>) {
         #[cfg(feature = "core-affinity")]
         let affinity = self.get_unchecked(_pid).core_affinity;
@@ -475,7 +475,7 @@ impl Threads {
 /// Currently it expects at least:
 /// - Cortex-M: to be called from the reset handler while MSP is active
 pub unsafe fn start_threading() {
-    #[cfg(feature = "multicore")]
+    #[cfg(feature = "multi-core")]
     {
         // Idle thread that prompts the core to enter deep sleep.
         fn idle_thread() {
@@ -591,7 +591,7 @@ pub fn current_pid() -> Option<ThreadId> {
 }
 
 /// Returns the id of the CPU that this thread is running on.
-#[cfg(feature = "multicore")]
+#[cfg(feature = "multi-core")]
 pub fn core_id() -> CoreId {
     smp::Chip::core_id()
 }
@@ -633,15 +633,15 @@ pub fn yield_same() {
             return;
         };
 
-        #[cfg(not(feature = "multicore"))]
+        #[cfg(not(feature = "multi-core"))]
         if threads.runqueue.advance(prio) {
             schedule()
         }
 
-        // On multicore, the current thread is removed from the runqueue, and then
+        // On multi-core, the current thread is removed from the runqueue, and then
         // re-added **at the tail** in `sched` the next time the scheduler is invoked.
         // Simply triggering the scheduler therefore implicitly advances the runqueue.
-        #[cfg(feature = "multicore")]
+        #[cfg(feature = "multi-core")]
         if !threads.runqueue.is_empty(prio) {
             schedule();
 
