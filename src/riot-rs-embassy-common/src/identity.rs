@@ -3,7 +3,7 @@
 //! See `riot_rs::identity` for general documentation.
 #![deny(missing_docs)]
 
-/// Trait desribing the unique identifier available on a board.
+/// Trait describing the unique identifier available on a board.
 ///
 /// See the module level documentation on the characteristics of the identifier.
 ///
@@ -19,7 +19,7 @@
 pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format {
     /// Error type indicating that no identifier is available.
     ///
-    /// This is part of the return type of the [`::get()`][Self::get] constructor.
+    /// This is part of the return type of the [`Self::get()`] constructor.
     ///
     /// It is encouraged to be [`core::convert::Infallible`] where possible.
     ///
@@ -40,7 +40,7 @@ pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format {
     ///
     /// # Evolution
     ///
-    /// On the long run, it will be preferable to add a `const BYTES_LEN: usize;` and enforce the
+    /// In the long run, it will be preferable to add a `const BYTES_LEN: usize;` and enforce the
     /// type `[u8; Self::BYTES_LEN]` as the return value of [`.bytes(_)]`][Self::bytes]. This can
     /// not be done yet as it depends on the `generic_const_exprs` featureVg
     type Bytes: AsRef<[u8]>;

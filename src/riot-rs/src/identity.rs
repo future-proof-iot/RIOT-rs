@@ -12,7 +12,7 @@
 //!   a identifier is unique per MCU family, or even globally.
 //!
 //! * Identifiers do not change during regular development with a board, which includes the use of
-//!   programmer. Identifiers may change under deliberate conditions, eg. when a device has a
+//!   a programmer. Identifiers may change under deliberate conditions, eg. when a device has a
 //!   one-time programmable identity, or when there is a custom functionality to overwrite the
 //!   built-in identifier that is not triggered by the device erase that is performed as part of
 //!   programming the device.
