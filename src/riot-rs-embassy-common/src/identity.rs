@@ -16,7 +16,13 @@
 /// as MAC addresses. By default, those would be generated in some way from what is available in
 /// the identifier -- but boards where the identifier already *is* a MAC address (or possibly a
 /// range thereof) can provide their official addresses.
-pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format {
+///
+/// This trait is `Sealed` in the `riot-rs-embassy-common` crate to ensure that associated types
+/// and non-provided methods can be added. Therefore, its re-export in the `riot-rs` crate is a
+/// promise that the trait evolves at the (slower) `riot-rs` speed towards users, while it can
+/// evolve at the (possibly faster) RIOT-rs internal speed of `riot-rs-embassy-common` for
+/// implementers.
+pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format + crate::Sealed {
     /// Error type indicating that no identifier is available.
     ///
     /// This is part of the return type of the [`Self::get()`] constructor.
@@ -70,6 +76,8 @@ pub struct NoDeviceId<E: core::error::Error + defmt::Format + Default>(
     core::convert::Infallible,
     core::marker::PhantomData<E>,
 );
+
+impl<E: core::error::Error + defmt::Format + Default> crate::Sealed for NoDeviceId<E> {}
 
 impl<E: core::error::Error + defmt::Format + Default> DeviceId for NoDeviceId<E> {
     type Error = E;
