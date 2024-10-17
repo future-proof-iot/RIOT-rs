@@ -23,13 +23,6 @@
 /// evolve at the (possibly faster) RIOT-rs internal speed of `riot-rs-embassy-common` for
 /// implementers.
 pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format + crate::Sealed {
-    /// Error type indicating that no identifier is available.
-    ///
-    /// This is part of the return type of the [`Self::get()`] constructor.
-    ///
-    /// It is encouraged to be [`core::convert::Infallible`] where possible.
-    type Error: Error;
-
     /// Some `[u8; N]` type, returned by [`.bytes()`][Self::bytes].
     ///
     /// This may not represent all the identifying information available on the board, but can
@@ -54,7 +47,8 @@ pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format + crate::Sealed {
     /// # Errors
     ///
     /// This produces an error if no device ID is available on this board, or is not implemented.
-    fn get() -> Result<Self, Self::Error>;
+    /// It is encouraged to use [`core::convert::Infallible`] where possible.
+    fn get() -> Result<Self, impl Error>;
 
     /// The device identifier in serialized bytes format.
     fn bytes(&self) -> Self::Bytes;
@@ -62,8 +56,8 @@ pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format + crate::Sealed {
 
 /// Error trait for obtaining [`DeviceId`].
 ///
-/// This type exists to ease the evolution of [`DeviceId::Error`], and to make it expressible in
-/// other crates without duplicating the requirements set.
+/// This is part of the signature of [`DeviceId::get`], and indicates that no identifier is
+/// available.
 ///
 /// Like [`DeviceId`], it is sealed; the same considerations for stability as listed there apply.
 pub trait Error: core::error::Error + defmt::Format + crate::Sealed {}
@@ -83,14 +77,12 @@ pub struct NoDeviceId<E: Error + Default>(core::convert::Infallible, core::marke
 impl<E: Error + Default> crate::Sealed for NoDeviceId<E> {}
 
 impl<E: Error + Default> DeviceId for NoDeviceId<E> {
-    type Error = E;
-
     // We could also come up with a custom never type that AsRef's into [u8], but that won't fly
     // once there is a BYTES_LEN.
     type Bytes = [u8; 0];
 
-    fn get() -> Result<Self, Self::Error> {
-        Err(Default::default())
+    fn get() -> Result<Self, impl Error> {
+        Err::<_, E>(Default::default())
     }
 
     fn bytes(&self) -> [u8; 0] {

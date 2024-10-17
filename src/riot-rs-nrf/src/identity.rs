@@ -4,9 +4,11 @@ pub struct DeviceId(u64);
 impl riot_rs_embassy_common::Sealed for DeviceId {}
 
 impl riot_rs_embassy_common::identity::DeviceId for DeviceId {
-    type Error = core::convert::Infallible;
-
-    fn get() -> Result<Self, Self::Error> {
+    #[allow(
+        refining_impl_trait_reachable,
+        reason = "Making this fallible would be a breaking API change for RIOT-rs."
+    )]
+    fn get() -> Result<Self, core::convert::Infallible> {
         // Embassy does not wrap the FICR register, and given that all we need from there is a register
         // read that is perfectly fine to do through a stolen register, let's do that rather than
         // thread the access through several layers.
