@@ -622,7 +622,14 @@ fn cleanup() -> ! {
 /// "Yields" to another thread with the same priority.
 pub fn yield_same() {
     THREADS.with_mut(|mut threads| {
-        let Some(prio) = threads.current().map(|t| t.prio) else {
+        let Some(&mut Thread {
+            prio,
+            pid: _pid,
+            #[cfg(feature = "core-affinity")]
+                core_affinity: _affinity,
+            ..
+        }) = threads.current()
+        else {
             return;
         };
 
@@ -632,11 +639,21 @@ pub fn yield_same() {
         }
 
         // On multicore, the current thread is removed from the runqueue, and then
-        // re-added **at the tail** in `sched` the next time the scheduler is triggered.
+        // re-added **at the tail** in `sched` the next time the scheduler is invoked.
         // Simply triggering the scheduler therefore implicitly advances the runqueue.
         #[cfg(feature = "multicore")]
         if !threads.runqueue.is_empty(prio) {
             schedule();
+
+            // Check if the yielding thread can continue their execution on another
+            // core that currently runs a lower priority thread.
+            // This is only necessary when core-affinities are enabled, because only
+            // then it is possible that a lower prio thread runs while a higher prio
+            // runqueue isn't empty.
+            #[cfg(feature = "core-affinity")]
+            if _affinity == CoreAffinity::no_affinity() {
+                threads.schedule_if_higher_prio(_pid, prio);
+            }
         }
     })
 }
