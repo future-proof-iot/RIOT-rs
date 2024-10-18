@@ -14,6 +14,8 @@ pub mod extint_registry;
 #[cfg(feature = "i2c")]
 pub mod i2c;
 
+pub mod identity;
+
 #[cfg(feature = "spi")]
 pub mod spi;
 

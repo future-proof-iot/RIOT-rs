@@ -31,16 +31,20 @@ riot-rs-random = { workspace = true, optional = true }
 
 [target.'cfg(context = "nrf52832")'.dependencies]
 embassy-nrf = { workspace = true, features = ["nrf52832"] }
+nrf52832-pac = "0.12.2"
 
 [target.'cfg(context = "nrf52833")'.dependencies]
 # Disable NFC support for now, as we do not support it yet.
 embassy-nrf = { workspace = true, features = ["nfc-pins-as-gpio", "nrf52833"] }
+nrf52833-pac = "0.12.2"
 
 [target.'cfg(context = "nrf52840")'.dependencies]
 embassy-nrf = { workspace = true, features = ["nrf52840"] }
+nrf52840-pac = "0.12.2"
 
 [target.'cfg(context = "nrf5340")'.dependencies]
 embassy-nrf = { workspace = true, features = ["nrf5340-app-s"] }
+nrf5340-app-pac = "0.12.2"
 
 [features]
 ## Enables GPIO interrupt support.

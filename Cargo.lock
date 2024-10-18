@@ -3568,6 +3568,7 @@ dependencies = [
  "riot-rs-boards",
  "riot-rs-debug",
  "riot-rs-embassy",
+ "riot-rs-identity",
  "riot-rs-macros",
  "riot-rs-random",
  "riot-rs-rt",
@@ -3716,6 +3717,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "riot-rs-identity"
+version = "0.1.0"
+dependencies = [
+ "riot-rs-embassy",
+ "riot-rs-embassy-common",
+]
+
+[[package]]
 name = "riot-rs-macros"
 version = "0.1.0"
 dependencies = [
@@ -3740,6 +3749,10 @@ dependencies = [
  "embassy-executor",
  "embassy-nrf",
  "embedded-hal-async",
+ "nrf52832-pac",
+ "nrf52833-pac",
+ "nrf52840-pac",
+ "nrf5340-app-pac",
  "paste",
  "portable-atomic",
  "riot-rs-debug",
