@@ -3,6 +3,7 @@
 // and https://bthome.io/format/#sensor-data
 // and https://www.rfc-editor.org/rfc/rfc8798.html
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[non_exhaustive]
 pub enum MeasurementUnit {
     /// [Acceleration *g*](https://en.wikipedia.org/wiki/G-force#Unit_and_measurement).

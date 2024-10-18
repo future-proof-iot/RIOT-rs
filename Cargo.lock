@@ -3847,6 +3847,7 @@ dependencies = [
 name = "riot-rs-sensors"
 version = "0.1.0"
 dependencies = [
+ "defmt",
  "embassy-sync 0.6.0",
  "linkme",
  "pin-project",

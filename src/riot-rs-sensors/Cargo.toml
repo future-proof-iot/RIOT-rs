@@ -10,12 +10,15 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
+defmt = { workspace = true, optional = true }
 embassy-sync = { workspace = true }
 linkme = { workspace = true }
 pin-project = { workspace = true }
 riot-rs-macros = { workspace = true }
 
 [features]
+defmt = ["dep:defmt"]
+
 # These features could be codegened
 max-reading-value-min-count-2 = ["riot-rs-macros/max-reading-value-min-count-2"]
 max-reading-value-min-count-3 = ["riot-rs-macros/max-reading-value-min-count-3"]

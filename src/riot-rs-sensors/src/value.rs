@@ -23,6 +23,7 @@
 // possibly adding floats in the future and `PartialOrd` does not make sense because interpreting
 // the value requires the `ReadingAxis` associated with this `Value`.
 #[derive(Debug, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct Value {
     value: i32,
 }
@@ -46,6 +47,7 @@ impl Value {
 /// The [`Accuracy`] should be obtained quickly after obtaining the [`Value`], as the
 /// accuracy can be affected by a change in the internal state of the sensor driver.
 #[derive(Debug, Copy, Clone, PartialEq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Accuracy {
     /// Unknown accuracy.
     Unknown,

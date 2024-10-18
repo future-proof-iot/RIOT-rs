@@ -132,6 +132,7 @@ impl Future for ReadingWaiter {
 
 /// Mode of a sensor driver.
 #[derive(Copy, Clone, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Mode {
     /// The sensor driver is disabled.
     Disabled,
@@ -151,6 +152,7 @@ pub enum ModeSettingError {
 
 /// State of a sensor driver.
 #[derive(Copy, Clone, Default, PartialEq, Eq)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u8)]
 pub enum State {
     /// The sensor driver is uninitialized.
@@ -191,12 +193,14 @@ impl TryFrom<u8> for State {
 
 /// The error type returned when a checked integral type conversion fails.
 #[derive(Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct TryFromIntError;
 
 riot_rs_macros::define_count_adjusted_enums!();
 
 /// Provides metadata about a [`Value`].
 #[derive(Debug, Copy, Clone)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct ReadingAxis {
     label: Label,
     scaling: i8,
@@ -256,6 +260,7 @@ pub type AccuracyFn = fn(Value) -> Accuracy;
 
 /// Represents errors happening when *triggering* a sensor measurement.
 #[derive(Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum MeasurementError {
     /// The sensor driver is not enabled (e.g., it may be disabled or sleeping).
     NonEnabled,
@@ -273,6 +278,7 @@ impl core::error::Error for MeasurementError {}
 
 /// Represents errors happening when accessing a sensor reading.
 #[derive(Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum ReadingError {
     /// The sensor driver is not enabled (e.g., it may be disabled or sleeping).
     NonEnabled,
