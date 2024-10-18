@@ -1,4 +1,9 @@
 /// Represents a unit of measurement.
+///
+/// # For sensor driver implementors
+///
+/// Missing variants can be added when required.
+/// Please open an issue to discuss it.
 // Built upon https://doc.riot-os.org/phydat_8h_source.html
 // and https://bthome.io/format/#sensor-data
 // and https://www.rfc-editor.org/rfc/rfc8798.html

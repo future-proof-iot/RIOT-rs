@@ -3,6 +3,9 @@
 ///
 /// # For sensor driver implementors
 ///
+/// Missing variants can be added when required.
+/// Please open an issue to discuss it.
+///
 /// [`Label::Main`] must be used for sensor drivers returning a single
 /// [`Value`](crate::sensor::Value), even if a more specific label exists for the
 /// physical quantity.
