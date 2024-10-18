@@ -922,6 +922,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "device-metadata"
+version = "0.1.0"
+dependencies = [
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
 name = "diff"
 version = "0.1.13"
 source = "registry+https://github.com/rust-lang/crates.io-index"
