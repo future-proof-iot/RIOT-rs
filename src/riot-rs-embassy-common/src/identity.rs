@@ -30,7 +30,7 @@ pub trait DeviceId: Sized {
     ///
     /// In the long run, it will be preferable to add a `const BYTES_LEN: usize;` and enforce the
     /// type `[u8; Self::BYTES_LEN]` as the return value of [`.bytes(_)]`][Self::bytes]. This can
-    /// not be done yet as it depends on the `generic_const_exprs` featureVg
+    /// not be done yet as it depends on the `generic_const_exprs` feature.
     type Bytes: AsRef<[u8]>;
 
     /// Obtains a unique identifier of the device.
