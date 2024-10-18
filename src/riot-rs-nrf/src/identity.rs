@@ -16,6 +16,8 @@ impl riot_rs_embassy_common::identity::DeviceId for DeviceId {
         let ficr = unsafe { nrf52840_pac::Peripherals::steal().FICR };
         #[cfg(context = "nrf52832")]
         let ficr = unsafe { nrf52832_pac::Peripherals::steal().FICR };
+        #[cfg(context = "nrf52833")]
+        let ficr = unsafe { nrf52833_pac::Peripherals::steal().FICR };
         #[cfg(context = "nrf5340")]
         let ficr = &unsafe { nrf5340_app_pac::Peripherals::steal().FICR_S }.info;
 

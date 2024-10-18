@@ -35,6 +35,7 @@ nrf52832-pac = "0.12.2"
 [target.'cfg(context = "nrf52833")'.dependencies]
 # Disable NFC support for now, as we do not support it yet.
 embassy-nrf = { workspace = true, features = ["nfc-pins-as-gpio", "nrf52833"] }
+nrf52833-pac = "0.12.2"
 
 [target.'cfg(context = "nrf52840")'.dependencies]
 embassy-nrf = { workspace = true, features = ["nrf52840"] }

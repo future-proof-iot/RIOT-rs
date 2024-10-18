@@ -3762,6 +3762,7 @@ dependencies = [
  "embassy-nrf",
  "embedded-hal-async",
  "nrf52832-pac",
+ "nrf52833-pac",
  "nrf52840-pac",
  "nrf5340-app-pac",
  "paste",
