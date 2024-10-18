@@ -9,7 +9,7 @@
 ///
 /// <math xmlns="http://www.w3.org/1998/Math/MathML" display="block"><mrow><mi mathvariant="monospace">Value::value()</mi></mrow><mo>·</mo><msup><mn>10</mn><mrow><mi mathvariant="monospace">scaling</mi></mrow></msup></math>
 ///
-/// For instance, in the case of a temperature sensor, if [`Value::value()`] returns `2225` and the
+/// For instance, in the case of a temperature sensor, if [`Value::get()`] returns `2225` and the
 /// scaling value is `-2`, this means that the temperature measured and returned by the sensor
 /// device is `22.25` (the [measurement error](Accuracy) must additionally be taken into
 /// account).
@@ -37,7 +37,7 @@ impl Value {
 
     /// Returns the value.
     #[must_use]
-    pub fn value(&self) -> i32 {
+    pub fn get(&self) -> i32 {
         self.value
     }
 }
