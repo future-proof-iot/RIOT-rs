@@ -13,6 +13,8 @@
 
 pub mod buildinfo;
 
+pub mod identity;
+
 #[cfg(feature = "bench")]
 #[doc(inline)]
 pub use riot_rs_bench as bench;

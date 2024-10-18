@@ -10,8 +10,8 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
-defmt = { workspace = true, optional = true }
-fugit = { workspace = true, optional = true }
+defmt = { workspace = true }
+fugit = { workspace = true, optional = true, features = ["defmt"] }
 embassy-futures = { workspace = true }
 embassy-time = { workspace = true }
 embedded-hal = { workspace = true }
@@ -23,5 +23,3 @@ external-interrupts = []
 
 ## Enables I2C support.
 i2c = ["dep:fugit"]
-
-defmt = ["dep:defmt", "fugit?/defmt"]
