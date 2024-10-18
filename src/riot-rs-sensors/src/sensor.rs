@@ -34,8 +34,8 @@ pub trait Sensor: Send + Sync {
     ///
     /// # Errors
     ///
-    /// Returns [`MeasurementError::NonEnabled`] if the sensor driver is not enabled.
-    fn trigger_measurement(&self) -> Result<(), MeasurementError>;
+    /// Returns [`TriggerMeasurementError::NonEnabled`] if the sensor driver is not enabled.
+    fn trigger_measurement(&self) -> Result<(), TriggerMeasurementError>;
 
     /// Waits for the reading and returns it asynchronously.
     /// Depending on the sensor device and the sensor driver, this may use a sensor interrupt or
@@ -59,8 +59,8 @@ pub trait Sensor: Send + Sync {
     ///
     /// # Errors
     ///
-    /// Returns [`ModeSettingError::Uninitialized`] if the sensor driver is not initialized.
-    fn set_mode(&self, mode: Mode) -> Result<State, ModeSettingError>;
+    /// Returns [`SetModeError::Uninitialized`] if the sensor driver is not initialized.
+    fn set_mode(&self, mode: Mode) -> Result<State, SetModeError>;
 
     /// Returns the current sensor driver state.
     #[must_use]
@@ -148,13 +148,13 @@ pub enum Mode {
 /// Possible errors when attempting to set the mode of a sensor driver.
 #[derive(Debug)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
-pub enum ModeSettingError {
+pub enum SetModeError {
     /// The sensor driver is uninitialized.
     /// It has not been initialized yet, or initialization could not succeed.
     Uninitialized,
 }
 
-impl core::fmt::Display for ModeSettingError {
+impl core::fmt::Display for SetModeError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Self::Uninitialized => write!(f, "sensor driver is not initialized"),
@@ -162,7 +162,7 @@ impl core::fmt::Display for ModeSettingError {
     }
 }
 
-impl core::error::Error for ModeSettingError {}
+impl core::error::Error for SetModeError {}
 
 /// State of a sensor driver.
 #[derive(Debug, Copy, Clone, Default, PartialEq, Eq)]
@@ -283,12 +283,12 @@ pub type AccuracyFn = fn(Value) -> Accuracy;
 /// Represents errors happening when *triggering* a sensor measurement.
 #[derive(Debug)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
-pub enum MeasurementError {
+pub enum TriggerMeasurementError {
     /// The sensor driver is not enabled (e.g., it may be disabled or sleeping).
     NonEnabled,
 }
 
-impl core::fmt::Display for MeasurementError {
+impl core::fmt::Display for TriggerMeasurementError {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
         match self {
             Self::NonEnabled => write!(f, "sensor driver is not enabled"),
@@ -296,7 +296,7 @@ impl core::fmt::Display for MeasurementError {
     }
 }
 
-impl core::error::Error for MeasurementError {}
+impl core::error::Error for TriggerMeasurementError {}
 
 /// Represents errors happening when accessing a sensor reading.
 #[derive(Debug)]
