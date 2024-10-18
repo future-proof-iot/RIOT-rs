@@ -70,7 +70,7 @@ pub enum Accuracy {
     ///
     /// ```
     /// # use riot_rs_sensors::sensor::Accuracy;
-    /// Accuracy {
+    /// Accuracy::SymmetricalError {
     ///     deviation: 25,
     ///     bias: -20,
     ///     scaling: -2,
