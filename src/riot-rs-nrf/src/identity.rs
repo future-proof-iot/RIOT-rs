@@ -1,4 +1,3 @@
-#[derive(Debug, defmt::Format)]
 pub struct DeviceId(u64);
 
 impl riot_rs_embassy_common::identity::DeviceId for DeviceId {
