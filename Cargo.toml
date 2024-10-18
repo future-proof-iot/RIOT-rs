@@ -156,6 +156,8 @@ unexpected_cfgs = "allow"
 # Clippy lints are documented here: https://rust-lang.github.io/rust-clippy/master/index.html
 indexing_slicing = "deny"
 missing_safety_doc = { level = "warn" }
+too_long_first_doc_paragraph = "warn"
+unused_result_ok = "deny"
 
 [workspace.lints.rustdoc]
 broken_intra_doc_links = "deny"
