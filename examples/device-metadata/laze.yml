@@ -3,3 +3,5 @@ apps:
     selects:
       - ?release
       - sw/threading
+    depends:
+      - debug-console
