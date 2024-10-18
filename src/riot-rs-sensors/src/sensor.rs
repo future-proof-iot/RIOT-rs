@@ -146,11 +146,23 @@ pub enum Mode {
 }
 
 /// Possible errors when attempting to set the mode of a sensor driver.
+#[derive(Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum ModeSettingError {
     /// The sensor driver is uninitialized.
     /// It has not been initialized yet, or initialization could not succeed.
     Uninitialized,
 }
+
+impl core::fmt::Display for ModeSettingError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        match self {
+            Self::Uninitialized => write!(f, "sensor driver is not initialized"),
+        }
+    }
+}
+
+impl core::error::Error for ModeSettingError {}
 
 /// State of a sensor driver.
 #[derive(Debug, Copy, Clone, Default, PartialEq, Eq)]
@@ -198,7 +210,13 @@ impl TryFrom<u8> for State {
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub struct TryFromIntError;
 
-riot_rs_macros::define_count_adjusted_enums!();
+impl core::fmt::Display for TryFromIntError {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(f, "out of range integral type conversion attempted")
+    }
+}
+
+impl core::error::Error for TryFromIntError {}
 
 /// Provides metadata about a [`Value`].
 #[derive(Debug, Copy, Clone, PartialEq)]
