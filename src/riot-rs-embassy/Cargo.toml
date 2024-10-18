@@ -114,6 +114,7 @@ defmt = [
   "embassy-net?/defmt",
   "embassy-time?/defmt",
   "embassy-usb?/defmt",
+  "riot-rs-embassy-common/defmt",
   "riot-rs-esp/defmt",
   "riot-rs-nrf/defmt",
   "riot-rs-rp/defmt",

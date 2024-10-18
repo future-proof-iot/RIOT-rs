@@ -11,7 +11,7 @@ workspace = true
 
 [dependencies]
 cfg-if = { workspace = true }
-defmt = { workspace = true }
+defmt = { workspace = true, optional = true }
 embassy-executor = { workspace = true, default-features = false, features = [
   "arch-cortex-m",
 ] }
@@ -61,8 +61,7 @@ i2c = ["riot-rs-embassy-common/i2c", "embassy-executor/integrated-timers"]
 usb = []
 
 ## Enables defmt support.
-# (at least in dependencies; the crate itself needs it for its DeviceId type)
-defmt = ["embassy-nrf/defmt"]
+defmt = ["dep:defmt", "embassy-nrf/defmt"]
 
 ## Enables the interrupt executor.
 executor-interrupt = ["embassy-executor/executor-interrupt"]
