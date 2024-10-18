@@ -18,6 +18,7 @@ members = [
   "src/riot-rs-nrf",
   "src/riot-rs-random",
   "src/riot-rs-rp",
+  "src/riot-rs-sensors",
   "src/riot-rs-stm32",
   "tests/benchmarks/bench_sched_flags",
   "tests/benchmarks/bench_sched_yield",
@@ -85,9 +86,11 @@ riot-rs-boards = { path = "src/riot-rs-boards", default-features = false }
 riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
 riot-rs-embassy = { path = "src/riot-rs-embassy", default-features = false }
 riot-rs-embassy-common = { path = "src/riot-rs-embassy-common" }
+riot-rs-macros = { path = "src/riot-rs-macros" }
 riot-rs-random = { path = "src/riot-rs-random" }
 riot-rs-rt = { path = "src/riot-rs-rt" }
 riot-rs-runqueue = { path = "src/riot-rs-runqueue" }
+riot-rs-sensors = { path = "src/riot-rs-sensors" }
 riot-rs-stm32 = { path = "src/riot-rs-stm32" }
 riot-rs-utils = { path = "src/riot-rs-utils", default-features = false }
 
@@ -102,6 +105,7 @@ once_cell = { version = "=1.19.0", default-features = false, features = [
   "critical-section",
 ] }
 paste = { version = "1.0" }
+pin-project = "1.1.6"
 static_cell = { version = "2.0.0", features = ["nightly"] }
 
 [profile.dev]

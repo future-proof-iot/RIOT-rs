@@ -23,6 +23,9 @@ pub use riot_rs_debug as debug;
 pub use riot_rs_random as random;
 #[doc(inline)]
 pub use riot_rs_rt as rt;
+#[cfg(feature = "sensors")]
+#[doc(inline)]
+pub use riot_rs_sensors as sensors;
 #[cfg(feature = "threading")]
 #[doc(inline)]
 pub use riot_rs_threads as thread;
