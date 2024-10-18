@@ -22,6 +22,7 @@ pub static REGISTRY: Registry = Registry::new();
 ///
 /// This is exposed as [`REGISTRY`].
 pub struct Registry {
+    // Prevents instantiation from outside this module.
     _private: (),
 }
 

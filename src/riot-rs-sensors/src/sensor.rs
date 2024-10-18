@@ -131,7 +131,7 @@ impl Future for ReadingWaiter {
 }
 
 /// Mode of a sensor driver.
-#[derive(Copy, Clone, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Mode {
     /// The sensor driver is disabled.
@@ -151,7 +151,7 @@ pub enum ModeSettingError {
 }
 
 /// State of a sensor driver.
-#[derive(Copy, Clone, Default, PartialEq, Eq)]
+#[derive(Debug, Copy, Clone, Default, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u8)]
 pub enum State {
@@ -199,8 +199,10 @@ pub struct TryFromIntError;
 riot_rs_macros::define_count_adjusted_enums!();
 
 /// Provides metadata about a [`Value`].
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
+// NOTE(derive): we do not implement `Eq` on purpose: its would prevent us from possibly adding
+// floats in the future.
 pub struct ReadingAxis {
     label: Label,
     scaling: i8,
