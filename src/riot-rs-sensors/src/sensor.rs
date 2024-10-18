@@ -40,13 +40,19 @@ pub trait Sensor: Send + Sync {
     /// Waits for the reading and returns it asynchronously.
     /// Depending on the sensor device and the sensor driver, this may use a sensor interrupt or
     /// data polling.
-    ///
     /// Interpretation of the reading requires data from [`Sensor::reading_axes()`] as well.
     /// See [the module level documentation](crate) for more.
+    ///
+    /// # Note
+    ///
+    /// It is necessary to trigger a measurement by calling [`Sensor::trigger_measurement()`]
+    /// beforehand, even if the sensor device carries out periodic measurements on its own.
     ///
     /// # Errors
     ///
     /// - Quickly returns [`ReadingError::NonEnabled`] if the sensor driver is not enabled.
+    /// - Quickly returns [`ReadingError::NotMeasuring`] if no measurement has been triggered
+    ///   beforehand using [`Sensor::trigger_measurement()`].
     /// - Returns [`ReadingError::SensorAccess`] if the sensor device cannot be accessed.
     fn wait_for_reading(&'static self) -> ReadingWaiter;
 
@@ -177,8 +183,10 @@ pub enum State {
     Disabled = 1,
     /// The sensor driver is enabled.
     Enabled = 2,
+    /// The sensor driver is enabled and a measurement has been triggered.
+    Measuring = 3,
     /// The sensor driver is sleeping.
-    Sleeping = 3,
+    Sleeping = 4,
 }
 
 impl From<Mode> for State {
@@ -196,10 +204,11 @@ impl TryFrom<u8> for State {
 
     fn try_from(int: u8) -> Result<Self, Self::Error> {
         match int {
-            0 => Ok(State::Uninitialized),
-            1 => Ok(State::Disabled),
-            2 => Ok(State::Enabled),
-            3 => Ok(State::Sleeping),
+            0 => Ok(Self::Uninitialized),
+            1 => Ok(Self::Disabled),
+            2 => Ok(Self::Enabled),
+            3 => Ok(Self::Measuring),
+            4 => Ok(Self::Sleeping),
             _ => Err(TryFromIntError),
         }
     }
@@ -306,6 +315,10 @@ pub enum ReadingError {
     NonEnabled,
     /// Cannot access the sensor device (e.g., because of a bus error).
     SensorAccess,
+    /// No measurement has been triggered before waiting for a reading.
+    /// It is necessary to call [`Sensor::trigger_measurement()`] before calling
+    /// [`Sensor::wait_for_reading()`].
+    NotMeasuring,
 }
 
 impl core::fmt::Display for ReadingError {
@@ -313,6 +326,7 @@ impl core::fmt::Display for ReadingError {
         match self {
             Self::NonEnabled => write!(f, "sensor driver is not enabled"),
             Self::SensorAccess => write!(f, "sensor device could not be accessed"),
+            Self::NotMeasuring => write!(f, "no measurement has been triggered"),
         }
     }
 }
