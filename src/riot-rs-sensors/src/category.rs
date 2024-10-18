@@ -1,6 +1,6 @@
-/// Categories a sensor can be part of.
+/// Categories a sensor driver can be part of.
 ///
-/// A sensor can be part of multiple categories.
+/// A sensor driver can be part of multiple categories.
 ///
 /// # For sensor driver implementors
 ///
