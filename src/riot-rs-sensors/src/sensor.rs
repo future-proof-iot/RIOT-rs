@@ -14,6 +14,8 @@ pub use crate::{
     Reading,
 };
 
+riot_rs_macros::define_count_adjusted_sensor_enums!();
+
 /// This trait must be implemented by sensor drivers.
 ///
 /// See [the module level documentation](crate) for more.

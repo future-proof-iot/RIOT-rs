@@ -1,5 +1,5 @@
 #[proc_macro]
-pub fn define_count_adjusted_enums(_item: TokenStream) -> TokenStream {
+pub fn define_count_adjusted_sensor_enums(_item: TokenStream) -> TokenStream {
     use quote::quote;
 
     #[allow(clippy::wildcard_imports)]
