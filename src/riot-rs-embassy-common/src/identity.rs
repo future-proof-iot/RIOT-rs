@@ -16,13 +16,7 @@
 /// as MAC addresses. By default, those would be generated in some way from what is available in
 /// the identifier -- but boards where the identifier already *is* a MAC address (or possibly a
 /// range thereof) can provide their official addresses.
-///
-/// This trait is `Sealed` in the `riot-rs-embassy-common` crate to ensure that associated types
-/// and non-provided methods can be added. Therefore, its re-export in the `riot-rs` crate is a
-/// promise that the trait evolves at the (slower) `riot-rs` speed towards users, while it can
-/// evolve at the (possibly faster) RIOT-rs internal speed of `riot-rs-embassy-common` for
-/// implementers.
-pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format + crate::Sealed {
+pub trait DeviceId: Sized {
     /// Some `[u8; N]` type, returned by [`.bytes()`][Self::bytes].
     ///
     /// This may not represent all the identifying information available on the board, but can
@@ -48,22 +42,11 @@ pub trait DeviceId: Sized + core::fmt::Debug + defmt::Format + crate::Sealed {
     ///
     /// This produces an error if no device ID is available on this board, or is not implemented.
     /// It is encouraged to use [`core::convert::Infallible`] where possible.
-    fn get() -> Result<Self, impl Error>;
+    fn get() -> Result<Self, impl core::error::Error>;
 
     /// The device identifier in serialized bytes format.
     fn bytes(&self) -> Self::Bytes;
 }
-
-/// Error trait for obtaining [`DeviceId`].
-///
-/// This is part of the signature of [`DeviceId::get`], and indicates that no identifier is
-/// available.
-///
-/// Like [`DeviceId`], it is sealed; the same considerations for stability as listed there apply.
-pub trait Error: core::error::Error + defmt::Format + crate::Sealed {}
-
-impl crate::Sealed for core::convert::Infallible {}
-impl Error for core::convert::Infallible {}
 
 /// An uninhabited type implementing [`DeviceId`] that always errs.
 ///
@@ -71,17 +54,18 @@ impl Error for core::convert::Infallible {}
 /// and when it has not yet been implemented.
 ///
 /// Typical types for `E` are [`NotImplemented`] or [`NotAvailable`].
-#[derive(Debug, defmt::Format)]
-pub struct NoDeviceId<E: Error + Default>(core::convert::Infallible, core::marker::PhantomData<E>);
+#[derive(Debug)]
+pub struct NoDeviceId<E: core::error::Error + Default>(
+    core::convert::Infallible,
+    core::marker::PhantomData<E>,
+);
 
-impl<E: Error + Default> crate::Sealed for NoDeviceId<E> {}
-
-impl<E: Error + Default> DeviceId for NoDeviceId<E> {
+impl<E: core::error::Error + Default> DeviceId for NoDeviceId<E> {
     // We could also come up with a custom never type that AsRef's into [u8], but that won't fly
     // once there is a BYTES_LEN.
     type Bytes = [u8; 0];
 
-    fn get() -> Result<Self, impl Error> {
+    fn get() -> Result<Self, impl core::error::Error> {
         Err::<_, E>(Default::default())
     }
 
@@ -91,7 +75,7 @@ impl<E: Error + Default> DeviceId for NoDeviceId<E> {
 }
 
 /// Error indicating that a [`DeviceId`] may be available on this platform, but is not implemented.
-#[derive(Debug, Default, defmt::Format)]
+#[derive(Debug, Default)]
 pub struct NotImplemented;
 
 impl core::fmt::Display for NotImplemented {
@@ -100,12 +84,10 @@ impl core::fmt::Display for NotImplemented {
     }
 }
 
-impl crate::Sealed for NotImplemented {}
 impl core::error::Error for NotImplemented {}
-impl Error for NotImplemented {}
 
 /// Error indicating that a [`DeviceId`] is not available on this platform.
-#[derive(Debug, Default, defmt::Format)]
+#[derive(Debug, Default)]
 pub struct NotAvailable;
 
 impl core::fmt::Display for NotAvailable {
@@ -114,6 +96,4 @@ impl core::fmt::Display for NotAvailable {
     }
 }
 
-impl crate::Sealed for NotAvailable {}
 impl core::error::Error for NotAvailable {}
-impl Error for NotAvailable {}

@@ -1,8 +1,6 @@
 #[derive(Debug, defmt::Format)]
 pub struct DeviceId(u64);
 
-impl riot_rs_embassy_common::Sealed for DeviceId {}
-
 impl riot_rs_embassy_common::identity::DeviceId for DeviceId {
     #[allow(
         refining_impl_trait_reachable,

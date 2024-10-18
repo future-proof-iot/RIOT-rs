@@ -1,8 +1,6 @@
 #[derive(Debug, defmt::Format)]
 pub struct DeviceId(&'static [u8; 12]);
 
-impl riot_rs_embassy_common::Sealed for DeviceId {}
-
 impl riot_rs_embassy_common::identity::DeviceId for DeviceId {
     type Bytes = &'static [u8; 12];
 

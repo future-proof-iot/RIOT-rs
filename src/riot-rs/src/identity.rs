@@ -1,7 +1,7 @@
 //! Access to unique identifiers provided by the device.
 //!
-//! The main way to use this module is [`device_identity()`], which returns an identifier for the
-//! concrete piece of hardware that the software is running on.
+//! The main way to use this module is [`device_id_bytes()`], which returns an identifier for the
+//! concrete piece of hardware that the software is running on in byte serialized form.
 //!
 //! Concrete properties of a device identity are:
 //!
@@ -23,10 +23,9 @@
 //! becomes an error as result of an update to RIOT-rs. Errors changing to valid identifiers is a
 //! compatible change.
 
-#[doc(inline)]
-pub use riot_rs_embassy_common::identity::{DeviceId, Error};
+/// Obtains a unique identifier of the device in its byte serialized form.
+pub fn device_id_bytes() -> Result<impl AsRef<[u8]>, impl core::error::Error> {
+    use riot_rs_embassy_common::identity::DeviceId;
 
-/// Obtains a unique identifier of the device.
-pub fn device_identity() -> Result<impl DeviceId, impl Error> {
-    riot_rs_embassy::arch::identity::DeviceId::get()
+    riot_rs_embassy::arch::identity::DeviceId::get().map(|d| d.bytes())
 }

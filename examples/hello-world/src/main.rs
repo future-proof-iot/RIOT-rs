@@ -9,7 +9,10 @@ fn main() {
     info!(
         "Hello from main()! Running on {} board identified as {:x}.",
         riot_rs::buildinfo::BOARD,
-        riot_rs::identity::device_identity(),
+        riot_rs::identity::device_id_bytes()
+            .ok()
+            .as_ref()
+            .map(|b| b.as_ref()),
     );
 
     exit(Ok(()));
