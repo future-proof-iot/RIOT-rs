@@ -6,6 +6,8 @@ use cfg_if::cfg_if;
 cfg_if! {
     if #[cfg(feature = "ai-c3")] {
         pub use ai_c3 as board;
+    } else if #[cfg(feature = "espressif-esp32-c3-lcdkit")] {
+        pub use espressif_esp32_c3_lcdkit as board;
     } else if #[cfg(feature = "espressif-esp32-c6-devkitc-1")] {
         pub use espressif_esp32_c6_devkitc_1 as board;
     } else if #[cfg(feature = "espressif-esp32-s3-wroom-1")] {
