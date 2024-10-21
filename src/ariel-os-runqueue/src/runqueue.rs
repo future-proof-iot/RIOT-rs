@@ -208,8 +208,8 @@ pub struct RunQueueIter<'a, const N_QUEUES: usize, const N_THREADS: usize> {
     bitcache: usize,
 }
 
-impl<'a, const N_QUEUES: usize, const N_THREADS: usize> Iterator
-    for RunQueueIter<'a, { N_QUEUES }, { N_THREADS }>
+impl<const N_QUEUES: usize, const N_THREADS: usize> Iterator
+    for RunQueueIter<'_, { N_QUEUES }, { N_THREADS }>
 {
     type Item = ThreadId;
     fn next(&mut self) -> Option<Self::Item> {
