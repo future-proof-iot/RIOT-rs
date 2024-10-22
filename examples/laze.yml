@@ -14,8 +14,8 @@ subdirs:
   - embassy-net-udp
   - embassy-usb-keyboard
   - gpio
+  - hello-world
   - hello-world-threading
-  - hello-world-async
   - log
   - minimal
   - random
