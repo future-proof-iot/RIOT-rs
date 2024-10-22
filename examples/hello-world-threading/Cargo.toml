@@ -1,5 +1,5 @@
 [package]
-name = "hello-world"
+name = "hello-world-threading"
 version = "0.1.0"
 authors.workspace = true
 license.workspace = true
