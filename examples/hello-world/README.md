@@ -1,10 +1,8 @@
-# hello-world
+# hello-world-async
 
 ## About
 
-This application is the most basic test application.
-It prints "Hello World!" _via debug console_.
-It needs to be run within a debug session.
+This application is the classic example using async Rust.
 
 ## How to run
 

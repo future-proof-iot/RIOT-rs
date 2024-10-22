@@ -12,3 +12,5 @@ workspace = true
 [dependencies]
 riot-rs = { path = "../../src/riot-rs" }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
+
+embassy-executor = { workspace = true, default-features = false }

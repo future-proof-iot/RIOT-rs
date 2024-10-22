@@ -1,4 +1,0 @@
-apps:
-  - name: hello-world-async
-    selects:
-      - ?release

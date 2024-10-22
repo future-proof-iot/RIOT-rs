@@ -2,4 +2,3 @@ apps:
   - name: hello-world
     selects:
       - ?release
-      - sw/threading

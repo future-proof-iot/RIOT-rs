@@ -1,5 +1,5 @@
 [package]
-name = "hello-world-async"
+name = "hello-world-threading"
 version = "0.1.0"
 authors.workspace = true
 license.workspace = true
@@ -12,5 +12,3 @@ workspace = true
 [dependencies]
 riot-rs = { path = "../../src/riot-rs" }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
-
-embassy-executor = { workspace = true, default-features = false }
