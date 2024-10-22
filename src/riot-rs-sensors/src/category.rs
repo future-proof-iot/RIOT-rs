@@ -13,12 +13,32 @@
 pub enum Category {
     /// Accelerometer.
     Accelerometer,
+    /// Ammeter (ampere meter).
+    Ammeter,
+    /// CO₂ gas sensor.
+    Co2Gas,
+    /// Color sensor.
+    Color,
+    /// Gyroscope.
+    Gyroscope,
     /// Humidity sensor.
     Humidity,
     /// Humidity and temperature sensor.
     HumidityTemperature,
+    /// Light sensor.
+    Light,
+    /// Magnetometer.
+    Magnetometer,
+    /// pH sensor.
+    Ph,
+    /// Pressure sensor.
+    Pressure,
     /// Push button.
     PushButton,
     /// Temperature sensor.
     Temperature,
+    /// TVOC sensor.
+    Tvoc,
+    /// Voltage sensor.
+    Voltage,
 }
