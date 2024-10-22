@@ -236,7 +236,6 @@ pub struct ReadingAxis {
     label: Label,
     scaling: i8,
     unit: MeasurementUnit,
-    accuracy: Accuracy,
 }
 
 impl ReadingAxis {
@@ -244,12 +243,11 @@ impl ReadingAxis {
     ///
     /// This constructor is intended for sensor driver implementors only.
     #[must_use]
-    pub fn new(label: Label, scaling: i8, unit: MeasurementUnit, accuracy: Accuracy) -> Self {
+    pub fn new(label: Label, scaling: i8, unit: MeasurementUnit) -> Self {
         Self {
             label,
             scaling,
             unit,
-            accuracy,
         }
     }
 
@@ -269,19 +267,6 @@ impl ReadingAxis {
     #[must_use]
     pub fn unit(&self) -> MeasurementUnit {
         self.unit
-    }
-
-    /// Returns the accuracy of the most recent reading obtained with
-    /// [`Sensor::wait_for_reading()`].
-    /// Returns [`Accuracy::NoReading`] when no reading has been obtained yet.
-    ///
-    /// # Note
-    ///
-    /// As the accuracy depends on the reading and also on other internal conditions, the accuracy
-    /// must be obtained anew for each reading.
-    #[must_use]
-    pub fn accuracy(&self) -> Accuracy {
-        self.accuracy
     }
 }
 

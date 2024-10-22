@@ -36,9 +36,6 @@
 //!   to, using a [`Label`].
 //!   For instance, this allows to disambiguate the values provided by a temperature & humidity
 //!   sensor.
-//!   Each [`ReadingAxis`](sensor::ReadingAxis) also provides information about the
-//!   measurement accuracy, through
-//!   [`ReadingAxis::accuracy()`](sensor::ReadingAxis::accuracy).
 //!
 //! To avoid handling floats, [`Value`](value::Value)s returned by [`Sensor::wait_for_reading()`]
 //! are integers, and a fixed scaling value is provided in [`ReadingAxis`](sensor::ReadingAxis),
