@@ -77,6 +77,9 @@ i2c = [
 ## Enables defmt support.
 defmt = ["dep:defmt", "esp-wifi?/defmt", "fugit?/defmt"]
 
+## Enables threading support.
+threading = []
+
 ## Enables Wi-Fi support.
 wifi = []
 
