@@ -372,7 +372,11 @@ impl<O, I> From<O> for OrInner<O, I> {
 }
 
 impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrInner<O, I> {
-    type Error<IE> = OrInner<O::Error<IE>, I::Error<IE>> where IE: RenderableOnMinimal, IE: core::fmt::Debug;
+    type Error<IE>
+        = OrInner<O::Error<IE>, I::Error<IE>>
+    where
+        IE: RenderableOnMinimal,
+        IE: core::fmt::Debug;
     fn render<M: MinimalWritableMessage>(
         self,
         msg: &mut M,
