@@ -76,6 +76,7 @@ esp-hal = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-
 esp-hal-embassy = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1", default-features = false }
 esp-println = "0.11.0"
 esp-wifi = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1", default-features = false }
+xtensa-lx-rt = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1", default-features = false }
 
 linkme = { version = "0.3.21", features = ["used_linker"] }
 

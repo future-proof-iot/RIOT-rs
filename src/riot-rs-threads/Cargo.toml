@@ -20,6 +20,9 @@ static_cell.workspace = true
 
 defmt = { workspace = true, optional = true }
 
+[target.'cfg(context = "xtensa")'.dependencies]
+xtensa-lx-rt = { workspace = true, features = ["float-save-restore"] }
+
 [target.'cfg(context = "esp32c3")'.dependencies]
 esp-hal = { workspace = true, features = ["esp32c3"] }
 
