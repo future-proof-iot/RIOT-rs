@@ -236,7 +236,7 @@ pub struct ReadingAxis {
     label: Label,
     scaling: i8,
     unit: MeasurementUnit,
-    accuracy: AccuracyFn,
+    accuracy: Accuracy,
 }
 
 impl ReadingAxis {
@@ -244,7 +244,7 @@ impl ReadingAxis {
     ///
     /// This constructor is intended for sensor driver implementors only.
     #[must_use]
-    pub fn new(label: Label, scaling: i8, unit: MeasurementUnit, accuracy: AccuracyFn) -> Self {
+    pub fn new(label: Label, scaling: i8, unit: MeasurementUnit, accuracy: Accuracy) -> Self {
         Self {
             label,
             scaling,
@@ -271,23 +271,19 @@ impl ReadingAxis {
         self.unit
     }
 
-    /// Returns a function allowing to obtain the accuracy error of a recently obtained
-    /// [`Value`].
+    /// Returns the accuracy of the most recent reading obtained with
+    /// [`Sensor::wait_for_reading()`].
+    /// Returns [`Accuracy::NoReading`] when no reading has been obtained yet.
     ///
     /// # Note
     ///
-    /// As the accuracy may depend on the sensor driver configuration, that accuracy function
-    /// should only be used for one [`Value`] instance, and it is necessary to obtain an
-    /// up-to-date function through an up-to-date [`ReadingAxis`].
+    /// As the accuracy depends on the reading and also on other internal conditions, the accuracy
+    /// must be obtained anew for each reading.
     #[must_use]
-    pub fn accuracy_fn(&self) -> AccuracyFn {
+    pub fn accuracy(&self) -> Accuracy {
         self.accuracy
     }
 }
-
-/// Function allowing to obtain the accuracy error of a [`Value`], returned by
-/// [`ReadingAxis::accuracy_fn()`].
-pub type AccuracyFn = fn(Value) -> Accuracy;
 
 /// Represents errors happening when *triggering* a sensor measurement.
 #[derive(Debug)]

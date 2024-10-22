@@ -45,9 +45,6 @@ impl Value {
 }
 
 /// Specifies the accuracy of a measurement.
-///
-/// The [`Accuracy`] should be obtained quickly after obtaining the [`Value`], as the
-/// accuracy can be affected by a change in the internal state of the sensor driver.
 #[derive(Debug, Copy, Clone, PartialEq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Accuracy {
@@ -55,6 +52,8 @@ pub enum Accuracy {
     Unknown,
     /// No measurement error (e.g., boolean values from a push button).
     NoError,
+    /// No reading has been obtained yet.
+    NoReading,
     /// Measurement error symmetrical around the [`bias`](Accuracy::SymmetricalError::bias).
     ///
     /// The unit of measurement is provided by the [`ReadingAxis`](crate::sensor::ReadingAxis)
