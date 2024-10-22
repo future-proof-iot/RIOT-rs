@@ -30,6 +30,8 @@ pub struct Value {
 
 impl Value {
     /// Creates a new value.
+    ///
+    /// This constructor is intended for sensor driver implementors only.
     #[must_use]
     pub const fn new(value: i32) -> Self {
         Self { value }
