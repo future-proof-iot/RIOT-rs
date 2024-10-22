@@ -818,6 +818,9 @@ builders:
   - name: ai-c3
     parent: esp32c3
 
+  - name: espressif-esp32-c3-lcdkit
+    parent: esp32c3
+
   - name: espressif-esp32-c6-devkitc-1
     parent: esp32c6
 
