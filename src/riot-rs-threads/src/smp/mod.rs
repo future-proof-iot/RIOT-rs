@@ -42,6 +42,9 @@ pub trait Multicore {
     fn startup_other_cores();
 
     fn sev();
+
+    /// Triggers the scheduler on core `id`.
+    fn schedule_on_core(id: CoreId);
 }
 
 cfg_if::cfg_if! {
@@ -50,6 +53,8 @@ cfg_if::cfg_if! {
         pub use rp2040::Chip;
     }
     else {
+        use crate::{Arch as _, Cpu};
+
         pub struct Chip;
         impl Multicore for Chip {
             const CORES: u32 = 1;
@@ -61,10 +66,19 @@ cfg_if::cfg_if! {
             fn startup_other_cores() {}
 
             fn sev() {}
+
+            fn schedule_on_core(_id: CoreId) {
+                Cpu::schedule();
+            }
         }
     }
 }
 
 pub fn sev() {
     Chip::sev()
+}
+
+/// Triggers the scheduler on core `id`.
+pub fn schedule_on_core(id: CoreId) {
+    Chip::schedule_on_core(id)
 }
