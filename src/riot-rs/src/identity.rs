@@ -11,7 +11,7 @@
 //! * The scope of the identifier is within a RIOT-rs board. Their scope may be broader, eg. when
 //!   a identifier is unique per MCU family, or even globally.
 //!
-//! * Identifiers do not change during regular development with a board, which includes the use of
+//! * Identifiers do not change during regular development with a device, which includes the use of
 //!   a programmer. Identifiers may change under deliberate conditions, eg. when a device has a
 //!   one-time programmable identity, or when there is a custom functionality to overwrite the
 //!   built-in identifier that is not triggered by the device erase that is performed as part of
@@ -19,11 +19,12 @@
 //!
 //! Constructing an identifier fails rather than produce a dummy identifier.
 //!
-//! It is considered a breaking change in a board or this module if a board's identifier changes or
-//! becomes an error as result of an update to RIOT-rs. Errors changing to valid identifiers is a
-//! compatible change.
+//! It is considered a breaking change in RIOT-rs if a a device's identifier changes or becomes an
+//! error. Errors changing to valid identifiers is a compatible change.
 
 /// Obtains a unique identifier of the device in its byte serialized form.
+///
+/// See module level documentation for that identifier's properties.
 pub fn device_id_bytes() -> Result<impl AsRef<[u8]>, impl core::error::Error> {
     use riot_rs_embassy_common::identity::DeviceId;
 

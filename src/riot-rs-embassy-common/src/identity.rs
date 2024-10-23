@@ -1,29 +1,29 @@
 //! Tools and traits for describing device identities.
 //!
-//! See `riot_rs::identity` for general documentation.
+//! See `riot_rs::identity` for general documentation; that module also represents the public parts
+//! of this API.
 #![deny(missing_docs)]
 
-/// Trait describing the unique identifier available on a board.
+/// Trait describing the unique identifier available on a device.
 ///
 /// See the module level documentation on the characteristics of the identifier.
 ///
 /// # Evolution
 ///
-/// In its current state, this type is mainly a wrapper around a binary identifier with a
-/// length constant at build time.
+/// In its current state, this type is mainly a wrapper around a binary identifier.
 ///
 /// As it is used more, additional methods can be provided for concrete types of identifiers, such
 /// as MAC addresses. By default, those would be generated in some way from what is available in
-/// the identifier -- but boards where the identifier already *is* a MAC address (or possibly a
+/// the identifier -- but devices where the identifier already *is* a MAC address (or possibly a
 /// range thereof) can provide their official addresses.
 pub trait DeviceId: Sized {
     /// Some `[u8; N]` type, returned by [`.bytes()`][Self::bytes].
     ///
-    /// This may not represent all the identifying information available on the board, but can
+    /// This may not represent all the identifying information available on the device, but can
     /// represent a unique portion thereof.
     ///
     /// (For example, if a device has two consecutive MAC addresses assigned, the type as a whole
-    /// may represent both, but the conventional serialized identity of the board may just be one
+    /// may represent both, but the conventional serialized identity of the device may just be one
     /// of them).
     ///
     /// # Evolution
@@ -34,9 +34,6 @@ pub trait DeviceId: Sized {
     type Bytes: AsRef<[u8]>;
 
     /// Obtains a unique identifier of the device.
-    ///
-    /// For callers, there is the convenience function `riot_rs::identity::device_identity()`
-    /// available, which just calls this trait method on `riot_rs::arch::identity::DeviceId`.
     ///
     /// # Errors
     ///
@@ -74,25 +71,25 @@ impl<E: core::error::Error + Default> DeviceId for NoDeviceId<E> {
     }
 }
 
-/// Error indicating that a [`DeviceId`] may be available on this platform, but is not implemented.
+/// Error indicating that a [`DeviceId`] may be available on this device, but is not implemented.
 #[derive(Debug, Default)]
 pub struct NotImplemented;
 
 impl core::fmt::Display for NotImplemented {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.write_str("Device ID not implemented on this platform")
+        f.write_str("Device ID not implemented on this device")
     }
 }
 
 impl core::error::Error for NotImplemented {}
 
-/// Error indicating that a [`DeviceId`] is not available on this platform.
+/// Error indicating that a [`DeviceId`] is not available on this device.
 #[derive(Debug, Default)]
 pub struct NotAvailable;
 
 impl core::fmt::Display for NotAvailable {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
-        f.write_str("Device ID not available on this platform")
+        f.write_str("Device ID not available on this device")
     }
 }
 
