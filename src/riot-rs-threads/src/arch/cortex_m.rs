@@ -1,6 +1,6 @@
 use super::Arch;
 use crate::Thread;
-use core::arch::asm;
+use core::arch::naked_asm;
 use core::ptr::write_volatile;
 use cortex_m::peripheral::SCB;
 
@@ -73,7 +73,7 @@ impl Arch for Cpu {
 #[allow(non_snake_case)]
 unsafe extern "C" fn PendSV() {
     unsafe {
-        asm!(
+        naked_asm!(
             "
             bl {sched}
             cmp r0, #0
@@ -102,7 +102,6 @@ unsafe extern "C" fn PendSV() {
             bx LR
             ",
             sched = sym sched,
-            options(noreturn)
         )
     };
 }
@@ -113,7 +112,7 @@ unsafe extern "C" fn PendSV() {
 #[allow(non_snake_case)]
 unsafe extern "C" fn PendSV() {
     unsafe {
-        asm!(
+        naked_asm!(
             "
             bl sched
             cmp r0, #0
@@ -161,7 +160,6 @@ unsafe extern "C" fn PendSV() {
             999:
             .word 0xFFFFFFFD
             ",
-            options(noreturn)
         )
     };
 }
