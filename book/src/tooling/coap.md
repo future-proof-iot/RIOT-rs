@@ -9,16 +9,12 @@ but geared towards IoT devices in its format and its security mechanisms.
 CoAP provides a versatile set of transports
 (with IETF Proposed Standards for running [over UDP] including multicast, [over TCP and WebSockets],
 other standards for running [over SMS and NB-IoT], and more in development).
-It relies on proxies to span across transports and accommodate the characteristics of particular networks,
+It relies on proxies to span across transports and to accommodate the characteristics of particular networks,
 and offers features exceeding the classical REST set such as [observation].
 
 **RIOT-rs supports** the use of CoAP
 for implementing clients, servers or both in a single device.
-As there is more complexity in a CoAP client than a CoAP server,
-the most minimal use is to just have a CoAP server on the embedded system.
-Having both components in use is also a common choice.
-
-Also, as part of our mission for strong security,
+As part of our mission for strong security,
 we use encrypted CoAP traffic by default as explained below.
 
 [CoAP]: https://coap.space/
@@ -37,10 +33,9 @@ and a path `/fwup` for interacting with firmware updates.
 The CoAP implementation can put additional resources at well-known locations,
 eg. `/.well-known/core` for discovery or `/.well-known/edhoc` for establishing secure connections.
 
-The handler only needs to concern itself with basic security aspects
+The handler needs to concern itself with security aspects of the request content
 (eg. file format parsers should treat incoming data as possibly malformed),
-but is not the main enforcement point.
-
+but the decision whether or not a request is allowed is delegated to an [access policy](#server-access-policy).
 
 [provided as `examples/coap`]: https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/coap
 [its `run()` function]: https://github.com/future-proof-iot/RIOT-rs/blob/2b76e560394884d3c8f7eaae51beefd59a316d7b/examples/coap/src/main.rs#L70
@@ -56,7 +51,7 @@ A program that triggers a CoAP request provides[^whatsinarequest] some component
 
   Note that while the address is printed here as a text URL
   (and may even be entered as such in code),
-  it is kept in memory and sent as binary components.
+  its memory and transmitted representations are binary components.
 
 * Optionally, directions regarding how to reach or find the host.
 
@@ -66,10 +61,10 @@ A program that triggers a CoAP request provides[^whatsinarequest] some component
 
 * A policy reference on how to authenticate the server, and which identity to present.
   This is optional if there is a global policy,
-  or if there is an implied security mechanism for the origin.
+  or if there is an implied security mechanism for the URL.
 
 
-[^whatsinarequest]: These components required for a request are not documented as such in the CoAP RFCs,
+[^whatsinarequest]: The components required for a request are not documented as such in the CoAP RFCs,
     but it is the author's opinion that they are a factual requirement:
     Implementations may implicitly make decisions on those,
     but the decisions are still made.
@@ -77,19 +72,11 @@ A program that triggers a CoAP request provides[^whatsinarequest] some component
 
 ## Security
 
-The CoAP stack is configured with an access policy,
-which is evaluated before the handler receives the request.
-
-Furthermore, the CoAP communication is secured using mechanisms for
-symmetric encryption, key exchange and authentication. 
+The CoAP stack is configured with server and client policies.
+The security mechanisms used depend on those selected in the policies.
 
 At this stage, RIOT-rs uses three pieces of security components:
 OSCORE (for symmetric encryption), EDHOC (for key exchange) and ACE (for authentication).
-
-Alternatives are possible (for instance DTLS, TLS, IPsec or link-layer encryption)
-but are currently not implemented / not yet supported in RIOT-rs.
-
-#### Rationale for OSCORE/EDHOC/ACE
 
 OSCORE/EDHOC/ACE were chosen first because they scale down
 well to the smallest devices, and because they
@@ -98,24 +85,19 @@ Their communication consists of CoAP requests and responses.
 Thus, they work homogeneously across all CoAP transports,
 and provide end-to-end security across untrusted proxies.
 
-These components are optional, but enabled by default --
-when disabled, the only sensible policy that is left <!-- "deny everything" is not sensible, could just not include CoAP then -->
-is to allow unauthenticated access everywhere.
-For example, this may make sense on a link layer with tight access control.
-The components also have internal dependencies:
-EDHOC can only practically be used in connection with OSCORE;
-ACE depends on either depending on the profiles used.
+Alternatives are possible (for instance DTLS, TLS, IPsec or link-layer encryption)
+but are currently not implemented / not yet supported in RIOT-rs.
 
-### Access policy
+### Server access policy
 
-The policy is configured depending on the enabled security mechanisms.
+A policy is configured for the whole server depending on the desired security mechanisms.
 Examples of described policy entries are:
 
 * This is a fixed public key, and requests authenticated with that key are allowed to GET and PUT to `/limit`.
-* The device has a shared secret from its authorization server, with which the authorization server secures the tokens it issues to clients. Clients may perform any action as long as they securely present a token that allows it. For example, a token may allow GET on `/limit` and PUT on `/led/0`".
+* The device has a shared secret from its authorization server, with which the authorization server secures the tokens it issues to clients. Clients may perform any action as long as they securely present a token that allows it. For example, a token may allow GET on `/limit` and PUT on `/led/0`.
 * Any (even unauthenticated) device may GET `/hello/`.
 
-#### Interacting with RIOT-rs CoAP server from the host
+#### Interacting with a RIOT-rs CoAP server from the host
 
 A convenient policy (which is the default of RIOT-rs's examples)
 is to grant the user who flashes the device all access on it.
@@ -128,7 +110,7 @@ when a CoAP server is provisioned through the RIOT-rs build system,
 public keys and their device associations are stored
 in the developer's state home directory.
 
-Together, these files act in a similar way as the classic UNIX files `~/.netrc`, `~/.ssh/id_rsa{,.pub}`.
+Together, these files act in a similar way as the classic UNIX files `~/.netrc` and `~/.ssh/id_rsa{,.pub}`.
 They can also double as templates for an application akin to `ssh-copy-id`
 in that they enable a server policy like
 "any device previously flashed on this machine may GET all resources".
@@ -136,7 +118,9 @@ in that they enable a server policy like
 [aiocoap-client]: https://aiocoap.readthedocs.io/en/latest/tools.html
 [state home directory]: https://specifications.freedesktop.org/basedir-spec/latest/
 
-#### Interacting with the RIOT-rs CoAP client
+### Client policies
+
+The policy for outgoing requests can be defined globally or per request.
 
 Examples of policies that can be available are
   "expect the server to present some concrete public key, use this secret key once the server is verified",
@@ -145,8 +129,18 @@ Examples of policies that can be available are
   "establish an encrypted connection and trust the peer's key on first use",
   down to "do not use any encryption".
 
+### Available security mechanisms
 
-### Symmetric encryption: OSCORE
+These components are optional, but enabled by default --
+when all are disabled, the only sensible policy that is left <!-- "deny everything" is not sensible, could just not include CoAP then -->
+is to allow unauthenticated access everywhere.
+For example, this may make sense on a link layer with tight access control.
+The components also have internal dependencies:
+EDHOC can only practically be used in combination with OSCORE;
+ACE comes with profiles with individual dependencies
+(eg. using the ACE-EDHOC profile requires EDHOC).
+
+#### Symmetric encryption: OSCORE
 
 OSCORE ([RFC8613]) provides symmetric encryption for CoAP requests:
 It allows clients to phrase their CoAP request,
@@ -171,7 +165,7 @@ Policies are not described in terms of OSCORE keys.
   the parts that link a response to a request,
   and housekeeping details such as whether a request is for an observation and thus needs to be kept alive longer.
 
-### Key establishment: EDHOC
+#### Key establishment: EDHOC
 
 EDHOC ([RFC9528]) is a key establishment protocol
 that uses asymmetric keys to obtain mutual authentication and forward secrecy.
@@ -191,7 +185,7 @@ and whether our public key needs to be sent as a full public key or can be sent 
 
 [RFC9528]: https://datatracker.ietf.org/doc/html/rfc9528
 
-### Authorization: ACE
+#### Authorization: ACE
 
 The ACE framework ([RFC9200]) describes how a trusted service (the Authorization Server, "AS")
 can facilitate secure connections between devices that are not explicitly configured to be used together.
@@ -212,7 +206,7 @@ apart from those listed here, popular profiles include the DTLS profile and the 
 
 [RFC9200]: https://datatracker.ietf.org/doc/html/rfc9200
 
-#### ACE-OSCORE profile
+##### ACE-OSCORE profile
 
 With the ACE-OSCORE profile ([RFC9203]),
 the AS provides a random OSCORE key in the token (which is encrypted for the RS),
@@ -220,7 +214,7 @@ and sends the token along with the same OSCORE key through its secure connection
 Before the client can send OSCORE requests,
 it POSTs the token to the server over an unprotected connection
 (the token itself is encrypted),
-along with a random number and some housekeeping
+along with a random number and some housekeeping data
 that go into the establishment of an OSCORE context.
 
 The [documentation of the CoAP/ACE-OAuth PoC project] describes the whole setup in more detail.
@@ -229,7 +223,7 @@ The [documentation of the CoAP/ACE-OAuth PoC project] describes the whole setup 
 
 [RFC9203]: https://datatracker.ietf.org/doc/html/rfc9203
 
-#### ACE-EDHOC profile
+##### ACE-EDHOC profile
 
 The ACE-EDHOC profile is [under development in the ACE working group].
 
@@ -242,7 +236,7 @@ but as part of the EDHOC exchange.
 
 [under development in the ACE working group]: https://datatracker.ietf.org/doc/draft-ietf-ace-edhoc-oscore-profile/
 
-#### ACE during development
+##### Using ACE from the host during development
 
 While full operation of ACE requires having an AS as part of the network,
 CoAP servers running on RIOT-rs can be used in the ACE framework without a live server.
