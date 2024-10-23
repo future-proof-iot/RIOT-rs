@@ -116,7 +116,7 @@ jobs:
       # TODO: we'll eventually want to enable relevant features
       - name: Run crate tests
         run: |
-            cargo test --no-default-features --features i2c,no-boards -p riot-rs -p riot-rs-embassy -p riot-rs-embassy-common -p riot-rs-runqueue -p riot-rs-threads -p riot-rs-macros
+            cargo test --no-default-features --features external-interrupts,i2c,no-boards -p riot-rs -p riot-rs-embassy -p riot-rs-embassy-common -p riot-rs-runqueue -p riot-rs-threads -p riot-rs-macros
             cargo test -p rbi -p ringbuffer -p coapcore
 
       # We need to set `RUSTDOCFLAGS` as well in the following jobs, because it
