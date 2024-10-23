@@ -1,6 +1,6 @@
 //! Access to unique identifiers provided by the device.
 //!
-//! The main way to use this module is [`device_id_bytes()`], which returns an identifier for the
+//! This module provides [`device_id_bytes()`], which returns an identifier for the
 //! concrete piece of hardware that the software is running on in byte serialized form.
 //!
 //! Concrete properties of a device identity are:
