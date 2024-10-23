@@ -19,7 +19,7 @@
 //!
 //! Constructing an identifier fails rather than produce a dummy identifier.
 //!
-//! It is considered a breaking change in RIOT-rs if a a device's identifier changes or becomes an
+//! It is considered a breaking change in RIOT-rs if a device's identifier changes or becomes an
 //! error. Errors changing to valid identifiers is a compatible change.
 
 /// Obtains a unique identifier of the device in its byte serialized form.
