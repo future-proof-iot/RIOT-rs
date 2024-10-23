@@ -17,7 +17,7 @@
 //!   built-in identifier that is not triggered by the device erase that is performed as part of
 //!   programming the device.
 //!
-//! Constructing an identifier fails rather than producing a dummy identifier.
+//! Constructing an identifier fails rather than produce a dummy identifier.
 //!
 //! It is considered a breaking change in a board or this module if a board's identifier changes or
 //! becomes an error as result of an update to RIOT-rs. Errors changing to valid identifiers is a
