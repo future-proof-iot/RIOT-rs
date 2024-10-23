@@ -1,0 +1,5 @@
+apps:
+  - name: threading-mutex
+    selects:
+      - ?release
+      - sw/threading

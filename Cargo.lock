@@ -4494,6 +4494,16 @@ dependencies = [
 ]
 
 [[package]]
+name = "threading-mutex"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "portable-atomic",
+ "riot-rs",
+ "riot-rs-boards",
+]
+
+[[package]]
 name = "time"
 version = "0.3.36"
 source = "registry+https://github.com/rust-lang/crates.io-index"

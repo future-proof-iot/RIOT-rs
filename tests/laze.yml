@@ -6,3 +6,4 @@ subdirs:
   - i2c-controller
   - threading-dynamic-prios
   - threading-lock
+  - threading-mutex
