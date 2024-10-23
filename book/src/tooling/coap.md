@@ -18,14 +18,8 @@ As there is more complexity in a CoAP client than a CoAP server,
 the most minimal use is to just have a CoAP server on the embedded system.
 Having both components in use is also a common choice.
 
-As part of our mission for strong security,
-we use encrypted CoAP traffic by default.
-Of the multiple means to secure CoAP,
-we have picked the OSCORE/EDHOC security mechanisms as our default,
-with the option to use ACE for authorization management.
-These were chosen because they scale down well to the smallest devices.
-Alternatives (DTLS, TLS, IPsec or link-layer encryption)
-are currently not implemented.
+Also, as part of our mission for strong security,
+we use encrypted CoAP traffic by default as explained below.
 
 [CoAP]: https://coap.space/
 [over UDP]: https://datatracker.ietf.org/doc/html/rfc7252
@@ -43,43 +37,14 @@ and a path `/fwup` for interacting with firmware updates.
 The CoAP implementation can put additional resources at well-known locations,
 eg. `/.well-known/core` for discovery or `/.well-known/edhoc` for establishing secure connections.
 
-The handler does not need to concern itself with authorization:
-The CoAP stack is configured with an access policy,
-which is evaluated before the handler even receives the request.
-The handler still needs to concern itself with security to some extent
-(eg. file format parsers should still treat incoming data as possibly malformed),
+The handler only needs to concern itself with basic security aspects
+(eg. file format parsers should treat incoming data as possibly malformed),
 but is not the main enforcement point.
 
-The policy is configured depending on the enabled security mechanisms.
-Examples of described policy entries are:
-
-* This is a fixed public key, and requests authenticated with that key are allowed to GET and PUT to `/limit`.
-* The device has a shared secret from its authorization server, with which the authorization server secures the tokens it issues to clients. Clients may perform any action as long as they securely present a token that allows it. For example, a token may allow GET on `/limit` and PUT on `/led/0`".
-* Any (even unauthenticated) device may GET `/hello/`.
 
 [provided as `examples/coap`]: https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/coap
 [its `run()` function]: https://github.com/future-proof-iot/RIOT-rs/blob/2b76e560394884d3c8f7eaae51beefd59a316d7b/examples/coap/src/main.rs#L70
 
-### Interacting with RIOT-rs CoAP server from the host
-
-A convenient policy (which is the default of RIOT-rs's examples)
-is to grant the user who flashes the device all access on it.
-When that policy is enabled in the build system,
-an unencrypted key is created in the developer's [state home directory]<!-- precise location TBD -->,
-from where it can be picked up by tools such as [aiocoap-client].
-
-Furthermore,
-when a CoAP server is provisioned through the RIOT-rs build system,
-public keys and their device associations are stored
-in the developer's state home directory.
-
-Together, these files act in a similar way as the classic UNIX files `~/.netrc`, `~/.ssh/id_rsa{,.pub}`.
-They can also double as templates for an application akin to `ssh-copy-id`
-in that they enable a server policy like
-"any device previously flashed on this machine may GET all resources".
-
-[aiocoap-client]: https://aiocoap.readthedocs.io/en/latest/tools.html
-[state home directory]: https://specifications.freedesktop.org/basedir-spec/latest/
 
 ## Usage: Client side
 
@@ -103,12 +68,6 @@ A program that triggers a CoAP request provides[^whatsinarequest] some component
   This is optional if there is a global policy,
   or if there is an implied security mechanism for the origin.
 
-  Examples of policies that can be available are
-  "expect the server to present some concrete public key, use this secret key once the server is verified",
-  "use a token for this audience and scope obtained from that authentication server",
-  "expect the server to present a chain of certificates for its hostname down to a set of root certificates" (which is the default for web browsers),
-  "establish an encrypted connection and trust the peer's key on first use",
-  down to "do not use any encryption".
 
 [^whatsinarequest]: These components required for a request are not documented as such in the CoAP RFCs,
     but it is the author's opinion that they are a factual requirement:
@@ -116,12 +75,25 @@ A program that triggers a CoAP request provides[^whatsinarequest] some component
     but the decisions are still made.
     At the time of writing, there [is an open issue](https://github.com/core-wg/corrclar/issues/41) to clarify this in the specifications.
 
-## Details on security mechanisms
+## Security
 
-RIOT-rs uses three pieces of security components:
+The CoAP stack is configured with an access policy,
+which is evaluated before the handler receives the request.
+
+Furthermore, the CoAP communication is secured using mechanisms for
+symmetric encryption, key exchange and authentication. 
+
+At this stage, RIOT-rs uses three pieces of security components:
 OSCORE (for symmetric encryption), EDHOC (for key exchange) and ACE (for authentication).
 
-All have in common that they sit on top of CoAP:
+Alternatives are possible (for instance DTLS, TLS, IPsec or link-layer encryption)
+but are currently not implemented / not yet supported in RIOT-rs.
+
+#### Rationale for OSCORE/EDHOC/ACE
+
+OSCORE/EDHOC/ACE were chosen first because they scale down
+well to the smallest devices, and because they
+all have in common that they sit naturally on top of CoAP:
 Their communication consists of CoAP requests and responses.
 Thus, they work homogeneously across all CoAP transports,
 and provide end-to-end security across untrusted proxies.
@@ -132,8 +104,47 @@ is to allow unauthenticated access everywhere.
 For example, this may make sense on a link layer with tight access control.
 The components also have internal dependencies:
 EDHOC can only practically be used in connection with OSCORE;
-ACE comes with profiles with individual dependencies
-(eg. using the ACE-EDHOC profile requires EDHOC).
+ACE depends on either depending on the profiles used.
+
+### Access policy
+
+The policy is configured depending on the enabled security mechanisms.
+Examples of described policy entries are:
+
+* This is a fixed public key, and requests authenticated with that key are allowed to GET and PUT to `/limit`.
+* The device has a shared secret from its authorization server, with which the authorization server secures the tokens it issues to clients. Clients may perform any action as long as they securely present a token that allows it. For example, a token may allow GET on `/limit` and PUT on `/led/0`".
+* Any (even unauthenticated) device may GET `/hello/`.
+
+#### Interacting with RIOT-rs CoAP server from the host
+
+A convenient policy (which is the default of RIOT-rs's examples)
+is to grant the user who flashes the device all access on it.
+When that policy is enabled in the build system,
+an unencrypted key is created in the developer's [state home directory]<!-- precise location TBD -->,
+from where it can be picked up by tools such as [aiocoap-client].
+
+Furthermore,
+when a CoAP server is provisioned through the RIOT-rs build system,
+public keys and their device associations are stored
+in the developer's state home directory.
+
+Together, these files act in a similar way as the classic UNIX files `~/.netrc`, `~/.ssh/id_rsa{,.pub}`.
+They can also double as templates for an application akin to `ssh-copy-id`
+in that they enable a server policy like
+"any device previously flashed on this machine may GET all resources".
+
+[aiocoap-client]: https://aiocoap.readthedocs.io/en/latest/tools.html
+[state home directory]: https://specifications.freedesktop.org/basedir-spec/latest/
+
+#### Interacting with the RIOT-rs CoAP client
+
+Examples of policies that can be available are
+  "expect the server to present some concrete public key, use this secret key once the server is verified",
+  "use a token for this audience and scope obtained from that authentication server",
+  "expect the server to present a chain of certificates for its hostname down to a set of root certificates" (which is the default for web browsers),
+  "establish an encrypted connection and trust the peer's key on first use",
+  down to "do not use any encryption".
+
 
 ### Symmetric encryption: OSCORE
 
