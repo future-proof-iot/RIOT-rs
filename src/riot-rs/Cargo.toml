@@ -18,6 +18,7 @@ riot-rs-embassy = { path = "../riot-rs-embassy" }
 riot-rs-macros = { path = "../riot-rs-macros" }
 riot-rs-random = { workspace = true, optional = true }
 riot-rs-rt = { path = "../riot-rs-rt" }
+riot-rs-sensors = { workspace = true, optional = true }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-utils = { workspace = true }
 static_cell = { workspace = true }
@@ -43,6 +44,9 @@ random = ["riot-rs-random"]
 csprng = ["riot-rs-random/csprng"]
 ## Enables seeding the random number generator from hardware.
 hwrng = ["riot-rs-embassy/hwrng"]
+## Enables support for sensors.
+## *Currently experimental.*
+sensors = ["dep:riot-rs-sensors"]
 
 #! ## Serial communication
 ## Enables I2C support.
