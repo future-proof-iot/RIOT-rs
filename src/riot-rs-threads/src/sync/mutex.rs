@@ -199,7 +199,7 @@ impl<'a, T> Drop for MutexGuard<'a, T> {
     }
 }
 
-// The `MutexGuard` is tied to a thread, it must not be possible to `Send` it to another thread.
+// The [`MutexGuard`] is tied to a thread, it must not be possible to `Send` it to another thread.
 impl<T> !Send for MutexGuard<'_, T> {}
 
 unsafe impl<T: Sync> Sync for MutexGuard<'_, T> {}
