@@ -13,15 +13,11 @@
 pub enum MeasurementUnit {
     /// [Acceleration *g*](https://en.wikipedia.org/wiki/G-force#Unit_and_measurement).
     AccelG,
-    /// Value one represents an active state (e.g., a push button being pressed).
-    ActiveOne,
-    /// Value zero represents an active state (e.g., a push button being pressed).
-    ActiveZero,
     /// Ampere (A).
     Ampere,
     /// Becquerel (Bq).
     Becquerel,
-    /// Logic boolean.
+    /// Logic boolean: `0` means `false` and `1` means `true`.
     Bool,
     /// Candela (cd).
     Candela,
@@ -91,8 +87,6 @@ impl core::fmt::Display for MeasurementUnit {
         #[expect(clippy::match_same_arms)]
         match self {
             Self::AccelG => write!(f, "g"),
-            Self::ActiveOne => write!(f, ""),
-            Self::ActiveZero => write!(f, ""),
             Self::Ampere => write!(f, "A"),
             Self::Becquerel => write!(f, "Bq"),
             Self::Bool => write!(f, ""),
