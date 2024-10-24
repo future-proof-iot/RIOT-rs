@@ -83,7 +83,7 @@ jobs:
           git config --global user.name "CI"
           cargo binstall --no-confirm --no-symlinks --force --no-discover-github-token laze
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
-          sudo apt-get install ninja-build gcc-arm-none-eabi
+          sudo apt-get install ninja-build gcc-arm-none-eabi llvm clang
 
       - name: "Show installed versions"
         run: |
