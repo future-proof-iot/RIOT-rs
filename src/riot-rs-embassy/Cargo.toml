@@ -68,8 +68,11 @@ spi = [
   "riot-rs-embassy-common/spi",
   "riot-rs-hal/spi",
 ]
+
+## Enables USB support.
 usb = ["dep:embassy-usb", "riot-rs-hal/usb"]
 usb-hid = ["dep:usbd-hid", "embassy-usb?/usbd-hid", "usb"]
+
 # embassy-net requires embassy-time and support for timeouts in the executor
 net = ["dep:embassy-net", "time"]
 usb-ethernet = ["usb", "net"]

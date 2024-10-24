@@ -3593,6 +3593,7 @@ dependencies = [
  "riot-rs-debug",
  "riot-rs-embassy-common",
  "riot-rs-utils",
+ "static_cell",
 ]
 
 [[package]]

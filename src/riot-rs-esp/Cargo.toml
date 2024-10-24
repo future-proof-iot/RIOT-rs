@@ -31,6 +31,7 @@ paste = { workspace = true }
 riot-rs-debug = { workspace = true }
 riot-rs-embassy-common = { workspace = true }
 riot-rs-utils = { workspace = true }
+static_cell = { workspace = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
 embassy-executor = { workspace = true, default-features = false, features = [
@@ -80,6 +81,9 @@ spi = ["dep:fugit", "riot-rs-embassy-common/spi"]
 
 ## Enables defmt support.
 defmt = ["dep:defmt", "esp-hal/defmt", "esp-wifi?/defmt", "fugit?/defmt"]
+
+# Enables USB support.
+usb = []
 
 ## Enables Wi-Fi support.
 wifi = []
