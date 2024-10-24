@@ -89,6 +89,7 @@ spi = [
 ]
 usb = [
   "dep:embassy-usb",
+  "riot-rs-esp/usb",
   "riot-rs-nrf/usb",
   "riot-rs-rp/usb",
   "riot-rs-stm32/usb",
