@@ -77,9 +77,9 @@ pub fn init() -> OptionalPeripherals {
         // in `riot_rs_threads::arch::xtensa`.
         // So, re-enable it here.
 
-        // Panics if `FROM_CPU_INTR1` is among `esp_hal::interrupt::RESERVED_INTERRUPTS`,
+        // Panics if `FROM_CPU_INTR0` is among `esp_hal::interrupt::RESERVED_INTERRUPTS`,
         // which isn't the case.
-        interrupt::enable(Interrupt::FROM_CPU_INTR1, interrupt::Priority::min()).unwrap();
+        interrupt::enable(Interrupt::FROM_CPU_INTR0, interrupt::Priority::min()).unwrap();
     }
 
     #[cfg(feature = "wifi-esp")]
