@@ -68,20 +68,6 @@ pub use esp_hal_embassy::Executor;
 pub fn init() -> OptionalPeripherals {
     let mut peripherals = OptionalPeripherals::from(esp_hal::init(esp_hal::Config::default()));
 
-    #[cfg(feature = "threading")]
-    {
-        use esp_hal::{interrupt, peripherals::Interrupt};
-        // Since https://github.com/esp-rs/esp-hal/pull/2091,
-        // `esp_hal::init()` resets all interrupts.
-        // That also disables our scheduler interrupt, which was previously enabled
-        // in `riot_rs_threads::arch::xtensa`.
-        // So, re-enable it here.
-
-        // Panics if `FROM_CPU_INTR0` is among `esp_hal::interrupt::RESERVED_INTERRUPTS`,
-        // which isn't the case.
-        interrupt::enable(Interrupt::FROM_CPU_INTR0, interrupt::Priority::min()).unwrap();
-    }
-
     #[cfg(feature = "wifi-esp")]
     {
         use esp_hal::timer::timg::TimerGroup;
