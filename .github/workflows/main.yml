@@ -97,6 +97,7 @@ jobs:
           set +x
           # Check which alternative versions are installed
           IFS=":"; for p in $PATH; do ls $p/llvm-config-* $p/clang-* 2>/dev/null; done
+          sha256sum /usr/lib/llvm-*/lib/clang/*/include/stdint.h
           true
 
       - name: "limit build unless nightly build"
