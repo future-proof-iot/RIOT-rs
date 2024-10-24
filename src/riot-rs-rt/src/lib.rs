@@ -16,6 +16,11 @@ pub mod testing;
 #[cfg(feature = "threading")]
 mod threading;
 
+#[cfg(all(feature = "single-core", feature = "multi-core"))]
+compile_error!(
+    "feature \"single-core\" and feature \"multi-core\" cannot be enabled at the same time"
+);
+
 use riot_rs_debug::{log::debug, println};
 
 cfg_if::cfg_if! {

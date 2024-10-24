@@ -13,11 +13,14 @@ impl Arch for Cpu {
     const DEFAULT_THREAD_DATA: Self::ThreadData = default_trap_frame();
 
     fn schedule() {
+        #[cfg(not(feature = "multi-core"))]
         unsafe {
             (&*SYSTEM::PTR)
                 .cpu_intr_from_cpu_0()
                 .modify(|_, w| w.cpu_intr_from_cpu_0().set_bit());
         }
+        #[cfg(feature = "multi-core")]
+        crate::smp::schedule_on_core(crate::core_id())
     }
 
     fn setup_stack(thread: &mut crate::thread::Thread, stack: &mut [u8], func: usize, arg: usize) {
@@ -51,13 +54,17 @@ impl Arch for Cpu {
         // which isn't the case.
         interrupt::enable(Interrupt::FROM_CPU_INTR0, interrupt::Priority::min()).unwrap();
     }
+
+    fn wfi() {
+        unsafe { core::arch::asm!("waiti 0") };
+    }
 }
 
 const fn default_trap_frame() -> TrapFrame {
     TrapFrame::new()
 }
 
-/// Handler for software interrupt 0, which we use for context switching.
+/// Handler for software interrupt 0, which we use for context switching on core 0.
 #[allow(non_snake_case)]
 #[no_mangle]
 extern "C" fn FROM_CPU_INTR0(trap_frame: &mut TrapFrame) {
@@ -66,6 +73,21 @@ extern "C" fn FROM_CPU_INTR0(trap_frame: &mut TrapFrame) {
         (&*SYSTEM::PTR)
             .cpu_intr_from_cpu_0()
             .modify(|_, w| w.cpu_intr_from_cpu_0().clear_bit());
+
+        sched(trap_frame)
+    }
+}
+
+#[cfg(feature = "multi-core")]
+/// Handler for software interrupt 1, which we use for context switching on core 1.
+#[allow(non_snake_case)]
+#[no_mangle]
+extern "C" fn FROM_CPU_INTR1(trap_frame: &mut TrapFrame) {
+    unsafe {
+        // clear FROM_CPU_INTR0
+        (&*SYSTEM::PTR)
+            .cpu_intr_from_cpu_1()
+            .modify(|_, w| w.cpu_intr_from_cpu_1().clear_bit());
 
         sched(trap_frame)
     }
@@ -82,7 +104,10 @@ extern "C" fn FROM_CPU_INTR0(trap_frame: &mut TrapFrame) {
 unsafe fn sched(trap_frame: &mut TrapFrame) {
     loop {
         if THREADS.with_mut(|mut threads| {
-            let Some(next_pid) = threads.runqueue.get_next() else {
+            #[cfg(feature = "multi-core")]
+            threads.add_current_thread_to_rq();
+
+            let Some(next_pid) = threads.get_next_pid() else {
                 return false;
             };
 
@@ -92,7 +117,8 @@ unsafe fn sched(trap_frame: &mut TrapFrame) {
                 }
                 threads.threads[usize::from(current_pid)].data = *trap_frame;
             }
-            threads.current_thread = Some(next_pid);
+            *threads.current_pid_mut() = Some(next_pid);
+
             *trap_frame = threads.threads[usize::from(next_pid)].data;
             true
         }) {
@@ -101,6 +127,6 @@ unsafe fn sched(trap_frame: &mut TrapFrame) {
         // The esp-hal implementation of critical-section doesn't disable all interrupts.
         // Thus we should release our hold on `THREADS` before we `waiti`, to prevent
         // that another interrupt handler will try to borrow it while we still have it borrowed.
-        unsafe { core::arch::asm!("waiti 0") };
+        Cpu::wfi()
     }
 }

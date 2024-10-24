@@ -63,6 +63,7 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
     let Parameters {
         stack_size,
         priority,
+        affinity,
     } = Parameters::from(attrs);
 
     let thread_crate = {
@@ -77,7 +78,7 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
         #no_mangle_attr
         #thread_function
 
-        #thread_crate::autostart_thread!(#fn_name, stacksize = #stack_size, priority = #priority);
+        #thread_crate::autostart_thread!(#fn_name, stacksize = #stack_size, priority = #priority, affinity = #affinity);
     };
 
     TokenStream::from(expanded)
@@ -87,6 +88,7 @@ mod thread {
     pub struct Parameters {
         pub stack_size: syn::Expr,
         pub priority: syn::Expr,
+        pub affinity: syn::Expr,
     }
 
     impl Default for Parameters {
@@ -95,6 +97,7 @@ mod thread {
             Self {
                 stack_size: syn::parse_quote!{ 2048 },
                 priority: syn::parse_quote!{ 1 },
+                affinity: syn::parse_quote!{ None }
             }
         }
     }
@@ -105,10 +108,12 @@ mod thread {
 
             let stack_size = attrs.stack_size.unwrap_or(default.stack_size);
             let priority = attrs.priority.unwrap_or(default.priority);
+            let affinity = attrs.affinity.map(|expr| syn::parse_quote!{ Some(#expr) }).unwrap_or(default.affinity);
 
             Self {
                 stack_size,
                 priority,
+                affinity
             }
         }
     }
@@ -118,6 +123,7 @@ mod thread {
         pub autostart: bool,
         pub stack_size: Option<syn::Expr>,
         pub priority: Option<syn::Expr>,
+        pub affinity: Option<syn::Expr>,
         pub no_mangle: bool,
     }
 
@@ -140,6 +146,11 @@ mod thread {
 
             if meta.path.is_ident("priority") {
                 self.priority = Some(meta.value()?.parse()?);
+                return Ok(());
+            }
+
+            if meta.path.is_ident("affinity") {
+                self.affinity = Some(meta.value()?.parse()?);
                 return Ok(());
             }
 

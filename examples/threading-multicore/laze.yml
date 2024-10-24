@@ -1,6 +1,6 @@
 apps:
-  - name: threading-dynamic-prios
+  - name: threading-multicore
     selects:
       - ?release
-      - single-core
       - sw/threading
+      - multi-core

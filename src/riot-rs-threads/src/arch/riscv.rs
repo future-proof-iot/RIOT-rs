@@ -46,6 +46,10 @@ impl Arch for Cpu {
         // which isn't the case.
         interrupt::enable(Interrupt::FROM_CPU_INTR0, interrupt::Priority::min()).unwrap();
     }
+
+    fn wfi() {
+        riscv::asm::wfi();
+    }
 }
 
 const fn default_trap_frame() -> TrapFrame {
@@ -125,10 +129,10 @@ extern "C" fn FROM_CPU_INTR0(trap_frame: &mut TrapFrame) {
 unsafe fn sched(trap_frame: &mut TrapFrame) {
     loop {
         if THREADS.with_mut(|mut threads| {
-            let next_pid = match threads.runqueue.get_next() {
+            let next_pid = match threads.get_next_pid() {
                 Some(pid) => pid,
                 None => {
-                    riscv::asm::wfi();
+                    Cpu::wfi();
                     return false;
                 }
             };
@@ -142,8 +146,9 @@ unsafe fn sched(trap_frame: &mut TrapFrame) {
                     &mut threads.threads[usize::from(current_pid)].data,
                 );
             }
-            threads.current_thread = Some(next_pid);
-            copy_registers(&threads.threads[usize::from(next_pid)].data, trap_frame);
+            *threads.current_pid_mut() = Some(next_pid);
+
+            copy_registers(&threads.get_unchecked(next_pid).data, trap_frame);
             true
         }) {
             break;

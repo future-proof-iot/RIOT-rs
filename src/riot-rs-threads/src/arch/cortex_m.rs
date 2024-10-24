@@ -1,10 +1,7 @@
-use super::Arch;
-use crate::Thread;
+use crate::{cleanup, Arch, Thread, THREADS};
 use core::arch::asm;
 use core::ptr::write_volatile;
-use cortex_m::peripheral::SCB;
-
-use crate::{cleanup, THREADS};
+use cortex_m::peripheral::{scb::SystemHandler, SCB};
 
 #[cfg(not(any(armv6m, armv7m, armv8m)))]
 compile_error!("no supported ARM variant selected");
@@ -63,7 +60,20 @@ impl Arch for Cpu {
 
     #[inline(always)]
     fn start_threading() {
+        unsafe {
+            // Make sure PendSV has a low priority.
+            let mut p = cortex_m::Peripherals::steal();
+            p.SCB.set_priority(SystemHandler::PendSV, 0xFF);
+        }
         Self::schedule();
+    }
+
+    fn wfi() {
+        cortex_m::asm::wfi();
+
+        // see https://cliffle.com/blog/stm32-wfi-bug/
+        #[cfg(context = "stm32")]
+        cortex_m::asm::isb();
     }
 }
 
@@ -186,18 +196,23 @@ unsafe fn sched() -> u128 {
     loop {
         if let Some(res) = critical_section::with(|cs| {
             let threads = unsafe { &mut *THREADS.as_ptr(cs) };
-            let next_pid = match threads.runqueue.get_next() {
+
+            #[cfg(feature = "multi-core")]
+            threads.add_current_thread_to_rq();
+
+            let next_pid = match threads.get_next_pid() {
                 Some(pid) => pid,
                 None => {
-                    cortex_m::asm::wfi();
+                    #[cfg(feature = "multi-core")]
+                    unreachable!("At least one idle thread is always present for each core.");
 
-                    // see https://cliffle.com/blog/stm32-wfi-bug/
-                    #[cfg(context = "stm32")]
-                    cortex_m::asm::isb();
-
-                    // this fence seems necessary, see #310.
-                    core::sync::atomic::fence(core::sync::atomic::Ordering::Acquire);
-                    return None;
+                    #[cfg(not(feature = "multi-core"))]
+                    {
+                        Cpu::wfi();
+                        // this fence seems necessary, see #310.
+                        core::sync::atomic::fence(core::sync::atomic::Ordering::Acquire);
+                        return None;
+                    }
                 }
             };
 
@@ -206,21 +221,22 @@ unsafe fn sched() -> u128 {
             // The returned `r1` therefore will be null, and saving/ restoring
             // the context is skipped.
             let mut current_high_regs = core::ptr::null();
-            if let Some(current_pid) = threads.current_pid() {
-                if next_pid == current_pid {
+            if let Some(ref mut current_pid_ref) = threads.current_pid_mut() {
+                if next_pid == *current_pid_ref {
                     return Some(0);
                 }
-
-                let current = &mut threads.threads[usize::from(current_pid)];
+                let current_pid = *current_pid_ref;
+                *current_pid_ref = next_pid;
+                let current = threads.get_unchecked_mut(current_pid);
                 current.sp = cortex_m::register::psp::read() as usize;
                 current_high_regs = current.data.as_ptr();
+            } else {
+                *threads.current_pid_mut() = Some(next_pid);
             }
 
-            threads.current_thread = Some(next_pid);
-
-            let next = &threads.threads[usize::from(next_pid)];
-            let next_sp = next.sp;
+            let next = threads.get_unchecked(next_pid);
             let next_high_regs = next.data.as_ptr();
+            let next_sp = next.sp;
 
             // The caller (`PendSV`) expects these three pointers in r0, r1 and r2:
             // r0 = &next.sp

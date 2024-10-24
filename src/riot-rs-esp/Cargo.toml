@@ -81,9 +81,6 @@ spi = ["dep:fugit", "riot-rs-embassy-common/spi"]
 ## Enables defmt support.
 defmt = ["dep:defmt", "esp-wifi?/defmt", "fugit?/defmt"]
 
-## Enables threading support.
-threading = []
-
 ## Enables Wi-Fi support.
 wifi = []
 
