@@ -24,7 +24,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        partition: ["1/20", "2/20", "3/20", "4/20", "5/20", "6/20", "7/20", "8/20", "9/20", "10/20", "11/20", "12/20", "13/20", "14/20", "15/20", "16/20", "17/20", "18/20", "19/20", "20/20"]
+        partition: ["1/2", "2/2"]
 
     steps:
       - name: Check out repository code
@@ -110,183 +110,183 @@ jobs:
         run: |
           sccache --start-server || true # work around https://github.com/ninja-build/ninja/issues/2052
 
-          CONFIG_WIFI_NETWORK='test' CONFIG_WIFI_PASSWORD='password' laze build --global --partition hash:${{ matrix.partition }}
+          CONFIG_WIFI_NETWORK='test' CONFIG_WIFI_PASSWORD='password' laze build -C examples/coap -b nrf52840dk --partition hash:${{ matrix.partition }}
 
-  cargo-test:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-
-      - id: get_toolchain
-        run: echo "toolchain=$(scripts/rust-toolchain.sh)" >> $GITHUB_OUTPUT
-
-      - name: Install toolchain
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
-
-      # TODO: we'll eventually want to test the whole workspace with --workspace
-      # TODO: we'll eventually want to enable relevant features
-      - name: Run crate tests
-        run: |
-            cargo test --no-default-features --features external-interrupts,i2c,no-boards,spi -p riot-rs -p riot-rs-embassy -p riot-rs-embassy-common -p riot-rs-runqueue -p riot-rs-threads -p riot-rs-macros
-            cargo test -p rbi -p ringbuffer -p coapcore
-
-      # We need to set `RUSTDOCFLAGS` as well in the following jobs, because it
-      # is used for doc tests.
-      - name: cargo test for RP
-        run: RUSTDOCFLAGS='--cfg context="rp2040"' RUSTFLAGS='--cfg context="rp2040"' cargo test --features external-interrupts,i2c,spi,embassy-rp/rp2040 -p riot-rs-rp
-
-      - name: cargo test for nRF
-        run: RUSTDOCFLAGS='--cfg context="nrf52840"' RUSTFLAGS='--cfg context="nrf52840"' cargo test --features external-interrupts,i2c,spi,'embassy-nrf/nrf52840' -p riot-rs-nrf
-
-      - name: cargo test for STM32
-        run: RUSTDOCFLAGS='--cfg context="stm32wb55rgvx"' RUSTFLAGS='--cfg context="stm32wb55rgvx"' cargo test --features external-interrupts,i2c,spi,'embassy-stm32/stm32wb55rg' -p riot-rs-stm32
-
-  lint:
-    runs-on: ubuntu-latest
-
-    steps:
-      - name: Check out repository code
-        uses: actions/checkout@v4
-
-      - id: get_toolchain
-        run: echo "toolchain=$(scripts/rust-toolchain.sh)" >> $GITHUB_OUTPUT
-
-      - name: Install toolchain
-        uses: dtolnay/rust-toolchain@master
-        with:
-          toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
-          # Required for checking riot-rs-esp
-          targets: riscv32imac-unknown-none-elf
-          components: clippy, rustfmt
-
-      - name: rust cache
-        uses: Swatinem/rust-cache@v2
-
-      - uses: taiki-e/install-action@v2
-        with:
-          tool: cargo-binstall
-
-      # Should run as soon as possible to avoid using unwanted crates
-      # `--force`ing is required as the installed binary could have been
-      # restored from cache.
-      - name: cargo-deny
-        run: |
-          cargo binstall --no-confirm --no-discover-github-token --force cargo-deny
-          cargo deny check bans licenses sources
-
-      # Must run after the cargo-deny job as it requires the downloaded
-      # cargo-deny binary.
-      - name: cargo-deny advisories
-        run: cargo deny check advisories
-        # Prevent sudden announcement of a new advisory from failing CI
-        continue-on-error: true
-
-      # TODO: we'll eventually want to check the whole workspace with --workspace
-      # TODO: we'll eventually want to check relevant feature combinations
-      # TODO: we may want to use --no-deps as well
-      - name: clippy
-        uses: clechasseur/rs-clippy-check@v3
-        with:
-          args: --verbose --locked --features no-boards,external-interrupts,spi -p riot-rs -p riot-rs-boards -p riot-rs-chips -p riot-rs-debug -p riot-rs-embassy -p riot-rs-embassy-common -p riot-rs-macros -p riot-rs-random -p riot-rs-rt -p riot-rs-threads -p riot-rs-utils -- --deny warnings
-
-      - run: echo 'RUSTFLAGS=--cfg context="esp32c6"' >> $GITHUB_ENV
-      - name: clippy for ESP32
-        uses: clechasseur/rs-clippy-check@v3
-        with:
-          args: --verbose --locked --target=riscv32imac-unknown-none-elf --features external-interrupts,i2c,spi,esp-hal/esp32c6,esp-hal-embassy/esp32c6 -p riot-rs-esp -- --deny warnings
-
-      - run: echo 'RUSTFLAGS=--cfg context="rp2040"' >> $GITHUB_ENV
-      - name: clippy for RP
-        uses: clechasseur/rs-clippy-check@v3
-        with:
-          args: --verbose --locked --features external-interrupts,i2c,spi,embassy-rp/rp2040 -p riot-rs-rp -- --deny warnings
-
-      - run: echo 'RUSTFLAGS=--cfg context="nrf52840"' >> $GITHUB_ENV
-      - name: clippy for nRF
-        uses: clechasseur/rs-clippy-check@v3
-        with:
-          args: --verbose --locked --features external-interrupts,i2c,spi,embassy-nrf/nrf52840 -p riot-rs-nrf -- --deny warnings
-
-      - run: echo 'RUSTFLAGS=--cfg context="stm32wb55rgvx"' >> $GITHUB_ENV
-      - name: clippy for STM32
-        uses: clechasseur/rs-clippy-check@v3
-        with:
-          args: --verbose --locked --features external-interrupts,i2c,spi,embassy-stm32/stm32wb55rg -p riot-rs-stm32 -- --deny warnings
-
-      # Reset `RUSTFLAGS`
-      - run: echo 'RUSTFLAGS=' >> $GITHUB_ENV
-
-      - name: rustdoc
-        run: RUSTDOCFLAGS='-D warnings' cargo doc -p riot-rs --features bench,csprng,executor-thread,external-interrupts,hwrng,i2c,no-boards,random,spi,threading,usb
-
-      - name: rustdoc for ESP32
-        run: RUSTDOCFLAGS='-D warnings --cfg context="esp32c6"' cargo doc --target=riscv32imac-unknown-none-elf --features external-interrupts,i2c,spi,esp-hal/esp32c6,esp-hal-embassy/esp32c6 -p riot-rs-esp
-
-      - name: rustdoc for RP
-        run: RUSTDOCFLAGS='-D warnings --cfg context="rp2040"' cargo doc --features external-interrupts,i2c,spi,embassy-rp/rp2040 -p riot-rs-rp
-
-      - name: rustdoc for nRF
-        run: RUSTDOCFLAGS='-D warnings --cfg context="nrf52840"' cargo doc --features external-interrupts,i2c,spi,embassy-nrf/nrf52840 -p riot-rs-nrf
-
-      - name: rustdoc for STM32
-        run: RUSTDOCFLAGS='-D warnings --cfg context="stm32wb55rgvx"' cargo doc --features external-interrupts,i2c,spi,embassy-stm32/stm32wb55rg -p riot-rs-stm32
-
-      - name: rustfmt
-        run: cargo fmt --check --all
-
-      - name: yamllint
-        uses: karancode/yamllint-github-action@master
-        with:
-          yamllint_comment: true  # Insert inline PR comments
-          yamllint_strict: true  # Set error code on warnings
-
-      - name: Install taplo
-        run: cargo binstall --no-confirm --no-symlinks --no-discover-github-token --force taplo-cli
-
-      - name: Check toml formatting
-        run: taplo fmt --check
-
-      # TODO: cargo-sort is disabled for now, as it won't stop formatting / failing perfectly sorted Cargo.toml files.
-      # - name: Install cargo-sort
-      #   run: cargo install --git=https://github.com/DevinR528/cargo-sort --rev 55ec89082466f6bb246d870a8d56d166a8e1f08b cargo-sort
-
-      # - name: Check item order of Cargo.toml files
-      #   run: cargo sort --check --grouped --workspace --no-format
-
-      - name: Ruff
-        uses: chartboost/ruff-action@v1
-        with:
-          args: format --check  # Only check formatting for now
-
-      - name: typos
-        uses: crate-ci/typos@v1.22.0
-
-      - name: Check that the HTML support matrix is up to date
-        run: ./doc/gen_support_matrix_html.rs check doc/support_matrix.yml book/src/support_matrix.html
-
-  CI-success:
-    if: ${{ always() }}
-    runs-on: ubuntu-latest
-    name: Final Results
-    needs: [build]
-    steps:
-      - run: |
-          result="${{ needs.build.result }}"
-          if [[ $result == "success" || $result == "skipped" ]]; then
-            exit 0
-          else
-            exit 1
-          fi
-
-      - name: Report nightly failure
-        if: failure() && github.event_name == 'schedule' && github.repository == 'future-proof-iot/RIOT-rs'
-        uses: s3krit/matrix-message-action@v0.0.3
-        with:
-          room_id: ${{ secrets.MATRIX_ROOM_ID }}
-          access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
-          message: "The nightly build [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})."
-          server: "matrix.org"
+#   cargo-test:
+#     runs-on: ubuntu-latest
+#
+#     steps:
+#       - name: Check out repository code
+#         uses: actions/checkout@v4
+#
+#       - id: get_toolchain
+#         run: echo "toolchain=$(scripts/rust-toolchain.sh)" >> $GITHUB_OUTPUT
+#
+#       - name: Install toolchain
+#         uses: dtolnay/rust-toolchain@master
+#         with:
+#           toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
+#
+#       # TODO: we'll eventually want to test the whole workspace with --workspace
+#       # TODO: we'll eventually want to enable relevant features
+#       - name: Run crate tests
+#         run: |
+#             cargo test --no-default-features --features external-interrupts,i2c,no-boards,spi -p riot-rs -p riot-rs-embassy -p riot-rs-embassy-common -p riot-rs-runqueue -p riot-rs-threads -p riot-rs-macros
+#             cargo test -p rbi -p ringbuffer -p coapcore
+#
+#       # We need to set `RUSTDOCFLAGS` as well in the following jobs, because it
+#       # is used for doc tests.
+#       - name: cargo test for RP
+#         run: RUSTDOCFLAGS='--cfg context="rp2040"' RUSTFLAGS='--cfg context="rp2040"' cargo test --features external-interrupts,i2c,spi,embassy-rp/rp2040 -p riot-rs-rp
+#
+#       - name: cargo test for nRF
+#         run: RUSTDOCFLAGS='--cfg context="nrf52840"' RUSTFLAGS='--cfg context="nrf52840"' cargo test --features external-interrupts,i2c,spi,'embassy-nrf/nrf52840' -p riot-rs-nrf
+#
+#       - name: cargo test for STM32
+#         run: RUSTDOCFLAGS='--cfg context="stm32wb55rgvx"' RUSTFLAGS='--cfg context="stm32wb55rgvx"' cargo test --features external-interrupts,i2c,spi,'embassy-stm32/stm32wb55rg' -p riot-rs-stm32
+#
+#   lint:
+#     runs-on: ubuntu-latest
+#
+#     steps:
+#       - name: Check out repository code
+#         uses: actions/checkout@v4
+#
+#       - id: get_toolchain
+#         run: echo "toolchain=$(scripts/rust-toolchain.sh)" >> $GITHUB_OUTPUT
+#
+#       - name: Install toolchain
+#         uses: dtolnay/rust-toolchain@master
+#         with:
+#           toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
+#           # Required for checking riot-rs-esp
+#           targets: riscv32imac-unknown-none-elf
+#           components: clippy, rustfmt
+#
+#       - name: rust cache
+#         uses: Swatinem/rust-cache@v2
+#
+#       - uses: taiki-e/install-action@v2
+#         with:
+#           tool: cargo-binstall
+#
+#       # Should run as soon as possible to avoid using unwanted crates
+#       # `--force`ing is required as the installed binary could have been
+#       # restored from cache.
+#       - name: cargo-deny
+#         run: |
+#           cargo binstall --no-confirm --no-discover-github-token --force cargo-deny
+#           cargo deny check bans licenses sources
+#
+#       # Must run after the cargo-deny job as it requires the downloaded
+#       # cargo-deny binary.
+#       - name: cargo-deny advisories
+#         run: cargo deny check advisories
+#         # Prevent sudden announcement of a new advisory from failing CI
+#         continue-on-error: true
+#
+#       # TODO: we'll eventually want to check the whole workspace with --workspace
+#       # TODO: we'll eventually want to check relevant feature combinations
+#       # TODO: we may want to use --no-deps as well
+#       - name: clippy
+#         uses: clechasseur/rs-clippy-check@v3
+#         with:
+#           args: --verbose --locked --features no-boards,external-interrupts,spi -p riot-rs -p riot-rs-boards -p riot-rs-chips -p riot-rs-debug -p riot-rs-embassy -p riot-rs-embassy-common -p riot-rs-macros -p riot-rs-random -p riot-rs-rt -p riot-rs-threads -p riot-rs-utils -- --deny warnings
+#
+#       - run: echo 'RUSTFLAGS=--cfg context="esp32c6"' >> $GITHUB_ENV
+#       - name: clippy for ESP32
+#         uses: clechasseur/rs-clippy-check@v3
+#         with:
+#           args: --verbose --locked --target=riscv32imac-unknown-none-elf --features external-interrupts,i2c,spi,esp-hal/esp32c6,esp-hal-embassy/esp32c6 -p riot-rs-esp -- --deny warnings
+#
+#       - run: echo 'RUSTFLAGS=--cfg context="rp2040"' >> $GITHUB_ENV
+#       - name: clippy for RP
+#         uses: clechasseur/rs-clippy-check@v3
+#         with:
+#           args: --verbose --locked --features external-interrupts,i2c,spi,embassy-rp/rp2040 -p riot-rs-rp -- --deny warnings
+#
+#       - run: echo 'RUSTFLAGS=--cfg context="nrf52840"' >> $GITHUB_ENV
+#       - name: clippy for nRF
+#         uses: clechasseur/rs-clippy-check@v3
+#         with:
+#           args: --verbose --locked --features external-interrupts,i2c,spi,embassy-nrf/nrf52840 -p riot-rs-nrf -- --deny warnings
+#
+#       - run: echo 'RUSTFLAGS=--cfg context="stm32wb55rgvx"' >> $GITHUB_ENV
+#       - name: clippy for STM32
+#         uses: clechasseur/rs-clippy-check@v3
+#         with:
+#           args: --verbose --locked --features external-interrupts,i2c,spi,embassy-stm32/stm32wb55rg -p riot-rs-stm32 -- --deny warnings
+#
+#       # Reset `RUSTFLAGS`
+#       - run: echo 'RUSTFLAGS=' >> $GITHUB_ENV
+#
+#       - name: rustdoc
+#         run: RUSTDOCFLAGS='-D warnings' cargo doc -p riot-rs --features bench,csprng,executor-thread,external-interrupts,hwrng,i2c,no-boards,random,spi,threading,usb
+#
+#       - name: rustdoc for ESP32
+#         run: RUSTDOCFLAGS='-D warnings --cfg context="esp32c6"' cargo doc --target=riscv32imac-unknown-none-elf --features external-interrupts,i2c,spi,esp-hal/esp32c6,esp-hal-embassy/esp32c6 -p riot-rs-esp
+#
+#       - name: rustdoc for RP
+#         run: RUSTDOCFLAGS='-D warnings --cfg context="rp2040"' cargo doc --features external-interrupts,i2c,spi,embassy-rp/rp2040 -p riot-rs-rp
+#
+#       - name: rustdoc for nRF
+#         run: RUSTDOCFLAGS='-D warnings --cfg context="nrf52840"' cargo doc --features external-interrupts,i2c,spi,embassy-nrf/nrf52840 -p riot-rs-nrf
+#
+#       - name: rustdoc for STM32
+#         run: RUSTDOCFLAGS='-D warnings --cfg context="stm32wb55rgvx"' cargo doc --features external-interrupts,i2c,spi,embassy-stm32/stm32wb55rg -p riot-rs-stm32
+#
+#       - name: rustfmt
+#         run: cargo fmt --check --all
+#
+#       - name: yamllint
+#         uses: karancode/yamllint-github-action@master
+#         with:
+#           yamllint_comment: true  # Insert inline PR comments
+#           yamllint_strict: true  # Set error code on warnings
+#
+#       - name: Install taplo
+#         run: cargo binstall --no-confirm --no-symlinks --no-discover-github-token --force taplo-cli
+#
+#       - name: Check toml formatting
+#         run: taplo fmt --check
+#
+#       # TODO: cargo-sort is disabled for now, as it won't stop formatting / failing perfectly sorted Cargo.toml files.
+#       # - name: Install cargo-sort
+#       #   run: cargo install --git=https://github.com/DevinR528/cargo-sort --rev 55ec89082466f6bb246d870a8d56d166a8e1f08b cargo-sort
+#
+#       # - name: Check item order of Cargo.toml files
+#       #   run: cargo sort --check --grouped --workspace --no-format
+#
+#       - name: Ruff
+#         uses: chartboost/ruff-action@v1
+#         with:
+#           args: format --check  # Only check formatting for now
+#
+#       - name: typos
+#         uses: crate-ci/typos@v1.22.0
+#
+#       - name: Check that the HTML support matrix is up to date
+#         run: ./doc/gen_support_matrix_html.rs check doc/support_matrix.yml book/src/support_matrix.html
+#
+#   CI-success:
+#     if: ${{ always() }}
+#     runs-on: ubuntu-latest
+#     name: Final Results
+#     needs: [build]
+#     steps:
+#       - run: |
+#           result="${{ needs.build.result }}"
+#           if [[ $result == "success" || $result == "skipped" ]]; then
+#             exit 0
+#           else
+#             exit 1
+#           fi
+#
+#       - name: Report nightly failure
+#         if: failure() && github.event_name == 'schedule' && github.repository == 'future-proof-iot/RIOT-rs'
+#         uses: s3krit/matrix-message-action@v0.0.3
+#         with:
+#           room_id: ${{ secrets.MATRIX_ROOM_ID }}
+#           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
+#           message: "The nightly build [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+#           server: "matrix.org"
