@@ -92,8 +92,9 @@ jobs:
           llvm-config --libs
           cargo version
           laze --version
-          gcc-arm-none-eabi --version
+          arm-none-eabi-gcc --version
           clang --version
+          set +x
           # Check which alternative versions are installed
           IFS=":"; for p in $PATH; do ls $p/llvm-config-* $p/clang-* 2>/dev/null; done
           true
