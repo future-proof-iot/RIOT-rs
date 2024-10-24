@@ -10,7 +10,7 @@ use embassy_rp::{
 use rp_pac::SIO;
 use static_cell::ConstStaticCell;
 
-use super::{CoreId, Multicore};
+use super::{CoreId, Multicore, ISR_STACKSIZE_CORE1};
 
 pub struct Chip;
 
@@ -23,7 +23,8 @@ impl Multicore for Chip {
 
     fn startup_other_cores() {
         // TODO: How much stack do we really need here?
-        static STACK: ConstStaticCell<Stack<4096>> = ConstStaticCell::new(Stack::new());
+        static STACK: ConstStaticCell<Stack<ISR_STACKSIZE_CORE1>> =
+            ConstStaticCell::new(Stack::new());
         // Trigger scheduler.
         let start_threading = move || {
             unsafe {
