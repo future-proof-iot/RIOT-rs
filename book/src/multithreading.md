@@ -12,7 +12,7 @@ RIOT-rs supports multithreading on the Cortex-M, RISC-V, and Xtensa architecture
 
 ### Thread Creation
 
-- Threads can either be declared using a macro, which creates and starts the thread during startup, or spawned dynamically at runtime. In the latter case, it is still required that the stack memory is statically allocated at compile time.
+- Threads can either be declared using a macro, which creates and starts the thread during startup, or spawned dynamically at runtime. In the latter case, the stack memory must still be statically allocated at compile time.
 - The **maximum number of threads** is defined with a constant value at compile time. This maximum limits the number of concurrently running threads, but it is still possible to create more threads if earlier ones have finished their execution.
 - Multiple **asynchronous Tasks** can be spawned within each thread with an executor from the integrated [Embassy] crate. This bridges the gap with async Rust, future-based concurrency, and asynchronous I/O. The executor executes all its tasks inside the thread context. When all tasks on the executor are pending, the owning thread is suspended.
 
