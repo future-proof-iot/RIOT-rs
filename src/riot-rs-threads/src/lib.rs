@@ -54,8 +54,6 @@ pub use thread_flags as flags;
 
 #[cfg(feature = "core-affinity")]
 pub use smp::CoreAffinity;
-#[cfg(feature = "multi-core")]
-pub use smp::CoreId;
 
 use arch::{schedule, Arch, Cpu, ThreadData};
 use ensure_once::EnsureOnce;
@@ -463,6 +461,17 @@ impl Threads {
     }
 }
 
+/// ID of a physical core.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub struct CoreId(pub(crate) u8);
+
+impl From<CoreId> for usize {
+    fn from(value: CoreId) -> Self {
+        value.0 as usize
+    }
+}
+
 /// Starts threading.
 ///
 /// Supposed to be started early on by OS startup code.
@@ -591,9 +600,15 @@ pub fn current_pid() -> Option<ThreadId> {
 }
 
 /// Returns the id of the CPU that this thread is running on.
-#[cfg(feature = "multi-core")]
 pub fn core_id() -> CoreId {
-    smp::Chip::core_id()
+    #[cfg(not(feature = "multi-core"))]
+    {
+        CoreId(0)
+    }
+    #[cfg(feature = "multi-core")]
+    {
+        smp::Chip::core_id()
+    }
 }
 
 /// Checks if a given [`ThreadId`] is valid.

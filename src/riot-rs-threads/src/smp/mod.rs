@@ -1,7 +1,4 @@
-/// ID of a physical core.
-#[derive(Clone, Copy, Debug, PartialEq, Eq, PartialOrd, Ord)]
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
-pub struct CoreId(pub(crate) u8);
+use crate::CoreId;
 
 impl CoreId {
     /// Creates a new [`CoreId`].
@@ -18,12 +15,6 @@ impl CoreId {
             )
         }
         Self(value)
-    }
-}
-
-impl From<CoreId> for usize {
-    fn from(value: CoreId) -> Self {
-        value.0 as usize
     }
 }
 
