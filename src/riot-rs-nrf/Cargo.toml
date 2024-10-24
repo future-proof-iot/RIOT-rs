@@ -12,6 +12,7 @@ workspace = true
 [dependencies]
 cfg-if = { workspace = true }
 defmt = { workspace = true, optional = true }
+embassy-embedded-hal = { workspace = true, optional = true }
 embassy-executor = { workspace = true, default-features = false, features = [
   "arch-cortex-m",
 ] }
@@ -22,6 +23,7 @@ embassy-nrf = { workspace = true, default-features = false, features = [
   "rt",
 ] }
 embedded-hal-async = { workspace = true }
+embedded-storage-async = { workspace = true, optional = true }
 paste = { workspace = true }
 portable-atomic = { workspace = true }
 riot-rs-debug = { workspace = true }
@@ -56,6 +58,8 @@ i2c = ["riot-rs-embassy-common/i2c", "embassy-executor/integrated-timers"]
 
 ## Enables SPI support.
 spi = ["riot-rs-embassy-common/spi", "embassy-executor/integrated-timers"]
+## Enables storage support.
+storage = ["dep:embedded-storage-async", "dep:embassy-embedded-hal"]
 
 ## Enables USB support.
 usb = []

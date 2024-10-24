@@ -1,3 +1,5 @@
+use riot_rs_embassy_common::gpio::{DriveStrength, Level, Pull, Speed};
+
 macro_rules! define_input_like {
     ($type:ident) => {
         pub struct $type<'d> {
@@ -13,7 +15,7 @@ macro_rules! define_input_like {
                 unimplemented!();
             }
 
-            pub fn get_level(&self) -> crate::arch::gpio::input::Level {
+            pub fn get_level(&self) -> crate::gpio::input::Level {
                 unimplemented!();
             }
 
@@ -77,13 +79,13 @@ macro_rules! define_input_like {
 }
 
 pub mod input {
-    use crate::arch::peripheral::Peripheral;
+    use crate::peripheral::Peripheral;
 
-    pub(crate) const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
+    pub const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
     pub trait InputPin {}
 
-    pub(crate) fn new(
+    pub fn new(
         _pin: impl Peripheral<P: InputPin> + 'static,
         _pull: crate::gpio::Pull,
         _schmitt_trigger: bool,
@@ -92,7 +94,7 @@ pub mod input {
     }
 
     #[cfg(feature = "external-interrupts")]
-    pub(crate) fn new_int_enabled(
+    pub fn new_int_enabled(
         _pin: impl Peripheral<P: InputPin> + 'static,
         _pull: crate::gpio::Pull,
         _schmitt_trigger: bool,
@@ -116,14 +118,14 @@ pub mod output {
     use embedded_hal::digital::StatefulOutputPin;
     use riot_rs_embassy_common::gpio::{FromDriveStrength, FromSpeed};
 
-    use crate::arch::peripheral::Peripheral;
+    use crate::peripheral::Peripheral;
 
-    pub(crate) const DRIVE_STRENGTH_CONFIGURABLE: bool = false;
-    pub(crate) const SPEED_CONFIGURABLE: bool = false;
+    pub const DRIVE_STRENGTH_CONFIGURABLE: bool = false;
+    pub const SPEED_CONFIGURABLE: bool = false;
 
     pub trait OutputPin {}
 
-    pub(crate) fn new(
+    pub fn new(
         _pin: impl Peripheral<P: OutputPin> + 'static,
         _initial_level: crate::gpio::Level,
         _drive_strength: DriveStrength,

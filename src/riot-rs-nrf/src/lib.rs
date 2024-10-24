@@ -19,6 +19,9 @@ pub mod i2c;
 #[cfg(feature = "spi")]
 pub mod spi;
 
+#[cfg(feature = "storage")]
+pub mod storage;
+
 #[cfg(feature = "usb")]
 pub mod usb;
 

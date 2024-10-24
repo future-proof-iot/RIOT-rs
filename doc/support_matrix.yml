@@ -44,6 +44,9 @@ functionalities:
   - name: hwrng
     title: Hardware Random Number Generator
     description:
+  - name: storage
+    title: Persistent Storage
+    description:
 
 # Encodes support status for each chip.
 chips:
@@ -56,6 +59,7 @@ chips:
       i2c_controller: supported
       spi_main: supported
       logging: supported
+      storage: supported
       wifi: not_available
 
   nrf53xx:
@@ -67,6 +71,7 @@ chips:
       i2c_controller: supported
       spi_main: supported
       logging: supported
+      storage: supported
       wifi: not_available
 
   rp2040:
@@ -78,6 +83,7 @@ chips:
       i2c_controller: supported
       spi_main: supported
       logging: supported
+      storage: supported
       wifi: not_available
 
   esp32-c6:
@@ -89,6 +95,7 @@ chips:
       i2c_controller: supported
       spi_main: supported
       logging: supported
+      storage: not_currently_supported
       wifi: not_available
 
   stm32f401retx:
@@ -100,6 +107,7 @@ chips:
       i2c_controller: not_currently_supported
       spi_main: not_currently_supported
       logging: supported
+      storage: not_currently_supported
       wifi: not_available
 
   stm32h755zitx:
@@ -111,6 +119,7 @@ chips:
       i2c_controller: supported
       spi_main: supported
       logging: supported
+      storage: not_currently_supported
       wifi: not_available
 
   stm32wb55rgvx:
@@ -122,6 +131,7 @@ chips:
       i2c_controller: supported
       spi_main: supported
       logging: supported
+      storage: not_currently_supported
       wifi: not_available
 
 # Encodes support status for each board.

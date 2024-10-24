@@ -3,7 +3,7 @@
 //! This module provides a driver for each SPI peripheral, the driver name being the same as the
 //! peripheral; see the tests and examples to learn how to instantiate them.
 //! These driver instances are meant to be shared between tasks using
-//! [`SpiDevice`](crate::spi::main::SpiDevice).
+//! `SpiDevice`.
 
 use riot_rs_embassy_common::spi::main::Kilohertz;
 
