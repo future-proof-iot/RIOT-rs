@@ -78,6 +78,15 @@ i2c = [
   "riot-rs-rp/i2c",
   "riot-rs-stm32/i2c",
 ]
+## Enables SPI support.
+spi = [
+  "dep:embassy-embedded-hal",
+  "riot-rs-embassy-common/spi",
+  "riot-rs-esp/spi",
+  "riot-rs-nrf/spi",
+  "riot-rs-rp/spi",
+  "riot-rs-stm32/spi",
+]
 usb = [
   "dep:embassy-usb",
   "riot-rs-nrf/usb",

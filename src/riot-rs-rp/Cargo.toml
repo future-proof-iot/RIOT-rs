@@ -12,6 +12,7 @@ workspace = true
 [dependencies]
 cfg-if = { workspace = true }
 defmt = { workspace = true, optional = true }
+embassy-embedded-hal = { workspace = true }
 embassy-net-driver-channel = { workspace = true, optional = true }
 embassy-rp = { workspace = true, default-features = false, features = [
   "rt",
@@ -50,6 +51,9 @@ hwrng = ["dep:riot-rs-random"]
 
 ## Enables I2C support.
 i2c = ["riot-rs-embassy-common/i2c", "embassy-executor/integrated-timers"]
+
+## Enables SPI support.
+spi = ["riot-rs-embassy-common/spi", "embassy-executor/integrated-timers"]
 
 ## Enables USB support.
 usb = []

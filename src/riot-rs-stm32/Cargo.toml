@@ -53,6 +53,9 @@ i2c = [
   "embassy-executor/integrated-timers",
 ]
 
+## Enables SPI support.
+spi = ["riot-rs-embassy-common/spi", "embassy-executor/integrated-timers"]
+
 ## Enables USB support.
 usb = []
 # These are chosen automatically by riot-rs-boards and select the correct stm32
