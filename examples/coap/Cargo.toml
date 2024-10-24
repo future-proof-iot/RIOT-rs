@@ -45,5 +45,5 @@ scroll-ring = "0.1.1"
 [features]
 default = ["proto-ipv4"] # shame
 # actually embedded-nal features, we have to match them here while developing udp_nal in here
-proto-ipv4 = []
-proto-ipv6 = []
+proto-ipv4 = ["embassy-net/proto-ipv4"]
+proto-ipv6 = ["embassy-net/proto-ipv6"]
