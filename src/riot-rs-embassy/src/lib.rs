@@ -8,21 +8,7 @@
 pub mod define_peripherals;
 pub mod gpio;
 
-cfg_if::cfg_if! {
-    if #[cfg(context = "nrf")] {
-        pub use riot_rs_nrf as arch;
-    } else if #[cfg(context = "rp")] {
-        pub use riot_rs_rp as arch;
-    } else if #[cfg(context = "esp")] {
-        pub use riot_rs_esp as arch;
-    } else if #[cfg(context = "stm32")] {
-        pub use riot_rs_stm32 as arch;
-    } else if #[cfg(context = "riot-rs")] {
-        compile_error!("this architecture is not supported");
-    } else {
-        pub mod arch;
-    }
-}
+pub use riot_rs_arch as arch;
 
 #[cfg(feature = "i2c")]
 pub mod i2c;
@@ -268,7 +254,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "wifi-cyw43")]
     let (device, control) = {
-        let (net_device, control) = riot_rs_rp::cyw43::device(&mut peripherals, &spawner).await;
+        let (net_device, control) = arch::cyw43::device(&mut peripherals, &spawner).await;
         (net_device, control)
     };
 
@@ -317,7 +303,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "wifi-cyw43")]
     {
-        riot_rs_rp::cyw43::join(control).await;
+        arch::cyw43::join(control).await;
     };
 
     // mark used

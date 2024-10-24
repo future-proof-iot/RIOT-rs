@@ -3,7 +3,7 @@
 //! This module provides a driver for each I2C peripheral, the driver name being the same as the
 //! peripheral; see the tests and examples to learn how to instantiate them.
 //! These driver instances are meant to be shared between tasks using
-//! [`I2cDevice`](crate::i2c::controller::I2cDevice).
+//! `I2cDevice`.
 
 /// Peripheral-agnostic I2C driver implementing [`embedded_hal_async::i2c::I2c`].
 ///
@@ -18,6 +18,7 @@ pub enum I2c {
 }
 
 /// MCU-specific I2C bus frequency.
+#[expect(clippy::manual_non_exhaustive)]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum Frequency {
     /// Standard mode.
