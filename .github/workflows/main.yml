@@ -85,6 +85,19 @@ jobs:
           echo "$HOME/.cargo/bin" >> $GITHUB_PATH
           sudo apt-get install ninja-build gcc-arm-none-eabi
 
+      - name: "Show installed versions"
+        run: |
+          set -x
+          set +e
+          llvm-config --libs
+          cargo version
+          laze --version
+          gcc-arm-none-eabi --version
+          clang --version
+          # Check which alternative versions are installed
+          IFS=":"; for p in $PATH; do ls $p/llvm-config-* $p/clang-* 2>/dev/null; done
+          true
+
       - name: "limit build unless nightly build"
         if: github.event_name != 'schedule'
         run: |
