@@ -1,5 +1,5 @@
 #[cfg(feature = "wifi-cyw43")]
-pub(crate) use riot_rs_rp::cyw43::NetworkDevice;
+pub(crate) use crate::arch::cyw43::NetworkDevice;
 
 #[cfg(feature = "wifi-esp")]
-pub(crate) use riot_rs_esp::wifi::esp_wifi::NetworkDevice;
+pub(crate) use crate::arch::wifi::esp_wifi::NetworkDevice;

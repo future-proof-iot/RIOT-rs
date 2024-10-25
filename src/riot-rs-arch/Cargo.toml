@@ -1,0 +1,88 @@
+[package]
+name = "riot-rs-arch"
+version = "0.1.0"
+license.workspace = true
+edition = "2021"
+
+[lints]
+workspace = true
+
+[dependencies]
+cfg-if.workspace = true
+
+[target.'cfg(context = "esp")'.dependencies]
+riot-rs-esp = { path = "../riot-rs-esp" }
+
+[target.'cfg(context = "nrf")'.dependencies]
+riot-rs-nrf = { path = "../riot-rs-nrf" }
+
+[target.'cfg(context = "rp")'.dependencies]
+riot-rs-rp = { path = "../riot-rs-rp" }
+
+[target.'cfg(context = "stm32")'.dependencies]
+riot-rs-stm32 = { workspace = true }
+
+# Required for platform-independent tooling
+[target.'cfg(not(any(context = "esp", context = "nrf", context = "rp", context = "stm32")))'.dependencies]
+embassy-executor = { workspace = true }
+embassy-hal-internal = { workspace = true }
+embassy-usb = { workspace = true }
+embedded-hal = { workspace = true }
+embedded-hal-async = { workspace = true }
+riot-rs-embassy-common = { workspace = true }
+
+[features]
+external-interrupts = [
+  "riot-rs-esp/external-interrupts",
+  "riot-rs-nrf/external-interrupts",
+  "riot-rs-rp/external-interrupts",
+  "riot-rs-stm32/external-interrupts",
+]
+
+i2c = [
+  "riot-rs-esp/i2c",
+  "riot-rs-nrf/i2c",
+  "riot-rs-rp/i2c",
+  "riot-rs-stm32/i2c",
+]
+
+spi = [
+  "riot-rs-esp/spi",
+  "riot-rs-nrf/spi",
+  "riot-rs-rp/spi",
+  "riot-rs-stm32/spi",
+]
+
+usb = [
+  #"riot-rs-esp/usb",
+  "riot-rs-nrf/usb",
+  "riot-rs-rp/usb",
+  "riot-rs-stm32/usb",
+]
+
+hwrng = [
+  #"riot-rs-esp/hwrng",
+  "riot-rs-nrf/hwrng",
+  "riot-rs-rp/hwrng",
+  "riot-rs-stm32/hwrng",
+]
+
+wifi-cyw43 = ["riot-rs-rp/wifi-cyw43"]
+wifi-esp = ["riot-rs-esp/wifi-esp"]
+
+executor-single-thread = ["riot-rs-esp/executor-single-thread"]
+
+executor-interrupt = [
+  #"riot-rs-esp/executor-interrupt",
+  "riot-rs-nrf/executor-interrupt",
+  "riot-rs-rp/executor-interrupt",
+  "riot-rs-stm32/executor-interrupt",
+]
+
+defmt = [
+  "riot-rs-embassy-common/defmt",
+  "riot-rs-esp/defmt",
+  "riot-rs-nrf/defmt",
+  "riot-rs-rp/defmt",
+  "riot-rs-stm32/defmt",
+]

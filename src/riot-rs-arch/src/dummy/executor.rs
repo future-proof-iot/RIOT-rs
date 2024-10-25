@@ -1,7 +1,5 @@
 use embassy_executor::SpawnToken;
 
-use crate::arch;
-
 pub struct Executor;
 
 impl Executor {
@@ -12,7 +10,7 @@ impl Executor {
         Self {}
     }
 
-    pub fn start(&self, _: arch::SWI) {
+    pub fn start(&self, _: crate::SWI) {
         unimplemented!();
     }
 

@@ -6,6 +6,7 @@ members = [
   "src/lib/ringbuffer",
   "src/lib/coapcore",
   "src/riot-rs",
+  "src/riot-rs-arch",
   "src/riot-rs-bench",
   "src/riot-rs-boards",
   "src/riot-rs-boards/nrf52",
@@ -82,6 +83,7 @@ esp-wifi = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs
 linkme = { version = "0.3.21", features = ["used_linker"] }
 
 riot-rs = { path = "src/riot-rs", default-features = false }
+riot-rs-arch = { path = "src/riot-rs-arch", default-features = false }
 riot-rs-bench = { path = "src/riot-rs-bench", default-features = false }
 riot-rs-boards = { path = "src/riot-rs-boards", default-features = false }
 riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }

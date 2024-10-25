@@ -28,6 +28,7 @@ embassy-usb = { workspace = true, optional = true }
 embedded-hal = { workspace = true }
 embedded-hal-async = { workspace = true }
 
+riot-rs-arch = { path = "../riot-rs-arch" }
 riot-rs-embassy-common = { workspace = true }
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-debug = { workspace = true }
@@ -45,27 +46,11 @@ embassy-executor = { workspace = true, default-features = false, features = [
   "arch-cortex-m",
 ] }
 
-# Manufacturer-specific
-[target.'cfg(context = "esp")'.dependencies]
-riot-rs-esp = { path = "../riot-rs-esp" }
-
-[target.'cfg(context = "nrf")'.dependencies]
-riot-rs-nrf = { path = "../riot-rs-nrf" }
-
-[target.'cfg(context = "rp")'.dependencies]
-riot-rs-rp = { path = "../riot-rs-rp" }
-
-[target.'cfg(context = "stm32")'.dependencies]
-riot-rs-stm32 = { workspace = true }
-
 [features]
 ## Enables GPIO interrupt support.
 external-interrupts = [
   "riot-rs-embassy-common/external-interrupts",
-  "riot-rs-esp/external-interrupts",
-  "riot-rs-nrf/external-interrupts",
-  "riot-rs-rp/external-interrupts",
-  "riot-rs-stm32/external-interrupts",
+  "riot-rs-arch/external-interrupts",
 ]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
 
@@ -73,35 +58,24 @@ time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
 i2c = [
   "dep:embassy-embedded-hal",
   "riot-rs-embassy-common/i2c",
-  "riot-rs-esp/i2c",
-  "riot-rs-nrf/i2c",
-  "riot-rs-rp/i2c",
-  "riot-rs-stm32/i2c",
+  "riot-rs-arch/i2c",
 ]
 ## Enables SPI support.
 spi = [
   "dep:embassy-embedded-hal",
   "riot-rs-embassy-common/spi",
-  "riot-rs-esp/spi",
-  "riot-rs-nrf/spi",
-  "riot-rs-rp/spi",
-  "riot-rs-stm32/spi",
+  "riot-rs-arch/spi",
 ]
-usb = [
-  "dep:embassy-usb",
-  "riot-rs-nrf/usb",
-  "riot-rs-rp/usb",
-  "riot-rs-stm32/usb",
-]
+usb = ["dep:embassy-usb", "riot-rs-arch/usb"]
 # embassy-net requires embassy-time and support for timeouts in the executor
 net = ["dep:embassy-net", "time"]
 usb-ethernet = ["usb", "net"]
 ## Use a hardware RNG to seed into the riot-rs-random system-wide RNG
-hwrng = ["riot-rs-nrf/hwrng", "riot-rs-rp/hwrng", "riot-rs-stm32/hwrng"]
+hwrng = ["riot-rs-arch/hwrng"]
 
 wifi = []
-wifi-cyw43 = ["riot-rs-rp/wifi-cyw43", "net", "wifi"]
-wifi-esp = ["riot-rs-esp/wifi-esp", "net", "wifi"]
+wifi-cyw43 = ["riot-rs-arch/wifi-cyw43", "net", "wifi"]
+wifi-esp = ["riot-rs-arch/wifi-esp", "net", "wifi"]
 
 threading = ["dep:riot-rs-threads"]
 override-network-config = []
@@ -109,13 +83,9 @@ override-usb-config = []
 
 executor-single-thread = [
   "riot-rs-rt/executor-single-thread",
-  "riot-rs-esp/executor-single-thread",
+  "riot-rs-arch/executor-single-thread",
 ]
-executor-interrupt = [
-  "riot-rs-nrf/executor-interrupt",
-  "riot-rs-rp/executor-interrupt",
-  "riot-rs-stm32/executor-interrupt",
-]
+executor-interrupt = ["riot-rs-arch/executor-interrupt"]
 executor-thread = ["threading"]
 executor-none = []
 
@@ -123,9 +93,6 @@ defmt = [
   "embassy-net?/defmt",
   "embassy-time?/defmt",
   "embassy-usb?/defmt",
+  "riot-rs-arch/defmt",
   "riot-rs-embassy-common/defmt",
-  "riot-rs-esp/defmt",
-  "riot-rs-nrf/defmt",
-  "riot-rs-rp/defmt",
-  "riot-rs-stm32/defmt",
 ]
