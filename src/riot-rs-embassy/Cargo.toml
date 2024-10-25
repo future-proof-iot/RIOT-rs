@@ -35,6 +35,7 @@ riot-rs-debug = { workspace = true }
 riot-rs-macros = { path = "../riot-rs-macros" }
 riot-rs-rt = { path = "../riot-rs-rt" }
 riot-rs-random = { path = "../riot-rs-random", optional = true }
+riot-rs-storage = { workspace = true, optional = true }
 riot-rs-utils = { workspace = true }
 
 heapless = "0.8.0"
@@ -72,6 +73,9 @@ net = ["dep:embassy-net", "time"]
 usb-ethernet = ["usb", "net"]
 ## Use a hardware RNG to seed into the riot-rs-random system-wide RNG
 hwrng = ["riot-rs-arch/hwrng"]
+
+## Enable storage support [`riot-rs::storage`].
+storage = ["dep:riot-rs-storage", "riot-rs-arch/storage", "time"]
 
 wifi = []
 wifi-cyw43 = ["riot-rs-arch/wifi-cyw43", "net", "wifi"]

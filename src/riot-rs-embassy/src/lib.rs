@@ -179,6 +179,9 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     // Clock startup and entropy collection may lend themselves to parallelization, provided that
     // doesn't impact runtime RAM or flash use.
 
+    #[cfg(feature = "storage")]
+    riot_rs_storage::init(&mut peripherals).await;
+
     #[cfg(all(feature = "usb", context = "nrf"))]
     arch::usb::init();
 
