@@ -59,7 +59,7 @@ portable-atomic = { version = "1.8.0", default-features = false, features = [
 ] }
 
 embassy-embedded-hal = { version = "0.2.0", default-features = false }
-embassy-executor = { version = "0.6", default-features = false }
+embassy-executor = { version = "0.6.0", default-features = false }
 embassy-futures = { version = "0.1.1", default-features = false }
 embassy-hal-internal = { version = "0.2.0", default-features = false }
 embassy-net = { version = "0.4", default-features = false }
@@ -129,6 +129,7 @@ opt-level = 3
 [patch.crates-io]
 # riot-rs embassy fork
 embassy-executor = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
+embassy-executor-macros = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
 embassy-hal-internal = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
 embassy-nrf = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
 embassy-net = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-09-19" }
