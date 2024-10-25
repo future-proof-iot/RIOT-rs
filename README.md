@@ -1,6 +1,7 @@
 # RIOT-rs
 [![Build Status][build-badge]][build-info]
-[![Documentation][doc-badge]][documentation-mdbook]
+[![Book][book-badge]][documentation-mdbook]
+[![Documentation][rustdoc-badge]][documentation-dev-rustdoc]
 [![Matrix][matrix-badge]][matrix-link]
 
 > Rust & RIOT combined for ergonomic embedded development
@@ -142,5 +143,7 @@ be dual licensed as above, without any additional terms or conditions.
 [build-info]: https://github.com/future-proof-iot/RIOT-rs/actions/workflows/main.yml
 [matrix-badge]: https://img.shields.io/badge/chat-Matrix-brightgreen.svg
 [matrix-link]: https://matrix.to/#/#RIOT-rs:matrix.org
-[doc-badge]: https://img.shields.io/badge/Documentation-%F0%9F%93%94-blue
+[book-badge]: https://img.shields.io/badge/Book-%F0%9F%93%94-blue
+[rustdoc-badge]: https://img.shields.io/badge/Documentation-%F0%9F%93%94-blue
 [documentation-mdbook]: https://future-proof-iot.github.io/RIOT-rs/dev/docs/book/
+[documentation-dev-rustdoc]: https://future-proof-iot.github.io/RIOT-rs/dev/docs/api/
