@@ -64,6 +64,19 @@ jobs:
         with:
           buildtargets: esp32s3
 
+      - name: Keep general build environment clean of Xtensa peculiarities
+        # The Xtensa setup unconditionally sets LIBCLANG_PATH in GITHUB_ENV --
+        # we can't undo that. (It also sets it in ~/exports, but that is just
+        # what it uses internally to get that data around into the action
+        # script)
+        #
+        # As the shell apparently does not source any files, and until
+        # https://github.com/actions/runner/issues/1126 is fixed by GitHub, the
+        # best remedy is to stow the workaround and source it wherever we can.
+        run: |
+          set -x
+          echo 'unset LIBCLANG_PATH' >> ~/fix-environment-after-xtensa-setup
+
       - name: rust cache
         if: steps.result-cache.outputs.cache-hit != 'true'
         uses: Swatinem/rust-cache@v2
@@ -78,6 +91,7 @@ jobs:
       - name: "installing prerequisites"
         if: steps.result-cache.outputs.cache-hit != 'true'
         run: |
+          source ~/fix-environment-after-xtensa-setup
           git config --global init.defaultBranch main
           git config --global user.email "ci@riot-labs.de"
           git config --global user.name "CI"
@@ -88,11 +102,13 @@ jobs:
       - name: "limit build unless nightly build"
         if: github.event_name != 'schedule'
         run: |
+          source ~/fix-environment-after-xtensa-setup
           echo "LAZE_BUILDERS=ai-c3,espressif-esp32-c6-devkitc-1,espressif-esp32-s3-wroom-1,microbit-v2,nrf52840dk,nrf5340dk,rpi-pico,rpi-pico-w,st-nucleo-h755zi-q,st-nucleo-wb55" >> "$GITHUB_ENV"
 
       - name: "riot-rs compilation test"
         if: steps.result-cache.outputs.cache-hit != 'true'
         run: |
+          source ~/fix-environment-after-xtensa-setup
           sccache --start-server || true # work around https://github.com/ninja-build/ninja/issues/2052
 
           CONFIG_WIFI_NETWORK='test' CONFIG_WIFI_PASSWORD='password' laze build --global --partition hash:${{ matrix.partition }}
