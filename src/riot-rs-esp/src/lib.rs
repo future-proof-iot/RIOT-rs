@@ -8,6 +8,12 @@ pub mod gpio;
 #[cfg(feature = "i2c")]
 pub mod i2c;
 
+pub mod identity {
+    use riot_rs_embassy_common::identity;
+
+    pub type DeviceId = identity::NoDeviceId<identity::NotImplemented>;
+}
+
 #[cfg(feature = "spi")]
 pub mod spi;
 

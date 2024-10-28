@@ -18,6 +18,8 @@ pub mod buildinfo;
 pub use riot_rs_bench as bench;
 #[doc(inline)]
 pub use riot_rs_debug as debug;
+#[doc(inline)]
+pub use riot_rs_identity as identity;
 #[cfg(feature = "random")]
 #[doc(inline)]
 pub use riot_rs_random as random;

@@ -15,6 +15,7 @@ members = [
   "src/riot-rs-debug",
   "src/riot-rs-embassy-common",
   "src/riot-rs-esp",
+  "src/riot-rs-identity",
   "src/riot-rs-macros",
   "src/riot-rs-nrf",
   "src/riot-rs-random",
@@ -94,6 +95,7 @@ riot-rs-debug = { path = "src/riot-rs-debug", default-features = false }
 riot-rs-embassy = { path = "src/riot-rs-embassy", default-features = false }
 riot-rs-embassy-common = { path = "src/riot-rs-embassy-common" }
 riot-rs-esp = { path = "src/riot-rs-esp" }
+riot-rs-identity = { path = "src/riot-rs-identity" }
 riot-rs-nrf = { path = "src/riot-rs-nrf" }
 riot-rs-random = { path = "src/riot-rs-random" }
 riot-rs-rp = { path = "src/riot-rs-rp" }
