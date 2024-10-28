@@ -40,8 +40,8 @@ async fn coap_run() {
 
     // going with an embassy_futures join instead of RIOT-rs's spawn b/c CoAPShared is not Sync.
     embassy_futures::join::join(
-        riot_rs::coap::coap_run(handler, stdout, &client_signal),
-        run_client_operations(&client_signal),
+        riot_rs::coap::coap_run(handler, &client_signal),
+        run_client_operations(&client_signal, stdout),
     )
     .await;
 }
@@ -55,6 +55,7 @@ async fn run_client_operations(
         embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex,
         &'static embedded_nal_coap::CoAPRuntimeClient<'static, 3>,
     >,
+    mut stdout: impl core::fmt::Write,
 ) {
     let client = client_in.wait().await;
 
@@ -63,31 +64,41 @@ async fn run_client_operations(
     let demoserver = addr.clone().parse().unwrap();
 
     use coap_request::Stack;
-    info!("Sending GET to {}...", addr);
+    writeln!(stdout, "Sending GET to {}...", addr).unwrap();
     let response = client
         .to(demoserver)
         .request(
             coap_request_implementations::Code::get()
                 .with_path("/other/separate")
                 .processing_response_payload_through(|p| {
-                    info!("Got payload {:?}", p);
+                    writeln!(stdout, "Got payload {:?}", p).unwrap();
                 }),
         )
         .await;
-    info!("Response {:?}", response.map_err(|_| "TransportError"));
+    writeln!(
+        stdout,
+        "Response {:?}",
+        response.map_err(|_| "TransportError")
+    )
+    .unwrap();
 
     let req = coap_request_implementations::Code::post().with_path("/uppercase");
 
-    info!("Sending POST...");
+    writeln!(stdout, "Sending POST...").unwrap();
     let mut response = client.to(demoserver);
     let response = response.request(
         req.with_request_payload_slice(b"Set time to 1955-11-05")
             .processing_response_payload_through(|p| {
-                info!("Uppercase is {}", core::str::from_utf8(p).unwrap())
+                writeln!(stdout, "Uppercase is {}", core::str::from_utf8(p).unwrap()).unwrap();
             }),
     );
     let response = response.await;
-    info!("Response {:?}", response.map_err(|_| "TransportError"));
+    writeln!(
+        stdout,
+        "Response {:?}",
+        response.map_err(|_| "TransportError")
+    )
+    .unwrap();
 }
 
 // FIXME: So far, this is necessary boiler plate; see ../README.md#networking for details
