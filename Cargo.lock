@@ -447,20 +447,16 @@ dependencies = [
  "coap-request",
  "coap-request-implementations",
  "coap-scroll-ring-server",
- "coapcore",
  "embassy-executor",
  "embassy-futures",
  "embassy-net",
+ "embassy-sync 0.6.0",
  "embassy-time",
- "embedded-io-async",
- "embedded-nal-async",
  "embedded-nal-coap",
  "heapless 0.8.0",
- "hexlit",
- "lakers",
- "lakers-crypto-rustcrypto",
  "riot-rs",
  "riot-rs-boards",
+ "riot-rs-coap",
  "scroll-ring",
  "static-alloc",
 ]
@@ -3650,10 +3646,23 @@ dependencies = [
 name = "riot-rs-coap"
 version = "0.1.0"
 dependencies = [
+ "coap-handler",
+ "coap-handler-implementations",
  "coapcore",
+ "critical-section",
+ "embassy-futures",
  "embassy-net",
+ "embassy-sync 0.6.0",
+ "embedded-io-async",
+ "embedded-nal-async",
+ "embedded-nal-coap",
+ "hexlit",
+ "lakers",
  "lakers-crypto-rustcrypto",
+ "riot-rs-debug",
+ "riot-rs-embassy",
  "riot-rs-random",
+ "static_cell",
 ]
 
 [[package]]
