@@ -1,8 +1,18 @@
-//! Helpers for udp_nal -- conversion and error types
+//! Helpers for [`udp_nal`] -- conversion and error types
 
 use embassy_net::{udp, IpAddress, IpEndpoint};
 use embedded_nal_async as nal;
 
+/// Converts socket address types between [`embedded_nal_async`] and [`embassy_net`] (internally
+/// `smol`).
+///
+/// # Errors
+///
+/// This produces an error if an address family is unavailable.
+#[allow(
+    clippy::unnecessary_wraps,
+    reason = "errors are currently only impossible because for crate feature synchronization reasons, all cfg handling is commented out"
+)]
 pub(super) fn sockaddr_nal2smol(sockaddr: nal::SocketAddr) -> Result<IpEndpoint, Error> {
     match sockaddr {
         #[allow(unused)]
@@ -44,7 +54,7 @@ pub(super) fn sockaddr_smol2nal(endpoint: IpEndpoint) -> nal::SocketAddr {
 
 /// Is the IP address in this type the unspecified address?
 ///
-/// FIXME: What of ::ffff:0.0.0.0? Is that expected to bind to all v4 addresses?
+/// FIXME: What of `::ffff:0.0.0.0`? Is that expected to bind to all v4 addresses?
 pub(super) fn is_unspec_ip(addr: nal::SocketAddr) -> bool {
     match addr {
         nal::SocketAddr::V4(sockaddr) => sockaddr.ip().octets() == [0; 4],
@@ -52,9 +62,13 @@ pub(super) fn is_unspec_ip(addr: nal::SocketAddr) -> bool {
     }
 }
 
-/// Unified error type for [embedded_nal_async] operations on UDP sockets
+/// Unified error type for [`embedded_nal_async`] operations on UDP sockets
 #[derive(Debug)]
 #[non_exhaustive]
+#[allow(
+    clippy::enum_variant_names,
+    reason = "false positive -- they're not called SomethingError because they are a Self (which is named Error), but because they contain a type SomethingError"
+)]
 pub enum Error {
     /// Error stemming from failure to send
     RecvError(udp::RecvError),
@@ -64,22 +78,20 @@ pub enum Error {
     BindError(udp::BindError),
     /// Error stemming from failure to represent the given address family for lack of enabled
     /// embassy-net features
+    #[expect(dead_code, reason = "feature selection currently disabled")]
     AddressFamilyUnavailable,
 }
 
 impl embedded_io_async::Error for Error {
     fn kind(&self) -> embedded_io_async::ErrorKind {
         match self {
-            Self::SendError(udp::SendError::NoRoute) => {
-                embedded_io_async::ErrorKind::AddrNotAvailable
-            }
-            Self::BindError(udp::BindError::NoRoute) => {
+            Self::SendError(udp::SendError::NoRoute) | Self::BindError(udp::BindError::NoRoute) => {
                 embedded_io_async::ErrorKind::AddrNotAvailable
             }
             Self::AddressFamilyUnavailable => embedded_io_async::ErrorKind::AddrNotAvailable,
             // These should not happen b/c our sockets are typestated.
-            Self::SendError(udp::SendError::SocketNotBound) => embedded_io_async::ErrorKind::Other,
-            Self::BindError(udp::BindError::InvalidState) => embedded_io_async::ErrorKind::Other,
+            Self::SendError(udp::SendError::SocketNotBound) |
+                Self::BindError(udp::BindError::InvalidState) |
             // This should not happen b/c in embedded_nal_async this is not expressed through an
             // error.
             // FIXME we're not there in this impl yet.

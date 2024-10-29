@@ -71,9 +71,9 @@ impl COwn {
     }
 }
 
-impl Into<lakers::ConnId> for COwn {
-    fn into(self) -> lakers::ConnId {
-        lakers::ConnId::from_int_raw(self.0)
+impl From<COwn> for lakers::ConnId {
+    fn from(cown: COwn) -> Self {
+        lakers::ConnId::from_int_raw(cown.0)
     }
 }
 
@@ -106,9 +106,9 @@ impl AifStaticRest {
             .is_some_and(|o| o.value() == b"stdout")
             && uri_path_options.next().is_none()
         {
-            return self.may_use_stdout;
+            self.may_use_stdout
         } else {
-            return true;
+            true
         }
     }
 }
@@ -134,6 +134,10 @@ impl<Crypto: lakers::Crypto> Default for SecContextState<Crypto> {
 }
 
 #[derive(Debug)]
+#[expect(
+    clippy::large_enum_variant,
+    reason = "requiring more memory during connection setup is expected, but the complexity of an inhmogenous pool is currently impractical"
+)]
 enum SecContextStage<Crypto: lakers::Crypto> {
     Empty,
 
@@ -479,22 +483,21 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                     return Err(Own(CoAPError::method_not_allowed()));
                 }
 
-                let first_byte = request
+                let (first_byte, edhoc_m1) = request
                     .payload()
-                    .get(0)
+                    .split_first()
                     .ok_or_else(CoAPError::bad_request)?;
                 let starts_with_true = first_byte == &0xf5;
 
                 if starts_with_true {
                     info!("Processing incoming EDHOC message 1");
                     let message_1 =
-                        &lakers::EdhocMessageBuffer::new_from_slice(&request.payload()[1..])
-                            .map_err(too_small)?;
+                        &lakers::EdhocMessageBuffer::new_from_slice(edhoc_m1).map_err(too_small)?;
 
                     let (responder, c_i, ead_1) = lakers::EdhocResponder::new(
                         (self.crypto_factory)(),
-                        &self.own_identity.1,
-                        self.own_identity.0.clone(),
+                        self.own_identity.1,
+                        *self.own_identity.0,
                     )
                     .process_message_1(message_1)
                     .map_err(render_error)?;
@@ -512,12 +515,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                             .filter_map(|entry| entry.corresponding_cown())
                             // C_R does not only need to be unique, it also must not be identical
                             // to C_I
-                            .chain(
-                                COwn::from_kid(c_i.as_slice())
-                                    .as_slice()
-                                    .into_iter()
-                                    .cloned(),
-                            ),
+                            .chain(COwn::from_kid(c_i.as_slice()).as_slice().iter().cloned()),
                     );
 
                     debug!("Entries in pool:");
@@ -559,10 +557,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                 // isn't processable, it's unlikely that another one would come up and be.
                 let mut taken = self
                     .pool
-                    .lookup(
-                        |c| c.corresponding_cown() == Some(kid),
-                        |matched| core::mem::replace(matched, Default::default()),
-                    )
+                    .lookup(|c| c.corresponding_cown() == Some(kid), core::mem::take)
                     // following RFC8613 Section 8.2 item 2.2
                     // FIXME unauthorized (unreleased in coap-message-utils)
                     .ok_or_else(CoAPError::bad_request)?;
@@ -589,6 +584,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                     } = taken
                     {
                         debug_assert_eq!(c_r, kid, "State was looked up by KID");
+                        #[allow(clippy::indexing_slicing, reason = "slice fits by construction")]
                         let msg_3 = lakers::EdhocMessageBuffer::new_from_slice(&payload[..cutoff])
                             .map_err(|e| Own(too_small(e)))?;
 
@@ -653,7 +649,13 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                         let oscore_salt = responder.edhoc_exporter(1u8, &[], 8); // label is 1
                         let oscore_secret = &oscore_secret[..16];
                         let oscore_salt = &oscore_salt[..8];
-                        debug!("OSCORE secret: {:?}...", &oscore_secret[..5]);
+                        #[allow(
+                            clippy::indexing_slicing,
+                            reason = "secret necessarily contains more than 40 bits"
+                        )]
+                        {
+                            debug!("OSCORE secret: {:?}...", &oscore_secret[..5]);
+                        }
                         debug!("OSCORE salt: {:?}", &oscore_salt);
 
                         let sender_id = c_i.as_slice();
@@ -665,8 +667,8 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
 
                         let immutables = liboscore::PrimitiveImmutables::derive(
                             hkdf,
-                            &oscore_secret,
-                            &oscore_salt,
+                            oscore_secret,
+                            oscore_salt,
                             None,
                             aead,
                             sender_id,
@@ -740,6 +742,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                 let oscore_option = oscore_option.unwrap();
                 let oscore_option = liboscore::OscoreOption::parse(&oscore_option)
                     .map_err(|_| CoAPError::bad_option(coap_numbers::option::OSCORE))?;
+                #[allow(clippy::indexing_slicing, reason = "slice fits by construction")]
                 allocated_message
                     .set_payload(&payload[front_trim_payload..])
                     .unwrap();
@@ -795,7 +798,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
     ) -> Result<(), Self::BuildResponseError<M>> {
         use OrInner::{Inner, Own};
 
-        Ok(match req {
+        match req {
             Own(EdhocResponse::OkSend2(c_r)) => {
                 // FIXME: Why does the From<O> not do the map_err?
                 response.set_code(
@@ -807,7 +810,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                     |matched| {
                         // temporary default will not live long (and may be only constructed if
                         // prepare_message_2 fails)
-                        let taken = core::mem::replace(matched, Default::default());
+                        let taken = core::mem::take(matched);
                         let SecContextState {
                             protocol_stage:
                                 SecContextStage::EdhocResponderProcessedM1 {
@@ -960,6 +963,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                     M::Code::new(coap_numbers::code::UNAUTHORIZED).map_err(|x| Own(x.into()))?,
                 );
             }
-        })
+        };
+        Ok(())
     }
 }

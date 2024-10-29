@@ -3,8 +3,6 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use riot_rs::{debug::log::*, network};
-
 // because coapcore depends on it temporarily
 extern crate alloc;
 use static_alloc::Bump;
@@ -14,7 +12,7 @@ static A: Bump<[u8; 1 << 16]> = Bump::uninit();
 
 #[riot_rs::task(autostart)]
 async fn coap_run() {
-    use coap_handler_implementations::{HandlerBuilder, ReportingHandlerBuilder};
+    use coap_handler_implementations::HandlerBuilder;
 
     let log = None;
     let buffer = scroll_ring::Buffer::<512>::default();
@@ -54,7 +52,7 @@ async fn run_client_operations(mut stdout: impl core::fmt::Write) {
 
     // shame
     let addr = "10.42.0.1:1234";
-    let demoserver = addr.clone().parse().unwrap();
+    let demoserver = addr.parse().unwrap();
 
     use coap_request::Stack;
     writeln!(stdout, "Sending GET to {}...", addr).unwrap();

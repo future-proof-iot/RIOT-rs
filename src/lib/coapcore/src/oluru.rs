@@ -13,6 +13,7 @@
 //! indicate numeric values (including of priorities, where "high" corresponds to "small" and "low"
 //! to "large").
 #![forbid(unsafe_code)]
+#![expect(clippy::indexing_slicing, reason = "module is scheduled for overhaul")]
 
 use arrayvec::ArrayVec;
 

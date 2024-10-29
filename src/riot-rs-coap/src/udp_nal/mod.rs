@@ -1,14 +1,14 @@
-//! UDP sockets usable through [embedded_nal_async]
+//! UDP sockets usable through [`embedded_nal_async`]
 //!
-//! The full [embedded_nal_async::UdpStack] is *not* implemented at the moment: As its API allows
-//! arbitrary creation of movable sockets, embassy's [udp::UdpSocket] type could only be crated if
+//! The full [`embedded_nal_async::UdpStack`] is *not* implemented at the moment: As its API allows
+//! arbitrary creation of movable sockets, embassy's [`udp::UdpSocket`] type could only be crated if
 //! the NAL stack had a pre-allocated pool of sockets with their respective buffers. Nothing rules
 //! out such a type, but at the moment, only the bound or connected socket types are implemented
-//! with their own constructors from an embassy [crate::Stack] -- for many applications, those are
+//! with their own constructors from an embassy [`crate::Stack`] -- for many applications, those are
 //! useful enough. (FIXME: Given we construct from Socket, Stack could really be implemented on
 //! `Cell<Option<Socket>>` by `.take()`ing, couldn't it?)
 //!
-//! The constructors of the various socket types mimic the UdpStack's socket creation functions,
+//! The constructors of the various socket types mimic the [`UdpStack`]'s socket creation functions,
 //! but take an owned (uninitialized) Socket instead of a shared stack.
 //!
 //! No `bind_single` style constructor is currently provided. FIXME: Not sure we have all the
@@ -25,6 +25,10 @@ mod util;
 pub use util::Error;
 use util::{is_unspec_ip, sockaddr_nal2smol, sockaddr_smol2nal};
 
+#[expect(
+    dead_code,
+    reason = "pub item is being prepared for embedded-nal-async where it will be reachable publicly"
+)]
 pub struct ConnectedUdp<'a> {
     remote: IpEndpoint,
     // The local port is stored in the socket, as it gets bound. This value is populated lazily:
@@ -38,13 +42,19 @@ pub struct ConnectedUdp<'a> {
 
 /// A UDP socket that has been bound locally (either to a unique address or just to a port)
 ///
-/// Its operations are accessible through the [nal::UnconnectedUdp] trait.
+/// Its operations are accessible through the [`nal::UnconnectedUdp`] trait.
 pub struct UnconnectedUdp<'a> {
     socket: udp::UdpSocket<'a>,
 }
 
+#[allow(
+    dead_code,
+    clippy::unused_async,
+    clippy::missing_errors_doc,
+    reason = "pub item is being prepared for embedded-nal-async where it will be reachable publicly"
+)]
 impl<'a> ConnectedUdp<'a> {
-    /// Create a ConnectedUdp by assigning it a remote and a concrete local address
+    /// Create a [`ConnectedUdp`] by assigning it a remote and a concrete local address
     ///
     /// ## Prerequisites
     ///
@@ -67,8 +77,8 @@ impl<'a> ConnectedUdp<'a> {
         })
     }
 
-    /// Create a ConnectedUdp by assigning it a remote and a local address (the latter may happen
-    /// lazily)
+    /// Create a [`ConnectedUdp`] by assigning it a remote and a local address (the latter may
+    /// happen lazily)
     ///
     /// ## Prerequisites
     ///
@@ -80,8 +90,14 @@ impl<'a> ConnectedUdp<'a> {
     }
 }
 
+#[allow(
+    dead_code,
+    clippy::unused_async,
+    clippy::missing_errors_doc,
+    reason = "pub item is being prepared for embedded-nal-async where it will be reachable publicly"
+)]
 impl<'a> UnconnectedUdp<'a> {
-    /// Create an UnconnectedUdp.
+    /// Create an [`UnconnectedUdp`].
     ///
     /// The `local` address may be anything from fully specified (address and port) to fully
     /// unspecified (port 0, all-zeros address).
