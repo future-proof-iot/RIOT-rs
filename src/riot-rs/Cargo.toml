@@ -89,6 +89,7 @@ wifi-esp = ["riot-rs-embassy/wifi-esp"]
 debug-console = ["riot-rs-rt/debug-console"]
 ## Enables logging support through `defmt`.
 defmt = [
+  "riot-rs-coap?/defmt",
   "riot-rs-debug/defmt",
   "riot-rs-embassy/defmt",
   "riot-rs-threads?/defmt",

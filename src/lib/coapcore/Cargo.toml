@@ -32,3 +32,10 @@ liboscore-msgbackend = { git = "https://gitlab.com/oscore/liboscore/", features 
 ], rev = "447e34fc5af427de7513f96a756babfe2f0b2c5c" }
 minicbor = "0.23.0"
 heapless = "0.8.0"
+defmt-or-log = { version = "0.2.1", default-features = false }
+defmt = { workspace = true, optional = true }
+log = { version = "0.4", optional = true }
+
+[features]
+defmt = ["defmt-or-log/defmt", "dep:defmt"]
+log = ["defmt-or-log/log", "dep:log"]

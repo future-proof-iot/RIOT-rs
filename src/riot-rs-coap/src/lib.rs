@@ -21,14 +21,6 @@ use static_cell::StaticCell;
 
 const CONCURRENT_REQUESTS: usize = 3;
 
-struct DevNull;
-
-impl core::fmt::Write for DevNull {
-    fn write_str(&mut self, _: &str) -> core::fmt::Result {
-        Ok(())
-    }
-}
-
 // FIXME: log_stdout is not something we want to have here
 // FIXME: I'd rather have the client_out available anywhere, but at least the way CoAPRuntimeClient
 // is set up right now, server and client have to run in the same thread.
@@ -76,7 +68,7 @@ pub async fn coap_run(
     // FIXME: Should we allow users to override that? After all, this is just convenience and may
     // be limiting in special applications.
     let handler = handler.with_wkc();
-    let mut handler = seccontext::OscoreEdhocHandler::new(own_identity, handler, DevNull, || {
+    let mut handler = seccontext::OscoreEdhocHandler::new(own_identity, handler, || {
         lakers_crypto_rustcrypto::Crypto::new(riot_rs_random::crypto_rng())
     });
 

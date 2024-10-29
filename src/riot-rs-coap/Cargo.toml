@@ -37,6 +37,9 @@ workspace = true
 ## if no features are configured at all.
 doc = ["embassy-net/proto-ipv6", "embassy-net/medium-ip"]
 
+## Enables defmt logging of coapcore
+defmt = ["coapcore/defmt"]
+
 # Only around while we carry the embedded-nal-async impl
 proto-ipv4 = ["embassy-net/proto-ipv4"]
 proto-ipv6 = ["embassy-net/proto-ipv6"]

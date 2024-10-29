@@ -3,7 +3,7 @@ use coap_message::{
     MutableWritableMessage, ReadableMessage,
 };
 use coap_message_utils::{Error as CoAPError, OptionsExt as _};
-use core::fmt::Write;
+use defmt_or_log::{debug, error, info, warn, Debug2Format};
 
 // If this exceeds 47, COwn will need to be extended.
 const MAX_CONTEXTS: usize = 4;
@@ -21,6 +21,7 @@ pub type SecContextPool<Crypto> =
 /// This type represents any of the 48 efficient identifiers that use CBOR one-byte integer
 /// encodings (see RFC9528 Section 3.3.2), or equivalently the 1-byte long OSCORE identifiers
 // FIXME Could even limit to positive values if MAX_CONTEXTS < 24
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Copy, Clone, PartialEq, Debug)]
 struct COwn(u8);
 
@@ -82,6 +83,7 @@ impl Into<lakers::ConnId> for COwn {
 /// FIXME: At the moment, this always represents an authorization that allows everything, and only
 /// has runtime information about whether or not stdout is allowed. On the long run, this will
 /// likely be a CBOR item with pre-verified structure.
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Debug)]
 struct AifStaticRest {
     may_use_stdout: bool,
@@ -111,6 +113,7 @@ impl AifStaticRest {
     }
 }
 
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Debug)]
 struct SecContextState<Crypto: lakers::Crypto> {
     // FIXME: Should also include timeout. How do? Store expiry, do raytime in not-even-RTC mode,
@@ -161,6 +164,26 @@ enum SecContextStage<Crypto: lakers::Crypto> {
 
     // FIXME: Also needs a flag for whether M4 was received; if not, it's GC'able
     Oscore(liboscore::PrimitiveContext),
+}
+
+#[cfg(feature = "defmt")]
+impl<Crypto: lakers::Crypto> defmt::Format for SecContextStage<Crypto> {
+    fn format(&self, f: defmt::Formatter) {
+        match self {
+            SecContextStage::Empty => defmt::write!(f, "Empty"),
+            SecContextStage::EdhocResponderProcessedM1 { c_r, .. } => {
+                defmt::write!(f, "EdhocResponderProcessedM1 {{ c_r: {:?}, ... }}", c_r)
+            }
+            SecContextStage::EdhocResponderSentM2 { c_r, .. } => {
+                defmt::write!(f, "EdhocResponderSentM2 {{ c_r: {:?}, ... }}", c_r)
+            }
+            SecContextStage::Oscore(primitive_context) => defmt::write!(
+                f,
+                "Oscore(with recipient_id {:?})",
+                primitive_context.recipient_id()
+            ),
+        }
+    }
 }
 
 impl<Crypto: lakers::Crypto> core::fmt::Display for SecContextState<Crypto> {
@@ -234,7 +257,7 @@ impl<Crypto: lakers::Crypto> SecContextState<Crypto> {
 /// While the EDHOC part could be implemented as a handler that is to be added into the tree, the
 /// OSCORE part needs to wrap the inner handler anyway, and EDHOC and OSCORE are intertwined rather
 /// strongly in processing the EDHOC option.
-pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> {
+pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> {
     // It'd be tempted to have sharing among multiple handlers for multiple CoAP stacks, but
     // locks for such sharing could still be acquired in a factory (at which point it may make
     // sense to make this a &mut).
@@ -254,27 +277,21 @@ pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler, L: Write, Crypto: la
     // called, or an AuthorizationChecked::Allowed is around.
     inner: H,
 
-    log: L,
-
     crypto_factory: fn() -> Crypto,
 }
 
-impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto>
-    OscoreEdhocHandler<'a, H, L, Crypto>
-{
+impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> OscoreEdhocHandler<'a, H, Crypto> {
     // FIXME: Apart from an own identity, this will also need a function to convert ID_CRED_I into
     // a (CRED_I, AifStaticRest) pair.
     pub fn new(
         own_identity: (&'a lakers::CredentialRPK, &'static [u8]),
         inner: H,
-        log: L,
         crypto_factory: fn() -> Crypto,
     ) -> Self {
         Self {
             pool: Default::default(),
             own_identity,
             inner,
-            log,
             crypto_factory,
         }
     }
@@ -368,8 +385,8 @@ impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrI
     }
 }
 
-impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handler::Handler
-    for OscoreEdhocHandler<'a, H, L, Crypto>
+impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
+    for OscoreEdhocHandler<'a, H, Crypto>
 {
     type RequestData = OrInner<
         EdhocResponse<Result<H::RequestData, H::ExtractRequestError>>,
@@ -469,6 +486,7 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                 let starts_with_true = first_byte == &0xf5;
 
                 if starts_with_true {
+                    info!("Processing incoming EDHOC message 1");
                     let message_1 =
                         &lakers::EdhocMessageBuffer::new_from_slice(&request.payload()[1..])
                             .map_err(too_small)?;
@@ -502,15 +520,14 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                             ),
                     );
 
-                    writeln!(self.log, "Entries in pool:").unwrap();
+                    debug!("Entries in pool:");
                     for (i, e) in self.pool.entries.iter().enumerate() {
-                        writeln!(self.log, "{i}. {e}").unwrap();
+                        debug!("{}. {}", i, e);
                     }
-                    write!(self.log, "Sequence: ").unwrap();
+                    debug!("Sequence:");
                     for index in self.pool.sorted.iter() {
-                        write!(self.log, "{index},").unwrap();
+                        debug!("* {}", index);
                     }
-                    writeln!(self.log, "").unwrap();
                     let evicted = self.pool.force_insert(SecContextState {
                         protocol_stage: SecContextStage::EdhocResponderProcessedM1 {
                             c_r,
@@ -520,9 +537,9 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                         authorization: self.unauthenticated_edhoc_user_authorization(),
                     });
                     if let Some(evicted) = evicted {
-                        writeln!(self.log, "To insert new EDHOC, evicted {}", evicted).unwrap();
+                        warn!("To insert new EDHOC, evicted {}", evicted);
                     } else {
-                        writeln!(self.log, "To insert new EDHOC, evicted none").unwrap();
+                        debug!("To insert new EDHOC, evicted none");
                     }
 
                     Ok(Own(EdhocResponse::OkSend2(c_r)))
@@ -589,11 +606,7 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                         if id_cred_i.reference_only() {
                             match id_cred_i.kid {
                                 43 => {
-                                    writeln!(
-                                        self.log,
-                                        "Peer indicates use of the one preconfigured key"
-                                    )
-                                    .unwrap();
+                                    info!("Peer indicates use of the one preconfigured key");
 
                                     use hexlit::hex;
                                     const CRED_I: &[u8] = &hex!("A2027734322D35302D33312D46462D45462D33372D33322D333908A101A5010202412B2001215820AC75E9ECE3E50BFC8ED60399889522405C47BF16DF96660A41298CB4307F7EB62258206E5DE611388A4B8A8211334AC7D37ECB52A387D257E6DB3C2A93DF21FF3AFFC8");
@@ -614,12 +627,10 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                                 }
                             }
                         } else {
-                            writeln!(
-                                self.log,
+                            info!(
                                 "Got credential by value: {:?}..",
                                 &id_cred_i.value.get_slice(0, 5)
-                            )
-                            .unwrap();
+                            );
 
                             cred_i = lakers::CredentialRPK::new(id_cred_i.value)
                                 // FIXME What kind of error do we send here?
@@ -642,8 +653,8 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                         let oscore_salt = responder.edhoc_exporter(1u8, &[], 8); // label is 1
                         let oscore_secret = &oscore_secret[..16];
                         let oscore_salt = &oscore_salt[..8];
-                        writeln!(self.log, "OSCORE secret: {:?}...", &oscore_secret[..5]).unwrap();
-                        writeln!(self.log, "OSCORE salt: {:?}", &oscore_salt).unwrap();
+                        debug!("OSCORE secret: {:?}...", &oscore_secret[..5]);
+                        debug!("OSCORE salt: {:?}", &oscore_salt);
 
                         let sender_id = c_i.as_slice();
                         let recipient_id = kid.0;
@@ -678,6 +689,11 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                         // messages. We're ignoring the EDHOC value and continue with OSCORE
                         // processing.
                     }
+
+                    info!(
+                        "Processed {} bytes at start of message into new EDHOC context",
+                        cutoff
+                    );
 
                     cutoff
                 } else {
@@ -753,7 +769,7 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
 
                 let Ok((correlation, extracted)) = decrypted else {
                     // FIXME is that the right code?
-                    writeln!(self.log, "Decryption failure").unwrap();
+                    error!("Decryption failure");
                     return Err(Own(CoAPError::unauthorized()));
                 };
 
@@ -884,13 +900,13 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                                     // One attempt to render rendering errors
                                     // FIXME rewind message
                                     Err(e) => {
-                                        write!(self.log, "Rendering successful extraction failed with {e:?}, ").unwrap();
+                                        error!("Rendering successful extraction failed with {:?}", Debug2Format(&e));
                                         match e.render(response) {
                                             Ok(()) => {
-                                                writeln!(self.log, "error rendered").unwrap();
+                                                error!("Error rendered.");
                                             },
                                             Err(e2) => {
-                                                writeln!(self.log, "error could not be rendered: {e2:?}").unwrap();
+                                                error!("Error could not be rendered: {:?}.", Debug2Format(&e2));
                                                 // FIXME rewind message
                                                 response.set_code(coap_numbers::code::INTERNAL_SERVER_ERROR);
                                             }
@@ -898,21 +914,21 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                                     },
                                 },
                                 AuthorizationChecked::Allowed(Err(inner_request_error)) => {
-                                    write!(self.log, "Extraction failed with {inner_request_error:?}, ").unwrap();
+                                    error!("Extraction failed with {:?}.", Debug2Format(&inner_request_error));
                                     match inner_request_error.render(response) {
                                         Ok(()) => {
-                                            writeln!(self.log, "rendered successfully").unwrap();
+                                            error!("Original error rendered successfully.");
                                         },
                                         Err(e) => {
-                                            write!(self.log, "could not be rendered due to {e:?}, ").unwrap();
+                                            error!("Original error could not be rendered due to {:?}:", Debug2Format(&e));
                                             // Two attempts to render extraction errors
                                             // FIXME rewind message
                                             match e.render(response) {
                                                 Ok(()) => {
-                                                    writeln!(self.log, "which was rendered fine").unwrap();
+                                                    error!("Error was rendered fine.");
                                                 },
                                                 Err(e2) => {
-                                                    writeln!(self.log, "rendering which caused {e2:?}").unwrap();
+                                                    error!("Rendering error caused {:?}.", Debug2Format(&e2));
                                                     // FIXME rewind message
                                                     response.set_code(
                                                         coap_numbers::code::INTERNAL_SERVER_ERROR,
@@ -931,7 +947,7 @@ impl<'a, H: coap_handler::Handler, L: Write, Crypto: lakers::Crypto> coap_handle
                         )
                         .is_err()
                         {
-                            writeln!(self.log, "Oups, responding with weird state").unwrap();
+                            error!("Oups, responding with weird state");
                             // todo!("Thanks to the protect API we've lost access to our response");
                         }
                     });
