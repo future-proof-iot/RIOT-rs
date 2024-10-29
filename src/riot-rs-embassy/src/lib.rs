@@ -41,13 +41,13 @@ pub mod api {
 
     #[cfg(feature = "threading")]
     pub use crate::blocker;
+    #[cfg(feature = "net")]
+    pub use crate::network;
     #[cfg(feature = "usb")]
     pub use crate::usb;
     pub use crate::{
         arch, define_peripherals, delegate, gpio, group_peripherals, Spawner, EMBASSY_TASKS,
     };
-    #[cfg(feature = "net")]
-    pub use crate::{network, NetworkStack};
 
     #[cfg(feature = "executor-interrupt")]
     pub use crate::arch::EXECUTOR;
