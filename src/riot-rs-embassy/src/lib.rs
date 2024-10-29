@@ -303,7 +303,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         let (stack, runner) = embassy_net::new(
             device,
             config,
-            RESOURCES.init_with(|| StackResources::new()),
+            RESOURCES.init_with(StackResources::new),
             seed,
         );
 
