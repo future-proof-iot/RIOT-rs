@@ -68,11 +68,18 @@ pub mod reexports {
 
 pub use embassy_executor::Spawner;
 
-#[cfg(feature = "usb-ethernet")]
-use usb::ethernet::NetworkDevice;
-
-#[cfg(feature = "wifi")]
-use wifi::NetworkDevice;
+#[cfg(feature = "net")]
+cfg_if::cfg_if! {
+    if #[cfg(feature = "usb-ethernet")] {
+        use usb::ethernet::NetworkDevice;
+    } else if #[cfg(feature = "wifi")] {
+        use wifi::NetworkDevice;
+    } else if #[cfg(context = "riot-rs")] {
+        compile_error!("no backend for net is active");
+    } else {
+        use network::DummyDriver as NetworkDevice;
+    }
+}
 
 #[cfg(feature = "net")]
 pub use network::NetworkStack;
@@ -275,6 +282,12 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
             4,
             "maximum number of concurrent sockets allowed by the network stack"
         );
+
+        #[cfg(not(any(feature = "usb-ethernet", feature = "wifi-cyw43", feature = "wifi-esp")))]
+        // The creation of `device` is not organized in such a way that they could be put in a
+        // cfg-if without larger refactoring; relying on unused variable lints to keep the
+        // condition list up to date.
+        let device: NetworkDevice = network::new_dummy();
 
         let config = network::config();
 
