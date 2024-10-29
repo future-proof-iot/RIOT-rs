@@ -7,36 +7,34 @@ pub(super) fn sockaddr_nal2smol(sockaddr: nal::SocketAddr) -> Result<IpEndpoint,
     match sockaddr {
         #[allow(unused)]
         nal::SocketAddr::V4(sockaddr) => {
-            #[cfg(feature = "proto-ipv4")]
+            // #[cfg(feature = "proto-ipv4")]
             return Ok(IpEndpoint {
                 addr: embassy_net::Ipv4Address(sockaddr.ip().octets()).into(),
                 port: sockaddr.port(),
             });
-            #[cfg(not(feature = "proto-ipv4"))]
-            return Err(Error::AddressFamilyUnavailable);
+            // #[cfg(not(feature = "proto-ipv4"))]
+            // return Err(Error::AddressFamilyUnavailable);
         }
         #[allow(unused)]
         nal::SocketAddr::V6(sockaddr) => {
-            #[cfg(feature = "proto-ipv6")]
+            // #[cfg(feature = "proto-ipv6")]
             return Ok(IpEndpoint {
                 addr: embassy_net::Ipv6Address(sockaddr.ip().octets()).into(),
                 port: sockaddr.port(),
             });
-            #[cfg(not(feature = "proto-ipv6"))]
-            return Err(Error::AddressFamilyUnavailable);
+            // #[cfg(not(feature = "proto-ipv6"))]
+            // return Err(Error::AddressFamilyUnavailable);
         }
     }
 }
 
 pub(super) fn sockaddr_smol2nal(endpoint: IpEndpoint) -> nal::SocketAddr {
     match endpoint.addr {
-        // Let's hope those are in sync; what we'll really need to know is whether smoltcp has the
-        // relevant flags set (but we can't query that).
-        #[cfg(feature = "proto-ipv4")]
+        // #[cfg(feature = "proto-ipv4")]
         IpAddress::Ipv4(addr) => {
             embedded_nal_async::SocketAddrV4::new(addr.0.into(), endpoint.port).into()
         }
-        #[cfg(feature = "proto-ipv6")]
+        // #[cfg(feature = "proto-ipv6")]
         IpAddress::Ipv6(addr) => {
             // FIXME: Where is smoltcp's zone identifier?
             embedded_nal_async::SocketAddrV6::new(addr.0.into(), endpoint.port, 0, 0).into()

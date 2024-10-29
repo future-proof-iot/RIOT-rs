@@ -33,5 +33,4 @@ static-alloc = { version = "0.2.5", features = ["polyfill"] }
 coap-scroll-ring-server = "0.2.0"
 scroll-ring = "0.1.1"
 
-# FIXME: Where should this be pulled through?
-riot-rs-coap = { workspace = true, features = ["proto-ipv4"] }
+riot-rs-coap = { workspace = true }

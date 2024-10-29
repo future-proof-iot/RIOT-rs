@@ -12,7 +12,16 @@ coap-handler = "0.2.0"
 coap-handler-implementations = "0.5.0"
 critical-section.workspace = true
 embassy-futures = "0.1.1"
-embassy-net = { workspace = true, features = ["udp"] }
+# These features should be more selective and not enabled here, but as things
+# stand, this modules also contains the embedded-nal implementation for
+# embassy-net, and that needs its features in sync; enabling them all ensures a
+# working state until that NAL wrapper moves into embassy-net, where features
+# will be in sync all the time.
+embassy-net = { workspace = true, features = [
+  "udp",
+  "proto-ipv4",
+  "proto-ipv6",
+] }
 embassy-sync.workspace = true
 embedded-nal-async = "0.7"
 embedded-nal-coap = "0.1.0-alpha.2"
@@ -39,7 +48,3 @@ doc = ["embassy-net/proto-ipv6", "embassy-net/medium-ip"]
 
 ## Enables defmt logging of coapcore
 defmt = ["coapcore/defmt"]
-
-# Only around while we carry the embedded-nal-async impl
-proto-ipv4 = ["embassy-net/proto-ipv4"]
-proto-ipv6 = ["embassy-net/proto-ipv6"]
