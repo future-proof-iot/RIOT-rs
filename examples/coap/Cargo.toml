@@ -14,10 +14,11 @@ embassy-executor = { workspace = true, default-features = false }
 embassy-net = { workspace = true, features = ["udp"] }
 embassy-sync = { workspace = true }
 embassy-time = { workspace = true, default-features = false }
-heapless = { workspace = true }
+heapless = { workspace = true, features = ["serde"] }
 riot-rs = { path = "../../src/riot-rs", features = [
   "override-network-config",
   "coap",
+  "storage",
 ] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 embassy-futures = "0.1.1"
@@ -34,3 +35,5 @@ coap-scroll-ring-server = "0.2.0"
 scroll-ring = "0.1.1"
 
 riot-rs-coap = { workspace = true }
+coap-numbers = "0.2.4"
+serde = { workspace = true, default-features = false }

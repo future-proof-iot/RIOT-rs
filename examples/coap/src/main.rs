@@ -2,6 +2,10 @@
 #![no_std]
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
+#![feature(noop_waker)]
+
+use riot_rs::debug::log::{error, info};
+use riot_rs::storage;
 
 // because coapcore depends on it temporarily
 extern crate alloc;
@@ -10,9 +14,124 @@ use static_alloc::Bump;
 #[global_allocator]
 static A: Bump<[u8; 1 << 16]> = Bump::uninit();
 
+/// Represents a concrete key inside the sytem wide storage as a CBOR resource that has a single
+/// text value. `T` must practically be both serde for Postcard, and … FIXME: through which CBOR
+/// handler does that even go? At any rate, `heapless::String<64>` is a suitable type.
+struct CborStorageAccess<T> {
+    key: &'static str,
+    _phantom: core::marker::PhantomData<T>,
+}
+
+impl<T> CborStorageAccess<T> {
+    fn new(key: &'static str) -> Self {
+        Self {
+            key,
+            _phantom: Default::default(),
+        }
+    }
+}
+
+impl<T> coap_handler_implementations::TypeRenderable for CborStorageAccess<T>
+where
+    T: serde::ser::Serialize,
+    T: for<'de> serde::de::Deserialize<'de>,
+    T: Clone, // put gives us an &, but to store, we need to move one in
+{
+    type Get = T;
+    type Post = ();
+    type Put = T;
+
+    fn get(&mut self) -> Result<Self::Get, u8> {
+        use core::future::Future;
+        let future = core::pin::pin!(storage::get(self.key));
+        // Let's hope this is not *really* blocking
+        match future.poll(&mut core::task::Context::from_waker(
+            &core::task::Waker::noop(),
+        )) {
+            core::task::Poll::Ready(data) => data
+                .map_err(|_| {
+                    error!("Reading data failed"); // sadly, the error is not Format
+                    coap_numbers::code::BAD_REQUEST
+                })
+                .and_then(|data| data.ok_or(coap_numbers::code::NOT_FOUND)),
+            _ => {
+                error!("Data was not available for reading instantly.");
+                Err(coap_numbers::code::INTERNAL_SERVER_ERROR)
+            }
+        }
+    }
+
+    fn put(&mut self, value: &Self::Put) -> u8 {
+        use core::future::Future;
+        let future = core::pin::pin!(storage::insert(self.key, value.clone()));
+        // Let's hope this is not *really* blocking
+        match future.poll(&mut core::task::Context::from_waker(
+            &core::task::Waker::noop(),
+        )) {
+            core::task::Poll::Ready(Ok(())) => coap_numbers::code::CHANGED,
+            // more like "some other error"
+            core::task::Poll::Ready(Err(_)) => {
+                error!("Storing data failed"); // sadly, the error is not Format
+                coap_numbers::code::BAD_REQUEST
+            }
+            _ => {
+                error!("Data was not written instantly.");
+                coap_numbers::code::INTERNAL_SERVER_ERROR
+            }
+        }
+    }
+
+    fn delete(&mut self) -> u8 {
+        use core::future::Future;
+        let future = core::pin::pin!(storage::remove(self.key));
+        // Let's hope this is not *really* blocking
+        match future.poll(&mut core::task::Context::from_waker(
+            &core::task::Waker::noop(),
+        )) {
+            core::task::Poll::Ready(Ok(())) => coap_numbers::code::DELETED,
+            // more like "some other error"
+            core::task::Poll::Ready(Err(_)) => {
+                error!("Storing data failed"); // sadly, the error is not Format
+                coap_numbers::code::BAD_REQUEST
+            }
+            _ => {
+                error!("Data was not written instantly.");
+                coap_numbers::code::INTERNAL_SERVER_ERROR
+            }
+        }
+    }
+}
+
 #[riot_rs::task(autostart)]
 async fn coap_run() {
     use coap_handler_implementations::HandlerBuilder;
+
+    type MyConfig = heapless::String<64>;
+    type MyCounter = u32;
+    #[derive(serde::Serialize, serde::Deserialize, Copy, Clone)]
+    struct MyComplex {
+        re: i8,
+        i: i8,
+    }
+
+    let my_config_startup: Option<MyConfig> = storage::get("my_config").await.unwrap();
+    let my_counter_startup: Option<MyCounter> = storage::get("my_counter").await.unwrap();
+    let my_counter_new = my_counter_startup.unwrap_or_default().saturating_add(1);
+    storage::insert("my_counter", my_counter_new).await.unwrap();
+    info!(
+        "Startup value of my_config is {:?}; my_counter was incremented to {}",
+        my_config_startup.as_ref(),
+        my_counter_new,
+    );
+    if storage::get::<MyComplex>("my_complex")
+        .await
+        .unwrap()
+        .is_none()
+    {
+        storage::insert("my_complex", MyComplex { re: 4, i: -3 })
+            .await
+            .unwrap();
+    }
 
     let log = None;
     let buffer = scroll_ring::Buffer::<512>::default();
@@ -29,10 +148,32 @@ async fn coap_run() {
     writeln!(stdout, "We have our own stdout now.").unwrap();
     writeln!(stdout, "With rings and atomics.").unwrap();
 
-    let handler = coap_message_demos::full_application_tree(log).at(
-        &["stdout"],
-        coap_scroll_ring_server::BufferHandler::new(&buffer),
-    );
+    let handler = coap_message_demos::full_application_tree(log)
+        .at(
+            &["stdout"],
+            coap_scroll_ring_server::BufferHandler::new(&buffer),
+        )
+        .at_with_attributes(
+            &["config"],
+            &[],
+            coap_handler_implementations::TypeHandler::new(CborStorageAccess::<MyConfig>::new(
+                "my_config",
+            )),
+        )
+        .at_with_attributes(
+            &["counter"],
+            &[],
+            coap_handler_implementations::TypeHandler::new(CborStorageAccess::<MyCounter>::new(
+                "my_counter",
+            )),
+        )
+        .at_with_attributes(
+            &["complex"],
+            &[],
+            coap_handler_implementations::TypeHandler::new(CborStorageAccess::<MyComplex>::new(
+                "my_complex",
+            )),
+        );
 
     // going with an embassy_futures join instead of RIOT-rs's spawn to avoid the need for making
     // stdout static.
