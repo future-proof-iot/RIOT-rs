@@ -31,7 +31,7 @@ pub async fn coap_run(
         embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex,
         &'static embedded_nal_coap::CoAPRuntimeClient<'static, CONCURRENT_REQUESTS>,
     >,
-) {
+) -> ! {
     let stack = riot_rs_embassy::network::network_stack().await.unwrap();
 
     // FIXME trim to CoAP requirements
@@ -90,5 +90,6 @@ pub async fn coap_run(
             &mut riot_rs_random::fast_rng(),
         )
         .await
-        .expect("UDP error")
+        .expect("UDP error");
+    unreachable!("embassy-net's sockets do not get closed (but embedded-nal-coap can't know that)");
 }
