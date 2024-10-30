@@ -14,9 +14,9 @@ use static_alloc::Bump;
 #[global_allocator]
 static A: Bump<[u8; 1 << 16]> = Bump::uninit();
 
-/// Represents a concrete key inside the sytem wide storage as a CBOR resource that has a single
-/// text value. `T` must practically be both serde for Postcard, and … FIXME: through which CBOR
-/// handler does that even go? At any rate, `heapless::String<64>` is a suitable type.
+/// Represents a concrete key inside the system wide storage as a CBOR resource that has a single
+/// text value. `T` must practically be serde both for Postcard, and for `serde_cbor` (FIXME: Go
+/// through minicbor).
 struct CborStorageAccess<T> {
     key: &'static str,
     _phantom: core::marker::PhantomData<T>,
