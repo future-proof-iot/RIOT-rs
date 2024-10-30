@@ -1,4 +1,10 @@
-//! To provide a custom network configuration, use the `riot_rs::config` attribute macro.
+//! Provides network access.
+//!
+//! The network link to use is selected through Cargo features.
+//! Additionally, the [`riot_rs::config`](riot_rs_macros::config) attribute macro allows to provide
+//! custom network configuration.
+
+#![deny(missing_docs)]
 
 use embassy_net::{Runner, Stack};
 use embassy_sync::once_lock::OnceLock;
@@ -6,12 +12,18 @@ use embassy_sync::once_lock::OnceLock;
 use crate::{sendcell::SendCell, NetworkDevice};
 
 #[allow(dead_code)]
-pub const ETHERNET_MTU: usize = 1514;
+pub(crate) const ETHERNET_MTU: usize = 1514;
 
+/// A network stack.
+///
+/// Required to create a UDP or TCP socket.
 pub type NetworkStack = Stack<'static>;
 
 pub(crate) static STACK: OnceLock<SendCell<NetworkStack>> = OnceLock::new();
 
+/// Returns a new [`NetworkStack`].
+///
+/// Returns [`None`] if networking is not yet initialized.
 pub async fn network_stack() -> Option<NetworkStack> {
     STACK.get().await.get_async().await.copied()
 }
