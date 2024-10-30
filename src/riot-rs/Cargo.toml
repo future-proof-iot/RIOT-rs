@@ -13,6 +13,7 @@ document-features = { workspace = true }
 linkme = { workspace = true }
 riot-rs-bench = { workspace = true, optional = true }
 riot-rs-boards = { path = "../riot-rs-boards" }
+riot-rs-coap = { path = "../riot-rs-coap", optional = true }
 riot-rs-debug = { workspace = true }
 riot-rs-embassy = { path = "../riot-rs-embassy" }
 riot-rs-identity = { workspace = true }
@@ -47,6 +48,10 @@ random = ["riot-rs-random"]
 csprng = ["riot-rs-random/csprng"]
 ## Enables seeding the random number generator from hardware.
 hwrng = ["riot-rs-embassy/hwrng"]
+
+#! ## Network protocols
+## Enables support for [CoAP](https://future-proof-iot.github.io/RIOT-rs/dev/docs/book/tooling/coap.html).
+coap = ["dep:riot-rs-coap", "random"]
 
 #! ## Serial communication
 ## Enables I2C support.
@@ -84,6 +89,7 @@ wifi-esp = ["riot-rs-embassy/wifi-esp"]
 debug-console = ["riot-rs-rt/debug-console"]
 ## Enables logging support through `defmt`.
 defmt = [
+  "riot-rs-coap?/defmt",
   "riot-rs-debug/defmt",
   "riot-rs-embassy/defmt",
   "riot-rs-threads?/defmt",

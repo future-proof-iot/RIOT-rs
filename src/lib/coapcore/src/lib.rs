@@ -1,14 +1,25 @@
-//! A CoAP stack for embedded devices with built-in OSCORE/EDHOC support
-//! ====================================================================
+//! A CoAP security for embedded devices, supporting OSCORE/EDHOC and managing credentials.
 //!
-//! This crate provides an asynchronous task that serves CoAP requests on a UDP port provided by
-//! the application as an `embedded-nal` socket, and processes CoAP along with its security
-//! components OSCORE and EDHOC before passing on authorized requests to the application.
+//! The crate is under heavy development: Its API is in flux. So far, it has hidden dependencies on a
+//! particular implementation of the [`coap-message`] provided (it needs to be a
+//! [`coap_message_implementations::inmemory_write::Message`]).
 //!
-//! The crate is under heavy development: Its API is in flux, and so far it does not yet provide
-//! the CoAP server itself, but merely a middleware. (Providing the full CoAP will be a requirement
-//! for at least as long as the OSCORE component is tightly coupled to a particular implementation
-//! of [`coap-message`]).
+//! # Logging
+//!
+//! Extensive logging is available in this crate through [`defmt_or_log`], depending on features
+//! enabled.
+//!
+//! Errors from CoAP are currently logged through its [`Debug2Format`](defmt_or_log::Debug2Format)
+//! facility, representing a compromise between development and runtime complexity. Should
+//! benchmarks show this to be a significant factor in code size in applications that need error
+//! handling, more fine grained control can be implemented (eg. offering an option to make
+//! Debug2Format merely print the type name or even make it empty).
+//!
+//! See the book for [how defmt is configured in
+//! RIOT-rs](https://future-proof-iot.github.io/RIOT-rs/dev/docs/book/tooling/defmt.html).
+//!
+//! **Warning**: At the Debug level, this module may show cryptographic key material. This will be
+//! revised once all components have been interop-tested.
 #![no_std]
 
 // Might warrant a standalone crate at some point

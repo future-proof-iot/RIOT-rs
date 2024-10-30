@@ -12,38 +12,25 @@ workspace = true
 [dependencies]
 embassy-executor = { workspace = true, default-features = false }
 embassy-net = { workspace = true, features = ["udp"] }
+embassy-sync = { workspace = true }
 embassy-time = { workspace = true, default-features = false }
-embedded-io-async = "0.6.1"
 heapless = { workspace = true }
 riot-rs = { path = "../../src/riot-rs", features = [
   "override-network-config",
-  "random",
-  "csprng",
+  "coap",
 ] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
-
-coapcore.path = "../../src/lib/coapcore/"
-
-# for the udp_nal mod
-embedded-nal-async = "0.7"
+embassy-futures = "0.1.1"
 embedded-nal-coap = "0.1.0-alpha.2"
 coap-request = "0.2.0-alpha.2"
 coap-message = "0.3.2"
-embassy-futures = "0.1.1"
 coap-message-demos = { version = "0.4.0", default-features = false }
 coap-request-implementations = "0.1.0-alpha.4"
-lakers = { version = "0.6.0", default-features = false }
-lakers-crypto-rustcrypto = "0.6.0"
 coap-handler = "0.2.0"
 coap-handler-implementations = "0.5.0"
-hexlit = "0.5.5"
 
 static-alloc = { version = "0.2.5", features = ["polyfill"] }
 coap-scroll-ring-server = "0.2.0"
 scroll-ring = "0.1.1"
 
-[features]
-default = ["proto-ipv4"] # shame
-# actually embedded-nal features, we have to match them here while developing udp_nal in here
-proto-ipv4 = ["embassy-net/proto-ipv4"]
-proto-ipv6 = ["embassy-net/proto-ipv6"]
+riot-rs-coap = { workspace = true }

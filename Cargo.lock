@@ -447,20 +447,16 @@ dependencies = [
  "coap-request",
  "coap-request-implementations",
  "coap-scroll-ring-server",
- "coapcore",
  "embassy-executor",
  "embassy-futures",
  "embassy-net",
+ "embassy-sync 0.6.0",
  "embassy-time",
- "embedded-io-async",
- "embedded-nal-async",
  "embedded-nal-coap",
  "heapless 0.8.0",
- "hexlit",
- "lakers",
- "lakers-crypto-rustcrypto",
  "riot-rs",
  "riot-rs-boards",
+ "riot-rs-coap",
  "scroll-ring",
  "static-alloc",
 ]
@@ -597,12 +593,15 @@ dependencies = [
  "coap-message-implementations",
  "coap-message-utils",
  "coap-numbers",
+ "defmt",
+ "defmt-or-log",
  "heapless 0.8.0",
  "hexlit",
  "lakers",
  "lakers-crypto-rustcrypto",
  "liboscore",
  "liboscore-msgbackend",
+ "log 0.4.22",
  "minicbor 0.23.0",
 ]
 
@@ -866,6 +865,28 @@ checksum = "e3a9f309eff1f79b3ebdf252954d90ae440599c26c2c553fe87a2d17195f2dcb"
 dependencies = [
  "defmt-parser",
  "proc-macro-error",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.85",
+]
+
+[[package]]
+name = "defmt-or-log"
+version = "0.2.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8370630b4dee85ab47d9087813771c5c7fe88d24fdd48649bbdfe6089da4c53a"
+dependencies = [
+ "defmt",
+ "defmt-or-log-macros",
+ "log 0.4.22",
+]
+
+[[package]]
+name = "defmt-or-log-macros"
+version = "0.1.2"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "d675dd299edbb7c8e01d4e9f520a0d8f22a8fe4af812c211c3fad5e9dcf41763"
+dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.85",
@@ -3574,6 +3595,7 @@ dependencies = [
  "linkme",
  "riot-rs-bench",
  "riot-rs-boards",
+ "riot-rs-coap",
  "riot-rs-debug",
  "riot-rs-embassy",
  "riot-rs-identity",
@@ -3643,6 +3665,29 @@ name = "riot-rs-chips"
 version = "0.1.0"
 dependencies = [
  "stm32f4xx",
+]
+
+[[package]]
+name = "riot-rs-coap"
+version = "0.1.0"
+dependencies = [
+ "coap-handler",
+ "coap-handler-implementations",
+ "coapcore",
+ "critical-section",
+ "embassy-futures",
+ "embassy-net",
+ "embassy-sync 0.6.0",
+ "embedded-io-async",
+ "embedded-nal-async",
+ "embedded-nal-coap",
+ "hexlit",
+ "lakers",
+ "lakers-crypto-rustcrypto",
+ "riot-rs-debug",
+ "riot-rs-embassy",
+ "riot-rs-random",
+ "static_cell",
 ]
 
 [[package]]

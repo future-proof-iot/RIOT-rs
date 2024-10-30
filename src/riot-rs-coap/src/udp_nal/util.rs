@@ -1,42 +1,50 @@
-//! Helpers for udp_nal -- conversion and error types
+//! Helpers for [`udp_nal`] -- conversion and error types
 
 use embassy_net::{udp, IpAddress, IpEndpoint};
 use embedded_nal_async as nal;
 
+/// Converts socket address types between [`embedded_nal_async`] and [`embassy_net`] (internally
+/// `smol`).
+///
+/// # Errors
+///
+/// This produces an error if an address family is unavailable.
+#[allow(
+    clippy::unnecessary_wraps,
+    reason = "errors are currently only impossible because for crate feature synchronization reasons, all cfg handling is commented out"
+)]
 pub(super) fn sockaddr_nal2smol(sockaddr: nal::SocketAddr) -> Result<IpEndpoint, Error> {
     match sockaddr {
         #[allow(unused)]
         nal::SocketAddr::V4(sockaddr) => {
-            #[cfg(feature = "proto-ipv4")]
+            // #[cfg(feature = "proto-ipv4")]
             return Ok(IpEndpoint {
                 addr: embassy_net::Ipv4Address(sockaddr.ip().octets()).into(),
                 port: sockaddr.port(),
             });
-            #[cfg(not(feature = "proto-ipv4"))]
-            return Err(Error::AddressFamilyUnavailable);
+            // #[cfg(not(feature = "proto-ipv4"))]
+            // return Err(Error::AddressFamilyUnavailable);
         }
         #[allow(unused)]
         nal::SocketAddr::V6(sockaddr) => {
-            #[cfg(feature = "proto-ipv6")]
+            // #[cfg(feature = "proto-ipv6")]
             return Ok(IpEndpoint {
                 addr: embassy_net::Ipv6Address(sockaddr.ip().octets()).into(),
                 port: sockaddr.port(),
             });
-            #[cfg(not(feature = "proto-ipv6"))]
-            return Err(Error::AddressFamilyUnavailable);
+            // #[cfg(not(feature = "proto-ipv6"))]
+            // return Err(Error::AddressFamilyUnavailable);
         }
     }
 }
 
 pub(super) fn sockaddr_smol2nal(endpoint: IpEndpoint) -> nal::SocketAddr {
     match endpoint.addr {
-        // Let's hope those are in sync; what we'll really need to know is whether smoltcp has the
-        // relevant flags set (but we can't query that).
-        #[cfg(feature = "proto-ipv4")]
+        // #[cfg(feature = "proto-ipv4")]
         IpAddress::Ipv4(addr) => {
             embedded_nal_async::SocketAddrV4::new(addr.0.into(), endpoint.port).into()
         }
-        #[cfg(feature = "proto-ipv6")]
+        // #[cfg(feature = "proto-ipv6")]
         IpAddress::Ipv6(addr) => {
             // FIXME: Where is smoltcp's zone identifier?
             embedded_nal_async::SocketAddrV6::new(addr.0.into(), endpoint.port, 0, 0).into()
@@ -46,7 +54,7 @@ pub(super) fn sockaddr_smol2nal(endpoint: IpEndpoint) -> nal::SocketAddr {
 
 /// Is the IP address in this type the unspecified address?
 ///
-/// FIXME: What of ::ffff:0.0.0.0? Is that expected to bind to all v4 addresses?
+/// FIXME: What of `::ffff:0.0.0.0`? Is that expected to bind to all v4 addresses?
 pub(super) fn is_unspec_ip(addr: nal::SocketAddr) -> bool {
     match addr {
         nal::SocketAddr::V4(sockaddr) => sockaddr.ip().octets() == [0; 4],
@@ -54,9 +62,13 @@ pub(super) fn is_unspec_ip(addr: nal::SocketAddr) -> bool {
     }
 }
 
-/// Unified error type for [embedded_nal_async] operations on UDP sockets
+/// Unified error type for [`embedded_nal_async`] operations on UDP sockets
 #[derive(Debug)]
 #[non_exhaustive]
+#[allow(
+    clippy::enum_variant_names,
+    reason = "false positive -- they're not called SomethingError because they are a Self (which is named Error), but because they contain a type SomethingError"
+)]
 pub enum Error {
     /// Error stemming from failure to send
     RecvError(udp::RecvError),
@@ -66,22 +78,20 @@ pub enum Error {
     BindError(udp::BindError),
     /// Error stemming from failure to represent the given address family for lack of enabled
     /// embassy-net features
+    #[expect(dead_code, reason = "feature selection currently disabled")]
     AddressFamilyUnavailable,
 }
 
 impl embedded_io_async::Error for Error {
     fn kind(&self) -> embedded_io_async::ErrorKind {
         match self {
-            Self::SendError(udp::SendError::NoRoute) => {
-                embedded_io_async::ErrorKind::AddrNotAvailable
-            }
-            Self::BindError(udp::BindError::NoRoute) => {
+            Self::SendError(udp::SendError::NoRoute) | Self::BindError(udp::BindError::NoRoute) => {
                 embedded_io_async::ErrorKind::AddrNotAvailable
             }
             Self::AddressFamilyUnavailable => embedded_io_async::ErrorKind::AddrNotAvailable,
             // These should not happen b/c our sockets are typestated.
-            Self::SendError(udp::SendError::SocketNotBound) => embedded_io_async::ErrorKind::Other,
-            Self::BindError(udp::BindError::InvalidState) => embedded_io_async::ErrorKind::Other,
+            Self::SendError(udp::SendError::SocketNotBound) |
+                Self::BindError(udp::BindError::InvalidState) |
             // This should not happen b/c in embedded_nal_async this is not expressed through an
             // error.
             // FIXME we're not there in this impl yet.
