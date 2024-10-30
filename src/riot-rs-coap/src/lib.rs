@@ -27,10 +27,7 @@ static CLIENT: OnceLock<
     SendCell<embedded_nal_coap::CoAPRuntimeClient<'static, CONCURRENT_REQUESTS>>,
 > = OnceLock::new();
 
-// FIXME: log_stdout is not something we want to have here
-// FIXME: I'd rather have the client_out available anywhere, but at least the way CoAPRuntimeClient
-// is set up right now, server and client have to run in the same thread.
-/// Run a CoAP server with the given handler on the system's CoAP transports.
+/// Runs a CoAP server with the given handler on the system's CoAP transports.
 ///
 /// As the CoAP stack gets ready, it also unblocks [`coap_client`].
 ///
