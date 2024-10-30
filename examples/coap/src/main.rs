@@ -36,12 +36,11 @@ async fn coap_run() {
         coap_scroll_ring_server::BufferHandler::new(&buffer),
     );
 
-    let client_signal = embassy_sync::signal::Signal::new();
-
-    // going with an embassy_futures join instead of RIOT-rs's spawn b/c CoAPShared is not Sync.
+    // going with an embassy_futures join instead of RIOT-rs's spawn to avoid the need for making
+    // stdout static.
     embassy_futures::join::join(
-        riot_rs::coap::coap_run(handler, &client_signal),
-        run_client_operations(&client_signal, stdout),
+        riot_rs::coap::coap_run(handler),
+        run_client_operations(stdout),
     )
     .await;
 }
@@ -50,14 +49,8 @@ async fn coap_run() {
 ///
 /// This doubles as an experimentation ground for the client side of embedded_nal_coap and
 /// coap-request in general.
-async fn run_client_operations(
-    client_in: &embassy_sync::signal::Signal<
-        embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex,
-        &'static embedded_nal_coap::CoAPRuntimeClient<'static, 3>,
-    >,
-    mut stdout: impl core::fmt::Write,
-) {
-    let client = client_in.wait().await;
+async fn run_client_operations(mut stdout: impl core::fmt::Write) {
+    let client = riot_rs::coap::coap_client().await;
 
     // shame
     let addr = "10.42.0.1:1234";

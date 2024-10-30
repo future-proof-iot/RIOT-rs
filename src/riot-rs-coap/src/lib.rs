@@ -16,22 +16,28 @@ use coap_handler_implementations::{HandlerBuilder, ReportingHandlerBuilder};
 use coapcore::seccontext;
 use critical_section::Mutex;
 use embassy_net::udp::{PacketMetadata, UdpSocket};
+use embassy_sync::once_lock::OnceLock;
 use riot_rs_debug::log::*;
+use riot_rs_embassy::sendcell::SendCell;
 use static_cell::StaticCell;
 
 const CONCURRENT_REQUESTS: usize = 3;
+
+static CLIENT: OnceLock<
+    SendCell<embedded_nal_coap::CoAPRuntimeClient<'static, CONCURRENT_REQUESTS>>,
+> = OnceLock::new();
 
 // FIXME: log_stdout is not something we want to have here
 // FIXME: I'd rather have the client_out available anywhere, but at least the way CoAPRuntimeClient
 // is set up right now, server and client have to run in the same thread.
 /// Run a CoAP server with the given handler on the system's CoAP transports.
-pub async fn coap_run(
-    handler: impl coap_handler::Handler + coap_handler::Reporting,
-    client_out: &embassy_sync::signal::Signal<
-        embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex,
-        &'static embedded_nal_coap::CoAPRuntimeClient<'static, CONCURRENT_REQUESTS>,
-    >,
-) -> ! {
+///
+/// As the CoAP stack gets ready, it also unblocks [`coap_client`].
+///
+/// # Panics
+///
+/// This can only be run once, as it sets up a system wide CoAP handler.
+pub async fn coap_run(handler: impl coap_handler::Handler + coap_handler::Reporting) -> ! {
     let stack = riot_rs_embassy::network::network_stack().await.unwrap();
 
     // FIXME trim to CoAP requirements
@@ -76,12 +82,11 @@ pub async fn coap_run(
 
     static COAP: StaticCell<embedded_nal_coap::CoAPShared<CONCURRENT_REQUESTS>> = StaticCell::new();
     let coap = COAP.init_with(|| embedded_nal_coap::CoAPShared::new());
-    static CLIENT: StaticCell<embedded_nal_coap::CoAPRuntimeClient<'static, CONCURRENT_REQUESTS>> =
-        StaticCell::new();
     let (client, server) = coap.split();
-    let client = CLIENT.init_with(|| client);
-
-    client_out.signal(client);
+    CLIENT
+        .init(SendCell::new_async(client).await)
+        .ok()
+        .expect("CLIENT can not be populated when COAP was just not populated.");
 
     server
         .run(
@@ -92,4 +97,24 @@ pub async fn coap_run(
         .await
         .expect("UDP error");
     unreachable!("embassy-net's sockets do not get closed (but embedded-nal-coap can't know that)");
+}
+
+/// Returns a CoAP client requester.
+///
+/// This asynchronously blocks until [`coap_run`] has been called, and the CoAP stack is
+/// operational.
+///
+/// # Panics
+///
+/// This is currently only available from the thread that hosts the network stack, and panics
+/// otherwise. This restriction will be lifted in the future (by generalization in
+/// [`embedded_nal_coap`] to allow different mutexes).
+pub async fn coap_client(
+) -> &'static embedded_nal_coap::CoAPRuntimeClient<'static, CONCURRENT_REQUESTS> {
+    CLIENT
+        .get()
+        .await
+        .get_async()
+        .await // Not an actual await, just a convenient way to see which executor is running
+        .expect("CoAP client can currently only be used from the thread the network is bound to")
 }
