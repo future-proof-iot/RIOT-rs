@@ -168,14 +168,14 @@ jobs:
                 -p riot-rs-embassy \
                 -p riot-rs-embassy-common \
                 -p riot-rs-identity \
+                -p riot-rs-macros \
                 -p riot-rs-runqueue \
                 -p riot-rs-threads \
-                -p riot-rs-macros \
 
             cargo test \
+                -p coapcore \
                 -p rbi \
                 -p ringbuffer \
-                -p coapcore \
 
       # We need to set `RUSTDOCFLAGS` as well in the following jobs, because it
       # is used for doc tests.
@@ -183,10 +183,10 @@ jobs:
         run: |
             RUSTDOCFLAGS='--cfg context="rp2040"' RUSTFLAGS='--cfg context="rp2040"' cargo test \
                 --features "
+                    embassy-rp/rp2040,
                     external-interrupts,
                     i2c,
                     spi,
-                    embassy-rp/rp2040,
                     " \
                 -p riot-rs-rp
 
@@ -194,10 +194,10 @@ jobs:
         run: |
             RUSTDOCFLAGS='--cfg context="nrf52840"' RUSTFLAGS='--cfg context="nrf52840"' cargo test \
                 --features "
+                    embassy-nrf/nrf52840,
                     external-interrupts,
                     i2c,
                     spi,
-                    embassy-nrf/nrf52840,
                     " \
                 -p riot-rs-nrf
 
@@ -205,10 +205,10 @@ jobs:
         run: |
             RUSTDOCFLAGS='--cfg context="stm32wb55rgvx"' RUSTFLAGS='--cfg context="stm32wb55rgvx"' cargo test \
                 --features "
+                    embassy-stm32/stm32wb55rg,
                     external-interrupts,
                     i2c,
                     spi,
-                    embassy-stm32/stm32wb55rg,
                     " \
                 -p riot-rs-stm32
 
@@ -262,9 +262,9 @@ jobs:
             --verbose
             --locked
             --features "
+                external-interrupts,
                 net,
                 no-boards,
-                external-interrupts,
                 spi,
                 storage,
                 "
@@ -295,11 +295,11 @@ jobs:
             --locked
             --target=riscv32imac-unknown-none-elf
             --features "
+                esp-hal-embassy/esp32c6,
+                esp-hal/esp32c6,
                 external-interrupts,
                 i2c,
                 spi,
-                esp-hal/esp32c6,
-                esp-hal-embassy/esp32c6,
                 "
             -p riot-rs-esp
             --
@@ -313,10 +313,10 @@ jobs:
             --verbose
             --locked
             --features "
+                embassy-rp/rp2040,
                 external-interrupts,
                 i2c,
                 spi,
-                embassy-rp/rp2040,
                 "
             -p riot-rs-rp
             --
@@ -330,10 +330,10 @@ jobs:
             --verbose
             --locked
             --features "
+                embassy-nrf/nrf52840,
                 external-interrupts,
                 i2c,
                 spi,
-                embassy-nrf/nrf52840,
                 "
             -p riot-rs-nrf
             --
@@ -347,10 +347,10 @@ jobs:
             --verbose
             --locked
             --features "
+                embassy-stm32/stm32wb55rg,
                 external-interrupts,
                 i2c,
                 spi,
-                embassy-stm32/stm32wb55rg,
                 "
             -p riot-rs-stm32
             --
@@ -386,11 +386,11 @@ jobs:
             RUSTDOCFLAGS='-D warnings --cfg context="esp32c6"' cargo doc \
                 --target=riscv32imac-unknown-none-elf \
                 --features "
+                    esp-hal-embassy/esp32c6,
+                    esp-hal/esp32c6,
                     external-interrupts,
                     i2c,
                     spi,
-                    esp-hal/esp32c6,
-                    esp-hal-embassy/esp32c6,
                     " \
                 -p riot-rs-esp
 
@@ -398,10 +398,10 @@ jobs:
         run: |
             RUSTDOCFLAGS='-D warnings --cfg context="rp2040"' cargo doc \
                 --features "
+                    embassy-rp/rp2040,
                     external-interrupts,
                     i2c,
                     spi,
-                    embassy-rp/rp2040,
                     " \
                 -p riot-rs-rp
 
@@ -409,10 +409,10 @@ jobs:
         run: |
             RUSTDOCFLAGS='-D warnings --cfg context="nrf52840"' cargo doc \
                 --features "
+                    embassy-nrf/nrf52840,
                     external-interrupts,
                     i2c,
                     spi,
-                    embassy-nrf/nrf52840,
                     " \
                 -p riot-rs-nrf
 
@@ -420,10 +420,10 @@ jobs:
         run: |
             RUSTDOCFLAGS='-D warnings --cfg context="stm32wb55rgvx"' cargo doc \
                 --features "
+                    embassy-stm32/stm32wb55rg,
                     external-interrupts,
                     i2c,
                     spi,
-                    embassy-stm32/stm32wb55rg,
                     " \
                 -p riot-rs-stm32
 
