@@ -40,6 +40,24 @@ pub fn init(peripherals: &mut crate::OptionalPeripherals) {
         peripherals.GPIO_29.replace(pins.gpio29);
         peripherals.GPIO_30.replace(pins.gpio30);
     }
+
+    #[cfg(context = "esp32")]
+    {
+        peripherals.GPIO_21.replace(pins.gpio21);
+        peripherals.GPIO_22.replace(pins.gpio22);
+        peripherals.GPIO_23.replace(pins.gpio23);
+        peripherals.GPIO_24.replace(pins.gpio24);
+        peripherals.GPIO_25.replace(pins.gpio25);
+        peripherals.GPIO_26.replace(pins.gpio26);
+        peripherals.GPIO_27.replace(pins.gpio27);
+        peripherals.GPIO_32.replace(pins.gpio32);
+        peripherals.GPIO_33.replace(pins.gpio33);
+        peripherals.GPIO_34.replace(pins.gpio34);
+        peripherals.GPIO_35.replace(pins.gpio35);
+        peripherals.GPIO_37.replace(pins.gpio37);
+        peripherals.GPIO_38.replace(pins.gpio38);
+        peripherals.GPIO_39.replace(pins.gpio39);
+    }
 }
 
 pub mod input {
