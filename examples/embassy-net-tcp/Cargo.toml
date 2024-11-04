@@ -10,7 +10,6 @@ publish = false
 workspace = true
 
 [dependencies]
-embassy-executor = { workspace = true, default-features = false }
 embassy-net = { workspace = true, features = ["tcp"] }
 embassy-time = { workspace = true, default-features = false }
 embedded-io-async = "0.6.1"

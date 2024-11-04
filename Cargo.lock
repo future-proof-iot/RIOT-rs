@@ -264,7 +264,6 @@ checksum = "b048fb63fd8b5923fc5aa7b340d8e156aec7ec02f0c78fa8a6ddc2613f6f71de"
 name = "blinky"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-time",
  "riot-rs",
  "riot-rs-boards",
@@ -447,7 +446,6 @@ dependencies = [
  "coap-request",
  "coap-request-implementations",
  "coap-scroll-ring-server",
- "embassy-executor",
  "embassy-futures",
  "embassy-net",
  "embassy-sync 0.6.0",
@@ -774,7 +772,7 @@ dependencies = [
 [[package]]
 name = "cyw43"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
@@ -791,7 +789,7 @@ dependencies = [
 [[package]]
 name = "cyw43-pio"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "cyw43",
  "embassy-rp",
@@ -1065,7 +1063,7 @@ dependencies = [
 [[package]]
 name = "embassy-executor"
 version = "0.6.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -1078,7 +1076,7 @@ dependencies = [
 [[package]]
 name = "embassy-executor-macros"
 version = "0.5.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -1098,7 +1096,7 @@ dependencies = [
 [[package]]
 name = "embassy-hal-internal"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -1110,7 +1108,6 @@ dependencies = [
 name = "embassy-http-server"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-net",
  "embassy-nrf",
  "embassy-sync 0.6.0",
@@ -1128,7 +1125,7 @@ dependencies = [
 [[package]]
 name = "embassy-net"
 version = "0.4.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "defmt",
  "document-features",
@@ -1145,7 +1142,7 @@ dependencies = [
 [[package]]
 name = "embassy-net-driver"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "defmt",
 ]
@@ -1153,7 +1150,7 @@ dependencies = [
 [[package]]
 name = "embassy-net-driver-channel"
 version = "0.3.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "embassy-futures",
  "embassy-net-driver",
@@ -1164,7 +1161,6 @@ dependencies = [
 name = "embassy-net-tcp"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-net",
  "embassy-time",
  "embedded-io-async",
@@ -1177,7 +1173,6 @@ dependencies = [
 name = "embassy-net-udp"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-net",
  "embassy-time",
  "embedded-io-async",
@@ -1189,7 +1184,7 @@ dependencies = [
 [[package]]
 name = "embassy-nrf"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "bitflags 2.6.0",
  "cfg-if",
@@ -1230,7 +1225,7 @@ dependencies = [
 [[package]]
 name = "embassy-rp"
 version = "0.2.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "atomic-polyfill",
  "cfg-if",
@@ -1267,7 +1262,7 @@ dependencies = [
 [[package]]
 name = "embassy-stm32"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "aligned",
  "bit_field",
@@ -1325,7 +1320,7 @@ dependencies = [
 [[package]]
 name = "embassy-sync"
 version = "0.6.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -1357,7 +1352,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-driver"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "document-features",
 ]
@@ -1365,7 +1360,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-queue-driver"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 
 [[package]]
 name = "embassy-usb"
@@ -1386,7 +1381,7 @@ dependencies = [
 [[package]]
 name = "embassy-usb-driver"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "defmt",
 ]
@@ -1395,7 +1390,6 @@ dependencies = [
 name = "embassy-usb-keyboard"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-nrf",
  "embassy-sync 0.6.0",
  "embassy-time",
@@ -1409,7 +1403,7 @@ dependencies = [
 [[package]]
 name = "embassy-usb-synopsys-otg"
 version = "0.1.0"
-source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#f5b06a847d8dd88be5670da888a8a888ac250f3f"
+source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-09-19#4bd90029705618ddecfa812c795af82603ad70a3"
 dependencies = [
  "critical-section",
  "embassy-sync 0.6.0",
@@ -2000,7 +1994,7 @@ checksum = "85c6e0b89bf864acd20590dbdbad56f69aeb898abfc9443008fd7bd48b2cc85a"
 dependencies = [
  "az",
  "bytemuck",
- "half 2.4.1",
+ "half",
  "typenum",
 ]
 
@@ -2167,7 +2161,6 @@ checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 name = "gpio"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-futures",
  "embassy-time",
  "riot-rs",
@@ -2178,7 +2171,6 @@ dependencies = [
 name = "gpio-interrupt-nrf"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-time",
  "riot-rs",
  "riot-rs-boards",
@@ -2188,7 +2180,6 @@ dependencies = [
 name = "gpio-interrupt-stm32"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-time",
  "riot-rs",
  "riot-rs-boards",
@@ -2210,16 +2201,6 @@ name = "half"
 version = "1.8.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1b43ede17f21864e81be2fa654110bf1e793774238d86ef8555c37e6519c0403"
-
-[[package]]
-name = "half"
-version = "2.4.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6dd08c532ae367adf81c312a4580bc67f1d0fe8bc9c460520283f4c0ff277888"
-dependencies = [
- "cfg-if",
- "crunchy",
-]
 
 [[package]]
 name = "hash32"
@@ -2338,7 +2319,6 @@ checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 name = "hello-world"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "riot-rs",
  "riot-rs-boards",
 ]
@@ -2391,7 +2371,6 @@ checksum = "7d71d3574edd2771538b901e6549113b4006ece66150fb69c0fb6d9a2adae946"
 name = "i2c-controller"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-sync 0.6.0",
  "embedded-hal 1.0.0",
  "embedded-hal-async",
@@ -2690,7 +2669,6 @@ dependencies = [
 name = "log"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "riot-rs",
  "riot-rs-boards",
 ]
@@ -4152,7 +4130,7 @@ version = "0.11.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2bef2ebfde456fb76bbcf9f59315333decc4fda0b2b44b420243c11e0f5ec1f5"
 dependencies = [
- "half 1.8.3",
+ "half",
  "serde",
 ]
 
@@ -4254,7 +4232,6 @@ dependencies = [
 name = "spi-loopback"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-sync 0.6.0",
  "embedded-hal-async",
  "once_cell",
@@ -4267,7 +4244,6 @@ dependencies = [
 name = "spi-main"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-sync 0.6.0",
  "embedded-hal-async",
  "once_cell",
@@ -4434,7 +4410,6 @@ name = "storage"
 version = "0.1.0"
 dependencies = [
  "arrayvec",
- "embassy-executor",
  "heapless 0.8.0",
  "riot-rs",
  "riot-rs-boards",
@@ -4553,7 +4528,6 @@ dependencies = [
 name = "tests_gpio"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "riot-rs",
  "riot-rs-boards",
 ]
@@ -4607,7 +4581,6 @@ dependencies = [
 name = "threading-lock"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "portable-atomic",
  "riot-rs",
  "riot-rs-boards",
@@ -4783,7 +4756,6 @@ dependencies = [
 name = "usb-serial"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-time",
  "riot-rs",
  "riot-rs-boards",

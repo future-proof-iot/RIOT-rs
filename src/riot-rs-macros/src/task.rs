@@ -1,8 +1,5 @@
 /// Defines an async task and optionally registers it for autostart.
 ///
-/// **Important**: The `embassy_executor` crate currently needs to be manually imported in the
-/// crate using this attribute macro.
-///
 /// If this function is only used to spawn other tasks before returning, consider using
 /// [`macro@spawner`] instead, to avoid statically allocating this transient async function as an
 /// `embassy_executor::task`.
@@ -110,14 +107,14 @@ pub fn task(args: TokenStream, item: TokenStream) -> TokenStream {
                 spawner.spawn(task).unwrap();
             }
 
-            #[#riot_rs_crate::reexports::embassy_executor::task]
+            #[#riot_rs_crate::reexports::embassy_executor::task(embassy_executor = #riot_rs_crate::reexports::embassy_executor)]
             #task_function
         }
     } else {
         let pool_size = attrs.pool_size.unwrap_or_else(|| syn::parse_quote! { 1 });
 
         quote! {
-            #[#riot_rs_crate::reexports::embassy_executor::task(pool_size = #pool_size)]
+            #[#riot_rs_crate::reexports::embassy_executor::task(pool_size = #pool_size, embassy_executor = #riot_rs_crate::reexports::embassy_executor)]
             #task_function
         }
     };
