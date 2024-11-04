@@ -10,7 +10,6 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
-embassy-executor = { workspace = true }
 embassy-sync = { workspace = true }
 embedded-hal = { workspace = true }
 embedded-hal-async = { workspace = true }

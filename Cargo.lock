@@ -2171,7 +2171,6 @@ dependencies = [
 name = "gpio-interrupt-nrf"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-time",
  "riot-rs",
  "riot-rs-boards",
@@ -2181,7 +2180,6 @@ dependencies = [
 name = "gpio-interrupt-stm32"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-time",
  "riot-rs",
  "riot-rs-boards",
@@ -2373,7 +2371,6 @@ checksum = "7d71d3574edd2771538b901e6549113b4006ece66150fb69c0fb6d9a2adae946"
 name = "i2c-controller"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-sync 0.6.0",
  "embedded-hal 1.0.0",
  "embedded-hal-async",
@@ -4235,7 +4232,6 @@ dependencies = [
 name = "spi-loopback"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-sync 0.6.0",
  "embedded-hal-async",
  "once_cell",
@@ -4248,7 +4244,6 @@ dependencies = [
 name = "spi-main"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-sync 0.6.0",
  "embedded-hal-async",
  "once_cell",
@@ -4533,7 +4528,6 @@ dependencies = [
 name = "tests_gpio"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "riot-rs",
  "riot-rs-boards",
 ]
@@ -4587,7 +4581,6 @@ dependencies = [
 name = "threading-lock"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "portable-atomic",
  "riot-rs",
  "riot-rs-boards",
