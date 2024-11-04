@@ -79,12 +79,12 @@ embedded-hal-async = { version = "1.0.0", default-features = false }
 embedded-storage = { version = "0.3.1" }
 embedded-storage-async = { version = "0.4.1" }
 
-esp-alloc = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1+pr2377", default-features = false }
-esp-hal = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1+pr2377", default-features = false }
-esp-hal-embassy = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1+pr2377", default-features = false }
+esp-alloc = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377", default-features = false }
+esp-hal = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377", default-features = false }
+esp-hal-embassy = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377", default-features = false }
 esp-println = "0.11.0"
-esp-wifi = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1+pr2377", default-features = false }
-esp-storage = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1+pr2388" }
+esp-wifi = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377", default-features = false }
+esp-storage = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377" }
 
 linkme = { version = "0.3.21", features = ["used_linker"] }
 
