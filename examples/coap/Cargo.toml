@@ -10,7 +10,6 @@ publish = false
 workspace = true
 
 [dependencies]
-embassy-executor = { workspace = true, default-features = false }
 embassy-net = { workspace = true, features = ["udp"] }
 embassy-sync = { workspace = true }
 embassy-time = { workspace = true, default-features = false }
