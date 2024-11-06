@@ -10,7 +10,9 @@ use riot_rs::{blocker, EXECUTOR};
 
 static SIGNAL: Signal<CriticalSectionRawMutex, u32> = Signal::new();
 
-#[embassy_executor::task]
+// This is a regular task.
+// For this example, we don't autostart it, but let the thread spawn it.
+#[riot_rs::task()]
 async fn async_task() {
     use embassy_time::{Duration, Timer, TICK_HZ};
     let mut counter = 0u32;
@@ -35,10 +37,13 @@ fn main() {
         riot_rs::buildinfo::BOARD,
     );
 
+    // Here we spawn our task.
     let spawner = EXECUTOR.spawner();
     spawner.spawn(async_task()).unwrap();
 
     for _ in 0..10 {
+        // With `block_on()`, async functions can be called from a thread.
+        // This way, async primitives like `Signal` can be used.
         let val = blocker::block_on(SIGNAL.wait());
         info!(
             "now={}ms threadtest() val={}",
