@@ -1032,17 +1032,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "embassy"
-version = "0.1.0"
-dependencies = [
- "embassy-executor",
- "embassy-sync 0.6.0",
- "embassy-time",
- "riot-rs",
- "riot-rs-boards",
-]
-
-[[package]]
 name = "embassy-embedded-hal"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4550,6 +4539,17 @@ dependencies = [
  "proc-macro2",
  "quote",
  "syn 2.0.85",
+]
+
+[[package]]
+name = "thread-async-interop"
+version = "0.1.0"
+dependencies = [
+ "embassy-executor",
+ "embassy-sync 0.6.0",
+ "embassy-time",
+ "riot-rs",
+ "riot-rs-boards",
 ]
 
 [[package]]
