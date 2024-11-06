@@ -1,5 +1,5 @@
 use embassy_nrf::{
-    bind_interrupts, peripherals,
+    bind_interrupts, pac, peripherals,
     usb::{
         self,
         vbus_detect::{self, HardwareVbusDetect},
@@ -23,12 +23,9 @@ bind_interrupts!(struct Irqs {
 pub type UsbDriver = Driver<'static, peripherals::USBD, HardwareVbusDetect>;
 
 pub fn init() {
-    // nrf52840
-    let clock: embassy_nrf::pac::CLOCK = unsafe { core::mem::transmute(()) };
-
     debug!("nrf: enabling ext hfosc...");
-    clock.tasks_hfclkstart.write(|w| unsafe { w.bits(1) });
-    while clock.events_hfclkstarted.read().bits() != 1 {}
+    pac::CLOCK.tasks_hfclkstart().write_value(1);
+    while pac::CLOCK.events_hfclkstarted().read() != 1 {}
 }
 
 pub fn driver(peripherals: &mut crate::OptionalPeripherals) -> UsbDriver {
