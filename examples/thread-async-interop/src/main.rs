@@ -3,10 +3,14 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use riot_rs::debug::{exit, log::*};
-
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal};
-use riot_rs::{blocker, EXECUTOR};
+use embassy_time::{Duration, Instant, Timer, TICK_HZ};
+
+use riot_rs::{
+    blocker,
+    debug::{exit, log::*},
+    EXECUTOR,
+};
 
 static SIGNAL: Signal<CriticalSectionRawMutex, u32> = Signal::new();
 
@@ -14,15 +18,12 @@ static SIGNAL: Signal<CriticalSectionRawMutex, u32> = Signal::new();
 // For this example, we don't autostart it, but let the thread spawn it.
 #[riot_rs::task()]
 async fn async_task() {
-    use embassy_time::{Duration, Timer, TICK_HZ};
+    info!("async_task(): starting");
+
     let mut counter = 0u32;
     loop {
-        if counter % 2 == 0 {
-            info!("async_task() signalling");
-            SIGNAL.signal(counter);
-        } else {
-            info!("async_task()");
-        }
+        info!("async_task(): signalling, counter={}", counter);
+        SIGNAL.signal(counter);
         Timer::after(Duration::from_ticks(TICK_HZ / 10)).await;
         counter += 1;
     }
@@ -30,12 +31,7 @@ async fn async_task() {
 
 #[riot_rs::thread(autostart)]
 fn main() {
-    use embassy_time::Instant;
-
-    info!(
-        "Hello from main()! Running on a {} board.",
-        riot_rs::buildinfo::BOARD,
-    );
+    info!("main(): starting");
 
     // Here we spawn our task.
     let spawner = EXECUTOR.spawner();
@@ -44,13 +40,14 @@ fn main() {
     for _ in 0..10 {
         // With `block_on()`, async functions can be called from a thread.
         // This way, async primitives like `Signal` can be used.
-        let val = blocker::block_on(SIGNAL.wait());
-        info!(
-            "now={}ms threadtest() val={}",
-            Instant::now().as_millis(),
-            val,
-        );
+        let counter = blocker::block_on(SIGNAL.wait());
+
+        // Get time since boot
+        let now = Instant::now().as_millis();
+        info!("main(): now={}ms threadtest() counter={}", now, counter);
     }
+
+    info!("main(): all good, exiting.");
 
     exit(Ok(()));
 }

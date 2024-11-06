@@ -4545,7 +4545,6 @@ dependencies = [
 name = "thread-async-interop"
 version = "0.1.0"
 dependencies = [
- "embassy-executor",
  "embassy-sync 0.6.0",
  "embassy-time",
  "riot-rs",
