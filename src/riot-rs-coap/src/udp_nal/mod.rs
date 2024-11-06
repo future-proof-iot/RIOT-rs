@@ -17,6 +17,7 @@
 //! merely allow unspecified ports to get an ephemeral one?
 
 use core::future::poll_fn;
+use core::net::SocketAddr;
 
 use embassy_net::{udp, IpAddress, IpEndpoint};
 use embedded_nal_async as nal;
@@ -62,8 +63,8 @@ impl<'a> ConnectedUdp<'a> {
     /// unconnected.
     pub async fn connect_from(
         mut socket: udp::UdpSocket<'a>,
-        local: nal::SocketAddr,
-        remote: nal::SocketAddr,
+        local: SocketAddr,
+        remote: SocketAddr,
     ) -> Result<Self, Error> {
         socket.bind(sockaddr_nal2smol(local)?)?;
 
@@ -108,7 +109,7 @@ impl<'a> UnconnectedUdp<'a> {
     /// unconnected.
     pub async fn bind_multiple(
         mut socket: udp::UdpSocket<'a>,
-        local: nal::SocketAddr,
+        local: SocketAddr,
     ) -> Result<Self, Error> {
         socket.bind(sockaddr_nal2smol(local)?)?;
 
@@ -120,8 +121,8 @@ impl<'a> nal::UnconnectedUdp for UnconnectedUdp<'a> {
     type Error = Error;
     async fn send(
         &mut self,
-        local: embedded_nal_async::SocketAddr,
-        remote: embedded_nal_async::SocketAddr,
+        local: SocketAddr,
+        remote: SocketAddr,
         buf: &[u8],
     ) -> Result<(), Error> {
         // While the underlying layers probably don't care, we're not passing on the port
@@ -148,14 +149,7 @@ impl<'a> nal::UnconnectedUdp for UnconnectedUdp<'a> {
     async fn receive_into(
         &mut self,
         buf: &mut [u8],
-    ) -> Result<
-        (
-            usize,
-            embedded_nal_async::SocketAddr,
-            embedded_nal_async::SocketAddr,
-        ),
-        Error,
-    > {
+    ) -> Result<(usize, SocketAddr, SocketAddr), Error> {
         // FIXME: The truncation is an issue -- we may need to change poll_recv_from to poll_recv
         // and copy from the slice ourselves to get the trait's behavior
         let (size, metadata) = poll_fn(|cx| self.socket.poll_recv_from(buf, cx)).await?;

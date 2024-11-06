@@ -1122,7 +1122,7 @@ dependencies = [
  "embassy-sync 0.6.0",
  "embassy-time",
  "embedded-io-async",
- "embedded-nal-async 0.8.0",
+ "embedded-nal-async",
  "heapless 0.8.0",
  "managed",
  "smoltcp 0.11.0 (git+https://github.com/smoltcp-rs/smoltcp?rev=fe0b4d102253465850cd1cf39cd33d4721a4a8d5)",
@@ -1473,16 +1473,6 @@ dependencies = [
 
 [[package]]
 name = "embedded-nal"
-version = "0.8.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b8a943fad5ed3d3f8a00f1e80f6bba371f1e7f0df28ec38477535eb318dc19cc"
-dependencies = [
- "nb 1.1.0",
- "no-std-net",
-]
-
-[[package]]
-name = "embedded-nal"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c56a28be191a992f28f178ec338a0bf02f63d7803244add736d026a471e6ed77"
@@ -1492,30 +1482,19 @@ dependencies = [
 
 [[package]]
 name = "embedded-nal-async"
-version = "0.7.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "72229137a4fc12d239b0b7f50f04b30790678da6d782a0f3f1909bf57ec4b759"
-dependencies = [
- "embedded-io-async",
- "embedded-nal 0.8.0",
- "no-std-net",
-]
-
-[[package]]
-name = "embedded-nal-async"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "76959917cd2b86f40a98c28dd5624eddd1fa69d746241c8257eac428d83cb211"
 dependencies = [
  "embedded-io-async",
- "embedded-nal 0.9.0",
+ "embedded-nal",
 ]
 
 [[package]]
 name = "embedded-nal-coap"
-version = "0.1.0-alpha.3"
+version = "0.1.0-alpha.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4e9b7bb02659ab86bce6bc58d586535b161887b5d8f44619439da9269c2f21db"
+checksum = "11c687946328dc72ef11486dfdcb771306d6174b78528b0aaba64d9644035e34"
 dependencies = [
  "coap-handler",
  "coap-message",
@@ -1524,7 +1503,7 @@ dependencies = [
  "coap-request",
  "embassy-futures",
  "embassy-sync 0.3.0",
- "embedded-nal-async 0.7.1",
+ "embedded-nal-async",
  "heapless 0.7.17",
  "rand_core",
 ]
@@ -2790,12 +2769,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "650eef8c711430f1a879fdd01d4745a7deea475becfb90269c06775983bbf086"
 
 [[package]]
-name = "no-std-net"
-version = "0.6.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "43794a0ace135be66a25d3ae77d41b91615fb68ae937f904090203e81f755b65"
-
-[[package]]
 name = "nom"
 version = "7.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3586,7 +3559,7 @@ dependencies = [
  "embassy-net",
  "embassy-sync 0.6.0",
  "embedded-io-async",
- "embedded-nal-async 0.7.1",
+ "embedded-nal-async",
  "embedded-nal-coap",
  "hexlit",
  "lakers",
