@@ -19,6 +19,7 @@ cfg-if.workspace = true
 critical-section.workspace = true
 linkme = { workspace = true }
 paste.workspace = true
+riot-rs-debug.workspace = true
 riot-rs-runqueue.workspace = true
 riot-rs-utils.workspace = true
 static_cell.workspace = true
