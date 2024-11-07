@@ -486,6 +486,8 @@ impl From<CoreId> for usize {
 pub unsafe fn start_threading() {
     #[cfg(feature = "multi-core")]
     {
+        riot_rs_debug::log::debug!("riot-rs-threads: SMP mode with {} cores", CORES_NUMOF);
+
         // Idle thread that prompts the core to enter deep sleep.
         fn idle_thread() {
             loop {
