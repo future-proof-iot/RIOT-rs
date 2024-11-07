@@ -12,8 +12,9 @@ This directory contains example applications that showcase how to use RIOT-rs.
 - [hello-world/](./hello-world): a classic, async version
 - [hello-world-threading/](./hello-world-threading): a classic, using a thread
 - [minimal/](./minimal): minimized to the max RIOT-rs config
-- [threading/](./threading): how to start and use preemptively scheduled threads
 - [thread-async-interop/](./thread-async-interop): how to make async tasks and preemptively scheduled threads interoperate
+- [threading/](./threading): how to start and use preemptively scheduled threads
+- [threading-event/](./threading-event): how to use `riot_rs::thread::sync::Event`
 
 ## Networking
 
