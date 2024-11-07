@@ -33,6 +33,10 @@ pub use static_cell::{ConstStaticCell, StaticCell};
 
 // All items of this module are re-exported at the root of `riot_rs`.
 pub mod api {
+    pub use crate::{
+        arch, asynch, define_peripherals, delegate, gpio, group_peripherals, EMBASSY_TASKS,
+    };
+
     #[cfg(feature = "time")]
     pub mod time {
         //! Provides time-related facilities.
@@ -53,15 +57,6 @@ pub mod api {
     pub use crate::network;
     #[cfg(feature = "usb")]
     pub use crate::usb;
-    pub use crate::{
-        arch, define_peripherals, delegate, gpio, group_peripherals, Spawner, EMBASSY_TASKS,
-    };
-
-    #[cfg(feature = "executor-interrupt")]
-    pub use crate::arch::EXECUTOR;
-
-    #[cfg(feature = "executor-thread")]
-    pub use crate::thread_executor;
 }
 
 // These are made available in `riot_rs::reexports`.
@@ -75,8 +70,6 @@ pub mod reexports {
     // Used by a macro we provide
     pub use embassy_executor;
 }
-
-pub use embassy_executor::Spawner;
 
 #[cfg(feature = "net")]
 cfg_if::cfg_if! {
@@ -94,6 +87,7 @@ cfg_if::cfg_if! {
 #[cfg(feature = "net")]
 pub use network::NetworkStack;
 
+pub mod asynch;
 #[cfg(feature = "threading")]
 pub mod blocker;
 pub mod delegate;
@@ -102,7 +96,7 @@ pub mod sendcell;
 #[cfg(feature = "executor-thread")]
 pub mod thread_executor;
 
-pub type Task = fn(Spawner, &mut arch::OptionalPeripherals);
+pub type Task = fn(asynch::Spawner, &mut arch::OptionalPeripherals);
 
 #[distributed_slice]
 pub static EMBASSY_TASKS: [Task] = [..];
@@ -177,6 +171,9 @@ fn init() {
 
 #[embassy_executor::task]
 async fn init_task(mut peripherals: arch::OptionalPeripherals) {
+    let spawner = asynch::Spawner::for_current_executor().await;
+    asynch::set_spawner(spawner.make_send());
+
     debug!("riot-rs-embassy::init_task()");
 
     #[cfg(all(context = "stm32", feature = "external-interrupts"))]
@@ -201,8 +198,6 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(all(feature = "usb", context = "nrf"))]
     arch::usb::init();
-
-    let spawner = Spawner::for_current_executor().await;
 
     for task in EMBASSY_TASKS {
         task(spawner, &mut peripherals);

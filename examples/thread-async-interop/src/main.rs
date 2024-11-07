@@ -6,10 +6,10 @@
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal};
 
 use riot_rs::{
+    asynch::spawner,
     blocker,
     debug::{exit, log::*},
     time::{Duration, Instant, Timer},
-    EXECUTOR,
 };
 
 static SIGNAL: Signal<CriticalSectionRawMutex, u32> = Signal::new();
@@ -34,8 +34,7 @@ fn main() {
     info!("main(): starting");
 
     // Here we spawn our task.
-    let spawner = EXECUTOR.spawner();
-    spawner.spawn(async_task()).unwrap();
+    spawner().spawn(async_task()).unwrap();
 
     for _ in 0..10 {
         // With `block_on()`, async functions can be called from a thread.

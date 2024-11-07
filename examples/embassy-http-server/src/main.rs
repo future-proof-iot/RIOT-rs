@@ -7,7 +7,9 @@
 mod pins;
 mod routes;
 
-use riot_rs::{debug::log::*, network, time::Duration, ConstStaticCell, Spawner, StaticCell};
+use riot_rs::{
+    asynch::Spawner, debug::log::*, network, time::Duration, ConstStaticCell, StaticCell,
+};
 
 use embassy_net::tcp::TcpSocket;
 use picoserve::io::Error;
