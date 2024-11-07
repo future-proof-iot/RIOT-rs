@@ -9,7 +9,6 @@ subdirs:
   - core-sizes
   - coap
   - device-metadata
-  - embassy
   - embassy-http-server
   - embassy-net-tcp
   - embassy-net-udp
@@ -21,6 +20,7 @@ subdirs:
   - minimal
   - random
   - storage
+  - thread-async-interop
   - threading
   - threading-channel
   - threading-multicore

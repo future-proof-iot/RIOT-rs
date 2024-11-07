@@ -1,5 +1,5 @@
 apps:
-  - name: embassy
+  - name: thread-async-interop
     context:
       - nrf
       - rp
