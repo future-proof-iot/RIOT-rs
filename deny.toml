@@ -4,6 +4,9 @@
 # is recommended to pass `--all-features` on the cmd line instead
 all-features = false
 
+# make cargo-deny ignore these:
+exclude = ["nrf-pac"] # currently unlicensed
+
 # This section is considered when running `cargo deny check licenses`
 # More documentation for the licenses section can be found here:
 # https://embarkstudios.github.io/cargo-deny/checks/licenses/cfg.html
@@ -20,6 +23,7 @@ allow = [
   "ISC",
   "MIT",
   "MPL-2.0",
+  "Unicode-DFS-2016",
   "Zlib",
   # We may allow other licenses as necessary.
 ]
@@ -32,7 +36,6 @@ exceptions = [
   # OSI-approved: https://opensource.org/license/blue-oak-model-license
   { allow = ["BlueOak-1.0.0"], crate = "minicbor" },
   { allow = ["CC0-1.0"], crate = "tiny-keccak" },
-  { allow = ["Unicode-DFS-2016"], crate = "unicode-ident" },
 ]
 
 # This section is considered when running `cargo deny check sources`.
