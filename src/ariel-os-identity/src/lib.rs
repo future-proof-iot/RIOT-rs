@@ -24,6 +24,10 @@
 #![no_std]
 #![deny(missing_docs)]
 #![deny(clippy::pedantic)]
+// required for tests:
+#![cfg_attr(test, no_main)]
+#![cfg_attr(test, feature(impl_trait_in_assoc_type))]
+#![cfg_attr(test, feature(used_with_arg))]
 
 /// Obtains a unique identifier of the device in its byte serialized form.
 ///
@@ -39,4 +43,14 @@ pub fn device_id_bytes() -> Result<impl AsRef<[u8]>, impl core::error::Error> {
     use ariel_os_embassy_common::identity::DeviceId;
 
     ariel_os_embassy::hal::identity::DeviceId::get().map(|d| d.bytes())
+}
+
+#[cfg(test)]
+#[embedded_test::tests]
+mod tests {
+    #[test]
+    async fn has_device_id() {
+        // TODO: make this confirm what we know about the device under test
+        assert!(ariel_os::identity::device_id_bytes().is_ok());
+    }
 }
