@@ -443,6 +443,7 @@ dependencies = [
  "coap-handler-implementations",
  "coap-message",
  "coap-message-demos",
+ "coap-numbers",
  "coap-request",
  "coap-request-implementations",
  "coap-scroll-ring-server",
@@ -456,6 +457,7 @@ dependencies = [
  "riot-rs-boards",
  "riot-rs-coap",
  "scroll-ring",
+ "serde",
  "static-alloc",
 ]
 
