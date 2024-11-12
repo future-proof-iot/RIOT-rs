@@ -1,11 +1,21 @@
-//! To provide a custom USB configuration, use the `riot_rs::config` attribute macro.
+//! Provides USB-related items.
+//!
+//! # Configuration
+//!
+//! To provide a custom USB configuration, use the [`riot_rs::config`](riot_rs_macros::config)
+//! attribute macro.
+
+#![deny(missing_docs)]
 
 pub use crate::arch::usb::UsbDriver;
 
+/// Builder for a USB device stack.
 pub type UsbBuilder = embassy_usb::Builder<'static, UsbDriver>;
 
+/// Configuration hook for a [`UsbBuilder`].
 pub type UsbBuilderHook = &'static crate::delegate::Delegate<UsbBuilder>;
 
+#[doc(hidden)]
 #[linkme::distributed_slice]
 pub static USB_BUILDER_HOOKS: [UsbBuilderHook] = [..];
 
