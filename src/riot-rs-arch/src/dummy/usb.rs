@@ -3,6 +3,7 @@ use embassy_usb::driver::{
     EndpointIn, EndpointInfo, EndpointOut, EndpointType, Event, Unsupported,
 };
 
+/// Driver that implements [`embassy_usb::driver::Driver`].
 pub struct UsbDriver;
 
 impl<'a> Driver<'a> for UsbDriver {
