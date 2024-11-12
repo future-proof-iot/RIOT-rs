@@ -7,11 +7,6 @@
 // features
 // linkme
 #![feature(used_with_arg)]
-// testing
-#![feature(custom_test_frameworks)]
-#![test_runner(crate::testing::test_runner)]
-#![reexport_test_harness_main = "test_main"]
-pub mod testing;
 
 #[cfg(feature = "threading")]
 mod threading;
@@ -106,9 +101,4 @@ fn startup() -> ! {
         #[allow(clippy::empty_loop)]
         loop {}
     }
-}
-
-#[test_case]
-fn test_trivial() {
-    assert!(1 == 1);
 }
