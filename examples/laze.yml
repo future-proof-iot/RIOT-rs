@@ -11,7 +11,6 @@ subdirs:
   - device-metadata
   - embassy-http-server
   - embassy-net-tcp
-  - embassy-net-udp
   - embassy-usb-keyboard
   - gpio
   - hello-world
@@ -25,4 +24,5 @@ subdirs:
   - threading-channel
   - threading-event
   - threading-multicore
+  - udp-echo
   - usb-serial
