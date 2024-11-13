@@ -23,5 +23,6 @@ subdirs:
   - thread-async-interop
   - threading
   - threading-channel
+  - threading-event
   - threading-multicore
   - usb-serial
