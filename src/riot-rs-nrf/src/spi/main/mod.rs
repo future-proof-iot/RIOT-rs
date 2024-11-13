@@ -42,9 +42,9 @@ pub enum Frequency {
     _8M,
     // FIXME(embassy): these frequencies are supported by hardware but do not seem supported by
     // Embassy.
-    // #[cfg(context = "nrf5340")]
+    // #[cfg(any(context = "nrf52833", context = "nrf5340"))]
     // _16M,
-    // #[cfg(context = "nrf5340")]
+    // #[cfg(any(context = "nrf52833", context = "nrf5340"))]
     // _32M,
 }
 
@@ -190,6 +190,14 @@ macro_rules! define_spi_drivers {
 }
 
 // Define a driver per peripheral
+#[cfg(context = "nrf52833")]
+define_spi_drivers!(
+    // FIXME: arbitrary selected peripherals
+    // SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0 => TWISPI0,
+    // SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1 => TWISPI1,
+    // SPIM2_SPIS2_SPI2 => SPI2,
+    SPIM3 => SPI3,
+);
 #[cfg(context = "nrf52840")]
 define_spi_drivers!(
     // FIXME: arbitrary selected peripherals

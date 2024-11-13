@@ -10,6 +10,16 @@ riot_rs::define_peripherals!(Peripherals {
     spi_cs: GPIO_3,
 });
 
+#[cfg(context = "nrf52833")]
+pub type SensorSpi = spi::main::SPI3;
+#[cfg(context = "nrf52833")]
+riot_rs::define_peripherals!(Peripherals {
+    spi_sck: P0_17,  // SPI_EXT_SCK on the microbit-v2
+    spi_miso: P0_01, // SPI_EXT_MISO on the microbit-v2
+    spi_mosi: P0_13, // SPI_EXT_MOSI on the microbit-v2
+    spi_cs: P0_04,   // RING2 on the microbit-v2
+});
+
 // Side SPI of Arduino v3 connector
 #[cfg(context = "nrf52840")]
 pub type SensorSpi = spi::main::SPI3;
