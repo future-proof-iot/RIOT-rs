@@ -22,7 +22,9 @@ fn from_bit_order(bit_order: BitOrder) -> embassy_nrf::spim::BitOrder {
 pub fn init(peripherals: &mut crate::OptionalPeripherals) {
     // Take all SPI peripherals and do nothing with them.
     cfg_if::cfg_if! {
-        if #[cfg(context = "nrf52840")] {
+        if #[cfg(context = "nrf52833")] {
+            let _ = peripherals.SPI3.take().unwrap();
+        } else if #[cfg(context = "nrf52840")] {
             let _ = peripherals.SPI2.take().unwrap();
             let _ = peripherals.SPI3.take().unwrap();
         } else if #[cfg(context = "nrf5340")] {
