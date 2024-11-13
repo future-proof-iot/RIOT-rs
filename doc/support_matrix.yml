@@ -50,8 +50,20 @@ functionalities:
 
 # Encodes support status for each chip.
 chips:
-  nrf52xxx:
-    name: nRF52xxx
+  nrf52833:
+    name: nRF52833
+    support:
+      gpio: supported
+      debug_output: supported
+      hwrng: supported
+      i2c_controller: supported
+      spi_main: supported
+      logging: supported
+      storage: supported
+      wifi: not_available
+
+  nrf52840:
+    name: nRF52840
     support:
       gpio: supported
       debug_output: supported
@@ -137,9 +149,16 @@ chips:
 # Encodes support status for each board.
 # Boards inherit support statuses of their chip, but can also override them.
 boards:
+  microbit-v2:
+    name: BBC micro:bit V2
+    chip: nrf52833
+    support:
+      user_usb: not_available
+      ethernet_over_usb: not_available
+
   nrf52840-dk:
     name: nRF52840-DK
-    chip: nrf52xxx
+    chip: nrf52840
     support:
       user_usb: supported
       ethernet_over_usb: supported
