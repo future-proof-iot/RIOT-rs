@@ -10,6 +10,9 @@ use core::cell::OnceCell;
 
 use embassy_sync::blocking_mutex::CriticalSectionMutex;
 
+#[cfg(feature = "threading")]
+pub mod blocker;
+
 pub use embassy_executor::{SendSpawner, Spawner};
 
 #[cfg(feature = "executor-thread")]

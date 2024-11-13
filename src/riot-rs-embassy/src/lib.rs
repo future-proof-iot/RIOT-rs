@@ -47,14 +47,10 @@ pub mod api {
 
     #[cfg(feature = "i2c")]
     pub use crate::i2c;
-
-    #[cfg(feature = "spi")]
-    pub use crate::spi;
-
-    #[cfg(feature = "threading")]
-    pub use crate::blocker;
     #[cfg(feature = "net")]
     pub use crate::network;
+    #[cfg(feature = "spi")]
+    pub use crate::spi;
     #[cfg(feature = "usb")]
     pub use crate::usb;
 }
@@ -88,8 +84,6 @@ cfg_if::cfg_if! {
 pub use network::NetworkStack;
 
 pub mod asynch;
-#[cfg(feature = "threading")]
-pub mod blocker;
 pub mod delegate;
 pub mod sendcell;
 

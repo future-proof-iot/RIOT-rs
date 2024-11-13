@@ -6,8 +6,7 @@
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal};
 
 use riot_rs::{
-    asynch::spawner,
-    blocker,
+    asynch::{blocker, spawner},
     debug::{exit, log::*},
     time::{Duration, Instant, Timer},
 };
