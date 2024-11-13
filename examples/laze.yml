@@ -10,7 +10,6 @@ subdirs:
   - coap
   - device-metadata
   - embassy-http-server
-  - embassy-net-tcp
   - embassy-usb-keyboard
   - gpio
   - hello-world
@@ -19,6 +18,7 @@ subdirs:
   - minimal
   - random
   - storage
+  - tcp-echo
   - thread-async-interop
   - threading
   - threading-channel
