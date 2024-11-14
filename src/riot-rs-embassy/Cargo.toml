@@ -74,6 +74,11 @@ usb-ethernet = ["usb", "net"]
 ## Use a hardware RNG to seed into the riot-rs-random system-wide RNG
 hwrng = ["riot-rs-arch/hwrng"]
 
+## Enables support for TCP.
+tcp = ["embassy-net?/tcp"]
+## Enables support for UDP.
+udp = ["embassy-net?/udp"]
+
 ## Enable storage support [`riot-rs::storage`].
 storage = ["dep:riot-rs-storage", "riot-rs-arch/storage", "time"]
 

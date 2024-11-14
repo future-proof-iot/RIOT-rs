@@ -50,6 +50,10 @@ csprng = ["riot-rs-random/csprng"]
 hwrng = ["riot-rs-embassy/hwrng"]
 
 #! ## Network protocols
+## Enables support for TCP.
+tcp = ["riot-rs-embassy/tcp"]
+## Enables support for UDP.
+udp = ["riot-rs-embassy/udp"]
 ## Enables support for [CoAP](https://future-proof-iot.github.io/RIOT-rs/dev/docs/book/tooling/coap.html).
 coap = ["dep:riot-rs-coap", "random"]
 
