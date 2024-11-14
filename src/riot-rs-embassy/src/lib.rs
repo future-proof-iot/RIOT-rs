@@ -234,7 +234,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         static CDC_ECM_STATE: StaticCell<CdcNcmState> = StaticCell::new();
         let usb_cdc_ecm = CdcNcmClass::new(
             &mut usb_builder,
-            CDC_ECM_STATE.init_with(|| CdcNcmState::new()),
+            CDC_ECM_STATE.init_with(CdcNcmState::new),
             host_mac_addr,
             64,
         );
@@ -244,7 +244,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
         static NET_STATE: StaticCell<NetState<{ network::ETHERNET_MTU }, 4, 4>> = StaticCell::new();
         let (runner, device) = usb_cdc_ecm
             .into_embassy_net_device::<{ network::ETHERNET_MTU }, 4, 4>(
-                NET_STATE.init_with(|| NetState::new()),
+                NET_STATE.init_with(NetState::new),
                 our_mac_addr,
             );
 

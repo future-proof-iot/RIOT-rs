@@ -91,7 +91,7 @@ pub const fn highest_freq_in(
         }
     }
 
-    return freq;
+    freq
 }
 
 #[cfg(test)]
