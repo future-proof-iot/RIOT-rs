@@ -23,6 +23,9 @@
 //! [`rand_pcg::Pcg32`] is decided yet for the fast one. Neither the algorithm nor the size of
 //! [`FastRng`] or [`CryptoRng`] is guaranteed.
 #![no_std]
+#![deny(clippy::pedantic)]
+
+use core::marker::PhantomData;
 
 use rand_core::{RngCore, SeedableRng};
 
@@ -85,7 +88,7 @@ impl RngCore for FastRng {
         self.inner.next_u64()
     }
     fn fill_bytes(&mut self, dest: &mut [u8]) {
-        self.inner.fill_bytes(dest)
+        self.inner.fill_bytes(dest);
     }
     fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand_core::Error> {
         self.inner.try_fill_bytes(dest)
@@ -98,24 +101,24 @@ impl RngCore for FastRng {
 #[cfg(feature = "csprng")]
 pub struct CryptoRng {
     // Make the type not Send to later allow using thread-locals
-    pub(crate) _private: core::marker::PhantomData<*const ()>,
+    pub(crate) _private: PhantomData<*const ()>,
 }
 
 #[cfg(feature = "csprng")]
 mod csprng {
-    use super::*;
+    use super::{with_global, CryptoRng, RngCore, SelectedRng};
 
     // Re-implementing the trait rather than Deref'ing into inner: This avoids leaking implementation
     // details to users who might otherwise come to depend on platform specifics of the CryptoRng.
     impl RngCore for CryptoRng {
         fn next_u32(&mut self) -> u32 {
-            with_global(|i| i.next_u32())
+            with_global(RngCore::next_u32)
         }
         fn next_u64(&mut self) -> u64 {
-            with_global(|i| i.next_u64())
+            with_global(RngCore::next_u64)
         }
         fn fill_bytes(&mut self, dest: &mut [u8]) {
-            with_global(|i| i.fill_bytes(dest))
+            with_global(|i| i.fill_bytes(dest));
         }
         fn try_fill_bytes(&mut self, dest: &mut [u8]) -> Result<(), rand_core::Error> {
             with_global(|i| i.try_fill_bytes(dest))
@@ -124,7 +127,7 @@ mod csprng {
 
     impl rand_core::CryptoRng for super::CryptoRng {}
 
-    /// Asserts that SelectedRng is CryptoRng, justifying the implementation above.
+    /// Asserts that [`SelectedRng`] is [`CryptoRng`], justifying the implementation above.
     trait _AssertCryptoRng: rand_core::CryptoRng {}
     impl _AssertCryptoRng for SelectedRng {}
 }
@@ -132,6 +135,10 @@ mod csprng {
 /// Populates the global RNG from a seed value.
 ///
 /// This is called by RIOT-rs's initialization functions.
+///
+/// # Panics
+///
+/// Panics if the underlying RNG returns an error.
 pub fn construct_rng(hwrng: impl RngCore) {
     RNG.lock(|r| {
         r.replace(Some(
@@ -141,19 +148,22 @@ pub fn construct_rng(hwrng: impl RngCore) {
 }
 
 /// Returns a suitably initialized fast random number generator.
+#[expect(clippy::missing_panics_doc, reason = "does not panic")]
+#[must_use]
 #[inline]
 pub fn fast_rng() -> FastRng {
     FastRng {
         inner: with_global(|i| rand_pcg::Pcg32::from_rng(i).expect("Global RNG is infallible")),
-        _private: Default::default(),
+        _private: PhantomData,
     }
 }
 
 /// Returns a suitably initialized cryptographically secure random number generator.
+#[must_use]
 #[inline]
 #[cfg(feature = "csprng")]
 pub fn crypto_rng() -> CryptoRng {
     CryptoRng {
-        _private: Default::default(),
+        _private: PhantomData,
     }
 }
