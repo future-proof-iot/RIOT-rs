@@ -264,7 +264,6 @@ checksum = "b048fb63fd8b5923fc5aa7b340d8e156aec7ec02f0c78fa8a6ddc2613f6f71de"
 name = "blinky"
 version = "0.1.0"
 dependencies = [
- "embassy-time",
  "riot-rs",
  "riot-rs-boards",
 ]
@@ -449,7 +448,6 @@ dependencies = [
  "embassy-futures",
  "embassy-net",
  "embassy-sync 0.6.0",
- "embassy-time",
  "embedded-nal-coap",
  "heapless 0.8.0",
  "riot-rs",
@@ -1100,7 +1098,6 @@ dependencies = [
  "embassy-net",
  "embassy-nrf",
  "embassy-sync 0.6.0",
- "embassy-time",
  "embedded-io-async",
  "heapless 0.8.0",
  "httparse",
@@ -1151,7 +1148,6 @@ name = "embassy-net-tcp"
 version = "0.1.0"
 dependencies = [
  "embassy-net",
- "embassy-time",
  "embedded-io-async",
  "heapless 0.8.0",
  "riot-rs",
@@ -1163,7 +1159,6 @@ name = "embassy-net-udp"
 version = "0.1.0"
 dependencies = [
  "embassy-net",
- "embassy-time",
  "embedded-io-async",
  "heapless 0.8.0",
  "riot-rs",
@@ -1372,7 +1367,6 @@ version = "0.1.0"
 dependencies = [
  "embassy-nrf",
  "embassy-sync 0.6.0",
- "embassy-time",
  "embassy-usb",
  "riot-rs",
  "riot-rs-boards",
@@ -2140,7 +2134,6 @@ name = "gpio"
 version = "0.1.0"
 dependencies = [
  "embassy-futures",
- "embassy-time",
  "riot-rs",
  "riot-rs-boards",
 ]
@@ -2149,7 +2142,6 @@ dependencies = [
 name = "gpio-interrupt-nrf"
 version = "0.1.0"
 dependencies = [
- "embassy-time",
  "riot-rs",
  "riot-rs-boards",
 ]
@@ -2158,7 +2150,6 @@ dependencies = [
 name = "gpio-interrupt-stm32"
 version = "0.1.0"
 dependencies = [
- "embassy-time",
  "riot-rs",
  "riot-rs-boards",
 ]
@@ -4474,7 +4465,6 @@ name = "thread-async-interop"
 version = "0.1.0"
 dependencies = [
  "embassy-sync 0.6.0",
- "embassy-time",
  "riot-rs",
  "riot-rs-boards",
 ]
@@ -4691,7 +4681,6 @@ dependencies = [
 name = "usb-serial"
 version = "0.1.0"
 dependencies = [
- "embassy-time",
  "riot-rs",
  "riot-rs-boards",
 ]

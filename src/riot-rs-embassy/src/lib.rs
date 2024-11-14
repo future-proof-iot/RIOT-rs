@@ -33,6 +33,14 @@ pub use static_cell::{ConstStaticCell, StaticCell};
 
 // All items of this module are re-exported at the root of `riot_rs`.
 pub mod api {
+    #[cfg(feature = "time")]
+    pub mod time {
+        //! Provides time-related facilities.
+        // NOTE: we may want to re-export more items in the future, but not re-export the whole
+        // crate.
+        pub use embassy_time::{Delay, Duration, Instant, Timer, TICK_HZ};
+    }
+
     #[cfg(feature = "i2c")]
     pub use crate::i2c;
 
@@ -60,6 +68,8 @@ pub mod api {
 pub mod reexports {
     #[cfg(feature = "net")]
     pub use embassy_net;
+    #[cfg(feature = "time")]
+    pub use embassy_time;
     #[cfg(feature = "usb")]
     pub use embassy_usb;
     // Used by a macro we provide

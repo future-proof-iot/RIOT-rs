@@ -12,7 +12,6 @@ workspace = true
 [dependencies]
 embassy-net = { workspace = true, features = ["tcp"] }
 embassy-sync = { workspace = true }
-embassy-time = { workspace = true, default-features = false }
 embedded-io-async = { version = "0.6.0", features = ["defmt-03"] }
 heapless = { workspace = true }
 httparse = { version = "1.8.0", default-features = false }
@@ -20,7 +19,10 @@ picoserve = { version = "0.12.0", default-features = false, features = [
   "embassy",
   "embassy-stack-is-copy",
 ], git = "https://github.com/kaspar030/picoserve", branch = "update_embassy_stack_api" }
-riot-rs = { path = "../../src/riot-rs", features = ["override-network-config"] }
+riot-rs = { path = "../../src/riot-rs", features = [
+  "override-network-config",
+  "time",
+] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 serde = { version = "1.0", default-features = false }
 static_cell = { workspace = true }

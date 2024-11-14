@@ -3,7 +3,7 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use riot_rs::{debug::log::*, network};
+use riot_rs::{debug::log::*, network, time::Duration};
 
 use embedded_io_async::Write;
 
@@ -18,7 +18,7 @@ async fn tcp_echo() {
 
     loop {
         let mut socket = TcpSocket::new(stack, &mut rx_buffer, &mut tx_buffer);
-        socket.set_timeout(Some(embassy_time::Duration::from_secs(10)));
+        socket.set_timeout(Some(Duration::from_secs(10)));
 
         info!("Listening on TCP:1234...");
         if let Err(e) = socket.accept(1234).await {

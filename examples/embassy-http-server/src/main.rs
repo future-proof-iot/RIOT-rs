@@ -7,10 +7,9 @@
 mod pins;
 mod routes;
 
-use riot_rs::{debug::log::*, network, ConstStaticCell, Spawner, StaticCell};
+use riot_rs::{debug::log::*, network, time::Duration, ConstStaticCell, Spawner, StaticCell};
 
 use embassy_net::tcp::TcpSocket;
-use embassy_time::Duration;
 use picoserve::io::Error;
 
 #[cfg(feature = "button-readings")]
