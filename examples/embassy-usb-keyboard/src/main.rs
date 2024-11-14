@@ -3,10 +3,10 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use embassy_time::Duration;
 use embassy_usb::class::hid::{self, HidReaderWriter};
 use riot_rs::{
     debug::log::*,
+    time::{Duration, Timer},
     usb::{UsbBuilderHook, UsbDriver},
     ConstStaticCell,
 };
@@ -52,7 +52,7 @@ async fn usb_keyboard(button_peripherals: pins::Buttons) {
         }
 
         // Debounce events
-        embassy_time::Timer::after(Duration::from_millis(50)).await;
+        Timer::after(Duration::from_millis(50)).await;
     }
 }
 

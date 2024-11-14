@@ -4,11 +4,11 @@
 #![feature(used_with_arg)]
 
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal};
-use embassy_time::{Duration, Instant, Timer, TICK_HZ};
 
 use riot_rs::{
     blocker,
     debug::{exit, log::*},
+    time::{Duration, Instant, Timer},
     EXECUTOR,
 };
 
@@ -24,7 +24,7 @@ async fn async_task() {
     loop {
         info!("async_task(): signalling, counter={}", counter);
         SIGNAL.signal(counter);
-        Timer::after(Duration::from_ticks(TICK_HZ / 10)).await;
+        Timer::after(Duration::from_millis(100)).await;
         counter += 1;
     }
 }

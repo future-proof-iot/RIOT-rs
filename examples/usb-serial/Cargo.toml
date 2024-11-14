@@ -10,7 +10,6 @@ publish = false
 workspace = true
 
 [dependencies]
-embassy-time = { workspace = true, default-features = false }
 riot-rs = { path = "../../src/riot-rs", features = [
   "usb",
   "override-usb-config",

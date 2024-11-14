@@ -12,7 +12,6 @@ workspace = true
 [dependencies]
 embassy-net = { workspace = true, features = ["udp"] }
 embassy-sync = { workspace = true }
-embassy-time = { workspace = true, default-features = false }
 heapless = { workspace = true }
 riot-rs = { path = "../../src/riot-rs", features = [
   "override-network-config",
