@@ -5,6 +5,7 @@ pub struct Executor;
 
 impl Executor {
     #[allow(clippy::new_without_default)]
+    #[must_use]
     pub const fn new() -> Self {
         // Actually return a value instead of marking it unimplemented like other dummy
         // functions, because this function is const and is thus run during compilation
@@ -15,6 +16,7 @@ impl Executor {
         unimplemented!();
     }
 
+    #[must_use]
     pub fn spawner(&self) -> Spawner {
         unimplemented!();
     }

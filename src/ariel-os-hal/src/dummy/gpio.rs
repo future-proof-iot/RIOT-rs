@@ -7,14 +7,17 @@ macro_rules! define_input_like {
         }
 
         impl $type<'_> {
+            #[must_use]
             pub fn is_high(&self) -> bool {
                 unimplemented!();
             }
 
+            #[must_use]
             pub fn is_low(&self) -> bool {
                 unimplemented!();
             }
 
+            #[must_use]
             pub fn get_level(&self) -> crate::gpio::input::Level {
                 unimplemented!();
             }
