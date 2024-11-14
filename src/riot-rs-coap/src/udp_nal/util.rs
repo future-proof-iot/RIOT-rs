@@ -1,7 +1,8 @@
 //! Helpers for [`udp_nal`] -- conversion and error types
 
+use core::net::{SocketAddr, SocketAddrV4, SocketAddrV6};
+
 use embassy_net::{udp, IpAddress, IpEndpoint};
-use embedded_nal_async as nal;
 
 /// Converts socket address types between [`embedded_nal_async`] and [`embassy_net`] (internally
 /// `smol`).
@@ -13,52 +14,24 @@ use embedded_nal_async as nal;
     clippy::unnecessary_wraps,
     reason = "errors are currently only impossible because for crate feature synchronization reasons, all cfg handling is commented out"
 )]
-pub(super) fn sockaddr_nal2smol(sockaddr: nal::SocketAddr) -> Result<IpEndpoint, Error> {
-    match sockaddr {
-        #[allow(unused)]
-        nal::SocketAddr::V4(sockaddr) => {
-            // #[cfg(feature = "proto-ipv4")]
-            return Ok(IpEndpoint {
-                addr: embassy_net::Ipv4Address(sockaddr.ip().octets()).into(),
-                port: sockaddr.port(),
-            });
-            // #[cfg(not(feature = "proto-ipv4"))]
-            // return Err(Error::AddressFamilyUnavailable);
-        }
-        #[allow(unused)]
-        nal::SocketAddr::V6(sockaddr) => {
-            // #[cfg(feature = "proto-ipv6")]
-            return Ok(IpEndpoint {
-                addr: embassy_net::Ipv6Address(sockaddr.ip().octets()).into(),
-                port: sockaddr.port(),
-            });
-            // #[cfg(not(feature = "proto-ipv6"))]
-            // return Err(Error::AddressFamilyUnavailable);
-        }
-    }
+pub(super) fn sockaddr_nal2smol(sockaddr: SocketAddr) -> Result<IpEndpoint, Error> {
+    Ok(IpEndpoint::from(sockaddr))
 }
 
-pub(super) fn sockaddr_smol2nal(endpoint: IpEndpoint) -> nal::SocketAddr {
+pub(super) fn sockaddr_smol2nal(endpoint: IpEndpoint) -> SocketAddr {
     match endpoint.addr {
-        // #[cfg(feature = "proto-ipv4")]
-        IpAddress::Ipv4(addr) => {
-            embedded_nal_async::SocketAddrV4::new(addr.0.into(), endpoint.port).into()
-        }
-        // #[cfg(feature = "proto-ipv6")]
-        IpAddress::Ipv6(addr) => {
-            // FIXME: Where is smoltcp's zone identifier?
-            embedded_nal_async::SocketAddrV6::new(addr.0.into(), endpoint.port, 0, 0).into()
-        }
+        IpAddress::Ipv4(addr) => SocketAddr::V4(SocketAddrV4::new(addr, endpoint.port)),
+        IpAddress::Ipv6(addr) => SocketAddr::V6(SocketAddrV6::new(addr, endpoint.port, 0, 0)),
     }
 }
 
 /// Is the IP address in this type the unspecified address?
 ///
 /// FIXME: What of `::ffff:0.0.0.0`? Is that expected to bind to all v4 addresses?
-pub(super) fn is_unspec_ip(addr: nal::SocketAddr) -> bool {
+pub(super) fn is_unspec_ip(addr: SocketAddr) -> bool {
     match addr {
-        nal::SocketAddr::V4(sockaddr) => sockaddr.ip().octets() == [0; 4],
-        nal::SocketAddr::V6(sockaddr) => sockaddr.ip().octets() == [0; 16],
+        SocketAddr::V4(sockaddr) => sockaddr.ip().octets() == [0; 4],
+        SocketAddr::V6(sockaddr) => sockaddr.ip().octets() == [0; 16],
     }
 }
 

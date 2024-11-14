@@ -20,7 +20,7 @@ riot-rs = { path = "../../src/riot-rs", features = [
 ] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
 embassy-futures = "0.1.1"
-embedded-nal-coap = "0.1.0-alpha.2"
+embedded-nal-coap = { workspace = true }
 coap-request = "0.2.0-alpha.2"
 coap-message = "0.3.2"
 coap-message-demos = { version = "0.4.0", default-features = false }
