@@ -39,8 +39,7 @@ threading = [
   "riot-rs-rt/threading",
   "riot-rs-embassy/threading",
 ]
-## Enables support for timeouts in the internal executor---required to use
-## `embassy_time::Timer`.
+## Enables the internal executor's timer queue, required for timer support.
 time = ["riot-rs-embassy/time"]
 ## Enables the [`random`] module.
 random = ["riot-rs-random"]
