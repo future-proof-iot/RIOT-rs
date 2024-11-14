@@ -22,7 +22,7 @@ The [`group_peripherals!`][group_peripherals-docs] macro can also be useful.
 The [`define_peripherals!`][define_peripherals-docs] macro allows to define a *RIOT-rs peripheral struct*, an instance of which can be obtained with [`spawner` or `task`][spawner-or-task]:
 
 ```rust,ignore
-{{ #include ../../examples/blinky/src/pins.rs:nrf52840dk-define_peripherals }}
+riot_rs::define_peripherals!(LedPeripherals { led: P0_13 });
 ```
 
 Multiple RIOT-rs peripheral structs can be grouped into another RIOT-rs peripheral struct using the [`group_peripherals!`][group_peripherals-docs] macro:
@@ -60,8 +60,15 @@ Both of these can be provided with an instance of a RIOT-rs peripheral struct wh
 Here is an example of the `task` macro (the `pins` module internally uses `define_peripherals!`) from the [`blinky` example][blinky-example-src]:
 
 ```rust,ignore
-{{ #include ../../examples/blinky/src/main.rs:task-example-0 }}
-{{ #include ../../examples/blinky/src/main.rs:task-example-1 }}
+#[riot_rs::task(autostart, peripherals)]
+async fn blinky(peripherals: pins::LedPeripherals) {
+    let mut led = Output::new(peripherals.led, Level::Low);
+
+    loop {
+        led.toggle();
+        Timer::after(Duration::from_millis(500)).await;
+    }
+}
 ```
 
 ## Configuration Hooks

@@ -6,10 +6,8 @@ riot_rs::define_peripherals!(LedPeripherals {
     led: P0_21,
 });
 
-// ANCHOR: nrf52840dk-define_peripherals
 #[cfg(context = "nrf52840dk")]
 riot_rs::define_peripherals!(LedPeripherals { led: P0_13 });
-// ANCHOR_END: nrf52840dk-define_peripherals
 
 #[cfg(context = "nrf5340dk")]
 riot_rs::define_peripherals!(LedPeripherals { led: P0_28 });
