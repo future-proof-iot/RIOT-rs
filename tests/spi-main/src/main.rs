@@ -14,12 +14,9 @@ mod pins;
 
 use ariel_os::{
     debug::{
-        exit,
         log::{debug, info},
-        EXIT_SUCCESS,
     },
     gpio, hal,
-    spi::{
         main::{highest_freq_in, Kilohertz, SpiDevice},
         Mode,
     },
@@ -72,8 +69,7 @@ async fn main(peripherals: pins::Peripherals) {
     assert_eq!(who_am_i, 0x33);
 
     info!("Test passed!");
-
-    exit(EXIT_SUCCESS);
+    ariel_os::debug::exit_success();
 }
 
 fn get_spi_read_command(addr: u8) -> u8 {
