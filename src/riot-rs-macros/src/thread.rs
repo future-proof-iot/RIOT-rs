@@ -7,6 +7,8 @@
 /// - `autostart`: (*mandatory*) autostart the thread.
 /// - `stacksize`: (*optional*) the size of the stack allocated to the thread (in bytes).
 /// - `priority`: (*optional*) the thread's priority.
+/// - `no_wait`: (*optional*) don't wait for system initialization to be finished
+///              before starting the thread.
 ///
 /// # Examples
 ///
@@ -38,7 +40,7 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
     #[allow(clippy::wildcard_imports)]
     use thread::*;
 
-    use quote::quote;
+    use quote::{format_ident, quote};
 
     use crate::utils::find_crate;
 
@@ -53,19 +55,6 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
 
     let thread_function = syn::parse_macro_input!(item as syn::ItemFn);
 
-    let no_mangle_attr = if attrs.no_mangle {
-        quote! {#[no_mangle]}
-    } else {
-        quote! {}
-    };
-
-    let fn_name = thread_function.sig.ident.clone();
-    let Parameters {
-        stack_size,
-        priority,
-        affinity,
-    } = Parameters::from(attrs);
-
     let thread_crate = {
         match (find_crate("riot-rs"), find_crate("riot-rs-threads")) {
             (Some(riot_rs), _) => quote! { #riot_rs::thread },
@@ -74,11 +63,38 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
         }
     };
 
+    let no_mangle_attr = if attrs.no_mangle {
+        quote! {#[no_mangle]}
+    } else {
+        quote! {}
+    };
+
+    let maybe_wait_for_start_event = if attrs.no_wait {
+        quote! {}
+    } else {
+        quote! {#thread_crate::events::THREAD_START_EVENT.wait();}
+    };
+
+    let fn_name = thread_function.sig.ident.clone();
+    let trampoline_function_name = format_ident!("__{fn_name}_trampoline");
+
+    let Parameters {
+        stack_size,
+        priority,
+        affinity,
+    } = Parameters::from(attrs);
+
     let expanded = quote! {
         #no_mangle_attr
+        #[inline(always)]
         #thread_function
 
-        #thread_crate::autostart_thread!(#fn_name, stacksize = #stack_size, priority = #priority, affinity = #affinity);
+        fn #trampoline_function_name() {
+            #maybe_wait_for_start_event;
+            #fn_name()
+        }
+
+        #thread_crate::autostart_thread!(#trampoline_function_name, stacksize = #stack_size, priority = #priority, affinity = #affinity);
     };
 
     TokenStream::from(expanded)
@@ -95,9 +111,9 @@ mod thread {
         fn default() -> Self {
             // TODO: proper values
             Self {
-                stack_size: syn::parse_quote!{ 2048 },
-                priority: syn::parse_quote!{ 1 },
-                affinity: syn::parse_quote!{ None }
+                stack_size: syn::parse_quote! { 2048 },
+                priority: syn::parse_quote! { 1 },
+                affinity: syn::parse_quote! { None },
             }
         }
     }
@@ -108,12 +124,15 @@ mod thread {
 
             let stack_size = attrs.stack_size.unwrap_or(default.stack_size);
             let priority = attrs.priority.unwrap_or(default.priority);
-            let affinity = attrs.affinity.map(|expr| syn::parse_quote!{ Some(#expr) }).unwrap_or(default.affinity);
+            let affinity = attrs
+                .affinity
+                .map(|expr| syn::parse_quote! { Some(#expr) })
+                .unwrap_or(default.affinity);
 
             Self {
                 stack_size,
                 priority,
-                affinity
+                affinity,
             }
         }
     }
@@ -125,6 +144,7 @@ mod thread {
         pub priority: Option<syn::Expr>,
         pub affinity: Option<syn::Expr>,
         pub no_mangle: bool,
+        pub no_wait: bool,
     }
 
     impl Attributes {
@@ -156,6 +176,11 @@ mod thread {
 
             if meta.path.is_ident("no_mangle") {
                 self.no_mangle = true;
+                return Ok(());
+            }
+
+            if meta.path.is_ident("no_wait") {
+                self.no_wait = true;
                 return Ok(());
             }
 

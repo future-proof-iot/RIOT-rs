@@ -164,7 +164,7 @@ mod executor_thread {
 }
 
 #[cfg(feature = "executor-thread")]
-#[riot_rs_macros::thread(autostart, stacksize = executor_thread::STACKSIZE, priority = executor_thread::PRIORITY)]
+#[riot_rs_macros::thread(autostart, no_wait, stacksize = executor_thread::STACKSIZE, priority = executor_thread::PRIORITY)]
 fn init() {
     debug!("riot-rs-embassy::init(): using thread executor");
     let p = arch::init();
@@ -336,4 +336,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     let _ = peripherals;
 
     debug!("riot-rs-embassy::init_task() done");
+
+    #[cfg(feature = "threading")]
+    riot_rs_threads::events::THREAD_START_EVENT.set();
 }

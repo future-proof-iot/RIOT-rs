@@ -49,6 +49,13 @@ pub mod macro_reexports {
     pub use static_cell;
 }
 
+#[doc(hidden)]
+pub mod events {
+    use crate::sync::Event;
+    // this is set in `riot_rs_embassy::init_task()`
+    pub static THREAD_START_EVENT: Event = Event::new();
+}
+
 pub use riot_rs_runqueue::{RunqueueId, ThreadId};
 pub use thread_flags as flags;
 
