@@ -1,5 +1,5 @@
 [package]
-name = "embassy-net-udp"
+name = "udp-echo"
 version = "0.1.0"
 authors.workspace = true
 license.workspace = true
@@ -10,8 +10,9 @@ publish = false
 workspace = true
 
 [dependencies]
-embassy-net = { workspace = true, features = ["udp"] }
-embedded-io-async = "0.6.1"
 heapless = { workspace = true }
-riot-rs = { path = "../../src/riot-rs", features = ["override-network-config"] }
+riot-rs = { path = "../../src/riot-rs", features = [
+  "override-network-config",
+  "udp",
+] }
 riot-rs-boards = { path = "../../src/riot-rs-boards" }
