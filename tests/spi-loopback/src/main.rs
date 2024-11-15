@@ -11,11 +11,7 @@
 mod pins;
 
 use ariel_os::{
-    debug::{
-        exit,
-        log::{debug, info},
-        EXIT_SUCCESS,
-    },
+    debug::log::{debug, info},
     gpio, hal,
     spi::{
         main::{highest_freq_in, Kilohertz, SpiDevice},
@@ -62,6 +58,5 @@ async fn main(peripherals: pins::Peripherals) {
     assert_eq!(out, in_);
 
     info!("Test passed!");
-
-    exit(EXIT_SUCCESS);
+    ariel_os::debug::exit_success();
 }

@@ -13,11 +13,7 @@
 mod pins;
 
 use ariel_os::{
-    debug::{
-        exit,
-        log::{debug, info},
-        EXIT_SUCCESS,
-    },
+    debug::log::{debug, info},
     hal,
     i2c::controller::{highest_freq_in, I2cDevice, Kilohertz},
 };
@@ -56,6 +52,5 @@ async fn main(peripherals: pins::Peripherals) {
     assert_eq!(who_am_i, 0x33);
 
     info!("Test passed!");
-
-    exit(EXIT_SUCCESS);
+    ariel_os::debug::exit_success();
 }
