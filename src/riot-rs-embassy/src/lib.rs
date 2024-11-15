@@ -193,6 +193,12 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     #[cfg(all(feature = "usb", context = "nrf"))]
     arch::usb::init();
 
+    // Move out the peripherals required for drivers, so that tasks cannot mistakenly take them.
+    #[cfg(feature = "usb")]
+    let usb_peripherals = arch::usb::Peripherals::new(&mut peripherals);
+
+    // Tasks have to be started before driver initializations so that the tasks are able to
+    // configure the drivers using hooks.
     for task in EMBASSY_TASKS {
         task(spawner, &mut peripherals);
     }
@@ -201,7 +207,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     let mut usb_builder = {
         let usb_config = usb::config();
 
-        let usb_driver = arch::usb::driver(&mut peripherals);
+        let usb_driver = arch::usb::driver(usb_peripherals);
 
         static CONFIG_DESC: ConstStaticCell<[u8; 256]> = ConstStaticCell::new([0; 256]);
         static BOS_DESC: ConstStaticCell<[u8; 256]> = ConstStaticCell::new([0; 256]);

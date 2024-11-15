@@ -7,11 +7,24 @@ bind_interrupts!(struct Irqs {
 
 pub type UsbDriver = Driver<'static, peripherals::USB_OTG_FS>;
 
-pub fn driver(peripherals: &mut crate::OptionalPeripherals) -> UsbDriver {
-    let usb = peripherals.USB_OTG_FS.take().unwrap();
-    let dp = peripherals.PA12.take().unwrap();
-    let dm = peripherals.PA11.take().unwrap();
+pub struct Peripherals {
+    usb: peripherals::USB_OTG_FS,
+    dp: peripherals::PA12,
+    dm: peripherals::PA11,
+}
 
+impl Peripherals {
+    #[must_use]
+    pub fn new(peripherals: &mut crate::OptionalPeripherals) -> Self {
+        Self {
+            usb: peripherals.USB_OTG_FS.take().unwrap(),
+            dp: peripherals.PA12.take().unwrap(),
+            dm: peripherals.PA11.take().unwrap(),
+        }
+    }
+}
+
+pub fn driver(peripherals: Peripherals) -> UsbDriver {
     // buffer size copied from upstream. There's this hint about its sizing:
     // "An internal buffer used to temporarily store received packets.
     // Must be large enough to fit all OUT endpoint max packet sizes.
@@ -36,5 +49,12 @@ pub fn driver(peripherals: &mut crate::OptionalPeripherals) -> UsbDriver {
         embassy_stm32::interrupt::OTG_FS.set_priority(Priority::P0);
     }
 
-    Driver::new_fs(usb, Irqs, dp, dm, ep_out_buffer, config)
+    Driver::new_fs(
+        peripherals.usb,
+        Irqs,
+        peripherals.dp,
+        peripherals.dm,
+        ep_out_buffer,
+        config,
+    )
 }

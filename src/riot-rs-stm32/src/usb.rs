@@ -6,10 +6,23 @@ bind_interrupts!(struct Irqs {
 
 pub type UsbDriver = Driver<'static, peripherals::USB>;
 
-pub fn driver(peripherals: &mut crate::OptionalPeripherals) -> UsbDriver {
-    let usb = peripherals.USB.take().unwrap();
-    let dp = peripherals.PA12.take().unwrap();
-    let dm = peripherals.PA11.take().unwrap();
+pub struct Peripherals {
+    usb: peripherals::USB,
+    dp: peripherals::PA12,
+    dm: peripherals::PA11,
+}
 
-    Driver::new(usb, Irqs, dp, dm)
+impl Peripherals {
+    #[must_use]
+    pub fn new(peripherals: &mut crate::OptionalPeripherals) -> Self {
+        Self {
+            usb: peripherals.USB.take().unwrap(),
+            dp: peripherals.PA12.take().unwrap(),
+            dm: peripherals.PA11.take().unwrap(),
+        }
+    }
+}
+
+pub fn driver(peripherals: Peripherals) -> UsbDriver {
+    Driver::new(peripherals.usb, Irqs, peripherals.dp, peripherals.dm)
 }
