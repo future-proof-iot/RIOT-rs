@@ -262,11 +262,16 @@ jobs:
             --verbose
             --locked
             --features "
+                csprng,
                 external-interrupts,
+                hwrng,
+                i2c,
                 net,
                 no-boards,
                 spi,
                 storage,
+                usb,
+                usb-ethernet,
                 "
             -p riot-rs
             -p riot-rs-arch

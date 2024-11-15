@@ -30,6 +30,7 @@ pub(crate) mod ethernet {
 
     use crate::{arch::usb::UsbDriver, network::ETHERNET_MTU};
 
+    #[allow(dead_code, reason = "use depends on enabled features")]
     pub type NetworkDevice = Device<'static, ETHERNET_MTU>;
 
     #[embassy_executor::task]
@@ -38,6 +39,7 @@ pub(crate) mod ethernet {
     }
 }
 
+#[allow(dead_code, reason = "false positive during builds outside of laze")]
 pub(crate) fn config() -> embassy_usb::Config<'static> {
     #[cfg(not(feature = "override-usb-config"))]
     {
