@@ -1,4 +1,4 @@
-use crate::{cleanup, Arch, Thread, THREADS};
+use crate::{cleanup, Arch, Thread, SCHEDULER};
 use core::arch::asm;
 use core::ptr::write_volatile;
 use cortex_m::peripheral::{scb::SystemHandler, SCB};
@@ -195,12 +195,12 @@ unsafe extern "C" fn PendSV() {
 unsafe fn sched() -> u128 {
     loop {
         if let Some(res) = critical_section::with(|cs| {
-            let threads = unsafe { &mut *THREADS.as_ptr(cs) };
+            let scheduler = unsafe { &mut *SCHEDULER.as_ptr(cs) };
 
             #[cfg(feature = "multi-core")]
-            threads.add_current_thread_to_rq();
+            scheduler.add_current_thread_to_rq();
 
-            let next_pid = match threads.get_next_pid() {
+            let next_pid = match scheduler.get_next_pid() {
                 Some(pid) => pid,
                 None => {
                     #[cfg(feature = "multi-core")]
@@ -221,20 +221,20 @@ unsafe fn sched() -> u128 {
             // The returned `r1` therefore will be null, and saving/ restoring
             // the context is skipped.
             let mut current_high_regs = core::ptr::null();
-            if let Some(ref mut current_pid_ref) = threads.current_pid_mut() {
+            if let Some(ref mut current_pid_ref) = scheduler.current_pid_mut() {
                 if next_pid == *current_pid_ref {
                     return Some(0);
                 }
                 let current_pid = *current_pid_ref;
                 *current_pid_ref = next_pid;
-                let current = threads.get_unchecked_mut(current_pid);
+                let current = scheduler.get_unchecked_mut(current_pid);
                 current.sp = cortex_m::register::psp::read() as usize;
                 current_high_regs = current.data.as_ptr();
             } else {
-                *threads.current_pid_mut() = Some(next_pid);
+                *scheduler.current_pid_mut() = Some(next_pid);
             }
 
-            let next = threads.get_unchecked(next_pid);
+            let next = scheduler.get_unchecked(next_pid);
             let next_high_regs = next.data.as_ptr();
             let next_sp = next.sp;
 

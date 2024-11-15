@@ -92,7 +92,7 @@ pub const CORES_NUMOF: usize = smp::Chip::CORES as usize;
 #[cfg(feature = "multi-core")]
 pub const IDLE_THREAD_STACK_SIZE: usize = smp::Chip::IDLE_THREAD_STACK_SIZE;
 
-static THREADS: EnsureOnce<Threads> = EnsureOnce::new(Threads::new());
+static SCHEDULER: EnsureOnce<Scheduler> = EnsureOnce::new(Scheduler::new());
 
 pub type ThreadFn = fn();
 
@@ -100,7 +100,7 @@ pub type ThreadFn = fn();
 pub static THREAD_FNS: [ThreadFn] = [..];
 
 /// Struct holding all scheduler state
-struct Threads {
+struct Scheduler {
     /// Global thread runqueue.
     runqueue: RunQueue<SCHED_PRIO_LEVELS, THREADS_NUMOF>,
     /// The actual TCBs.
@@ -116,7 +116,7 @@ struct Threads {
     current_thread: Option<ThreadId>,
 }
 
-impl Threads {
+impl Scheduler {
     const fn new() -> Self {
         Self {
             runqueue: RunQueue::new(),
@@ -591,11 +591,11 @@ pub unsafe fn thread_create_raw(
     prio: u8,
     core_affinity: Option<CoreAffinity>,
 ) -> ThreadId {
-    THREADS.with_mut(|mut threads| {
-        let thread_id = threads
+    SCHEDULER.with_mut(|mut scheduler| {
+        let thread_id = scheduler
             .create(func, arg, stack, RunqueueId::new(prio), core_affinity)
             .expect("Max `THREADS_NUMOF` concurrent threads should be created.");
-        threads.set_state(thread_id, ThreadState::Running);
+        scheduler.set_state(thread_id, ThreadState::Running);
         thread_id
     })
 }
@@ -605,7 +605,7 @@ pub unsafe fn thread_create_raw(
 /// Note: when called from ISRs, this will return the thread id of the thread
 /// that was interrupted.
 pub fn current_pid() -> Option<ThreadId> {
-    THREADS.with(|threads| threads.current_pid())
+    SCHEDULER.with(|scheduler| scheduler.current_pid())
 }
 
 /// Returns the id of the CPU that this thread is running on.
@@ -622,7 +622,7 @@ pub fn core_id() -> CoreId {
 
 /// Checks if a given [`ThreadId`] is valid.
 pub fn is_valid_pid(thread_id: ThreadId) -> bool {
-    THREADS.with(|threads| threads.is_valid_pid(thread_id))
+    SCHEDULER.with(|scheduler| scheduler.is_valid_pid(thread_id))
 }
 
 /// Thread cleanup function.
@@ -635,9 +635,9 @@ pub fn is_valid_pid(thread_id: ThreadId) -> bool {
 /// Panics if this is called outside of a thread context.
 #[allow(unused)]
 fn cleanup() -> ! {
-    THREADS.with_mut(|mut threads| {
-        let thread_id = threads.current_pid().unwrap();
-        threads.set_state(thread_id, ThreadState::Invalid);
+    SCHEDULER.with_mut(|mut scheduler| {
+        let thread_id = scheduler.current_pid().unwrap();
+        scheduler.set_state(thread_id, ThreadState::Invalid);
     });
 
     unreachable!();
@@ -645,20 +645,20 @@ fn cleanup() -> ! {
 
 /// "Yields" to another thread with the same priority.
 pub fn yield_same() {
-    THREADS.with_mut(|mut threads| {
+    SCHEDULER.with_mut(|mut scheduler| {
         let Some(&mut Thread {
             prio,
             pid: _pid,
             #[cfg(feature = "core-affinity")]
                 core_affinity: _affinity,
             ..
-        }) = threads.current()
+        }) = scheduler.current()
         else {
             return;
         };
 
         #[cfg(not(feature = "multi-core"))]
-        if threads.runqueue.advance(prio) {
+        if scheduler.runqueue.advance(prio) {
             schedule()
         }
 
@@ -666,7 +666,7 @@ pub fn yield_same() {
         // re-added **at the tail** in `sched` the next time the scheduler is invoked.
         // Simply triggering the scheduler therefore implicitly advances the runqueue.
         #[cfg(feature = "multi-core")]
-        if !threads.runqueue.is_empty(prio) {
+        if !scheduler.runqueue.is_empty(prio) {
             schedule();
 
             // Check if the yielding thread can continue their execution on another
@@ -676,7 +676,7 @@ pub fn yield_same() {
             // runqueue isn't empty.
             #[cfg(feature = "core-affinity")]
             if _affinity == CoreAffinity::no_affinity() {
-                threads.schedule_if_higher_prio(_pid, prio);
+                scheduler.schedule_if_higher_prio(_pid, prio);
             }
         }
     })
@@ -684,11 +684,11 @@ pub fn yield_same() {
 
 /// Suspends/ pauses the current thread's execution.
 pub fn sleep() {
-    THREADS.with_mut(|mut threads| {
-        let Some(pid) = threads.current_pid() else {
+    SCHEDULER.with_mut(|mut scheduler| {
+        let Some(pid) = scheduler.current_pid() else {
             return;
         };
-        threads.set_state(pid, ThreadState::Paused);
+        scheduler.set_state(pid, ThreadState::Paused);
     });
 }
 
@@ -696,12 +696,12 @@ pub fn sleep() {
 ///
 /// Returns `false` if no paused thread exists for `thread_id`.
 pub fn wakeup(thread_id: ThreadId) -> bool {
-    THREADS.with_mut(|mut threads| {
-        match threads.get_state(thread_id) {
+    SCHEDULER.with_mut(|mut scheduler| {
+        match scheduler.get_state(thread_id) {
             Some(ThreadState::Paused) => {}
             _ => return false,
         }
-        threads.set_state(thread_id, ThreadState::Running);
+        scheduler.set_state(thread_id, ThreadState::Running);
         true
     })
 }
@@ -710,14 +710,14 @@ pub fn wakeup(thread_id: ThreadId) -> bool {
 ///
 /// Returns `None` if this is not a valid thread.
 pub fn get_priority(thread_id: ThreadId) -> Option<RunqueueId> {
-    THREADS.with_mut(|threads| threads.get_priority(thread_id))
+    SCHEDULER.with_mut(|scheduler| scheduler.get_priority(thread_id))
 }
 
 /// Changes the priority of a thread.
 ///
 /// This might trigger a context switch.
 pub fn set_priority(thread_id: ThreadId, prio: RunqueueId) {
-    THREADS.with_mut(|mut threads| threads.set_priority(thread_id, prio))
+    SCHEDULER.with_mut(|mut scheduler| scheduler.set_priority(thread_id, prio))
 }
 
 /// Returns the size of the internal structure that holds the
