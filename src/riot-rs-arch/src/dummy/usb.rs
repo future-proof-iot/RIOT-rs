@@ -33,7 +33,15 @@ impl<'a> Driver<'a> for UsbDriver {
     }
 }
 
-pub fn driver(_peripherals: &mut crate::OptionalPeripherals) -> UsbDriver {
+pub struct Peripherals {}
+
+impl Peripherals {
+    pub fn new(_peripherals: &mut crate::OptionalPeripherals) -> Self {
+        unimplemented!();
+    }
+}
+
+pub fn driver(_peripherals: Peripherals) -> UsbDriver {
     unimplemented!();
 }
 
