@@ -3,13 +3,11 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use riot_rs::{debug::log::*, network, time::Duration};
-
 use embedded_io_async::Write;
+use riot_rs::{debug::log::*, network, reexports::embassy_net::tcp::TcpSocket, time::Duration};
 
 #[riot_rs::task(autostart)]
 async fn tcp_echo() {
-    use embassy_net::tcp::TcpSocket;
     let stack = network::network_stack().await.unwrap();
 
     let mut rx_buffer = [0; 4096];
@@ -41,8 +39,6 @@ async fn tcp_echo() {
                 }
             };
 
-            //info!("rxd {:02x}", &buf[..n]);
-
             match socket.write_all(&buf[..n]).await {
                 Ok(()) => {}
                 Err(e) => {
@@ -55,8 +51,8 @@ async fn tcp_echo() {
 }
 
 #[riot_rs::config(network)]
-fn network_config() -> embassy_net::Config {
-    use embassy_net::Ipv4Address;
+fn network_config() -> riot_rs::reexports::embassy_net::Config {
+    use riot_rs::reexports::embassy_net::{self, Ipv4Address};
 
     embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
         address: embassy_net::Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),

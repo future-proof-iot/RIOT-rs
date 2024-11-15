@@ -1144,17 +1144,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "embassy-net-tcp"
-version = "0.1.0"
-dependencies = [
- "embassy-net",
- "embedded-io-async",
- "heapless 0.8.0",
- "riot-rs",
- "riot-rs-boards",
-]
-
-[[package]]
 name = "embassy-nrf"
 version = "0.2.0"
 source = "git+https://github.com/kaspar030/embassy?branch=for-riot-rs-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
@@ -4406,6 +4395,16 @@ name = "target-triple"
 version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "42a4d50cdb458045afc8131fd91b64904da29548bcb63c7236e0844936c13078"
+
+[[package]]
+name = "tcp-echo"
+version = "0.1.0"
+dependencies = [
+ "embedded-io-async",
+ "heapless 0.8.0",
+ "riot-rs",
+ "riot-rs-boards",
+]
 
 [[package]]
 name = "tempfile"
