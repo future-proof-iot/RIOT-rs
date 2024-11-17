@@ -8,4 +8,4 @@ edition = "2021"
 
 [target.'cfg(context = "stm32h7b0")'.dependencies]
 riot-rs-embassy = { path = "../../riot-rs-embassy" }
-riot-rs-rt = { path = "../../riot-rs-rt", features = ["rtt-target"] }
+riot-rs-debug = { path = "../../riot-rs-debug", features = ["rtt-target"] }
