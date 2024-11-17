@@ -284,6 +284,7 @@ contexts:
     parent: riot-rs
     selects:
       - ?debug-console
+      - ?esp-println
     env:
       RUSTFLAGS:
         - --cfg context=\"esp\"
@@ -293,7 +294,6 @@ contexts:
         # - -C force-frame-pointers
       CARGO_ARGS:
         - -Zbuild-std=core,alloc
-      CARGO_RUNNER: '"espflash flash --monitor ${ESPFLASH_LOG_FORMAT}"'
 
   - name: esp32c3
     parent: esp
@@ -303,6 +303,8 @@ contexts:
       RUSTFLAGS:
         - --cfg context=\"esp32c3\"
       RUSTC_TARGET: riscv32imc-unknown-none-elf
+      PROBE_RS_CHIP: esp32c3
+      PROBE_RS_PROTOCOL: jtag
       CARGO_TARGET_PREFIX: CARGO_TARGET_RISCV32IMC_UNKNOWN_NONE_ELF
 
   - name: esp32c6
@@ -313,6 +315,8 @@ contexts:
       RUSTFLAGS:
         - --cfg context=\"esp32c6\"
       RUSTC_TARGET: riscv32imac-unknown-none-elf
+      PROBE_RS_CHIP: esp32c6
+      PROBE_RS_PROTOCOL: jtag
       CARGO_TARGET_PREFIX: CARGO_TARGET_RISCV32IMAC_UNKNOWN_NONE_ELF
 
   - name: esp32s3
@@ -324,6 +328,8 @@ contexts:
       RUSTFLAGS:
         - --cfg context=\"esp32s3\"
       RUSTC_TARGET: xtensa-esp32s3-none-elf
+      PROBE_RS_CHIP: esp32s3
+      PROBE_RS_PROTOCOL: jtag
       CARGO_TARGET_PREFIX: CARGO_TARGET_XTENSA_ESP32S3_NONE_ELF
 
   - name: stm32
@@ -580,6 +586,7 @@ modules:
     help: use probe-rs as runner
     selects:
       - ?debug-console
+      - rtt-target
     env:
       global:
         CARGO_RUNNER: "'probe-rs run ${PROBE_RS_PROTOCOL} --chip ${PROBE_RS_CHIP}'"
@@ -765,6 +772,27 @@ modules:
       global:
         FEATURES:
           - riot-rs/multi-core
+
+  - name: rtt-target
+    help: use rtt-target in riot-rs-debug
+    provides_unique:
+      - riot-rs-debug-backend
+    env:
+      global:
+        FEATURES:
+          - riot-rs/rtt-target
+
+  - name: esp-println
+    help: use esp-println in riot-rs-debug
+    context:
+      - esp
+    provides_unique:
+      - riot-rs-debug-backend
+    env:
+      global:
+        CARGO_RUNNER: '"espflash flash --monitor ${ESPFLASH_LOG_FORMAT}"'
+        FEATURES:
+          - riot-rs/esp-println
 
 builders:
   # host builder (for housekeeping tasks)

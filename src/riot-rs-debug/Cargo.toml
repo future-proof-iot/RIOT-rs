@@ -13,29 +13,25 @@ workspace = true
 
 [dependencies]
 defmt = { workspace = true, optional = true }
+rtt-target = { workspace = true, optional = true }
+semihosting = { version = "0.1.16" }
 
-# listed here so they can enable its features conditionally
-esp-println = { workspace = true, optional = true }
-
-[target.'cfg(context = "cortex-m")'.dependencies]
-cortex-m = { workspace = true }
-cortex-m-semihosting = { workspace = true, optional = true }
-rtt-target = { version = "0.5.0", optional = true }
-defmt-rtt-target = { git = "https://github.com/kaspar030/defmt-rtt-target", rev = "5668c92ac5a0689b165a6a07bb14e173fc47cd34" }
+[target.'cfg(context = "xtensa")'.dependencies]
+semihosting = { version = "0.1.16", features = ["openocd-semihosting"] }
 
 [target.'cfg(context = "esp")'.dependencies]
-esp-println = { workspace = true, features = ["log"] }
+esp-println = { workspace = true, optional = true, features = ["log"] }
 log = { version = "0.4.20" }
 
 [target.'cfg(context = "esp32c3")'.dependencies]
-esp-println = { workspace = true, features = ["esp32c3"] }
+esp-println = { workspace = true, optional = true, features = ["esp32c3"] }
 
 [target.'cfg(context = "esp32c6")'.dependencies]
-esp-println = { workspace = true, features = ["esp32c6"] }
+esp-println = { workspace = true, optional = true, features = ["esp32c6"] }
 
 [target.'cfg(context = "esp32s3")'.dependencies]
-esp-println = { workspace = true, features = ["esp32s3"] }
+esp-println = { workspace = true, optional = true, features = ["esp32s3"] }
 
 [features]
 debug-console = []
-defmt = ["dep:defmt", "esp-println?/defmt-espflash"]
+defmt = ["dep:defmt", "esp-println?/defmt-espflash", "rtt-target?/defmt"]
