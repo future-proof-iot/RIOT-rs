@@ -14,21 +14,27 @@ compile_error!(
     r#"feature "debug-console" enabled but no backend. Select feature "rtt-target" or feature "esp-println"."#
 );
 
-#[cfg(all(feature = "debug-console", feature = "rtt-target"))]
-mod backend {
-    pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
-    pub const EXIT_FAILURE: Result<(), ()> = Err(());
-    pub fn exit(code: Result<(), ()>) {
-        let code = match code {
-            EXIT_FAILURE => 1,
-            EXIT_SUCCESS => 0,
-        };
+pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
+pub const EXIT_FAILURE: Result<(), ()> = Err(());
+pub fn exit(code: Result<(), ()>) {
+    let code = match code {
+        EXIT_FAILURE => 1,
+        EXIT_SUCCESS => 0,
+    };
 
-        loop {
-            semihosting::process::exit(code);
+    loop {
+        #[cfg(feature = "semihosting")]
+        semihosting::process::exit(code);
+        #[cfg(not(feature = "semihosting"))]
+        {
+            let _ = code;
+            core::hint::spin_loop();
         }
     }
+}
 
+#[cfg(all(feature = "debug-console", feature = "rtt-target"))]
+mod backend {
     pub use rtt_target::{rprint as print, rprintln as println};
 
     pub fn init() {
@@ -67,13 +73,6 @@ mod backend {
 #[cfg(all(feature = "debug-console", feature = "esp-println"))]
 mod backend {
     pub use esp_println::{print, println};
-    pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
-    pub const EXIT_FAILURE: Result<(), ()> = Err(());
-    pub fn exit(_code: Result<(), ()>) {
-        loop {
-            core::hint::spin_loop();
-        }
-    }
     pub fn init() {
         // TODO: unify logging config.
         // Until then, `ESP_LOGLEVEL` can be used.
@@ -84,14 +83,6 @@ mod backend {
 
 #[cfg(not(feature = "debug-console"))]
 mod backend {
-    pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
-    pub const EXIT_FAILURE: Result<(), ()> = Err(());
-    pub fn exit(_code: Result<(), ()>) {
-        #[allow(clippy::empty_loop)]
-        loop {
-            core::hint::spin_loop();
-        }
-    }
     pub fn init() {}
 
     #[macro_export]

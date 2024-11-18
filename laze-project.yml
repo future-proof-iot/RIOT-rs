@@ -11,6 +11,7 @@ contexts:
       - executor-default
       - ?critical-section
       - ?defmt
+      - ?semihosting
     env:
       RUSTFLAGS:
         - --cfg builder=\"${builder}\"
@@ -793,6 +794,13 @@ modules:
         CARGO_RUNNER: '"espflash flash --monitor ${ESPFLASH_LOG_FORMAT}"'
         FEATURES:
           - riot-rs/esp-println
+
+  - name: semihosting
+    help: enable semihosting in riot-rs-debug
+    env:
+      global:
+        FEATURES:
+          - riot-rs/semihosting
 
 builders:
   # host builder (for housekeeping tasks)

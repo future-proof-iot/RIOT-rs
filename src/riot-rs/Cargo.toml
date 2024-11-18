@@ -118,6 +118,7 @@ no-boards = ["riot-rs-boards/no-boards", "executor-none"]
 # These are selected by laze
 rtt-target = ["riot-rs-debug/rtt-target"]
 esp-println = ["riot-rs-debug/esp-println"]
+semihosting = ["riot-rs-debug/semihosting"]
 
 net = ["riot-rs-embassy/net"]
 

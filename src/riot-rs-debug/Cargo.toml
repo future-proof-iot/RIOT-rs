@@ -14,10 +14,13 @@ workspace = true
 [dependencies]
 defmt = { workspace = true, optional = true }
 rtt-target = { workspace = true, optional = true }
-semihosting = { version = "0.1.16" }
+
+semihosting = { version = "0.1.16", optional = true }
 
 [target.'cfg(context = "xtensa")'.dependencies]
-semihosting = { version = "0.1.16", features = ["openocd-semihosting"] }
+semihosting = { version = "0.1.16", optional = true, features = [
+  "openocd-semihosting",
+] }
 
 [target.'cfg(context = "esp")'.dependencies]
 esp-println = { workspace = true, optional = true, features = ["log"] }
