@@ -36,6 +36,8 @@ pub fn init(peripherals: &mut crate::OptionalPeripherals, spawner: Spawner) -> N
 async fn connection(mut controller: WifiController<'static>) {
     #[cfg(feature = "threading")]
     {
+        use esp_hal::{interrupt, peripherals::Interrupt};
+
         let thread_id = WIFI_THREAD_ID.get().unwrap();
 
         // Disable esp-wifi interrupts that are initialized in esp-wifi
@@ -91,9 +93,9 @@ mod wifi_thread {
         peripherals::{Interrupt, SYSTIMER},
     };
 
-    #[cfg(context = "esp32c6")]
+    #[cfg(any(context = "esp32c6", context = "esp32h2"))]
     use esp_hal::peripherals::INTPRI as SystemPeripheral;
-    #[cfg(context = "esp32c3")]
+    #[cfg(not(any(context = "esp32c6", context = "esp32h2")))]
     use esp_hal::peripherals::SYSTEM as SystemPeripheral;
 
     use super::*;
@@ -124,7 +126,7 @@ mod wifi_thread {
     ///
     /// Because it runs at highest priority, it can't be preempted by any riot-rs threads and therefore
     /// the two schedulers won't interleave.
-    #[riot_rs_macros::thread(autostart, priority = riot_rs_threads::SCHED_PRIO_LEVELS as u8 - 1)]
+    #[riot_rs_macros::thread(autostart, no_wait, priority = riot_rs_threads::SCHED_PRIO_LEVELS as u8 - 1)]
     fn esp_wifi_thread() {
         WIFI_THREAD_ID
             .set(riot_rs_threads::current_pid().unwrap())
