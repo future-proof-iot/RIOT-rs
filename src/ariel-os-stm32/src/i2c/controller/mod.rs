@@ -41,6 +41,7 @@ pub enum Frequency {
     UpTo400k(Kilohertz), // FIXME: use a ranged integer?
 }
 
+#[doc(hidden)]
 impl Frequency {
     pub const fn first() -> Self {
         Self::UpTo100k(Kilohertz::kHz(1))
