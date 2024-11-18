@@ -898,17 +898,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "defmt-rtt-target"
-version = "0.3.0"
-source = "git+https://github.com/kaspar030/defmt-rtt-target?rev=5668c92ac5a0689b165a6a07bb14e173fc47cd34#5668c92ac5a0689b165a6a07bb14e173fc47cd34"
-dependencies = [
- "cortex-m",
- "critical-section",
- "defmt",
- "rtt-target",
-]
-
-[[package]]
 name = "delegate"
 version = "0.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3562,13 +3551,11 @@ dependencies = [
 name = "riot-rs-debug"
 version = "0.1.0"
 dependencies = [
- "cortex-m",
- "cortex-m-semihosting",
  "defmt",
- "defmt-rtt-target",
  "esp-println",
  "log 0.4.22",
  "rtt-target",
+ "semihosting",
 ]
 
 [[package]]
@@ -3724,7 +3711,6 @@ dependencies = [
  "riot-rs-debug",
  "riot-rs-threads",
  "riot-rs-utils",
- "rtt-target",
 ]
 
 [[package]]
@@ -3868,11 +3854,12 @@ dependencies = [
 
 [[package]]
 name = "rtt-target"
-version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10b34c9e6832388e45f3c01f1bb60a016384a0a4ad80cdd7d34913bed25037f0"
+version = "0.6.0"
+source = "git+https://github.com/probe-rs/rtt-target?rev=5b7603b6114bb08385f71674b9d962471c221681#5b7603b6114bb08385f71674b9d962471c221681"
 dependencies = [
  "critical-section",
+ "defmt",
+ "portable-atomic",
  "ufmt-write",
 ]
 
@@ -3960,6 +3947,12 @@ dependencies = [
  "subtle",
  "zeroize",
 ]
+
+[[package]]
+name = "semihosting"
+version = "0.1.16"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "a5c5996e5d1dec34b0dff3285e27124e70964504e3fd361bce330dc476cebafd"
 
 [[package]]
 name = "semver"
@@ -4242,8 +4235,8 @@ dependencies = [
 name = "stm32"
 version = "0.1.0"
 dependencies = [
+ "riot-rs-debug",
  "riot-rs-embassy",
- "riot-rs-rt",
 ]
 
 [[package]]

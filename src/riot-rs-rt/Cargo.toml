@@ -14,7 +14,6 @@ linkme.workspace = true
 riot-rs-debug.workspace = true
 riot-rs-threads = { path = "../riot-rs-threads", optional = true }
 riot-rs-utils = { workspace = true }
-rtt-target = { version = "0.5.0", optional = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
 cortex-m = { workspace = true }

@@ -1,33 +1,40 @@
 #![cfg_attr(not(test), no_std)]
 #![cfg_attr(test, no_main)]
 
-#[cfg(all(feature = "rtt-target", feature = "cortex-m-semihosting"))]
-compile_error!("feature \"rtt-target\" and feature \"cortex-m-semihosting\" cannot be enabled at the same time");
+#[cfg(all(feature = "rtt-target", feature = "esp-println"))]
+compile_error!(
+    r#"feature "rtt-target" and feature "esp-println" cannot be enabled at the same time"#
+);
 
-#[cfg(all(feature = "debug-console", feature = "cortex-m-semihosting"))]
-mod backend {
-    pub use cortex_m_semihosting::debug::{exit, EXIT_FAILURE, EXIT_SUCCESS};
-    pub use cortex_m_semihosting::hprint as print;
-    pub use cortex_m_semihosting::hprintln as println;
-    pub fn init() {}
+#[cfg(all(
+    feature = "debug-console",
+    not(any(feature = "rtt-target", feature = "esp-println"))
+))]
+compile_error!(
+    r#"feature "debug-console" enabled but no backend. Select feature "rtt-target" or feature "esp-println"."#
+);
+
+pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
+pub const EXIT_FAILURE: Result<(), ()> = Err(());
+pub fn exit(code: Result<(), ()>) {
+    let code = match code {
+        EXIT_FAILURE => 1,
+        EXIT_SUCCESS => 0,
+    };
+
+    loop {
+        #[cfg(feature = "semihosting")]
+        semihosting::process::exit(code);
+        #[cfg(not(feature = "semihosting"))]
+        {
+            let _ = code;
+            core::hint::spin_loop();
+        }
+    }
 }
 
 #[cfg(all(feature = "debug-console", feature = "rtt-target"))]
 mod backend {
-    const SYS_EXIT: u32 = 0x18;
-    pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
-    pub const EXIT_FAILURE: Result<(), ()> = Err(());
-    pub fn exit(code: Result<(), ()>) {
-        let semihosting_exit_code = match code {
-            EXIT_FAILURE => 1,
-            EXIT_SUCCESS => 0x20026,
-        };
-
-        loop {
-            unsafe { cortex_m::asm::semihosting_syscall(SYS_EXIT, semihosting_exit_code) };
-        }
-    }
-
     pub use rtt_target::{rprint as print, rprintln as println};
 
     pub fn init() {
@@ -46,7 +53,6 @@ mod backend {
                     0: {
                         size: 1024,
                         mode: NoBlockTrim,
-                        // probe-run autodetects whether defmt is in use based on this channel name
                         name: "Terminal"
                     }
                     1: {
@@ -59,19 +65,14 @@ mod backend {
             };
 
             rtt_target::set_print_channel(channels.up.0);
-            defmt_rtt_target::init(channels.up.1);
+            rtt_target::set_defmt_channel(channels.up.1);
         }
     }
 }
 
-#[cfg(all(feature = "debug-console", context = "esp"))]
+#[cfg(all(feature = "debug-console", feature = "esp-println"))]
 mod backend {
     pub use esp_println::{print, println};
-    pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
-    pub const EXIT_FAILURE: Result<(), ()> = Err(());
-    pub fn exit(_code: Result<(), ()>) {
-        loop {}
-    }
     pub fn init() {
         // TODO: unify logging config.
         // Until then, `ESP_LOGLEVEL` can be used.
@@ -82,12 +83,6 @@ mod backend {
 
 #[cfg(not(feature = "debug-console"))]
 mod backend {
-    pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
-    pub const EXIT_FAILURE: Result<(), ()> = Err(());
-    pub fn exit(_code: Result<(), ()>) {
-        #[allow(clippy::empty_loop)]
-        loop {}
-    }
     pub fn init() {}
 
     #[macro_export]
