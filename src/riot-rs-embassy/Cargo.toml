@@ -40,6 +40,7 @@ riot-rs-utils = { workspace = true }
 
 heapless = "0.8.0"
 once_cell = { workspace = true }
+usbd-hid = { version = "0.8.2", optional = true }
 
 # ISA-specific
 [target.'cfg(context = "cortex-m")'.dependencies]
@@ -68,6 +69,7 @@ spi = [
   "riot-rs-arch/spi",
 ]
 usb = ["dep:embassy-usb", "riot-rs-arch/usb"]
+usb-hid = ["dep:usbd-hid", "embassy-usb?/usbd-hid", "usb"]
 # embassy-net requires embassy-time and support for timeouts in the executor
 net = ["dep:embassy-net", "time"]
 usb-ethernet = ["usb", "net"]
@@ -104,4 +106,5 @@ defmt = [
   "embassy-usb?/defmt",
   "riot-rs-arch/defmt",
   "riot-rs-embassy-common/defmt",
+  "usbd-hid?/defmt",
 ]

@@ -63,6 +63,8 @@ pub mod reexports {
     pub use embassy_time;
     #[cfg(feature = "usb")]
     pub use embassy_usb;
+    #[cfg(feature = "usb-hid")]
+    pub use usbd_hid;
     // Used by a macro we provide
     pub use embassy_executor;
 }

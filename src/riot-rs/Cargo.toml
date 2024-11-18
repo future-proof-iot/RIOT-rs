@@ -63,6 +63,8 @@ i2c = ["riot-rs-embassy/i2c"]
 spi = ["riot-rs-embassy/spi"]
 ## Enables USB support.
 usb = ["riot-rs-embassy/usb"]
+## Enables USB HID support.
+usb-hid = ["riot-rs-embassy/usb-hid"]
 
 #! ## System configuration
 #! The [`macro@config`] attribute macro allows to provide configuration for
