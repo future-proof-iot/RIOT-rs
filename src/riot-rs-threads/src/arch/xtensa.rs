@@ -4,7 +4,7 @@ use esp_hal::{
     trapframe::TrapFrame,
 };
 
-use crate::{cleanup, Arch, THREADS};
+use crate::{cleanup, Arch, SCHEDULER};
 
 pub struct Cpu;
 
@@ -103,29 +103,29 @@ extern "C" fn FROM_CPU_INTR1(trap_frame: &mut TrapFrame) {
 /// context switching.
 unsafe fn sched(trap_frame: &mut TrapFrame) {
     loop {
-        if THREADS.with_mut(|mut threads| {
+        if SCHEDULER.with_mut(|mut scheduler| {
             #[cfg(feature = "multi-core")]
-            threads.add_current_thread_to_rq();
+            scheduler.add_current_thread_to_rq();
 
-            let Some(next_pid) = threads.get_next_pid() else {
+            let Some(next_pid) = scheduler.get_next_pid() else {
                 return false;
             };
 
-            if let Some(current_pid) = threads.current_pid() {
+            if let Some(current_pid) = scheduler.current_pid() {
                 if next_pid == current_pid {
                     return true;
                 }
-                threads.threads[usize::from(current_pid)].data = *trap_frame;
+                scheduler.threads[usize::from(current_pid)].data = *trap_frame;
             }
-            *threads.current_pid_mut() = Some(next_pid);
+            *scheduler.current_pid_mut() = Some(next_pid);
 
-            *trap_frame = threads.threads[usize::from(next_pid)].data;
+            *trap_frame = scheduler.threads[usize::from(next_pid)].data;
             true
         }) {
             break;
         }
         // The esp-hal implementation of critical-section doesn't disable all interrupts.
-        // Thus we should release our hold on `THREADS` before we `waiti`, to prevent
+        // Thus we should release our hold on `SCHEDULER` before we `waiti`, to prevent
         // that another interrupt handler will try to borrow it while we still have it borrowed.
         Cpu::wfi()
     }

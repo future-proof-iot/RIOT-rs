@@ -1,4 +1,4 @@
-use crate::{cleanup, Arch, Thread, THREADS};
+use crate::{cleanup, Arch, Thread, SCHEDULER};
 #[cfg(context = "esp32c6")]
 use esp_hal::peripherals::INTPRI as SYSTEM;
 #[cfg(context = "esp32c3")]
@@ -128,8 +128,8 @@ extern "C" fn FROM_CPU_INTR0(trap_frame: &mut TrapFrame) {
 /// context switching.
 unsafe fn sched(trap_frame: &mut TrapFrame) {
     loop {
-        if THREADS.with_mut(|mut threads| {
-            let next_pid = match threads.get_next_pid() {
+        if SCHEDULER.with_mut(|mut scheduler| {
+            let next_pid = match scheduler.get_next_pid() {
                 Some(pid) => pid,
                 None => {
                     Cpu::wfi();
@@ -137,18 +137,18 @@ unsafe fn sched(trap_frame: &mut TrapFrame) {
                 }
             };
 
-            if let Some(current_pid) = threads.current_pid() {
+            if let Some(current_pid) = scheduler.current_pid() {
                 if next_pid == current_pid {
                     return true;
                 }
                 copy_registers(
                     trap_frame,
-                    &mut threads.threads[usize::from(current_pid)].data,
+                    &mut scheduler.threads[usize::from(current_pid)].data,
                 );
             }
-            *threads.current_pid_mut() = Some(next_pid);
+            *scheduler.current_pid_mut() = Some(next_pid);
 
-            copy_registers(&threads.get_unchecked(next_pid).data, trap_frame);
+            copy_registers(&scheduler.get_unchecked(next_pid).data, trap_frame);
             true
         }) {
             break;

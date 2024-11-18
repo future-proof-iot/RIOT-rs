@@ -1,5 +1,5 @@
 //! Thread flags.
-use crate::{ThreadId, ThreadState, Threads, THREADS};
+use crate::{Scheduler, ThreadId, ThreadState, SCHEDULER};
 
 /// Bitmask that represent the flags that are set for a thread.
 pub type ThreadFlags = u16;
@@ -21,7 +21,7 @@ pub enum WaitMode {
 ///
 /// Panics if `thread_id` is >= [`THREADS_NUMOF`](crate::THREADS_NUMOF).
 pub fn set(thread_id: ThreadId, mask: ThreadFlags) {
-    THREADS.with_mut(|mut threads| threads.flag_set(thread_id, mask))
+    SCHEDULER.with_mut(|mut scheduler| scheduler.flag_set(thread_id, mask))
 }
 
 /// Waits until all flags in `mask` are set for the current thread.
@@ -33,7 +33,7 @@ pub fn set(thread_id: ThreadId, mask: ThreadFlags) {
 /// Panics if this is called outside of a thread context.
 pub fn wait_all(mask: ThreadFlags) -> ThreadFlags {
     loop {
-        if let Some(flags) = THREADS.with_mut(|mut threads| threads.flag_wait_all(mask)) {
+        if let Some(flags) = SCHEDULER.with_mut(|mut scheduler| scheduler.flag_wait_all(mask)) {
             return flags;
         }
     }
@@ -48,7 +48,7 @@ pub fn wait_all(mask: ThreadFlags) -> ThreadFlags {
 /// Panics if this is called outside of a thread context.
 pub fn wait_any(mask: ThreadFlags) -> ThreadFlags {
     loop {
-        if let Some(flags) = THREADS.with_mut(|mut threads| threads.flag_wait_any(mask)) {
+        if let Some(flags) = SCHEDULER.with_mut(|mut scheduler| scheduler.flag_wait_any(mask)) {
             return flags;
         }
     }
@@ -64,7 +64,7 @@ pub fn wait_any(mask: ThreadFlags) -> ThreadFlags {
 /// Panics if this is called outside of a thread context.
 pub fn wait_one(mask: ThreadFlags) -> ThreadFlags {
     loop {
-        if let Some(flags) = THREADS.with_mut(|mut threads| threads.flag_wait_one(mask)) {
+        if let Some(flags) = SCHEDULER.with_mut(|mut scheduler| scheduler.flag_wait_one(mask)) {
             return flags;
         }
     }
@@ -76,8 +76,8 @@ pub fn wait_one(mask: ThreadFlags) -> ThreadFlags {
 ///
 /// Panics if this is called outside of a thread context.
 pub fn clear(mask: ThreadFlags) -> ThreadFlags {
-    THREADS.with_mut(|mut threads| {
-        let thread = threads.current().unwrap();
+    SCHEDULER.with_mut(|mut scheduler| {
+        let thread = scheduler.current().unwrap();
         let res = thread.flags & mask;
         thread.flags &= !mask;
         res
@@ -90,11 +90,11 @@ pub fn clear(mask: ThreadFlags) -> ThreadFlags {
 ///
 /// Panics if this is called outside of a thread context.
 pub fn get() -> ThreadFlags {
-    // TODO: current() requires us to use mutable `threads` here
-    THREADS.with_mut(|mut threads| threads.current().unwrap().flags)
+    // TODO: current() requires us to use mutable `scheduler` here
+    SCHEDULER.with_mut(|mut scheduler| scheduler.current().unwrap().flags)
 }
 
-impl Threads {
+impl Scheduler {
     // thread flags implementation
     fn flag_set(&mut self, thread_id: ThreadId, mask: ThreadFlags) {
         let thread = self.get_unchecked_mut(thread_id);
