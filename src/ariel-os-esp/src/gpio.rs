@@ -1,3 +1,4 @@
+#[doc(hidden)]
 pub fn init(peripherals: &mut crate::OptionalPeripherals) {
     let io = esp_hal::gpio::Io::new(
         peripherals.GPIO.take().unwrap(),
@@ -66,6 +67,7 @@ pub mod input {
         peripheral::Peripheral,
     };
 
+    #[doc(hidden)]
     pub use esp_hal::gpio::{Input, InputPin};
 
     #[cfg(feature = "external-interrupts")]
@@ -73,10 +75,12 @@ pub mod input {
 
     // Re-export `Input` as `IntEnabledInput` as they are interrupt-enabled.
     #[cfg(feature = "external-interrupts")]
+    #[doc(hidden)]
     pub use esp_hal::gpio::Input as IntEnabledInput;
 
     pub const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
+    #[doc(hidden)]
     pub fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: ariel_os_embassy_common::gpio::Pull,
@@ -88,6 +92,7 @@ pub mod input {
     }
 
     #[cfg(feature = "external-interrupts")]
+    #[doc(hidden)]
     pub fn new_int_enabled(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: ariel_os_embassy_common::gpio::Pull,
@@ -109,11 +114,13 @@ pub mod output {
     use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
     use esp_hal::{gpio::Level, peripheral::Peripheral};
 
+    #[doc(hidden)]
     pub use esp_hal::gpio::{Output, OutputPin};
 
     pub const DRIVE_STRENGTH_CONFIGURABLE: bool = true;
     pub const SPEED_CONFIGURABLE: bool = false;
 
+    #[doc(hidden)]
     pub fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
         initial_level: ariel_os_embassy_common::gpio::Level,

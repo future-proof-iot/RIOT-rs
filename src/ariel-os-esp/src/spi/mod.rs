@@ -19,6 +19,7 @@ fn from_bit_order(bit_order: BitOrder) -> esp_hal::spi::SpiBitOrder {
     }
 }
 
+#[doc(hidden)]
 pub fn init(peripherals: &mut crate::OptionalPeripherals) {
     // Take all SPI peripherals and do nothing with them.
     cfg_if::cfg_if! {
