@@ -80,12 +80,12 @@ embedded-nal-coap = "0.1.0-alpha.4"
 embedded-storage = { version = "0.3.1" }
 embedded-storage-async = { version = "0.4.1" }
 
-esp-alloc = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377", default-features = false }
-esp-hal = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377", default-features = false }
-esp-hal-embassy = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377", default-features = false }
-esp-println = "0.11.0"
-esp-wifi = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377", default-features = false }
-esp-storage = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377" }
+esp-alloc = { version = "0.5.0", default-features = false }
+esp-hal = { version = "0.21.1", default-features = false }
+esp-hal-embassy = { version = "0.4.0", default-features = false }
+esp-println = { version = "0.12.0" }
+esp-wifi = { version = "0.10.1", default-features = false }
+esp-storage = { version = "0.3.1" }
 
 linkme = { version = "0.3.21", features = ["used_linker"] }
 
@@ -160,6 +160,14 @@ embassy-usb-driver = { git = "https://github.com/kaspar030/embassy", branch = "f
 embassy-usb-synopsys-otg = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-11-06" }
 cyw43 = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-11-06" }
 cyw43-pio = { git = "https://github.com/kaspar030/embassy", branch = "for-riot-rs-2024-11-06" }
+
+# riot-rs esp-hal fork
+esp-alloc = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377" }
+esp-hal = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377" }
+esp-hal-embassy = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377" }
+esp-println = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377" }
+esp-wifi = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377" }
+esp-storage = { git = "https://github.com/kaspar030/esp-hal", branch = "for-riot-rs-2024-10-16-0.21.1-pr2377" }
 
 # patched to use portable-atomics <https://github.com/seanmonstar/try-lock/pull/11>
 try-lock = { git = "https://github.com/seanmonstar/try-lock", rev = "a1aadfac9840fe23672159c12af7272e44bc684c" }
