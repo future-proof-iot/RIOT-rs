@@ -384,6 +384,7 @@ jobs:
                     storage,
                     threading,
                     usb,
+                    usb-hid,
                     "
 
       - name: rustdoc for ESP32
