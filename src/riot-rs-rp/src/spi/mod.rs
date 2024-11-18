@@ -13,6 +13,7 @@ fn from_mode(mode: Mode) -> (Polarity, Phase) {
     }
 }
 
+#[doc(hidden)]
 pub fn init(peripherals: &mut crate::OptionalPeripherals) {
     // Take all SPI peripherals and do nothing with them.
     cfg_if::cfg_if! {

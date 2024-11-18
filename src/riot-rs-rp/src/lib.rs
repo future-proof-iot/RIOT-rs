@@ -5,6 +5,7 @@
 
 pub mod gpio;
 
+#[doc(hidden)]
 pub mod peripheral {
     pub use embassy_rp::Peripheral;
 }
@@ -13,14 +14,17 @@ pub mod peripheral {
 mod wifi;
 
 #[cfg(feature = "wifi-cyw43")]
+#[doc(hidden)]
 pub mod cyw43;
 
 #[cfg(feature = "hwrng")]
+#[doc(hidden)]
 pub mod hwrng;
 
 #[cfg(feature = "i2c")]
 pub mod i2c;
 
+#[doc(hidden)]
 pub mod identity {
     use riot_rs_embassy_common::identity;
 
@@ -31,24 +35,33 @@ pub mod identity {
 pub mod spi;
 
 #[cfg(feature = "storage")]
+#[doc(hidden)]
 pub mod storage;
 
 #[cfg(feature = "usb")]
+#[doc(hidden)]
 pub mod usb;
 
-pub use embassy_rp::{peripherals, OptionalPeripherals};
+#[doc(hidden)]
+pub use embassy_rp::OptionalPeripherals;
+
+pub use embassy_rp::peripherals;
 
 #[cfg(feature = "executor-interrupt")]
+#[doc(hidden)]
 pub use embassy_executor::InterruptExecutor as Executor;
 #[cfg(feature = "executor-interrupt")]
+#[doc(hidden)]
 pub use embassy_rp::interrupt;
 
 #[cfg(feature = "executor-interrupt")]
 riot_rs_embassy_common::executor_swi!(SWI_IRQ_1);
 
 #[cfg(feature = "executor-interrupt")]
+#[doc(hidden)]
 pub static EXECUTOR: Executor = Executor::new();
 
+#[doc(hidden)]
 pub fn init() -> OptionalPeripherals {
     #[cfg(feature = "executor-interrupt")]
     {

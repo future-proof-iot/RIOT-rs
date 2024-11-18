@@ -7,14 +7,17 @@ pub mod input {
     #[cfg(feature = "external-interrupts")]
     use riot_rs_embassy_common::gpio::input::InterruptError;
 
+    #[doc(hidden)]
     pub use embassy_rp::gpio::{Input, Pin as InputPin};
 
     // Re-export `Input` as `IntEnabledInput` as they are interrupt-enabled.
     #[cfg(feature = "external-interrupts")]
+    #[doc(hidden)]
     pub use embassy_rp::gpio::Input as IntEnabledInput;
 
     pub const SCHMITT_TRIGGER_CONFIGURABLE: bool = true;
 
+    #[doc(hidden)]
     pub fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: riot_rs_embassy_common::gpio::Pull,
@@ -29,6 +32,7 @@ pub mod input {
     }
 
     #[cfg(feature = "external-interrupts")]
+    #[doc(hidden)]
     pub fn new_int_enabled(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: riot_rs_embassy_common::gpio::Pull,
@@ -54,11 +58,13 @@ pub mod output {
     };
     use riot_rs_embassy_common::gpio::{FromDriveStrength, FromSpeed};
 
+    #[doc(hidden)]
     pub use embassy_rp::gpio::{Output, Pin as OutputPin};
 
     pub const DRIVE_STRENGTH_CONFIGURABLE: bool = true;
     pub const SPEED_CONFIGURABLE: bool = true;
 
+    #[doc(hidden)]
     pub fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
         initial_level: riot_rs_embassy_common::gpio::Level,
