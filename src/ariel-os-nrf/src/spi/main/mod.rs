@@ -15,6 +15,7 @@ use embassy_nrf::{
 pub struct Config {
     pub frequency: Frequency,
     pub mode: Mode,
+    #[doc(hidden)]
     pub bit_order: BitOrder,
 }
 
@@ -48,6 +49,7 @@ pub enum Frequency {
     // _32M,
 }
 
+#[doc(hidden)]
 impl Frequency {
     pub const fn first() -> Self {
         Self::_125k

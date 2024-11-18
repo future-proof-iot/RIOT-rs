@@ -47,6 +47,7 @@ pub enum Frequency {
     // _1M,
 }
 
+#[doc(hidden)]
 impl Frequency {
     pub const fn first() -> Self {
         Self::_100k
