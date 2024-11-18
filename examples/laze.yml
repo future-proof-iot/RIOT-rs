@@ -10,7 +10,6 @@ subdirs:
   - coap
   - device-metadata
   - embassy-http-server
-  - embassy-usb-keyboard
   - gpio
   - hello-world
   - hello-world-threading
@@ -25,4 +24,5 @@ subdirs:
   - threading-event
   - threading-multicore
   - udp-echo
+  - usb-keyboard
   - usb-serial

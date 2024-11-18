@@ -1,4 +1,4 @@
-use embassy_nrf::peripherals;
+use ariel_os::hal::peripherals;
 
 #[cfg(builder = "nrf52840dk")]
 ariel_os::define_peripherals!(Buttons {

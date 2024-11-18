@@ -1,5 +1,5 @@
 [package]
-name = "embassy-usb-keyboard"
+name = "usb-keyboard"
 version = "0.1.0"
 authors.workspace = true
 license.workspace = true
@@ -10,14 +10,11 @@ publish = false
 workspace = true
 
 [dependencies]
-embassy-nrf = { workspace = true, default-features = false }
-embassy-sync = { workspace = true }
-embassy-usb = { workspace = true, features = ["usbd-hid"] }
 ariel-os = { path = "../../src/ariel-os", features = [
   "time",
-  "usb",
   "override-usb-config",
+  "usb-hid",
 ] }
 ariel-os-boards = { path = "../../src/ariel-os-boards" }
+embassy-sync = { workspace = true }
 static_cell = { workspace = true }
-usbd-hid = "0.8.2"
