@@ -214,7 +214,7 @@ contexts:
   - name: nrf52
     parent: nrf
     selects:
-      - thumbv7em-none-eabi  # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
     env:
       CARGO_RUNNER:
         - ${SCRIPTS}/debug-openocd.sh
@@ -227,7 +227,7 @@ contexts:
   - name: nrf5340
     parent: nrf
     selects:
-      - thumbv8m.main-none-eabi  # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv8m.main-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
     env:
       PROBE_RS_CHIP: nrf5340_xxAA
       RUSTFLAGS:
@@ -339,7 +339,7 @@ contexts:
   - name: stm32f401retx
     parent: stm32
     selects:
-      - thumbv7em-none-eabi  # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
     env:
       PROBE_RS_CHIP: STM32F401RETx
       PROBE_RS_PROTOCOL: swd
@@ -352,7 +352,7 @@ contexts:
   - name: stm32wb55rgvx
     parent: stm32
     selects:
-      - thumbv7em-none-eabi  # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
     env:
       PROBE_RS_CHIP: STM32WB55RGVx
       PROBE_RS_PROTOCOL: swd
@@ -365,7 +365,7 @@ contexts:
   - name: stm32h755zitx
     parent: stm32
     selects:
-      - thumbv7em-none-eabi  # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
     env:
       PROBE_RS_CHIP: STM32H755ZITx
       PROBE_RS_PROTOCOL: swd
