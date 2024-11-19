@@ -162,14 +162,14 @@ impl embedded_hal_async::digital::Wait for IntEnabledInput {
 }
 
 macro_rules! impl_embedded_hal_input_trait {
-    ($type:ident, $arch_type:ident) => {
+    ($type:ident, $hal_type:ident) => {
         impl embedded_hal::digital::InputPin for $type {
             fn is_high(&mut self) -> Result<bool, Self::Error> {
-                <$arch_type as embedded_hal::digital::InputPin>::is_high(&mut self.input)
+                <$hal_type as embedded_hal::digital::InputPin>::is_high(&mut self.input)
             }
 
             fn is_low(&mut self) -> Result<bool, Self::Error> {
-                <$arch_type as embedded_hal::digital::InputPin>::is_low(&mut self.input)
+                <$hal_type as embedded_hal::digital::InputPin>::is_low(&mut self.input)
             }
         }
     };
@@ -446,19 +446,19 @@ pub mod output {
 
 // We define this in a macro because it will be useful for open-drain outputs.
 macro_rules! impl_embedded_hal_output_traits {
-    ($type:ident, $arch_type:ident) => {
+    ($type:ident, $hal_type:ident) => {
         #[doc(hidden)]
         impl embedded_hal::digital::ErrorType for $type {
-            type Error = <$arch_type<'static> as embedded_hal::digital::ErrorType>::Error;
+            type Error = <$hal_type<'static> as embedded_hal::digital::ErrorType>::Error;
         }
 
         impl embedded_hal::digital::OutputPin for $type {
             fn set_high(&mut self) -> Result<(), Self::Error> {
-                <$arch_type as embedded_hal::digital::OutputPin>::set_high(&mut self.output)
+                <$hal_type as embedded_hal::digital::OutputPin>::set_high(&mut self.output)
             }
 
             fn set_low(&mut self) -> Result<(), Self::Error> {
-                <$arch_type as embedded_hal::digital::OutputPin>::set_low(&mut self.output)
+                <$hal_type as embedded_hal::digital::OutputPin>::set_low(&mut self.output)
             }
         }
 
@@ -469,11 +469,11 @@ macro_rules! impl_embedded_hal_output_traits {
         // - embassy-stm32
         impl StatefulOutputPin for $type {
             fn is_set_high(&mut self) -> Result<bool, Self::Error> {
-                <$arch_type as StatefulOutputPin>::is_set_high(&mut self.output)
+                <$hal_type as StatefulOutputPin>::is_set_high(&mut self.output)
             }
 
             fn is_set_low(&mut self) -> Result<bool, Self::Error> {
-                <$arch_type as StatefulOutputPin>::is_set_low(&mut self.output)
+                <$hal_type as StatefulOutputPin>::is_set_low(&mut self.output)
             }
         }
     };
