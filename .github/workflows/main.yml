@@ -274,13 +274,13 @@ jobs:
                 usb-ethernet,
                 "
             -p riot-rs
-            -p riot-rs-arch
             -p riot-rs-boards
             -p riot-rs-chips
             -p riot-rs-coap
             -p riot-rs-debug
             -p riot-rs-embassy
             -p riot-rs-embassy-common
+            -p riot-rs-hal
             -p riot-rs-identity
             -p riot-rs-macros
             -p riot-rs-random

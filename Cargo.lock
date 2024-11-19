@@ -3454,24 +3454,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "riot-rs-arch"
-version = "0.1.0"
-dependencies = [
- "cfg-if",
- "embassy-executor",
- "embassy-hal-internal",
- "embassy-usb",
- "embedded-hal 1.0.0",
- "embedded-hal-async",
- "embedded-storage-async",
- "riot-rs-embassy-common",
- "riot-rs-esp",
- "riot-rs-nrf",
- "riot-rs-rp",
- "riot-rs-stm32",
-]
-
-[[package]]
 name = "riot-rs-bench"
 version = "0.1.0"
 dependencies = [
@@ -3565,9 +3547,9 @@ dependencies = [
  "heapless 0.8.0",
  "linkme",
  "once_cell",
- "riot-rs-arch",
  "riot-rs-debug",
  "riot-rs-embassy-common",
+ "riot-rs-hal",
  "riot-rs-macros",
  "riot-rs-random",
  "riot-rs-rt",
@@ -3611,6 +3593,24 @@ dependencies = [
  "riot-rs-debug",
  "riot-rs-embassy-common",
  "riot-rs-utils",
+]
+
+[[package]]
+name = "riot-rs-hal"
+version = "0.1.0"
+dependencies = [
+ "cfg-if",
+ "embassy-executor",
+ "embassy-hal-internal",
+ "embassy-usb",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "embedded-storage-async",
+ "riot-rs-embassy-common",
+ "riot-rs-esp",
+ "riot-rs-nrf",
+ "riot-rs-rp",
+ "riot-rs-stm32",
 ]
 
 [[package]]
@@ -3738,8 +3738,8 @@ dependencies = [
  "embedded-storage-async",
  "once_cell",
  "postcard",
- "riot-rs-arch",
  "riot-rs-debug",
+ "riot-rs-hal",
  "sequential-storage",
  "serde",
 ]

@@ -14,8 +14,8 @@ cfg-if = { workspace = true }
 embassy-embedded-hal = { workspace = true }
 embassy-sync = { workspace = true }
 once_cell = { workspace = true }
-riot-rs-arch = { workspace = true, features = ["storage"] }
 riot-rs-debug = { workspace = true }
+riot-rs-hal = { workspace = true, features = ["storage"] }
 arrayvec = { version = "0.7.4", default-features = false }
 embedded-storage-async = { workspace = true }
 postcard = { version = "1.0.8", features = ["postcard-derive"] }
