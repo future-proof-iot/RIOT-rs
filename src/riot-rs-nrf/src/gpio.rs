@@ -96,12 +96,12 @@ pub mod output {
 
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum Speed {
-        UnsupportedByArchitecture,
+        UnsupportedByHardware,
     }
 
     impl FromSpeed for Speed {
         fn from(_speed: riot_rs_embassy_common::gpio::Speed<Self>) -> Self {
-            Self::UnsupportedByArchitecture
+            Self::UnsupportedByHardware
         }
     }
 }

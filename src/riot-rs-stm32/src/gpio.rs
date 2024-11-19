@@ -65,12 +65,12 @@ pub mod output {
 
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum DriveStrength {
-        UnsupportedByArchitecture,
+        UnsupportedByHardware,
     }
 
     impl Default for DriveStrength {
         fn default() -> Self {
-            Self::UnsupportedByArchitecture
+            Self::UnsupportedByHardware
         }
     }
 
@@ -80,11 +80,11 @@ pub mod output {
 
             match drive_strength {
                 Hal(drive_strength) => drive_strength,
-                Lowest => DriveStrength::UnsupportedByArchitecture,
+                Lowest => DriveStrength::UnsupportedByHardware,
                 Standard => DriveStrength::default(),
-                Medium => DriveStrength::UnsupportedByArchitecture,
-                High => DriveStrength::UnsupportedByArchitecture,
-                Highest => DriveStrength::UnsupportedByArchitecture,
+                Medium => DriveStrength::UnsupportedByHardware,
+                High => DriveStrength::UnsupportedByHardware,
+                Highest => DriveStrength::UnsupportedByHardware,
             }
         }
     }
