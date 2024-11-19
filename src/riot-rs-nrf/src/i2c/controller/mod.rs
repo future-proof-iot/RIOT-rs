@@ -145,7 +145,7 @@ macro_rules! define_i2c_drivers {
                     let twim_peripheral = unsafe { peripherals::$peripheral::steal() };
 
                     // NOTE(arch): the I2C peripheral and driver do not have any built-in timeout,
-                    // we implement it at a higher level, not in this arch-specific module.
+                    // we implement it at a higher level, not in this HAL-specific module.
                     let twim = Twim::new(twim_peripheral, Irqs, sda_pin, scl_pin, twim_config);
 
                     I2c::$peripheral(Self { twim })

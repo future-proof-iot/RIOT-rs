@@ -151,7 +151,7 @@ fn from_error(err: esp_hal::i2c::Error) -> riot_rs_embassy_common::i2c::controll
     }
 }
 
-// FIXME: support other archs
+// FIXME: support other MCUs
 // Define a driver per peripheral
 #[cfg(context = "esp32c6")]
 define_i2c_drivers!(I2C0);

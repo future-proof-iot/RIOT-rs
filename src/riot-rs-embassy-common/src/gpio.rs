@@ -44,7 +44,7 @@ impl From<Level> for embedded_hal::digital::PinState {
 #[macro_export]
 macro_rules! define_into_level {
     () => {
-        // The `Level` taken as parameter is the arch-specific type.
+        // The `Level` taken as parameter is the HAL-specific type.
         #[doc(hidden)]
         pub fn into_level(level: Level) -> $crate::gpio::Level {
             match level {
@@ -72,7 +72,7 @@ pub enum Pull {
 #[macro_export]
 macro_rules! define_from_pull {
     () => {
-        // The returned `Pull` is the arch-specific type.
+        // The returned `Pull` is the HAL-specific type.
         fn from_pull(pull: $crate::gpio::Pull) -> Pull {
             match pull {
                 $crate::gpio::Pull::None => Pull::None,
@@ -114,7 +114,7 @@ impl<A> Default for DriveStrength<A> {
 // value-preserving.
 #[doc(hidden)]
 pub trait FromDriveStrength {
-    /// Converts the arch-agnostic type to an arch-specific type.
+    /// Converts the HAL-agnostic type to an HAL-specific type.
     fn from(drive_strength: DriveStrength<Self>) -> Self
     where
         Self: Sized;
@@ -152,7 +152,7 @@ impl<A> Default for Speed<A> {
 // value-preserving.
 #[doc(hidden)]
 pub trait FromSpeed {
-    /// Converts the arch-agnostic type to an arch-specific type.
+    /// Converts the HAL-agnostic type to an HAL-specific type.
     fn from(speed: Speed<Self>) -> Self
     where
         Self: Sized;

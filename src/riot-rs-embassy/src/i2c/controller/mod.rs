@@ -112,7 +112,7 @@ mod tests {
         const FREQ_6: Frequency = highest_freq_in(Kilohertz::kHz(100)..=Kilohertz::kHz(450));
         const FREQ_7: Frequency = highest_freq_in(Kilohertz::kHz(300)..=Kilohertz::kHz(450));
 
-        // The only available values in the dummy arch are 100k and 400k.
+        // The only available values in the dummy HAL are 100k and 400k.
         assert_eq!(FREQ_0, Frequency::_100k);
         assert_eq!(FREQ_1, Frequency::_100k);
         assert_eq!(FREQ_2, Frequency::_100k);

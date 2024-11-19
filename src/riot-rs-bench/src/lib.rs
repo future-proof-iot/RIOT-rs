@@ -15,7 +15,7 @@ cfg_if::cfg_if! {
         // When run with laze but the architecture is not supported
         compile_error!("benchmarking is not supported for this architecture");
     } else {
-        // Provide a default bench module, for arch-independent tooling
+        // Provide a default bench module, for HAL-independent tooling
         mod bench {
             use crate::Error;
 

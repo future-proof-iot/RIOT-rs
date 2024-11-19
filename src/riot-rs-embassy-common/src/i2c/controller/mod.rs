@@ -1,4 +1,4 @@
-//! Provides architecture-agnostic I2C-related types, for controller mode.
+//! Provides HAL-agnostic I2C-related types, for controller mode.
 
 use embassy_time::Duration;
 
@@ -7,7 +7,7 @@ pub use fugit::KilohertzU32 as Kilohertz;
 
 /// Timeout value for I2C operations.
 ///
-/// Architectures are allowed to timeout earlier.
+/// HALs are allowed to timeout earlier.
 pub const I2C_TIMEOUT: Duration = Duration::from_millis(100);
 
 /// I2C bus frequency.
@@ -178,7 +178,7 @@ macro_rules! handle_i2c_timeout_res {
         ).await;
 
         if let $crate::reexports::embassy_futures::select::Either::First(op) = res {
-            // `from_error` is defined in each arch
+            // `from_error` is defined in each HAL
             op.map_err(from_error)
         } else {
             Err($crate::i2c::controller::Error::NoAcknowledge($crate::i2c::controller::NoAcknowledgeSource::Unknown))
