@@ -76,6 +76,13 @@ storage = [
   #"riot-rs-stm32/storage",
 ]
 
+threading = [
+  "riot-rs-esp/threading",
+  #"riot-rs-nrf/threading",
+  #"riot-rs-rp/threading",
+  #"riot-rs-stm32/threading",
+]
+
 wifi-cyw43 = ["riot-rs-rp/wifi-cyw43"]
 wifi-esp = ["riot-rs-esp/wifi-esp"]
 
