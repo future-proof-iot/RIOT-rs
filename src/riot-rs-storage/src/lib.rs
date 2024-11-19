@@ -19,7 +19,7 @@ use embassy_sync::{
     mutex::{Mutex, MutexGuard},
     once_lock::OnceLock,
 };
-use riot_rs_arch::{
+use riot_rs_hal::{
     storage::{init as flash_init, Flash, FlashError},
     OptionalPeripherals,
 };

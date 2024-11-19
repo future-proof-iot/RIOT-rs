@@ -8,7 +8,7 @@
 pub mod define_peripherals;
 pub mod gpio;
 
-pub use riot_rs_arch as arch;
+pub use riot_rs_hal as arch;
 
 #[cfg(feature = "i2c")]
 pub mod i2c;
