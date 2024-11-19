@@ -134,7 +134,7 @@ pub mod output {
         unimplemented!();
     }
 
-    /// Actual type is architecture-specific.
+    /// Actual type is HAL-specific.
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum DriveStrength {
         #[doc(hidden)]
@@ -147,7 +147,7 @@ pub mod output {
         }
     }
 
-    /// Actual type is architecture-specific.
+    /// Actual type is HAL-specific.
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum Speed {
         #[doc(hidden)]

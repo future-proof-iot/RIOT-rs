@@ -12,8 +12,8 @@ cfg_if::cfg_if! {
         mod esp;
         use esp as bench;
     } else if #[cfg(context = "riot-rs")] {
-        // When run with laze but the architecture is not supported
-        compile_error!("benchmarking is not supported for this architecture");
+        // When run with laze but the MCU family is not supported
+        compile_error!("benchmarking is not supported for this MCU family");
     } else {
         // Provide a default bench module, for HAL-independent tooling
         mod bench {

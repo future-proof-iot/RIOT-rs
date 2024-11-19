@@ -34,7 +34,7 @@ pub mod input {
         pull: riot_rs_embassy_common::gpio::Pull,
         schmitt_trigger: bool,
     ) -> Result<IntEnabledInput<'static>, InterruptError> {
-        // This architecture does not require special treatment of external interrupts.
+        // This HAL does not require special treatment of external interrupts.
         match new(pin, pull, schmitt_trigger) {
             Ok(input) => Ok(input),
             Err(err) => match err {

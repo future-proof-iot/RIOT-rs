@@ -207,17 +207,17 @@ pub mod input {
         ///
         /// # Note
         ///
-        /// Fails to compile if the architecture does not support configuring Schmitt trigger on
+        /// Fails to compile if the HAL does not support configuring Schmitt trigger on
         /// inputs.
         pub fn schmitt_trigger(self, enable: bool) -> Self {
             #[expect(
                 clippy::assertions_on_constants,
-                reason = "the constant depends on the architecture"
+                reason = "the constant depends on the HAL"
             )]
             const {
                 assert!(
                     hal::gpio::input::SCHMITT_TRIGGER_CONFIGURABLE,
-                    "This architecture does not support configuring Schmitt triggers on GPIO inputs."
+                    "This HAL does not support configuring Schmitt triggers on GPIO inputs."
                 );
             }
 
@@ -261,13 +261,12 @@ pub mod input {
         ///
         /// # Errors
         ///
-        /// On some architectures, the number of external interrupts that can simultaneously be
+        /// On some MCU families, the number of external interrupts that can simultaneously be
         /// enabled is limited by the number of hardware interrupt channels.
-        /// Some architectures also have other limitations, for instance it may not be possible to
+        /// Some MCU families also have other limitations, for instance it may not be possible to
         /// register interrupts on a pin if one is already registered on the pin with the same pin
         /// number of another port (e.g., `PA0` and `PB0`).
-        /// In these cases, this returns an [`Error::InterruptChannel`], with an
-        /// architecture-specific error.
+        /// In these cases, this returns an [`Error::InterruptChannel`], with a HAL-specific error.
         // FIXME: rename this
         #[cfg(feature = "external-interrupts")]
         pub fn build_with_interrupt(self) -> Result<IntEnabledInput, Error> {
@@ -305,26 +304,26 @@ impl Output {
 
     /// Sets the output as high.
     pub fn set_high(&mut self) {
-        // All architectures are infallible.
+        // All HALs are infallible.
         let _ = <Self as embedded_hal::digital::OutputPin>::set_high(self);
     }
 
     /// Sets the output as low.
     pub fn set_low(&mut self) {
-        // All architectures are infallible.
+        // All HALs are infallible.
         let _ = <Self as embedded_hal::digital::OutputPin>::set_low(self);
     }
 
     /// Sets the output level.
     pub fn set_level(&mut self, level: Level) {
         let state = level.into();
-        // All architectures are infallible.
+        // All HALs are infallible.
         let _ = <Self as embedded_hal::digital::OutputPin>::set_state(self, state);
     }
 
     /// Toggles the output level.
     pub fn toggle(&mut self) {
-        // All architectures are infallible.
+        // All HALs are infallible.
         let _ = <Self as StatefulOutputPin>::toggle(self);
     }
 }
@@ -353,13 +352,13 @@ pub mod output {
                 ///
                 /// # Note
                 ///
-                /// Fails to compile if the architecture does not support configuring drive
-                /// strength of outputs.
+                /// Fails to compile if the HALs does not support configuring drive strength of
+                /// outputs.
                 pub fn drive_strength(self, drive_strength: DriveStrength<ArchDriveStrength>) -> Self {
                     const {
                         assert!(
                             hal::gpio::output::DRIVE_STRENGTH_CONFIGURABLE,
-                            "This architecture does not support setting the drive strength of GPIO outputs."
+                            "This HAL does not support setting the drive strength of GPIO outputs."
                         );
                     }
 
@@ -391,13 +390,12 @@ pub mod output {
                 ///
                 /// # Note
                 ///
-                /// Fails to compile if the architecture does not support configuring speed of
-                /// outputs.
+                /// Fails to compile if the HAL does not support configuring speed of outputs.
                 pub fn speed(self, speed: Speed<ArchSpeed>) -> Self {
                     const {
                         assert!(
                             hal::gpio::output::SPEED_CONFIGURABLE,
-                            "This architecture does not support setting the speed of GPIO outputs."
+                            "This HAL does not support setting the speed of GPIO outputs."
                         );
                     }
 

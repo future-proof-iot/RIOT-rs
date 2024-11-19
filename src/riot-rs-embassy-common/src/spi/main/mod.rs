@@ -1,4 +1,4 @@
-//! Provides architecture-agnostic SPI-related types, for main mode.
+//! Provides HAL-agnostic SPI-related types, for main mode.
 
 pub use fugit::KilohertzU32 as Kilohertz;
 

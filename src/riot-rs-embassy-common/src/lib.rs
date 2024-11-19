@@ -1,4 +1,4 @@
-//! Architecture-agnostic types shared between architectures.
+//! HAL-agnostic types shared between HALs.
 
 #![no_std]
 #![feature(doc_auto_cfg)]

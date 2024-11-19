@@ -1,7 +1,7 @@
 //! This example is merely to illustrate and test raw bus usage.
 //!
 //! Please use [`riot_rs::sensors`] instead for a high-level sensor abstraction that is
-//! architecture-agnostic.
+//! HAL-agnostic.
 #![no_main]
 #![no_std]
 #![feature(type_alias_impl_trait)]

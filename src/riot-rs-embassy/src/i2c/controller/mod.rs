@@ -22,12 +22,12 @@ pub use riot_rs_embassy_common::i2c::controller::*;
 // TODO: do we actually need a CriticalSectionRawMutex here?
 pub type I2cDevice = InnerI2cDevice<'static, CriticalSectionRawMutex, hal::i2c::controller::I2c>;
 
-/// Returns the highest I2C frequency available on the architecture that fits into the requested
+/// Returns the highest I2C frequency available on the MCU that fits into the requested
 /// range.
 ///
 /// # Examples
 ///
-/// Assuming the architecture is only able to do 100 kHz and 400 kHz (not 250 kHz):
+/// Assuming the MCU is only able to do 100 kHz and 400 kHz (not 250 kHz):
 ///
 /// ```
 /// # use riot_rs_embassy::{hal, i2c::controller::{highest_freq_in, Kilohertz}};

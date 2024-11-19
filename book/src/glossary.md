@@ -1,8 +1,8 @@
 # Glossary
 
-## **Embassy architecture crates**
+## **Embassy HAL crates**
 
-Embassy crates that implement support for specific architectures:
+Embassy crates that implement support for specific MCU families:
 
 - [embassy-nrf](https://docs.embassy.dev/embassy-nrf/)
 - [embassy-rp](https://docs.embassy.dev/embassy-rp/)

@@ -19,17 +19,17 @@ async fn main(peripherals: pins::Peripherals) {
 
     // Builder usage
     let btn_1_builder = Input::builder(peripherals.pin_2, Pull::Up);
-    // Set input Schmitt trigger on an architecture that supports configuring it.
+    // Set input Schmitt trigger on a HAL that supports configuring it.
     #[cfg(context = "rp2040")]
     let btn_1_builder = btn_1_builder.schmitt_trigger(true);
     let _btn1 = btn_1_builder.build_with_interrupt();
 
     #[allow(unused_mut)]
     let mut led_1_builder = Output::builder(peripherals.pin_3, Level::Low);
-    // Set output drive strength on an architecture that supports configuring it.
+    // Set output drive strength on a HAL that supports configuring it.
     #[cfg(context = "nrf")]
     let led_1_builder = led_1_builder.drive_strength(DriveStrength::High);
-    // Set output speed on an architecture that supports configuring it.
+    // Set output speed on a HAL that supports configuring it.
     #[cfg(context = "rp2040")]
     let led_1_builder = led_1_builder.speed(Speed::Medium);
     let _led_1 = led_1_builder.build();

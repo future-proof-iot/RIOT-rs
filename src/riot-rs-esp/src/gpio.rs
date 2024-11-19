@@ -62,7 +62,7 @@ pub mod input {
     pub fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: riot_rs_embassy_common::gpio::Pull,
-        _schmitt_trigger: bool, // Not supported by this architecture
+        _schmitt_trigger: bool, // Not supported by hardware
     ) -> Result<Input<'static>, core::convert::Infallible> {
         let pull = from_pull(pull);
 
@@ -73,7 +73,7 @@ pub mod input {
     pub fn new_int_enabled(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: riot_rs_embassy_common::gpio::Pull,
-        _schmitt_trigger: bool, // Not supported by this architecture
+        _schmitt_trigger: bool, // Not supported by hardware
     ) -> Result<IntEnabledInput<'static>, InterruptError> {
         match new(pin, pull, _schmitt_trigger) {
             Ok(input) => Ok(input),
@@ -100,7 +100,7 @@ pub mod output {
         pin: impl Peripheral<P: OutputPin> + 'static,
         initial_level: riot_rs_embassy_common::gpio::Level,
         drive_strength: DriveStrength,
-        _speed: Speed, // Not supported by this architecture
+        _speed: Speed, // Not supported by hardware
     ) -> Output<'static> {
         let initial_level = match initial_level {
             riot_rs_embassy_common::gpio::Level::Low => Level::Low,

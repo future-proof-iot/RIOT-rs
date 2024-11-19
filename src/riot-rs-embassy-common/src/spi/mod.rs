@@ -1,4 +1,4 @@
-//! Provides architecture-agnostic SPI-related types.
+//! Provides HAL-agnostic SPI-related types.
 
 #[doc(alias = "master")]
 pub mod main;
@@ -24,7 +24,7 @@ pub enum Mode {
 // FIXME: should we offer configuring the bit order? (hiding from the docs for now)
 /// Order in which bits are transmitted.
 ///
-/// Note: configuring the bit order is not supported on all architectures.
+/// Note: configuring the bit order is not supported on all MCU families.
 // NOTE(arch): the RP2040 and RP2350 always send the MSb first
 #[doc(hidden)]
 #[derive(Copy, Clone, PartialEq, Eq)]

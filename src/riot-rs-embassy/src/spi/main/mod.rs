@@ -31,7 +31,7 @@ pub type SpiDevice =
 ///
 /// # Examples
 ///
-/// Assuming the architecture is only able to do up to 8 MHz:
+/// Assuming the MCU is only able to do up to 8 MHz:
 ///
 /// ```
 /// # use riot_rs_embassy::{hal, spi::main::{highest_freq_in, Kilohertz}};

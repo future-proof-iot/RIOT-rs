@@ -1,7 +1,7 @@
 //! This example is merely to illustrate and test raw bus usage.
 //!
 //! Please use [`riot_rs::sensors`] instead for a high-level sensor abstraction that is
-//! architecture-agnostic.
+//! HAL-agnostic.
 //!
 //! This example requires a LIS3DH sensor (3-axis accelerometer).
 #![no_main]
