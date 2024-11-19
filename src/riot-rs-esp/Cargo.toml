@@ -30,6 +30,7 @@ once_cell = { workspace = true }
 paste = { workspace = true }
 riot-rs-debug = { workspace = true }
 riot-rs-embassy-common = { workspace = true }
+riot-rs-random = { workspace = true, optional = true }
 riot-rs-utils = { workspace = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
@@ -67,6 +68,9 @@ esp-wifi = { workspace = true, default-features = false, features = [
 [features]
 ## Enables GPIO interrupt support.
 external-interrupts = ["riot-rs-embassy-common/external-interrupts"]
+
+## Enables seeding the random number generator from hardware.
+hwrng = ["dep:riot-rs-random"]
 
 ## Enables I2C support.
 i2c = [

@@ -63,7 +63,7 @@ usb = [
 ]
 
 hwrng = [
-  #"riot-rs-esp/hwrng",
+  "riot-rs-esp/hwrng",
   "riot-rs-nrf/hwrng",
   "riot-rs-rp/hwrng",
   "riot-rs-stm32/hwrng",

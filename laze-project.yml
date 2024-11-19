@@ -664,6 +664,7 @@ modules:
       # these are precisely those for which the hwrng feature of
       # riot-rs-embassy builds, which would fail if the big if(context=...)
       # doesn't have an entry in the cfg(feature = "hwrng") part of init_task
+      - esp
       - nrf51
       - nrf52
       - rp
