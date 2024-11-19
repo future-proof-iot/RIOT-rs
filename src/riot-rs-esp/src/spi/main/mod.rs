@@ -11,7 +11,7 @@ use riot_rs_embassy_common::{
 };
 
 // TODO: we could consider making this `pub`
-// NOTE(arch): values from the datasheets.
+// NOTE(hal): values from the datasheets.
 #[cfg(any(context = "esp32c3", context = "esp32c6"))]
 const MAX_FREQUENCY: Kilohertz = Kilohertz::MHz(80);
 

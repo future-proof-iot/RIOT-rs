@@ -25,7 +25,7 @@ pub enum Mode {
 /// Order in which bits are transmitted.
 ///
 /// Note: configuring the bit order is not supported on all MCU families.
-// NOTE(arch): the RP2040 and RP2350 always send the MSb first
+// NOTE(hal): the RP2040 and RP2350 always send the MSb first
 #[doc(hidden)]
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum BitOrder {

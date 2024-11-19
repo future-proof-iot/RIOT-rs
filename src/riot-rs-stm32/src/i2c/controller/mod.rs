@@ -113,7 +113,7 @@ macro_rules! define_i2c_drivers {
     ($( $ev_interrupt:ident + $er_interrupt:ident => $peripheral:ident ),* $(,)?) => {
         $(
             /// Peripheral-specific I2C driver.
-            // NOTE(arch): this is not required in this HAL, as the inner I2C type is
+            // NOTE(hal): this is not required in this HAL, as the inner I2C type is
             // not generic over the I2C peripheral, and is only done for consistency with
             // other HALs.
             pub struct $peripheral {

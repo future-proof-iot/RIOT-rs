@@ -10,7 +10,7 @@ use riot_rs_embassy_common::{
 };
 
 // TODO: we could consider making this `pub`
-// NOTE(arch): values from the datasheets.
+// NOTE(hal): values from the datasheets.
 #[cfg(context = "rp2040")]
 const MAX_FREQUENCY: Kilohertz = Kilohertz::kHz(62_500);
 

@@ -28,7 +28,7 @@ impl Default for Config {
     }
 }
 
-// NOTE(arch): limited set of frequencies available.
+// NOTE(hal): limited set of frequencies available.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u32)]
