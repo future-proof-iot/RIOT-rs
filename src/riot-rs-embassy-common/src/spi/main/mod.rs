@@ -60,6 +60,7 @@ macro_rules! impl_spi_from_frequency {
 #[macro_export]
 macro_rules! impl_spi_frequency_const_functions {
     ($MAX_FREQUENCY:ident) => {
+        #[doc(hidden)]
         impl Frequency {
             pub const fn first() -> Self {
                 Self::F(Kilohertz::kHz(1))
