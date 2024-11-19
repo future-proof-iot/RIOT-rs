@@ -137,7 +137,7 @@ pub mod output {
 
             // ESPs are able to output up to 40 mA, so we somewhat normalize this.
             match drive_strength {
-                Arch(drive_strength) => drive_strength,
+                Hal(drive_strength) => drive_strength,
                 Lowest => DriveStrength::_5mA,
                 Standard => DriveStrength::_10mA,
                 Medium => DriveStrength::_10mA,

@@ -79,7 +79,7 @@ pub mod output {
             use riot_rs_embassy_common::gpio::DriveStrength::*;
 
             match drive_strength {
-                Arch(drive_strength) => drive_strength,
+                Hal(drive_strength) => drive_strength,
                 Lowest => DriveStrength::UnsupportedByArchitecture,
                 Standard => DriveStrength::default(),
                 Medium => DriveStrength::UnsupportedByArchitecture,
@@ -113,7 +113,7 @@ pub mod output {
             use riot_rs_embassy_common::gpio::Speed::*;
 
             match speed {
-                Arch(speed) => speed,
+                Hal(speed) => speed,
                 Low => Speed::Low,
                 Medium => Speed::Medium,
                 High => Speed::High,

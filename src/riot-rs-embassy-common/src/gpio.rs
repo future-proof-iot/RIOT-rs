@@ -90,8 +90,8 @@ macro_rules! define_from_pull {
 // TODO: should this be marked non_exhaustive?
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum DriveStrength<A> {
-    /// Architecture-specific drive strength setting.
-    Arch(A),
+    /// HAL-specific drive strength setting.
+    Hal(A),
     /// Lowest drive strength available on this architecture.
     Lowest,
     /// Most common reset value of drive strength on this architecture.
@@ -130,8 +130,8 @@ pub trait FromDriveStrength {
 #[derive(Copy, Clone, PartialEq, Eq)]
 // FIXME: should we call this slew rate instead?
 pub enum Speed<A> {
-    /// Architecture-specific speed setting.
-    Arch(A),
+    /// HAL-specific speed setting.
+    Hal(A),
     /// Low speed.
     Low,
     /// Medium speed.
