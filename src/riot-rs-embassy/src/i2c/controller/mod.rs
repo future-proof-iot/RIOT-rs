@@ -3,14 +3,14 @@
 use embassy_embedded_hal::shared_bus::asynch::i2c::I2cDevice as InnerI2cDevice;
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 
-use crate::arch;
+use crate::hal;
 
 pub use riot_rs_embassy_common::i2c::controller::*;
 
 /// An I2C driver implementing [`embedded_hal_async::i2c::I2c`].
 ///
 /// It needs to be provided with an MCU-specific I2C driver tied to a specific I2C peripheral,
-/// obtained as [`arch::i2c::controller::I2c`].
+/// obtained as [`hal::i2c::controller::I2c`].
 ///
 /// See [`embedded_hal::i2c`] to learn more about how to share the bus.
 ///
@@ -20,7 +20,7 @@ pub use riot_rs_embassy_common::i2c::controller::*;
 /// However, it cannot block indefinitely as a timeout is implemented, either by leveraging
 /// I2C-specific hardware capabilities or through a generic software timeout.
 // TODO: do we actually need a CriticalSectionRawMutex here?
-pub type I2cDevice = InnerI2cDevice<'static, CriticalSectionRawMutex, arch::i2c::controller::I2c>;
+pub type I2cDevice = InnerI2cDevice<'static, CriticalSectionRawMutex, hal::i2c::controller::I2c>;
 
 /// Returns the highest I2C frequency available on the architecture that fits into the requested
 /// range.
@@ -30,9 +30,9 @@ pub type I2cDevice = InnerI2cDevice<'static, CriticalSectionRawMutex, arch::i2c:
 /// Assuming the architecture is only able to do 100 kHz and 400 kHz (not 250 kHz):
 ///
 /// ```
-/// # use riot_rs_embassy::{arch, i2c::controller::{highest_freq_in, Kilohertz}};
+/// # use riot_rs_embassy::{hal, i2c::controller::{highest_freq_in, Kilohertz}};
 /// let freq = const { highest_freq_in(Kilohertz::kHz(100)..=Kilohertz::kHz(250)) };
-/// assert_eq!(freq, arch::i2c::controller::Frequency::_100k);
+/// assert_eq!(freq, hal::i2c::controller::Frequency::_100k);
 /// ```
 ///
 /// # Panics
@@ -41,13 +41,13 @@ pub type I2cDevice = InnerI2cDevice<'static, CriticalSectionRawMutex, arch::i2c:
 /// It panics if no suitable frequency can be found.
 pub const fn highest_freq_in(
     range: core::ops::RangeInclusive<riot_rs_embassy_common::i2c::controller::Kilohertz>,
-) -> arch::i2c::controller::Frequency {
+) -> hal::i2c::controller::Frequency {
     let min = range.start().to_kHz();
     let max = range.end().to_kHz();
 
     assert!(max >= min);
 
-    let mut freq = arch::i2c::controller::Frequency::first();
+    let mut freq = hal::i2c::controller::Frequency::first();
 
     loop {
         // If not yet in the requested range
@@ -100,7 +100,7 @@ mod tests {
 
     #[test]
     fn test_valid_highest_freq_in() {
-        use arch::i2c::controller::Frequency;
+        use hal::i2c::controller::Frequency;
         use riot_rs_embassy_common::i2c::controller::Kilohertz;
 
         const FREQ_0: Frequency = highest_freq_in(Kilohertz::kHz(50)..=Kilohertz::kHz(150));

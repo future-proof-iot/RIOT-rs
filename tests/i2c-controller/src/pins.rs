@@ -1,4 +1,4 @@
-use riot_rs::arch::{i2c, peripherals};
+use riot_rs::hal::{i2c, peripherals};
 
 #[cfg(context = "esp")]
 pub type SensorI2c = i2c::controller::I2C0;

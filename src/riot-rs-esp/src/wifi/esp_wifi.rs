@@ -14,7 +14,7 @@ pub type NetworkDevice = WifiDevice<'static, WifiStaDevice>;
 
 // Ideally, all Wi-Fi initialization would happen here.
 // Unfortunately that's complicated, so we're using WIFI_INIT to pass the
-// `EspWifiInitialization` from `crate::arch::esp::init()`.
+// `EspWifiInitialization` from `crate::init()`.
 // Using a `once_cell::OnceCell` here for critical-section support, just to be
 // sure.
 pub static WIFI_INIT: OnceCell<EspWifiInitialization> = OnceCell::new();

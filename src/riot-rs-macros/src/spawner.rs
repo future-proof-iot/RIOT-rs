@@ -88,7 +88,7 @@ pub fn spawner(args: TokenStream, item: TokenStream) -> TokenStream {
         #[linkme(crate = #riot_rs_crate::reexports::linkme)]
         fn #new_function_name(
             spawner: #riot_rs_crate::asynch::Spawner,
-            mut peripherals: &mut #riot_rs_crate::arch::OptionalPeripherals,
+            mut peripherals: &mut #riot_rs_crate::hal::OptionalPeripherals,
         ) {
             use #riot_rs_crate::define_peripherals::TakePeripherals;
             #spawner_function_name(spawner #peripheral_param);

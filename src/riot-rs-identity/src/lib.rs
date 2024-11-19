@@ -38,5 +38,5 @@
 pub fn device_id_bytes() -> Result<impl AsRef<[u8]>, impl core::error::Error> {
     use riot_rs_embassy_common::identity::DeviceId;
 
-    riot_rs_embassy::arch::identity::DeviceId::get().map(|d| d.bytes())
+    riot_rs_embassy::hal::identity::DeviceId::get().map(|d| d.bytes())
 }

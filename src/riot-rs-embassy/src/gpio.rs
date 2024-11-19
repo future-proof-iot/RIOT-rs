@@ -10,7 +10,7 @@
 
 use embedded_hal::digital::StatefulOutputPin;
 
-use crate::arch::{
+use crate::hal::{
     self,
     gpio::{
         input::{Input as ArchInput, InputPin as ArchInputPin},
@@ -23,7 +23,7 @@ use crate::arch::{
 };
 
 #[cfg(feature = "external-interrupts")]
-use crate::arch::gpio::input::IntEnabledInput as ArchIntEnabledInput;
+use crate::hal::gpio::input::IntEnabledInput as ArchIntEnabledInput;
 
 use input::InputBuilder;
 use output::OutputBuilder;
@@ -45,7 +45,7 @@ macro_rules! inner_impl_input_methods {
 
         /// Returns the input level.
         pub fn get_level(&self) -> Level {
-            arch::gpio::input::into_level(self.$inner.get_level())
+            hal::gpio::input::into_level(self.$inner.get_level())
         }
     };
 }
@@ -183,7 +183,7 @@ pub mod input {
     //! Input-specific types.
     use riot_rs_embassy_common::gpio::Pull;
 
-    use crate::arch::{self, gpio::input::InputPin as ArchInputPin, peripheral::Peripheral};
+    use crate::hal::{self, gpio::input::InputPin as ArchInputPin, peripheral::Peripheral};
 
     use super::Input;
 
@@ -216,7 +216,7 @@ pub mod input {
             )]
             const {
                 assert!(
-                    arch::gpio::input::SCHMITT_TRIGGER_CONFIGURABLE,
+                    hal::gpio::input::SCHMITT_TRIGGER_CONFIGURABLE,
                     "This architecture does not support configuring Schmitt triggers on GPIO inputs."
                 );
             }
@@ -232,7 +232,7 @@ pub mod input {
         // We may remove them in the future if we realize they are never useful.
         #[doc(hidden)]
         pub fn opt_schmitt_trigger(self, enable: bool) -> Self {
-            if arch::gpio::input::SCHMITT_TRIGGER_CONFIGURABLE {
+            if hal::gpio::input::SCHMITT_TRIGGER_CONFIGURABLE {
                 // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
                 // be triggered.
                 Self {
@@ -249,7 +249,7 @@ pub mod input {
     impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
         /// Returns an [`Input`] by finalizing the builder.
         pub fn build(self) -> Input {
-            let input = match arch::gpio::input::new(self.pin, self.pull, self.schmitt_trigger) {
+            let input = match hal::gpio::input::new(self.pin, self.pull, self.schmitt_trigger) {
                 Ok(input) => input,
                 Err(_) => unreachable!(),
             };
@@ -272,7 +272,7 @@ pub mod input {
         #[cfg(feature = "external-interrupts")]
         pub fn build_with_interrupt(self) -> Result<IntEnabledInput, Error> {
             let input =
-                arch::gpio::input::new_int_enabled(self.pin, self.pull, self.schmitt_trigger)?;
+                hal::gpio::input::new_int_enabled(self.pin, self.pull, self.schmitt_trigger)?;
 
             Ok(IntEnabledInput { input })
         }
@@ -333,7 +333,7 @@ pub mod output {
     //! Output-specific types.
     use riot_rs_embassy_common::gpio::{DriveStrength, FromDriveStrength, FromSpeed, Level, Speed};
 
-    use crate::arch::{self, gpio::output::OutputPin as ArchOutputPin, peripheral::Peripheral};
+    use crate::hal::{self, gpio::output::OutputPin as ArchOutputPin, peripheral::Peripheral};
 
     use super::{ArchDriveStrength, ArchSpeed, Output};
 
@@ -358,7 +358,7 @@ pub mod output {
                 pub fn drive_strength(self, drive_strength: DriveStrength<ArchDriveStrength>) -> Self {
                     const {
                         assert!(
-                            arch::gpio::output::DRIVE_STRENGTH_CONFIGURABLE,
+                            hal::gpio::output::DRIVE_STRENGTH_CONFIGURABLE,
                             "This architecture does not support setting the drive strength of GPIO outputs."
                         );
                     }
@@ -375,7 +375,7 @@ pub mod output {
                 #[doc(hidden)]
                 // TODO: or `drive_strength_opt`?
                 pub fn opt_drive_strength(self, drive_strength: DriveStrength<ArchDriveStrength>) -> Self {
-                    if arch::gpio::output::DRIVE_STRENGTH_CONFIGURABLE {
+                    if hal::gpio::output::DRIVE_STRENGTH_CONFIGURABLE {
                         // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
                         // be triggered.
                         Self {
@@ -396,7 +396,7 @@ pub mod output {
                 pub fn speed(self, speed: Speed<ArchSpeed>) -> Self {
                     const {
                         assert!(
-                            arch::gpio::output::SPEED_CONFIGURABLE,
+                            hal::gpio::output::SPEED_CONFIGURABLE,
                             "This architecture does not support setting the speed of GPIO outputs."
                         );
                     }
@@ -410,7 +410,7 @@ pub mod output {
                 #[doc(hidden)]
                 // TODO: or `speed_opt`?
                 pub fn opt_speed(self, speed: Speed<ArchSpeed>) -> Self {
-                    if arch::gpio::output::SPEED_CONFIGURABLE {
+                    if hal::gpio::output::SPEED_CONFIGURABLE {
                         // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
                         // be triggered.
                         Self { speed, ..self }
@@ -434,7 +434,7 @@ pub mod output {
             let speed = <ArchSpeed as FromSpeed>::from(self.speed);
 
             let output =
-                arch::gpio::output::new(self.pin, self.initial_level, drive_strength, speed);
+                hal::gpio::output::new(self.pin, self.initial_level, drive_strength, speed);
 
             Output { output }
         }

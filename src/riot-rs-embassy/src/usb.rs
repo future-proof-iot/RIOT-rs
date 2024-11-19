@@ -7,7 +7,7 @@
 
 #![deny(missing_docs)]
 
-pub use crate::arch::usb::UsbDriver;
+pub use crate::hal::usb::UsbDriver;
 
 /// Builder for a USB device stack.
 pub type UsbBuilder = embassy_usb::Builder<'static, UsbDriver>;
@@ -28,7 +28,7 @@ pub(crate) async fn usb_task(mut device: embassy_usb::UsbDevice<'static, UsbDriv
 pub(crate) mod ethernet {
     use embassy_usb::class::cdc_ncm::embassy_net::{Device, Runner};
 
-    use crate::{arch::usb::UsbDriver, network::ETHERNET_MTU};
+    use crate::{hal::usb::UsbDriver, network::ETHERNET_MTU};
 
     #[allow(dead_code, reason = "use depends on enabled features")]
     pub type NetworkDevice = Device<'static, ETHERNET_MTU>;

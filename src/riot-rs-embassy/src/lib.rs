@@ -8,7 +8,7 @@
 pub mod define_peripherals;
 pub mod gpio;
 
-pub use riot_rs_hal as arch;
+pub use riot_rs_hal as hal;
 
 #[cfg(feature = "i2c")]
 pub mod i2c;
@@ -34,7 +34,7 @@ pub use static_cell::{ConstStaticCell, StaticCell};
 // All items of this module are re-exported at the root of `riot_rs`.
 pub mod api {
     pub use crate::{
-        arch, asynch, define_peripherals, delegate, gpio, group_peripherals, EMBASSY_TASKS,
+        asynch, define_peripherals, delegate, gpio, group_peripherals, hal, EMBASSY_TASKS,
     };
 
     #[cfg(feature = "time")]
@@ -92,7 +92,7 @@ pub mod sendcell;
 #[cfg(feature = "executor-thread")]
 pub mod thread_executor;
 
-pub type Task = fn(asynch::Spawner, &mut arch::OptionalPeripherals);
+pub type Task = fn(asynch::Spawner, &mut hal::OptionalPeripherals);
 
 #[distributed_slice]
 pub static EMBASSY_TASKS: [Task] = [..];
@@ -114,12 +114,12 @@ compile_error!(r#""executor-single-thread" and "threading" are mutually exclusiv
 #[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
     debug!("riot-rs-embassy::init(): using interrupt mode executor");
-    let p = arch::init();
+    let p = hal::init();
 
     #[cfg(any(context = "nrf", context = "rp2040", context = "stm32"))]
     {
-        arch::EXECUTOR.start(arch::SWI);
-        arch::EXECUTOR.spawner().must_spawn(init_task(p));
+        hal::EXECUTOR.start(hal::SWI);
+        hal::EXECUTOR.spawner().must_spawn(init_task(p));
     }
 
     #[cfg(context = "esp")]
@@ -130,11 +130,11 @@ pub(crate) fn init() {
 #[export_name = "riot_rs_embassy_init"]
 fn init() -> ! {
     debug!("riot-rs-embassy::init(): using single thread executor");
-    let p = arch::init();
+    let p = hal::init();
 
-    static EXECUTOR: StaticCell<arch::Executor> = StaticCell::new();
+    static EXECUTOR: StaticCell<hal::Executor> = StaticCell::new();
     EXECUTOR
-        .init_with(|| arch::Executor::new())
+        .init_with(|| hal::Executor::new())
         .run(|spawner| spawner.must_spawn(init_task(p)))
 }
 
@@ -157,7 +157,7 @@ mod executor_thread {
 #[riot_rs_macros::thread(autostart, no_wait, stacksize = executor_thread::STACKSIZE, priority = executor_thread::PRIORITY)]
 fn init() {
     debug!("riot-rs-embassy::init(): using thread executor");
-    let p = arch::init();
+    let p = hal::init();
 
     static EXECUTOR: StaticCell<thread_executor::Executor> = StaticCell::new();
     EXECUTOR
@@ -166,26 +166,26 @@ fn init() {
 }
 
 #[embassy_executor::task]
-async fn init_task(mut peripherals: arch::OptionalPeripherals) {
+async fn init_task(mut peripherals: hal::OptionalPeripherals) {
     let spawner = asynch::Spawner::for_current_executor().await;
     asynch::set_spawner(spawner.make_send());
 
     debug!("riot-rs-embassy::init_task()");
 
     #[cfg(all(context = "stm32", feature = "external-interrupts"))]
-    arch::extint_registry::EXTINT_REGISTRY.init(&mut peripherals);
+    hal::extint_registry::EXTINT_REGISTRY.init(&mut peripherals);
 
     #[cfg(context = "esp")]
-    arch::gpio::init(&mut peripherals);
+    hal::gpio::init(&mut peripherals);
 
     #[cfg(feature = "i2c")]
-    arch::i2c::init(&mut peripherals);
+    hal::i2c::init(&mut peripherals);
 
     #[cfg(feature = "spi")]
-    arch::spi::init(&mut peripherals);
+    hal::spi::init(&mut peripherals);
 
     #[cfg(feature = "hwrng")]
-    arch::hwrng::construct_rng(&mut peripherals);
+    hal::hwrng::construct_rng(&mut peripherals);
     // Clock startup and entropy collection may lend themselves to parallelization, provided that
     // doesn't impact runtime RAM or flash use.
 
@@ -193,11 +193,11 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     riot_rs_storage::init(&mut peripherals).await;
 
     #[cfg(all(feature = "usb", context = "nrf"))]
-    arch::usb::init();
+    hal::usb::init();
 
     // Move out the peripherals required for drivers, so that tasks cannot mistakenly take them.
     #[cfg(feature = "usb")]
-    let usb_peripherals = arch::usb::Peripherals::new(&mut peripherals);
+    let usb_peripherals = hal::usb::Peripherals::new(&mut peripherals);
 
     // Tasks have to be started before driver initializations so that the tasks are able to
     // configure the drivers using hooks.
@@ -209,7 +209,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
     let mut usb_builder = {
         let usb_config = usb::config();
 
-        let usb_driver = arch::usb::driver(usb_peripherals);
+        let usb_driver = hal::usb::driver(usb_peripherals);
 
         static CONFIG_DESC: ConstStaticCell<[u8; 256]> = ConstStaticCell::new([0; 256]);
         static BOS_DESC: ConstStaticCell<[u8; 256]> = ConstStaticCell::new([0; 256]);
@@ -271,12 +271,12 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "wifi-cyw43")]
     let (device, control) = {
-        let (net_device, control) = arch::cyw43::device(&mut peripherals, &spawner).await;
+        let (net_device, control) = hal::cyw43::device(&mut peripherals, &spawner).await;
         (net_device, control)
     };
 
     #[cfg(feature = "wifi-esp")]
-    let device = arch::wifi::esp_wifi::init(&mut peripherals, spawner);
+    let device = hal::wifi::esp_wifi::init(&mut peripherals, spawner);
 
     #[cfg(feature = "net")]
     {
@@ -326,7 +326,7 @@ async fn init_task(mut peripherals: arch::OptionalPeripherals) {
 
     #[cfg(feature = "wifi-cyw43")]
     {
-        arch::cyw43::join(control).await;
+        hal::cyw43::join(control).await;
     };
 
     // mark used
