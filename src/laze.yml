@@ -1,3 +1,2 @@
 subdirs:
-  - riot-rs-core
   - riot-rs-rt
