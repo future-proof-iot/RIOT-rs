@@ -2,7 +2,7 @@ error: `peripherals` macro parameter missing here ...
  --> tests/ui/spawner/missing_peripherals_param.rs:9:1
   |
 9 | #[ariel_os::spawner(autostart)]
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
   = note: this error originates in the attribute macro `ariel_os::spawner` (in Nightly builds, run with -Z macro-backtrace for more info)
 
