@@ -1,3 +1,5 @@
+//! Provides support for the I2C communication bus.
+
 #[doc(alias = "master")]
 pub mod controller;
 

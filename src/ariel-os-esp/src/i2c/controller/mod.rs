@@ -1,3 +1,5 @@
+//! Provides support for the I2C communication bus in controller mode.
+
 use ariel_os_embassy_common::impl_async_i2c_for_driver_enum;
 use esp_hal::{
     gpio::{InputPin, OutputPin},
@@ -10,6 +12,7 @@ use esp_hal::{
 #[non_exhaustive]
 #[derive(Clone)]
 pub struct Config {
+    /// The frequency at which the bus should operate.
     pub frequency: Frequency,
 }
 
@@ -32,6 +35,7 @@ pub enum Frequency {
     _400k,
 }
 
+#[doc(hidden)]
 impl Frequency {
     pub const fn first() -> Self {
         Self::_100k
@@ -83,6 +87,8 @@ macro_rules! define_i2c_drivers {
             }
 
             impl $peripheral {
+                /// Returns a driver implementing [`embedded_hal_async::i2c::I2c`] for this
+                /// I2C peripheral.
                 #[expect(clippy::new_ret_no_self)]
                 #[must_use]
                 pub fn new<SDA: OutputPin + InputPin, SCL: OutputPin + InputPin>(
@@ -123,7 +129,10 @@ macro_rules! define_i2c_drivers {
 
         /// Peripheral-agnostic driver.
         pub enum I2c {
-            $( $peripheral($peripheral), )*
+            $(
+                #[doc = concat!(stringify!($peripheral), " peripheral.")]
+                $peripheral($peripheral),
+            )*
         }
 
         impl embedded_hal_async::i2c::ErrorType for I2c {
