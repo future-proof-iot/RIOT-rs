@@ -40,7 +40,7 @@ macro_rules! define_peripherals {
             pub type $peripheral_alias = peripherals::$peripheral_field;
         )?)*
 
-        impl $crate::define_peripherals::TakePeripherals<$peripherals> for &mut $crate::arch::OptionalPeripherals {
+        impl $crate::define_peripherals::TakePeripherals<$peripherals> for &mut $crate::hal::OptionalPeripherals {
             fn take_peripherals(&mut self) -> $peripherals {
                 $peripherals {
                     $(
@@ -76,7 +76,7 @@ macro_rules! group_peripherals {
             ),*
         }
 
-        impl $crate::define_peripherals::TakePeripherals<$group> for &mut $crate::arch::OptionalPeripherals {
+        impl $crate::define_peripherals::TakePeripherals<$group> for &mut $crate::hal::OptionalPeripherals {
             fn take_peripherals(&mut self) -> $group {
                 $group {
                     $(

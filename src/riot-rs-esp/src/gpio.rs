@@ -62,7 +62,7 @@ pub mod input {
     pub fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: riot_rs_embassy_common::gpio::Pull,
-        _schmitt_trigger: bool, // Not supported by this architecture
+        _schmitt_trigger: bool, // Not supported by hardware
     ) -> Result<Input<'static>, core::convert::Infallible> {
         let pull = from_pull(pull);
 
@@ -73,7 +73,7 @@ pub mod input {
     pub fn new_int_enabled(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: riot_rs_embassy_common::gpio::Pull,
-        _schmitt_trigger: bool, // Not supported by this architecture
+        _schmitt_trigger: bool, // Not supported by hardware
     ) -> Result<IntEnabledInput<'static>, InterruptError> {
         match new(pin, pull, _schmitt_trigger) {
             Ok(input) => Ok(input),
@@ -100,7 +100,7 @@ pub mod output {
         pin: impl Peripheral<P: OutputPin> + 'static,
         initial_level: riot_rs_embassy_common::gpio::Level,
         drive_strength: DriveStrength,
-        _speed: Speed, // Not supported by this architecture
+        _speed: Speed, // Not supported by hardware
     ) -> Output<'static> {
         let initial_level = match initial_level {
             riot_rs_embassy_common::gpio::Level::Low => Level::Low,
@@ -137,7 +137,7 @@ pub mod output {
 
             // ESPs are able to output up to 40 mA, so we somewhat normalize this.
             match drive_strength {
-                Arch(drive_strength) => drive_strength,
+                Hal(drive_strength) => drive_strength,
                 Lowest => DriveStrength::_5mA,
                 Standard => DriveStrength::_10mA,
                 Medium => DriveStrength::_10mA,
@@ -149,12 +149,12 @@ pub mod output {
 
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum Speed {
-        UnsupportedByArchitecture,
+        UnsupportedByHardware,
     }
 
     impl FromSpeed for Speed {
         fn from(_speed: riot_rs_embassy_common::gpio::Speed<Self>) -> Self {
-            Self::UnsupportedByArchitecture
+            Self::UnsupportedByHardware
         }
     }
 }

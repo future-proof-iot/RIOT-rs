@@ -1,5 +1,5 @@
 #[cfg(feature = "button-readings")]
-use riot_rs::arch::peripherals;
+use riot_rs::hal::peripherals;
 
 #[cfg(all(feature = "button-readings", builder = "nrf52840dk"))]
 riot_rs::define_peripherals!(Buttons {

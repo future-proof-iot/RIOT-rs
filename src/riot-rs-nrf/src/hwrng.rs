@@ -18,7 +18,7 @@ pub fn construct_rng(peripherals: &mut crate::OptionalPeripherals) {
 
             riot_rs_random::construct_rng(rng);
         } else if #[cfg(context = "riot-rs")] {
-            compile_error!("hardware RNG is not supported on this architecture");
+            compile_error!("hardware RNG is not supported on this MCU family");
         }
     }
 }

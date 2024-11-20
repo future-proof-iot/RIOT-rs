@@ -134,7 +134,7 @@ macro_rules! define_i2c_drivers {
                     // peripheral multiple times.
                     let i2c_peripheral = unsafe { peripherals::$peripheral::steal() };
 
-                    // NOTE(arch): even though we handle bus timeout at a higher level as well, it
+                    // NOTE(hal): even though we handle bus timeout at a higher level as well, it
                     // does not seem possible to disable the timeout feature on RP.
                     let i2c = embassy_rp::i2c::I2c::new_async(
                         i2c_peripheral,

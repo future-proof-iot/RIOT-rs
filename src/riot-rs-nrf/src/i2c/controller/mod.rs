@@ -31,7 +31,7 @@ impl Default for Config {
 }
 
 /// I2C bus frequency.
-// NOTE(arch): the datasheets only mention these frequencies.
+// NOTE(hal): the datasheets only mention these frequencies.
 #[cfg(any(context = "nrf52833", context = "nrf52840", context = "nrf5340"))]
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
@@ -144,8 +144,8 @@ macro_rules! define_i2c_drivers {
                     // peripheral multiple times.
                     let twim_peripheral = unsafe { peripherals::$peripheral::steal() };
 
-                    // NOTE(arch): the I2C peripheral and driver do not have any built-in timeout,
-                    // we implement it at a higher level, not in this arch-specific module.
+                    // NOTE(hal): the I2C peripheral and driver do not have any built-in timeout,
+                    // we implement it at a higher level, not in this HAL-specific module.
                     let twim = Twim::new(twim_peripheral, Irqs, sda_pin, scl_pin, twim_config);
 
                     I2c::$peripheral(Self { twim })

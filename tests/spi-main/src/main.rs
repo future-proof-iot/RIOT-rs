@@ -1,7 +1,7 @@
 //! This example is merely to illustrate and test raw bus usage.
 //!
 //! Please use [`riot_rs::sensors`] instead for a high-level sensor abstraction that is
-//! architecture-agnostic.
+//! HAL-agnostic.
 //!
 //! This example requires a LIS3DH sensor (3-axis accelerometer).
 #![no_main]
@@ -15,13 +15,12 @@ mod pins;
 use embassy_sync::mutex::Mutex;
 use embedded_hal_async::spi::{Operation, SpiDevice as _};
 use riot_rs::{
-    arch,
     debug::{
         exit,
         log::{debug, info},
         EXIT_SUCCESS,
     },
-    gpio,
+    gpio, hal,
     spi::{
         main::{highest_freq_in, Kilohertz, SpiDevice},
         Mode,
@@ -32,12 +31,12 @@ use riot_rs::{
 const WHO_AM_I_REG_ADDR: u8 = 0x0f;
 
 pub static SPI_BUS: once_cell::sync::OnceCell<
-    Mutex<embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex, arch::spi::main::Spi>,
+    Mutex<embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex, hal::spi::main::Spi>,
 > = once_cell::sync::OnceCell::new();
 
 #[riot_rs::task(autostart, peripherals)]
 async fn main(peripherals: pins::Peripherals) {
-    let mut spi_config = arch::spi::main::Config::default();
+    let mut spi_config = hal::spi::main::Config::default();
     spi_config.frequency = const { highest_freq_in(Kilohertz::kHz(1000)..=Kilohertz::kHz(2000)) };
     debug!("Selected frequency: {}", spi_config.frequency);
     spi_config.mode = if !cfg!(context = "esp") {

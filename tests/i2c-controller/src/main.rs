@@ -1,7 +1,7 @@
 //! This example is merely to illustrate and test raw bus usage.
 //!
 //! Please use [`riot_rs::sensors`] instead for a high-level sensor abstraction that is
-//! architecture-agnostic.
+//! HAL-agnostic.
 //!
 //! This example requires a LIS3DH/LSM303AGR sensor (3-axis accelerometer).
 #![no_main]
@@ -15,12 +15,12 @@ mod pins;
 use embassy_sync::mutex::Mutex;
 use embedded_hal_async::i2c::I2c as _;
 use riot_rs::{
-    arch,
     debug::{
         exit,
         log::{debug, info},
         EXIT_SUCCESS,
     },
+    hal,
     i2c::controller::{highest_freq_in, I2cDevice, Kilohertz},
 };
 
@@ -30,12 +30,12 @@ const TARGET_I2C_ADDR: u8 = 0x19;
 const WHO_AM_I_REG_ADDR: u8 = 0x0f;
 
 pub static I2C_BUS: once_cell::sync::OnceCell<
-    Mutex<embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex, arch::i2c::controller::I2c>,
+    Mutex<embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex, hal::i2c::controller::I2c>,
 > = once_cell::sync::OnceCell::new();
 
 #[riot_rs::task(autostart, peripherals)]
 async fn main(peripherals: pins::Peripherals) {
-    let mut i2c_config = arch::i2c::controller::Config::default();
+    let mut i2c_config = hal::i2c::controller::Config::default();
     i2c_config.frequency = const { highest_freq_in(Kilohertz::kHz(100)..=Kilohertz::kHz(400)) };
     debug!("Selected frequency: {}", i2c_config.frequency);
 

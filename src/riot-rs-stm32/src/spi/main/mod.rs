@@ -13,7 +13,7 @@ use riot_rs_embassy_common::{
 };
 
 // TODO: we could consider making this `pub`
-// NOTE(arch): values from the datasheets.
+// NOTE(hal): values from the datasheets.
 // When peripherals support different frequencies, the smallest one is used.
 #[cfg(context = "stm32f401retx")]
 const MAX_FREQUENCY: Kilohertz = Kilohertz::MHz(21);

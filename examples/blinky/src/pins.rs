@@ -1,4 +1,4 @@
-use riot_rs::arch::peripherals;
+use riot_rs::hal::peripherals;
 
 #[cfg(context = "microbit-v2")]
 riot_rs::define_peripherals!(LedPeripherals {

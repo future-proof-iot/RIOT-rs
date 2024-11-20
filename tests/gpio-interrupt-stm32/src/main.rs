@@ -4,9 +4,9 @@
 #![feature(used_with_arg)]
 
 use riot_rs::{
-    arch::peripherals,
     debug::log::info,
     gpio::{self, Input, Pull},
+    hal::peripherals,
 };
 
 // These pins should be available on all STM32 chips.

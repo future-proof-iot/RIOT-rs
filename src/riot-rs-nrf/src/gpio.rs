@@ -15,7 +15,7 @@ pub mod input {
     pub fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: riot_rs_embassy_common::gpio::Pull,
-        _schmitt_trigger: bool, // Not supported by this architecture
+        _schmitt_trigger: bool, // Not supported by hardware
     ) -> Result<Input<'static>, riot_rs_embassy_common::gpio::input::Error> {
         let pull = from_pull(pull);
         Ok(Input::new(pin, pull))
@@ -25,7 +25,7 @@ pub mod input {
     pub fn new_int_enabled(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: riot_rs_embassy_common::gpio::Pull,
-        _schmitt_trigger: bool, // Not supported by this architecture
+        _schmitt_trigger: bool, // Not supported by hardware
     ) -> Result<IntEnabledInput<'static>, riot_rs_embassy_common::gpio::input::Error> {
         let pull = from_pull(pull);
         let mut pin = pin.into_ref();
@@ -53,7 +53,7 @@ pub mod output {
         pin: impl Peripheral<P: OutputPin> + 'static,
         initial_level: riot_rs_embassy_common::gpio::Level,
         drive_strength: DriveStrength,
-        _speed: Speed, // Not supported by this architecture
+        _speed: Speed, // Not supported by hardware
     ) -> Output<'static> {
         let output_drive = match drive_strength {
             DriveStrength::Standard => OutputDrive::Standard,
@@ -84,7 +84,7 @@ pub mod output {
 
             // ESPs are able to output up to 40 mA, so we somewhat normalize this.
             match drive_strength {
-                Arch(drive_strength) => drive_strength,
+                Hal(drive_strength) => drive_strength,
                 Lowest => DriveStrength::Standard,
                 Standard => DriveStrength::default(),
                 Medium => DriveStrength::Standard,
@@ -96,12 +96,12 @@ pub mod output {
 
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum Speed {
-        UnsupportedByArchitecture,
+        UnsupportedByHardware,
     }
 
     impl FromSpeed for Speed {
         fn from(_speed: riot_rs_embassy_common::gpio::Speed<Self>) -> Self {
-            Self::UnsupportedByArchitecture
+            Self::UnsupportedByHardware
         }
     }
 }

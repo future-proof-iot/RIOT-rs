@@ -3,14 +3,14 @@
 use embassy_embedded_hal::shared_bus::asynch::spi::SpiDevice as InnerSpiDevice;
 use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 
-use crate::{arch, gpio};
+use crate::{gpio, hal};
 
 pub use riot_rs_embassy_common::spi::main::*;
 
 /// An SPI driver implementing [`embedded_hal_async::spi::SpiDevice`].
 ///
 /// Needs to be provided with an MCU-specific SPI driver tied to a specific SPI peripheral,
-/// obtainable from the [`arch::spi::main`] module.
+/// obtainable from the [`hal::spi::main`] module.
 /// It also requires a [`gpio::Output`] for the chip select (CS) signal.
 ///
 /// See [`embedded_hal::spi`] to learn more about the distinction between an
@@ -24,19 +24,19 @@ pub use riot_rs_embassy_common::spi::main::*;
 /// SPI-specific hardware capabilities or through a generic software timeout.
 // TODO: do we actually need a CriticalSectionRawMutex here?
 pub type SpiDevice =
-    InnerSpiDevice<'static, CriticalSectionRawMutex, arch::spi::main::Spi, gpio::Output>;
+    InnerSpiDevice<'static, CriticalSectionRawMutex, hal::spi::main::Spi, gpio::Output>;
 
 /// Returns the highest SPI frequency available on the MCU that fits into the requested
 /// range.
 ///
 /// # Examples
 ///
-/// Assuming the architecture is only able to do up to 8 MHz:
+/// Assuming the MCU is only able to do up to 8 MHz:
 ///
 /// ```
-/// # use riot_rs_embassy::{arch, spi::main::{highest_freq_in, Kilohertz}};
+/// # use riot_rs_embassy::{hal, spi::main::{highest_freq_in, Kilohertz}};
 /// let freq = const { highest_freq_in(Kilohertz::kHz(200)..=Kilohertz::MHz(16)) };
-/// assert_eq!(freq, arch::spi::main::Frequency::F(Kilohertz::MHz(8)));
+/// assert_eq!(freq, hal::spi::main::Frequency::F(Kilohertz::MHz(8)));
 /// ```
 ///
 /// # Panics
@@ -45,13 +45,13 @@ pub type SpiDevice =
 /// It panics if no suitable frequency can be found.
 pub const fn highest_freq_in(
     range: core::ops::RangeInclusive<riot_rs_embassy_common::spi::main::Kilohertz>,
-) -> arch::spi::main::Frequency {
+) -> hal::spi::main::Frequency {
     let min = range.start().to_kHz();
     let max = range.end().to_kHz();
 
     assert!(max >= min);
 
-    let mut freq = arch::spi::main::Frequency::first();
+    let mut freq = hal::spi::main::Frequency::first();
 
     loop {
         // If not yet in the requested range
@@ -104,7 +104,7 @@ mod tests {
 
     #[test]
     fn test_valid_highest_freq_in() {
-        use arch::spi::main::Frequency;
+        use hal::spi::main::Frequency;
         use riot_rs_embassy_common::spi::main::Kilohertz;
 
         const FREQ_0: Frequency = highest_freq_in(Kilohertz::kHz(50)..=Kilohertz::kHz(150));

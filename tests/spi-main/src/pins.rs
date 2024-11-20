@@ -1,4 +1,4 @@
-use riot_rs::arch::{peripherals, spi};
+use riot_rs::hal::{peripherals, spi};
 
 #[cfg(context = "esp")]
 pub type SensorSpi = spi::main::SPI2;

@@ -28,10 +28,10 @@ cfg_if::cfg_if! {
         use esp as arch;
     }
     else if #[cfg(context = "riot-rs")] {
-        // When run with laze but the architecture is not supported
-        compile_error!("no runtime is defined for this architecture");
+        // When run with laze but the MCU family is not supported
+        compile_error!("no runtime is defined for this MCU family");
     } else {
-        // Provide a default architecture, for arch-independent tooling
+        // Provide a default implementation, for arch-independent tooling
         mod arch {
             #[cfg_attr(not(context = "riot-rs"), allow(dead_code))]
             pub fn init() {}

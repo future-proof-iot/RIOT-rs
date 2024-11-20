@@ -34,7 +34,7 @@ pub use executor::{Executor, Spawner};
 
 /// Dummy type.
 ///
-/// See the `OptionalPeripherals` type of your Embassy architecture crate instead.
+/// See the `OptionalPeripherals` type of your Embassy HAL crate instead.
 pub struct OptionalPeripherals;
 
 /// Dummy type.

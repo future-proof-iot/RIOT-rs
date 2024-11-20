@@ -34,7 +34,7 @@ pub mod input {
         pull: riot_rs_embassy_common::gpio::Pull,
         schmitt_trigger: bool,
     ) -> Result<IntEnabledInput<'static>, InterruptError> {
-        // This architecture does not require special treatment of external interrupts.
+        // This HAL does not require special treatment of external interrupts.
         match new(pin, pull, schmitt_trigger) {
             Ok(input) => Ok(input),
             Err(err) => match err {
@@ -108,7 +108,7 @@ pub mod output {
 
             // ESPs are able to output up to 40 mA, so we somewhat normalize this.
             match drive_strength {
-                Arch(drive_strength) => drive_strength,
+                Hal(drive_strength) => drive_strength,
                 Lowest => DriveStrength::_2mA,
                 Standard => DriveStrength::default(),
                 Medium => DriveStrength::_8mA,
@@ -148,7 +148,7 @@ pub mod output {
             use riot_rs_embassy_common::gpio::Speed::*;
 
             match speed {
-                Arch(speed) => speed,
+                Hal(speed) => speed,
                 Low => Speed::Low,
                 Medium => Speed::Low,
                 High => Speed::High,

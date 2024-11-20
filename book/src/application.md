@@ -13,7 +13,7 @@ Being ZSTs, they do not carry any data to the drivers, only their ownership is m
 
 > If you are used to thinking about MCU peripherals as referenced by a base address (in the case of memory-mapped peripherals), you can think of these ZSTs as abstraction over these, with a zero-cost, statically-enforced lock ensuring exclusive access.
 
-These Embassy types are defined by [Embassy architecture crates][embassy-architecture-crates] in the respective `peripherals` modules.
+These Embassy types are defined by [Embassy HAL crates][embassy-hal-crates] in the respective `peripherals` modules.
 In RIOT-rs applications, the only safe way to obtain an instance of an Embassy peripheral is by using the [`define_peripherals!`][define_peripherals-docs] macro, combined with a [spawner or task][spawner-or-task].
 The [`group_peripherals!`][group_peripherals-docs] macro can also be useful.
 
@@ -53,7 +53,7 @@ Functions can currently be registered as either `spawner`s or `task`s:
 
 Both of these can be provided with an instance of a RIOT-rs peripheral struct when needed, using the `peripherals` macro parameters (see the macros' documentation) and taking that RIOT-rs peripheral struct as parameter.
 
-> The Embassy peripherals obtained this way are regular Embassy peripherals, which are compatible with both RIOT-rs portable drivers and [Embassy architecture crates'][embassy-architecture-crates] architecture-specific drivers.
+> The Embassy peripherals obtained this way are regular Embassy peripherals, which are compatible with both RIOT-rs portable drivers and [Embassy HAL crates'][embassy-hal-crates] HAL-specific drivers.
 
 ### Examples
 
@@ -75,7 +75,7 @@ async fn blinky(peripherals: pins::LedPeripherals) {
 
 TODO
 
-[embassy-architecture-crates]: ./glossary.md#embassy-architecture-crates
+[embassy-hal-crates]: ./glossary.md#embassy-hal-crates
 [spawner-attr-docs]: https://future-proof-iot.github.io/RIOT-rs/dev/docs/api/riot_rs/attr.spawner.html
 [task-attr-docs]: https://future-proof-iot.github.io/RIOT-rs/dev/docs/api/riot_rs/attr.task.html
 [spawner-or-task]: #the-spawner-and-task-riot-rs-macros

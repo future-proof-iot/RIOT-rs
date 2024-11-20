@@ -1,4 +1,4 @@
-//! Architecture- and MCU-specific types for SPI.
+//! HAL- and MCU-specific types for SPI.
 //!
 //! This module provides a driver for each SPI peripheral, the driver name being the same as the
 //! peripheral; see the tests and examples to learn how to instantiate them.

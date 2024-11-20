@@ -10,20 +10,20 @@
 
 use embedded_hal::digital::StatefulOutputPin;
 
-use crate::arch::{
+use crate::hal::{
     self,
     gpio::{
-        input::{Input as ArchInput, InputPin as ArchInputPin},
+        input::{Input as HalInput, InputPin as HalInputPin},
         output::{
-            DriveStrength as ArchDriveStrength, Output as ArchOutput, OutputPin as ArchOutputPin,
-            Speed as ArchSpeed,
+            DriveStrength as HalDriveStrength, Output as HalOutput, OutputPin as HalOutputPin,
+            Speed as HalSpeed,
         },
     },
     peripheral::Peripheral,
 };
 
 #[cfg(feature = "external-interrupts")]
-use crate::arch::gpio::input::IntEnabledInput as ArchIntEnabledInput;
+use crate::hal::gpio::input::IntEnabledInput as HalIntEnabledInput;
 
 use input::InputBuilder;
 use output::OutputBuilder;
@@ -45,7 +45,7 @@ macro_rules! inner_impl_input_methods {
 
         /// Returns the input level.
         pub fn get_level(&self) -> Level {
-            arch::gpio::input::into_level(self.$inner.get_level())
+            hal::gpio::input::into_level(self.$inner.get_level())
         }
     };
 }
@@ -55,17 +55,17 @@ macro_rules! inner_impl_input_methods {
 /// If support for external interrupts is needed, use [`InputBuilder::build_with_interrupt()`] to
 /// obtain an [`IntEnabledInput`].
 pub struct Input {
-    input: ArchInput<'static>, // FIXME: is this ok to require a 'static pin?
+    input: HalInput<'static>, // FIXME: is this ok to require a 'static pin?
 }
 
 impl Input {
     /// Returns a configured [`Input`].
-    pub fn new(pin: impl Peripheral<P: ArchInputPin> + 'static, pull: Pull) -> Self {
+    pub fn new(pin: impl Peripheral<P: HalInputPin> + 'static, pull: Pull) -> Self {
         Self::builder(pin, pull).build()
     }
 
     /// Returns an [`InputBuilder`], allowing to configure the GPIO input further.
-    pub fn builder<P: Peripheral<P: ArchInputPin>>(pin: P, pull: Pull) -> InputBuilder<P> {
+    pub fn builder<P: Peripheral<P: HalInputPin>>(pin: P, pull: Pull) -> InputBuilder<P> {
         InputBuilder {
             pin,
             pull,
@@ -78,7 +78,7 @@ impl Input {
 
 #[doc(hidden)]
 impl embedded_hal::digital::ErrorType for Input {
-    type Error = <ArchInput<'static> as embedded_hal::digital::ErrorType>::Error;
+    type Error = <HalInput<'static> as embedded_hal::digital::ErrorType>::Error;
 }
 
 /// A GPIO input that supports external interrupts.
@@ -86,7 +86,7 @@ impl embedded_hal::digital::ErrorType for Input {
 /// Can be obtained with [`InputBuilder::build_with_interrupt()`].
 #[cfg(feature = "external-interrupts")]
 pub struct IntEnabledInput {
-    input: ArchIntEnabledInput<'static>, // FIXME: is this ok to require a 'static pin?
+    input: HalIntEnabledInput<'static>, // FIXME: is this ok to require a 'static pin?
 }
 
 #[cfg(feature = "external-interrupts")]
@@ -124,37 +124,37 @@ impl IntEnabledInput {
 #[cfg(feature = "external-interrupts")]
 #[doc(hidden)]
 impl embedded_hal::digital::ErrorType for IntEnabledInput {
-    type Error = <ArchIntEnabledInput<'static> as embedded_hal::digital::ErrorType>::Error;
+    type Error = <HalIntEnabledInput<'static> as embedded_hal::digital::ErrorType>::Error;
 }
 
 #[cfg(feature = "external-interrupts")]
 impl embedded_hal_async::digital::Wait for IntEnabledInput {
     async fn wait_for_high(&mut self) -> Result<(), Self::Error> {
-        <ArchIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_high(&mut self.input)
+        <HalIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_high(&mut self.input)
             .await
     }
 
     async fn wait_for_low(&mut self) -> Result<(), Self::Error> {
-        <ArchIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_low(&mut self.input)
+        <HalIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_low(&mut self.input)
             .await
     }
 
     async fn wait_for_rising_edge(&mut self) -> Result<(), Self::Error> {
-        <ArchIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_rising_edge(
+        <HalIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_rising_edge(
             &mut self.input,
         )
         .await
     }
 
     async fn wait_for_falling_edge(&mut self) -> Result<(), Self::Error> {
-        <ArchIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_falling_edge(
+        <HalIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_falling_edge(
             &mut self.input,
         )
         .await
     }
 
     async fn wait_for_any_edge(&mut self) -> Result<(), Self::Error> {
-        <ArchIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_any_edge(
+        <HalIntEnabledInput as embedded_hal_async::digital::Wait>::wait_for_any_edge(
             &mut self.input,
         )
         .await
@@ -162,28 +162,28 @@ impl embedded_hal_async::digital::Wait for IntEnabledInput {
 }
 
 macro_rules! impl_embedded_hal_input_trait {
-    ($type:ident, $arch_type:ident) => {
+    ($type:ident, $hal_type:ident) => {
         impl embedded_hal::digital::InputPin for $type {
             fn is_high(&mut self) -> Result<bool, Self::Error> {
-                <$arch_type as embedded_hal::digital::InputPin>::is_high(&mut self.input)
+                <$hal_type as embedded_hal::digital::InputPin>::is_high(&mut self.input)
             }
 
             fn is_low(&mut self) -> Result<bool, Self::Error> {
-                <$arch_type as embedded_hal::digital::InputPin>::is_low(&mut self.input)
+                <$hal_type as embedded_hal::digital::InputPin>::is_low(&mut self.input)
             }
         }
     };
 }
 
-impl_embedded_hal_input_trait!(Input, ArchInput);
+impl_embedded_hal_input_trait!(Input, HalInput);
 #[cfg(feature = "external-interrupts")]
-impl_embedded_hal_input_trait!(IntEnabledInput, ArchIntEnabledInput);
+impl_embedded_hal_input_trait!(IntEnabledInput, HalIntEnabledInput);
 
 pub mod input {
     //! Input-specific types.
     use riot_rs_embassy_common::gpio::Pull;
 
-    use crate::arch::{self, gpio::input::InputPin as ArchInputPin, peripheral::Peripheral};
+    use crate::hal::{self, gpio::input::InputPin as HalInputPin, peripheral::Peripheral};
 
     use super::Input;
 
@@ -196,28 +196,28 @@ pub mod input {
     pub use riot_rs_embassy_common::gpio::input::InterruptError;
 
     /// Builder type for [`Input`], can be obtained with [`Input::builder()`].
-    pub struct InputBuilder<P: Peripheral<P: ArchInputPin>> {
+    pub struct InputBuilder<P: Peripheral<P: HalInputPin>> {
         pub(crate) pin: P,
         pub(crate) pull: Pull,
         pub(crate) schmitt_trigger: bool,
     }
 
-    impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
+    impl<P: Peripheral<P: HalInputPin> + 'static> InputBuilder<P> {
         /// Configures the input's Schmitt trigger.
         ///
         /// # Note
         ///
-        /// Fails to compile if the architecture does not support configuring Schmitt trigger on
+        /// Fails to compile if the HAL does not support configuring Schmitt trigger on
         /// inputs.
         pub fn schmitt_trigger(self, enable: bool) -> Self {
             #[expect(
                 clippy::assertions_on_constants,
-                reason = "the constant depends on the architecture"
+                reason = "the constant depends on the HAL"
             )]
             const {
                 assert!(
-                    arch::gpio::input::SCHMITT_TRIGGER_CONFIGURABLE,
-                    "This architecture does not support configuring Schmitt triggers on GPIO inputs."
+                    hal::gpio::input::SCHMITT_TRIGGER_CONFIGURABLE,
+                    "This HAL does not support configuring Schmitt triggers on GPIO inputs."
                 );
             }
 
@@ -232,7 +232,7 @@ pub mod input {
         // We may remove them in the future if we realize they are never useful.
         #[doc(hidden)]
         pub fn opt_schmitt_trigger(self, enable: bool) -> Self {
-            if arch::gpio::input::SCHMITT_TRIGGER_CONFIGURABLE {
+            if hal::gpio::input::SCHMITT_TRIGGER_CONFIGURABLE {
                 // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
                 // be triggered.
                 Self {
@@ -246,10 +246,10 @@ pub mod input {
     }
 
     // Split the impl for consistency with outputs.
-    impl<P: Peripheral<P: ArchInputPin> + 'static> InputBuilder<P> {
+    impl<P: Peripheral<P: HalInputPin> + 'static> InputBuilder<P> {
         /// Returns an [`Input`] by finalizing the builder.
         pub fn build(self) -> Input {
-            let input = match arch::gpio::input::new(self.pin, self.pull, self.schmitt_trigger) {
+            let input = match hal::gpio::input::new(self.pin, self.pull, self.schmitt_trigger) {
                 Ok(input) => input,
                 Err(_) => unreachable!(),
             };
@@ -261,18 +261,17 @@ pub mod input {
         ///
         /// # Errors
         ///
-        /// On some architectures, the number of external interrupts that can simultaneously be
+        /// On some MCU families, the number of external interrupts that can simultaneously be
         /// enabled is limited by the number of hardware interrupt channels.
-        /// Some architectures also have other limitations, for instance it may not be possible to
+        /// Some MCU families also have other limitations, for instance it may not be possible to
         /// register interrupts on a pin if one is already registered on the pin with the same pin
         /// number of another port (e.g., `PA0` and `PB0`).
-        /// In these cases, this returns an [`Error::InterruptChannel`], with an
-        /// architecture-specific error.
+        /// In these cases, this returns an [`Error::InterruptChannel`], with a HAL-specific error.
         // FIXME: rename this
         #[cfg(feature = "external-interrupts")]
         pub fn build_with_interrupt(self) -> Result<IntEnabledInput, Error> {
             let input =
-                arch::gpio::input::new_int_enabled(self.pin, self.pull, self.schmitt_trigger)?;
+                hal::gpio::input::new_int_enabled(self.pin, self.pull, self.schmitt_trigger)?;
 
             Ok(IntEnabledInput { input })
         }
@@ -281,17 +280,17 @@ pub mod input {
 
 /// A GPIO output.
 pub struct Output {
-    output: ArchOutput<'static>, // FIXME: is this ok to require a 'static pin?
+    output: HalOutput<'static>, // FIXME: is this ok to require a 'static pin?
 }
 
 impl Output {
     /// Returns a configured [`Output`].
-    pub fn new(pin: impl Peripheral<P: ArchOutputPin> + 'static, initial_level: Level) -> Self {
+    pub fn new(pin: impl Peripheral<P: HalOutputPin> + 'static, initial_level: Level) -> Self {
         Self::builder(pin, initial_level).build()
     }
 
     /// Returns an [`OutputBuilder`], allowing to configure the GPIO output further.
-    pub fn builder<P: Peripheral<P: ArchOutputPin>>(
+    pub fn builder<P: Peripheral<P: HalOutputPin>>(
         pin: P,
         initial_level: Level,
     ) -> OutputBuilder<P> {
@@ -305,26 +304,26 @@ impl Output {
 
     /// Sets the output as high.
     pub fn set_high(&mut self) {
-        // All architectures are infallible.
+        // All HALs are infallible.
         let _ = <Self as embedded_hal::digital::OutputPin>::set_high(self);
     }
 
     /// Sets the output as low.
     pub fn set_low(&mut self) {
-        // All architectures are infallible.
+        // All HALs are infallible.
         let _ = <Self as embedded_hal::digital::OutputPin>::set_low(self);
     }
 
     /// Sets the output level.
     pub fn set_level(&mut self, level: Level) {
         let state = level.into();
-        // All architectures are infallible.
+        // All HALs are infallible.
         let _ = <Self as embedded_hal::digital::OutputPin>::set_state(self, state);
     }
 
     /// Toggles the output level.
     pub fn toggle(&mut self) {
-        // All architectures are infallible.
+        // All HALs are infallible.
         let _ = <Self as StatefulOutputPin>::toggle(self);
     }
 }
@@ -333,16 +332,16 @@ pub mod output {
     //! Output-specific types.
     use riot_rs_embassy_common::gpio::{DriveStrength, FromDriveStrength, FromSpeed, Level, Speed};
 
-    use crate::arch::{self, gpio::output::OutputPin as ArchOutputPin, peripheral::Peripheral};
+    use crate::hal::{self, gpio::output::OutputPin as HalOutputPin, peripheral::Peripheral};
 
-    use super::{ArchDriveStrength, ArchSpeed, Output};
+    use super::{HalDriveStrength, HalSpeed, Output};
 
     /// Builder type for [`Output`], can be obtained with [`Output::builder()`].
-    pub struct OutputBuilder<P: Peripheral<P: ArchOutputPin>> {
+    pub struct OutputBuilder<P: Peripheral<P: HalOutputPin>> {
         pub(crate) pin: P,
         pub(crate) initial_level: Level,
-        pub(crate) drive_strength: DriveStrength<ArchDriveStrength>,
-        pub(crate) speed: Speed<ArchSpeed>,
+        pub(crate) drive_strength: DriveStrength<HalDriveStrength>,
+        pub(crate) speed: Speed<HalSpeed>,
     }
 
     // We define this in a macro because it will be useful for open-drain outputs.
@@ -353,13 +352,16 @@ pub mod output {
                 ///
                 /// # Note
                 ///
-                /// Fails to compile if the architecture does not support configuring drive
-                /// strength of outputs.
-                pub fn drive_strength(self, drive_strength: DriveStrength<ArchDriveStrength>) -> Self {
+                /// Fails to compile if the HALs does not support configuring drive strength of
+                /// outputs.
+                pub fn drive_strength(
+                    self,
+                    drive_strength: DriveStrength<HalDriveStrength>,
+                ) -> Self {
                     const {
                         assert!(
-                            arch::gpio::output::DRIVE_STRENGTH_CONFIGURABLE,
-                            "This architecture does not support setting the drive strength of GPIO outputs."
+                            hal::gpio::output::DRIVE_STRENGTH_CONFIGURABLE,
+                            "This HAL does not support setting the drive strength of GPIO outputs."
                         );
                     }
 
@@ -374,8 +376,11 @@ pub mod output {
                 // We may remove them in the future if we realize they are never useful.
                 #[doc(hidden)]
                 // TODO: or `drive_strength_opt`?
-                pub fn opt_drive_strength(self, drive_strength: DriveStrength<ArchDriveStrength>) -> Self {
-                    if arch::gpio::output::DRIVE_STRENGTH_CONFIGURABLE {
+                pub fn opt_drive_strength(
+                    self,
+                    drive_strength: DriveStrength<HalDriveStrength>,
+                ) -> Self {
+                    if hal::gpio::output::DRIVE_STRENGTH_CONFIGURABLE {
                         // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
                         // be triggered.
                         Self {
@@ -391,13 +396,12 @@ pub mod output {
                 ///
                 /// # Note
                 ///
-                /// Fails to compile if the architecture does not support configuring speed of
-                /// outputs.
-                pub fn speed(self, speed: Speed<ArchSpeed>) -> Self {
+                /// Fails to compile if the HAL does not support configuring speed of outputs.
+                pub fn speed(self, speed: Speed<HalSpeed>) -> Self {
                     const {
                         assert!(
-                            arch::gpio::output::SPEED_CONFIGURABLE,
-                            "This architecture does not support setting the speed of GPIO outputs."
+                            hal::gpio::output::SPEED_CONFIGURABLE,
+                            "This HAL does not support setting the speed of GPIO outputs."
                         );
                     }
 
@@ -409,8 +413,8 @@ pub mod output {
                 // We may remove them in the future if we realize they are never useful.
                 #[doc(hidden)]
                 // TODO: or `speed_opt`?
-                pub fn opt_speed(self, speed: Speed<ArchSpeed>) -> Self {
-                    if arch::gpio::output::SPEED_CONFIGURABLE {
+                pub fn opt_speed(self, speed: Speed<HalSpeed>) -> Self {
+                    if hal::gpio::output::SPEED_CONFIGURABLE {
                         // We cannot reuse the non-`opt_*()`, otherwise the const assert inside it would always
                         // be triggered.
                         Self { speed, ..self }
@@ -419,22 +423,21 @@ pub mod output {
                     }
                 }
             }
-        }
+        };
     }
 
-    impl_output_builder!(OutputBuilder, ArchOutputPin);
+    impl_output_builder!(OutputBuilder, HalOutputPin);
 
-    impl<P: Peripheral<P: ArchOutputPin> + 'static> OutputBuilder<P> {
+    impl<P: Peripheral<P: HalOutputPin> + 'static> OutputBuilder<P> {
         /// Returns an [`Output`] by finalizing the builder.
         pub fn build(self) -> Output {
             // TODO: should we move this into `output::new()`s?
-            let drive_strength =
-                <ArchDriveStrength as FromDriveStrength>::from(self.drive_strength);
+            let drive_strength = <HalDriveStrength as FromDriveStrength>::from(self.drive_strength);
             // TODO: should we move this into `output::new()`s?
-            let speed = <ArchSpeed as FromSpeed>::from(self.speed);
+            let speed = <HalSpeed as FromSpeed>::from(self.speed);
 
             let output =
-                arch::gpio::output::new(self.pin, self.initial_level, drive_strength, speed);
+                hal::gpio::output::new(self.pin, self.initial_level, drive_strength, speed);
 
             Output { output }
         }
@@ -443,19 +446,19 @@ pub mod output {
 
 // We define this in a macro because it will be useful for open-drain outputs.
 macro_rules! impl_embedded_hal_output_traits {
-    ($type:ident, $arch_type:ident) => {
+    ($type:ident, $hal_type:ident) => {
         #[doc(hidden)]
         impl embedded_hal::digital::ErrorType for $type {
-            type Error = <$arch_type<'static> as embedded_hal::digital::ErrorType>::Error;
+            type Error = <$hal_type<'static> as embedded_hal::digital::ErrorType>::Error;
         }
 
         impl embedded_hal::digital::OutputPin for $type {
             fn set_high(&mut self) -> Result<(), Self::Error> {
-                <$arch_type as embedded_hal::digital::OutputPin>::set_high(&mut self.output)
+                <$hal_type as embedded_hal::digital::OutputPin>::set_high(&mut self.output)
             }
 
             fn set_low(&mut self) -> Result<(), Self::Error> {
-                <$arch_type as embedded_hal::digital::OutputPin>::set_low(&mut self.output)
+                <$hal_type as embedded_hal::digital::OutputPin>::set_low(&mut self.output)
             }
         }
 
@@ -466,17 +469,17 @@ macro_rules! impl_embedded_hal_output_traits {
         // - embassy-stm32
         impl StatefulOutputPin for $type {
             fn is_set_high(&mut self) -> Result<bool, Self::Error> {
-                <$arch_type as StatefulOutputPin>::is_set_high(&mut self.output)
+                <$hal_type as StatefulOutputPin>::is_set_high(&mut self.output)
             }
 
             fn is_set_low(&mut self) -> Result<bool, Self::Error> {
-                <$arch_type as StatefulOutputPin>::is_set_low(&mut self.output)
+                <$hal_type as StatefulOutputPin>::is_set_low(&mut self.output)
             }
         }
     };
 }
 
-impl_embedded_hal_output_traits!(Output, ArchOutput);
+impl_embedded_hal_output_traits!(Output, HalOutput);
 
 #[cfg(test)]
 mod tests {

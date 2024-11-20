@@ -22,7 +22,7 @@ impl Default for Config {
 }
 
 /// I2C bus frequency.
-// NOTE(arch): the technical references only mention these frequencies.
+// NOTE(hal): the technical references only mention these frequencies.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 pub enum Frequency {
@@ -104,7 +104,7 @@ macro_rules! define_i2c_drivers {
                     // peripheral multiple times.
                     let i2c_peripheral = unsafe { peripherals::$peripheral::steal() };
 
-                    // NOTE(arch): even though we handle bus timeout at a higher level as well, it
+                    // NOTE(hal): even though we handle bus timeout at a higher level as well, it
                     // does not seem possible to disable the timeout feature on ESP; so we keep the
                     // default timeout instead (encoded as `None`).
                     let timeout = None;
@@ -151,7 +151,7 @@ fn from_error(err: esp_hal::i2c::Error) -> riot_rs_embassy_common::i2c::controll
     }
 }
 
-// FIXME: support other archs
+// FIXME: support other MCUs
 // Define a driver per peripheral
 #[cfg(context = "esp32c6")]
 define_i2c_drivers!(I2C0);

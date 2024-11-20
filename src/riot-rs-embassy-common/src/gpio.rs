@@ -1,4 +1,4 @@
-//! Provides architecture-agnostic GPIO-related types.
+//! Provides HAL-agnostic GPIO-related types.
 
 /// Digital level of an input or output.
 #[derive(Copy, Clone, PartialEq, Eq)]
@@ -44,7 +44,7 @@ impl From<Level> for embedded_hal::digital::PinState {
 #[macro_export]
 macro_rules! define_into_level {
     () => {
-        // The `Level` taken as parameter is the arch-specific type.
+        // The `Level` taken as parameter is the HAL-specific type.
         #[doc(hidden)]
         pub fn into_level(level: Level) -> $crate::gpio::Level {
             match level {
@@ -57,7 +57,7 @@ macro_rules! define_into_level {
 
 /// Pull-up/pull-down resistor configuration.
 ///
-/// All the architectures we support have pull-up and pull-down resistors.
+/// All the MCU families we support have pull-up and pull-down resistors.
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum Pull {
     /// No pull-up or pull-down resistor.
@@ -72,7 +72,7 @@ pub enum Pull {
 #[macro_export]
 macro_rules! define_from_pull {
     () => {
-        // The returned `Pull` is the arch-specific type.
+        // The returned `Pull` is the HAL-specific type.
         fn from_pull(pull: $crate::gpio::Pull) -> Pull {
             match pull {
                 $crate::gpio::Pull::None => Pull::None,
@@ -86,21 +86,21 @@ macro_rules! define_from_pull {
 /// Drive strength of an output.
 ///
 /// This enum allows to either use high-level, portable values, roughly normalized across
-/// architectures, or to use architecture-specific values if needed.
+/// HALs, or to use HAL-specific values if needed.
 // TODO: should this be marked non_exhaustive?
 #[derive(Copy, Clone, PartialEq, Eq)]
 pub enum DriveStrength<A> {
-    /// Architecture-specific drive strength setting.
-    Arch(A),
-    /// Lowest drive strength available on this architecture.
+    /// HAL-specific drive strength setting.
+    Hal(A),
+    /// Lowest drive strength available on this HAL.
     Lowest,
-    /// Most common reset value of drive strength on this architecture.
+    /// Most common reset value of drive strength on this HAL.
     Standard,
     /// Medium drive strength.
     Medium,
     /// High drive strength.
     High,
-    /// Highest drive strength available on this architecture.
+    /// Highest drive strength available on this HAL.
     Highest,
 }
 
@@ -114,7 +114,7 @@ impl<A> Default for DriveStrength<A> {
 // value-preserving.
 #[doc(hidden)]
 pub trait FromDriveStrength {
-    /// Converts the arch-agnostic type to an arch-specific type.
+    /// Converts the HAL-agnostic type to a HAL-specific type.
     fn from(drive_strength: DriveStrength<Self>) -> Self
     where
         Self: Sized;
@@ -125,13 +125,13 @@ pub trait FromDriveStrength {
 /// Speed can be increased when needed, at the price of increasing high-frequency noise.
 ///
 /// This enum allows to either use high-level, portable values, roughly normalized across
-/// architectures, or to use architecture-specific values if needed.
+/// HALs, or to use HAL-specific values if needed.
 #[doc(alias = "SlewRate")]
 #[derive(Copy, Clone, PartialEq, Eq)]
 // FIXME: should we call this slew rate instead?
 pub enum Speed<A> {
-    /// Architecture-specific speed setting.
-    Arch(A),
+    /// HAL-specific speed setting.
+    Hal(A),
     /// Low speed.
     Low,
     /// Medium speed.
@@ -152,7 +152,7 @@ impl<A> Default for Speed<A> {
 // value-preserving.
 #[doc(hidden)]
 pub trait FromSpeed {
-    /// Converts the arch-agnostic type to an arch-specific type.
+    /// Converts the HAL-agnostic type to a HAL-specific type.
     fn from(speed: Speed<Self>) -> Self
     where
         Self: Sized;
@@ -179,14 +179,14 @@ pub mod input {
     // FIXME(doc): document the variants
     /// External interrupt-related errors.
     ///
-    /// Not all variants can happen on every architecture.
+    /// Not all variants can happen on every HALs.
     #[cfg(feature = "external-interrupts")]
     #[derive(Debug)]
     pub enum InterruptError {
-        /// On architectures where interrupt channels are shared between multiple input GPIOs (e.g,
+        /// On MCU families where interrupt channels are shared between multiple input GPIOs (e.g,
         /// STM32), signals that the interrupt channel is already used by another input GPIO.
         IntChannelAlreadyUsed,
-        /// On architectures where there is a pool of interrupt channels, with fewer channels than
+        /// On MCU families where there is a pool of interrupt channels, with fewer channels than
         /// input GPIOs, signals that no interrupt channel is left available.
         NoIntChannelAvailable,
     }

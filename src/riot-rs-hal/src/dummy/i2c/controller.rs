@@ -1,4 +1,4 @@
-//! Architecture- and MCU-specific types for I2C.
+//! HAL- and MCU-specific types for I2C.
 //!
 //! This module provides a driver for each I2C peripheral, the driver name being the same as the
 //! peripheral; see the tests and examples to learn how to instantiate them.
