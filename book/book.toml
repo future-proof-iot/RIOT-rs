@@ -3,7 +3,7 @@ authors = ["Kaspar Schleiser", "Emmanuel Baccelli", "Christian Amsüss"]
 language = "en"
 multilingual = false
 src = "src"
-title = "RIOT-rs manual"
+title = "Ariel OS manual"
 
 [output.html]
 git-repository-url = "https://github.com/ariel-os/ariel-os"

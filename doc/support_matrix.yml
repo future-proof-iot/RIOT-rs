@@ -10,7 +10,7 @@ support_keys:
     description: supported with some caveats
   - name: not_currently_supported
     icon: ❌
-    description: available in hardware, but not currently supported by RIOT-rs
+    description: available in hardware, but not currently supported by Ariel OS
   - name: not_available
     icon: '–'
     description: not available on this piece of hardware

@@ -1,4 +1,4 @@
-//! RIOT-rs is an operating system for secure, memory-safe, low-power Internet of Things (IoT).
+//! Ariel OS is an operating system for secure, memory-safe, low-power Internet of Things (IoT).
 //!
 //! See the [README](https://github.com/ariel-os/ariel-os) for more details.
 //!
@@ -48,7 +48,7 @@ use riot_rs_boards as _;
 pub use riot_rs_embassy::api::*;
 pub use static_cell::{ConstStaticCell, StaticCell};
 
-/// This module contains all third party crates as used by RIOT-rs.
+/// This module contains all third party crates as used by Ariel OS.
 ///
 /// TODO: The version of this crate (`riot-rs`) will correspond to changes in
 /// these dependencies (keeping semver guarantees).

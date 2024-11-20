@@ -47,7 +47,7 @@ p.add_argument(
 )
 p.add_argument(
     "peer",
-    help="URI (scheme and host); defaults to the current RIOT-rs default {default}",
+    help="URI (scheme and host); defaults to the current Ariel OS default {default}",
     default="coap://10.42.0.61",
     nargs="?",
 )

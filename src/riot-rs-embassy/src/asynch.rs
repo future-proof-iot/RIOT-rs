@@ -1,6 +1,6 @@
 //! Provides async functionality.
 //!
-//! This module bundles RIOT-rs async functionality. It also wraps
+//! This module bundles Ariel OS async functionality. It also wraps
 //! some [Embassy](https://github.com/embassy-rs/embassy) types.
 
 #![deny(missing_docs)]

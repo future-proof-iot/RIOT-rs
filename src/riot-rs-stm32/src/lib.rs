@@ -48,7 +48,7 @@ include!(concat!(env!("OUT_DIR"), "/swi.rs"));
 #[cfg(capability = "hw/stm32-dual-core")]
 use {core::mem::MaybeUninit, embassy_stm32::SharedData};
 
-// RIOT-rs doesn't support the second core yet, but upstream needs this.
+// Ariel OS doesn't support the second core yet, but upstream needs this.
 #[cfg(capability = "hw/stm32-dual-core")]
 static SHARED_DATA: MaybeUninit<SharedData> = MaybeUninit::uninit();
 

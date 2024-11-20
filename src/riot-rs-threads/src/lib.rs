@@ -1,4 +1,4 @@
-//! Multi-threading for RIOT-rs.
+//! Multi-threading for Ariel OS.
 //!
 //! Implements a scheduler based on fixed priorities and preemption.
 //! Within one priority level, threads are scheduled cooperatively.
@@ -485,7 +485,7 @@ impl From<CoreId> for usize {
 ///
 /// # Safety
 ///
-/// This function is crafted to be called at a specific point in the RIOT-rs
+/// This function is crafted to be called at a specific point in the Ariel OS
 /// initialization, by `riot-rs-rt`. Don't call this unless you know you need to.
 ///
 /// Currently it expects at least:

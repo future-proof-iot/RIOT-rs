@@ -1,4 +1,4 @@
-# RIOT-rs
+# Ariel OS
 [![Build Status][build-badge]][build-info]
 [![Book][book-badge]][documentation-mdbook]
 [![Documentation][rustdoc-badge]][documentation-dev-rustdoc]
@@ -6,29 +6,29 @@
 
 > Rust & RIOT combined for ergonomic embedded development
 
-RIOT-rs is an operating system for secure, memory-safe, low-power Internet of Things (IoT).
-RIOT-rs is based on Rust from the ground up, and uses formal verification
+Ariel OS is an operating system for secure, memory-safe, low-power Internet of Things (IoT).
+Ariel OS is based on Rust from the ground up, and uses formal verification
 for critical modules. To learn more about our motivations, see this
 [manifesto](https://ariel-os.github.io/ariel-os/dev/docs/book/manifesto.html).
 
 Hardware targets include varieties of IoT hardware based on 
 32-bit microcontroller architectures (such as Cortex-M, RISC-V).
 
-In practice, RIOT-rs builds on top of [Embassy](https://github.com/embassy-rs/embassy).
+In practice, Ariel OS builds on top of [Embassy](https://github.com/embassy-rs/embassy).
 Compared to what [Embassy](https://github.com/embassy-rs/embassy) already provides,
-RIOT-rs brings additional value in terms of 
+Ariel OS brings additional value in terms of 
 abstraction, operating system functionalities, 
 and integration for a (curated) set of software modules, tools and libraries, as well as 
 a stronger focus on cybersecurity and formal verification.
  
-In particular, RIOT-rs aims to combine:
+In particular, Ariel OS aims to combine:
 
 - **application code portability** across all supported hardware, via consistent memory/energy efficient APIs;
 - **async programming** paradigms, based on [Embassy](https://github.com/embassy-rs/embassy);
 - **preemptive scheduler** programming paradigms, based on formally verified modules using [hax](https://hacspec.org/blog/posts/hax-v0-1/);
 - **booting & update security**, via measured boot and secure software updates, using formally verified modules.
 
-Overall, RIOT-rs gives you a 'batteries-included' experience, on par
+Overall, Ariel OS gives you a 'batteries-included' experience, on par
 with [RIOT](https://github.com/RIOT-OS/RIOT). 
 
 ## Supported hardware
@@ -110,7 +110,7 @@ information.
 
 ## Minimum Supported Rust Version (MSRV)
 
-RIOT-rs makes heavy use of Rust unstable features. For the time being, it is
+Ariel OS makes heavy use of Rust unstable features. For the time being, it is
 recommended to use a current nightly.
 
 ## Coding Conventions
@@ -121,14 +121,14 @@ in the documentation.
 
 ## Copyright & License
 
-RIOT-rs is licensed under either of
+Ariel OS is licensed under either of
 
 - Apache License, Version 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0)
 - MIT license (LICENSE-MIT or http://opensource.org/licenses/MIT)
 
 at your option.
 
-~~RIOT-rs links with many components of [RIOT OS](https://github.com/RIOT-OS/RIOT),
+~~Ariel OS links with many components of [RIOT OS](https://github.com/RIOT-OS/RIOT),
 which is licenced under the terms of LGPLv2.1.~~
 
 Copyright (C) 2020-2023 Freie Universität Berlin, Inria, Kaspar Schleiser

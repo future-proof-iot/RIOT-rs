@@ -3,7 +3,7 @@ pub struct DeviceId(u64);
 impl riot_rs_embassy_common::identity::DeviceId for DeviceId {
     #[expect(
         refining_impl_trait_reachable,
-        reason = "making this fallible would be a breaking API change for RIOT-rs"
+        reason = "making this fallible would be a breaking API change for Ariel OS"
     )]
     fn get() -> Result<Self, core::convert::Infallible> {
         #[cfg(not(context = "nrf5340"))]

@@ -5,7 +5,7 @@ impl riot_rs_embassy_common::identity::DeviceId for DeviceId {
 
     #[allow(
         refining_impl_trait_reachable,
-        reason = "Making this fallible would be a breaking API change for RIOT-rs."
+        reason = "Making this fallible would be a breaking API change for Ariel OS."
     )]
     fn get() -> Result<Self, core::convert::Infallible> {
         Ok(Self(embassy_stm32::uid::uid()))

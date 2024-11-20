@@ -65,7 +65,7 @@ fn init_(p: &mut OptionalPeripherals) {
 
 /// Initializes the global storage.
 ///
-/// Note: this is automatically called by the RIOT-rs initialization code.
+/// Note: this is automatically called by the Ariel OS initialization code.
 ///
 /// # Panics
 ///

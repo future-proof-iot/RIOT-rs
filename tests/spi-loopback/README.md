@@ -2,7 +2,7 @@
 
 ## About
 
-This application is testing raw SPI bus loopback in RIOT-rs.
+This application is testing raw SPI bus loopback in Ariel OS.
 
 ## How to run
 

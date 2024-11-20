@@ -1,5 +1,5 @@
 name: Bug Report
-description: Create a bug report for RIOT-rs
+description: Create a bug report for Ariel OS
 
 body:
   - type: markdown
@@ -22,7 +22,7 @@ body:
   - type: textarea
     attributes:
       label: Hardware/ Setup
-      description: Any relevant information about the used hardware, setup, RIOT-rs version, etc.
+      description: Any relevant information about the used hardware, setup, Ariel OS version, etc.
     validations:
       required: false
   - type: textarea

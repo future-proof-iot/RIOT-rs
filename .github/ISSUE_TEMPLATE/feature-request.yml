@@ -1,5 +1,5 @@
 name: Feature request
-description: Suggest a new feature in RIOT-rs
+description: Suggest a new feature in Ariel OS
 body:
   - type: textarea
     attributes:

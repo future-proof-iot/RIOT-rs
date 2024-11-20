@@ -12,7 +12,7 @@ other standards for running [over SMS and NB-IoT], and more in development).
 It relies on proxies to span across transports and to accommodate the characteristics of particular networks,
 and offers features exceeding the classical REST set such as [observation].
 
-**RIOT-rs supports** the use of CoAP
+**Ariel OS supports** the use of CoAP
 for implementing clients, servers or both in a single device.
 As part of our mission for strong security,
 we use encrypted CoAP traffic by default as explained below.
@@ -75,7 +75,7 @@ A program that triggers a CoAP request provides[^whatsinarequest] some component
 The CoAP stack is configured with server and client policies.
 The security mechanisms used depend on those selected in the policies.
 
-At this stage, RIOT-rs uses three pieces of security components:
+At this stage, Ariel OS uses three pieces of security components:
 OSCORE (for symmetric encryption), EDHOC (for key exchange) and ACE (for authentication).
 
 OSCORE/EDHOC/ACE were chosen first because they scale down
@@ -86,7 +86,7 @@ Thus, they work homogeneously across all CoAP transports,
 and provide end-to-end security across untrusted proxies.
 
 Alternatives are possible (for instance DTLS, TLS, IPsec or link-layer encryption)
-but are currently not implemented / not yet supported in RIOT-rs.
+but are currently not implemented / not yet supported in Ariel OS.
 
 ### Server access policy
 
@@ -99,14 +99,14 @@ Examples of described policy entries are:
 
 #### Interacting with an Ariel OS CoAP server from the host
 
-A convenient policy (which is the default of RIOT-rs's examples)
+A convenient policy (which is the default of Ariel OS's examples)
 is to grant the user who flashes the device all access on it.
 When that policy is enabled in the build system,
 an unencrypted key is created in the developer's [state home directory]<!-- precise location TBD -->,
 from where it can be picked up by tools such as [aiocoap-client].
 
 Furthermore,
-when a CoAP server is provisioned through the RIOT-rs build system,
+when a CoAP server is provisioned through the Ariel OS build system,
 public keys and their device associations are stored
 in the developer's state home directory.
 
@@ -154,7 +154,7 @@ Working with symmetric keys requires a lot of care and effort managing keys:
 assigning the same key twice can have catastrophic consequences,
 and even recovering from an unplanned reboot is by far not trivial.
 
-RIOT-rs does not offer direct access to OSCORE for those reasons,
+Ariel OS does not offer direct access to OSCORE for those reasons,
 and uses OSCORE's companion mechanisms to set up keys.
 
 Policies are not described in terms of OSCORE keys.
@@ -173,7 +173,7 @@ In particular, two CoAP devices can run EDHOC over CoAP to obtain key material f
 which can then be used for fast communication.
 
 Unless ACE or certificate chains are used,
-the main use of EDHOC in RIOT-rs is with raw public keys:
+the main use of EDHOC in Ariel OS is with raw public keys:
 Devices (including the host machine) generate a private key,
 make the corresponding public key known,
 and then send the public key (or its short ID) along with EDHOC messages to be identified by that public key.
@@ -239,24 +239,24 @@ but as part of the EDHOC exchange.
 ##### Using ACE from the host during development
 
 While full operation of ACE requires having an AS as part of the network,
-CoAP servers running on RIOT-rs can be used in the ACE framework without a live server.
+CoAP servers running on Ariel OS can be used in the ACE framework without a live server.
 
 Similar to how an EDHOC key is created on demand on the host,
 an AS's list of Resource Servers is maintained by default.
-Tools at the host can then use the locally stored key to create tokens that grant fine-grained permissions on the RIOT-rs device.
+Tools at the host can then use the locally stored key to create tokens that grant fine-grained permissions on the Ariel OS device.
 
 With the [New ACE Workflow developed in ACE],
 such tokens can also be provisioned into Resource Servers on behalf of clients that are being provisioned.
 Thus,
-the offline AS can enable deployed RIOT-rs based CoAP servers
-to accept requests from newly created RIOT-rs based CoAP clients
+the offline AS can enable deployed Ariel OS based CoAP servers
+to accept requests from newly created Ariel OS based CoAP clients
 without the need for the CoAP client to create a network connection to the host.
 (Instead, the host needs to find the Resource Server over the network).
 
 .. note: Some more exploration of this workflow will be necessary
   as to how the client can trigger the AS to re-install (or renew) its token
   in case the Resource Server retired the token before its expiration.
-  For RIOT-rs internal use,
+  For Ariel OS internal use,
   AS-provisioned tokens might just be retained longer.
 
 [New ACE Workflow developed in ACE]: https://www.ietf.org/archive/id/draft-ietf-ace-workflow-and-params-00.html#name-new-ace-workflow

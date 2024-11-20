@@ -24,7 +24,7 @@
 /// fn spawner(spawner: Spawner, peripherals: /* your peripheral type */) {}
 /// ```
 ///
-/// See RIOT-rs examples for more.
+/// See Ariel OS examples for more.
 ///
 /// # Panics
 ///

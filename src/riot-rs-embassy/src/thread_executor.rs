@@ -20,7 +20,7 @@ fn __pender(context: *mut ()) {
     thread_flags::set(thread_id, THREAD_FLAG_WAKEUP);
 }
 
-/// Thread mode executor for RIOT-rs threads.
+/// Thread mode executor for Ariel OS threads.
 pub struct Executor {
     inner: raw::Executor,
     // This executor is tied to a specific thread by storing the `ThreadId` inside

@@ -4,7 +4,7 @@ contexts:
     env:
       bindir: "${build-dir}/bin/${builder}/${app}"
 
-  # base context for all RIOT-rs applications
+  # base context for all Ariel OS applications
   - name: riot-rs
     parent: default
     selects:

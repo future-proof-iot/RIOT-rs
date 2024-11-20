@@ -1,4 +1,4 @@
 # minimal
 
-This application tries to be a _compile time_ test to see RIOT-rs' minimal
+This application tries to be a _compile time_ test to see Ariel OS' minimal
 RAM/ROM usage ("doing nothing", with all features disabled).

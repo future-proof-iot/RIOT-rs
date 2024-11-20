@@ -1,14 +1,14 @@
 riot-rs-runqueue
 ================
 
-This repository contains the Runqueue as used by RIOT-rs.
+This repository contains the Runqueue as used by Ariel OS.
 It basically encodes the scheduling, as in, "which thread should be switched to next?".
 
 How to use
 ----------
 
 The crate is not supposed to be used on its own, but as dependendy of
-[RIOT-rs](https://github.com/ariel-os/ariel-os).
+[Ariel OS](https://github.com/ariel-os/ariel-os).
 
 Code layout
 -----------

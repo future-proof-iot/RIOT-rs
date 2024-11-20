@@ -10,7 +10,7 @@ So this is a try to create a scheduler that is sound, but still allows to
 implement RIOT's semantics "on top".
 
 I hope to make this scheduler flexible and usable enough to be usable outside
-RIOT-rs context.
+Ariel OS context.
 
 ## Status
 
@@ -32,7 +32,7 @@ experimental, expect changes and breakage. Feedback welcome!
   - [x] locks/mutexes
   - [x] thread flags
   - [ ] channels
-- [ ] integrate into [RIOT-rs](https://github.com/ariel-os/ariel-os)
+- [ ] integrate into [Ariel OS](https://github.com/ariel-os/ariel-os)
 - [ ] make scheduler implementation pluggable
 - [ ] provide formally verified implementation
 - [ ] provide best-in-class performance

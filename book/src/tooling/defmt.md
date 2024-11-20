@@ -1,10 +1,10 @@
 # defmt
 
-RIOT-rs supports [defmt] on all platforms. It is enabled by default.
+Ariel OS supports [defmt] on all platforms. It is enabled by default.
 
 See the [defmt documentation] for general info on `defmt`.
 
-In RIOT-rs, the log level defaults to `info`. It can be configured using the
+In Ariel OS, the log level defaults to `info`. It can be configured using the
 laze variable `LOG`.
 
 Example:

@@ -1,4 +1,4 @@
-//! Provides a seeded random number generator depending on RIOT-rs's configuration.
+//! Provides a seeded random number generator depending on Ariel OS's configuration.
 //!
 //! The module provides functions for use by applications, [`fast_rng()`] and [`crypto_rng()`],
 //! which produce owned types that provide the [`rand_core::RngCore`] and
@@ -134,7 +134,7 @@ mod csprng {
 
 /// Populates the global RNG from a seed value.
 ///
-/// This is called by RIOT-rs's initialization functions.
+/// This is called by Ariel OS's initialization functions.
 ///
 /// # Panics
 ///

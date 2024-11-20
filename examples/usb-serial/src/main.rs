@@ -18,7 +18,7 @@ use embassy_usb::{
 #[riot_rs::config(usb)]
 fn usb_config() -> embassy_usb::Config<'static> {
     let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
-    config.manufacturer = Some("RIOT-rs");
+    config.manufacturer = Some("Ariel OS");
     config.product = Some("USB serial example");
     config.serial_number = Some("12345678");
     config.max_power = 100;

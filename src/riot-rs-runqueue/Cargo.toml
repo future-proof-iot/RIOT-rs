@@ -4,7 +4,7 @@ version = "0.1.2"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 license.workspace = true
 edition = "2018"
-description = "RIOT-rs runqueue implementation"
+description = "Ariel OS runqueue implementation"
 
 [lints]
 workspace = true

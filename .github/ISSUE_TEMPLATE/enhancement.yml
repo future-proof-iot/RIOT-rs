@@ -1,5 +1,5 @@
 name: Enhancement
-description: Suggest an improvement to an existing RIOT-rs feature.
+description: Suggest an improvement to an existing Ariel OS feature.
 body:
   - type: textarea
     attributes:

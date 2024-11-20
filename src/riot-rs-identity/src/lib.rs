@@ -19,7 +19,7 @@
 //!
 //! Constructing an identifier fails rather than produce a dummy identifier.
 //!
-//! It is considered a breaking change in RIOT-rs if a device's identifier changes or becomes an
+//! It is considered a breaking change in Ariel OS if a device's identifier changes or becomes an
 //! error. Errors changing to valid identifiers is a compatible change.
 #![no_std]
 #![deny(missing_docs)]

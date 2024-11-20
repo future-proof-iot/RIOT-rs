@@ -1,12 +1,12 @@
 # Laze
 
-RIOT-rs makes use of the Laze build system to run cargo / RIOT's make with the
+Ariel OS makes use of the Laze build system to run cargo / RIOT's make with the
 correct parameters for a specific board / application.
 
-Laze has a builtin `laze build -b <board>` command, which in RIOT-rs, maps to
+Laze has a builtin `laze build -b <board>` command, which in Ariel OS, maps to
 `cargo build`.
 
-For other tasks like flashing and debugging, RIOT-rs uses Laze "tasks".
+For other tasks like flashing and debugging, Ariel OS uses Laze "tasks".
 laze commands are applied to the application(s) within the subfolder laze is called.
 For example, when called in `examples/hello-world`, `laze build -b nrf52840dk`
 would build the hello-world example for nrf52840dk.
@@ -56,10 +56,10 @@ run
     laze build -b <board> --disable release debug
 
 - `release`: used by default. Selects `no-semihosting` and `silent-panic`
-- `no-semihosting`: turn off RIOT-rs debug output
+- `no-semihosting`: turn off Ariel OS debug output
   Note: semihosting output only gets printed in a debug session.
   Furthermore, it freezes the board on first output when not run in a
   debug session.
-- `silent-panic`: don't print RIOT-rs panics. Unless used elsewhere, this saves
+- `silent-panic`: don't print Ariel OS panics. Unless used elsewhere, this saves
   ~15k code on Cortex-M
 - `riotboot`: configures the build to link to the first riotboot slot.

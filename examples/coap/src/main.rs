@@ -34,7 +34,7 @@ async fn coap_run() {
         coap_scroll_ring_server::BufferHandler::new(&buffer),
     );
 
-    // going with an embassy_futures join instead of RIOT-rs's spawn to avoid the need for making
+    // going with an embassy_futures join instead of Ariel OS's spawn to avoid the need for making
     // stdout static.
     embassy_futures::join::join(
         riot_rs::coap::coap_run(handler),

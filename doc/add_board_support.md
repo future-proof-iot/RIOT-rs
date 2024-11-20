@@ -1,7 +1,7 @@
-# RIOT-rs adding hardware support
+# Ariel OS adding hardware support
 
 This document serves as a guide as to what's currently needed for adding support
-for a board/device to RIOT-rs.
+for a board/device to Ariel OS.
 
 Feel free to report anything that's unclear!
 
@@ -87,7 +87,7 @@ Chances are that if you need to add this, you'll also have to add support for th
 
 ## Adding an Embassy architecture
 
-As of this writing, RIOT-rs supports most architectures that Embassy supports,
+As of this writing, Ariel OS supports most architectures that Embassy supports,
 including `nrf`, `stm32`, `rp` and `esp-rs`, but excluding `std` and `wasm`.
 
 The steps to add support for another Embassy supported architecture are:

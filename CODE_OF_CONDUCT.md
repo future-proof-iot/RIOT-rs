@@ -1,7 +1,7 @@
-RIOT-rs Code of Conduct
+Ariel OS Code of Conduct
 =======================
 
-RIOT-rs, like so many other free and open source software projects, is made up of a
+Ariel OS, like so many other free and open source software projects, is made up of a
 mixed group of professionals and volunteers from all over the world, working on
 every aspect of our goals - including teaching, steering, and connecting people.
 
@@ -15,7 +15,7 @@ We rather would like you to think of it as a guide to enrich our community and
 the technical community in general with new knowledge and perspectives by
 allowing everyone to participate.
 
-This code of conduct applies to all spaces managed by the RIOT-rs community. This
+This code of conduct applies to all spaces managed by the Ariel OS community. This
 includes Matrix, the mailing lists, our GitHub projects, face to face events, and
 any other forums created by the community for communication within the
 community. In addition, violations of this code outside these spaces may also
@@ -42,8 +42,8 @@ Guidelines](https://ariel-os.github.io/ariel-os/dev/docs/book/COC_reporting.html
     some frustration now and then, but we cannot allow that frustration to turn
     into a personal attack. It’s important to remember that a community where
     people feel uncomfortable or threatened is not a productive one. Members of
-    the RIOT-rs community should be respectful when dealing with other members as
-    well as with people outside the RIOT-rs community.
+    the Ariel OS community should be respectful when dealing with other members as
+    well as with people outside the Ariel OS community.
 -   **Be careful in the words that you choose.** We are a community of
     professionals, and we conduct ourselves professionally. Be kind to others.
     Do not insult or put down other participants. Harassment and other
@@ -60,9 +60,9 @@ Guidelines](https://ariel-os.github.io/ariel-os/dev/docs/book/COC_reporting.html
     -   Repeated harassment of others. In general, if someone asks you to stop,
         then stop.
 -   **When we disagree, try to understand why.** Disagreements, both social and
-    technical, happen all the time and RIOT-rs is no exception. It is important
+    technical, happen all the time and Ariel OS is no exception. It is important
     that we resolve disagreements and differing views constructively. Remember
-    that we’re different. The strength of RIOT-rs comes from its varied community,
+    that we’re different. The strength of Ariel OS comes from its varied community,
     people from a wide range of backgrounds. Different people have different
     perspectives on issues. Being unable to understand why someone holds a
     viewpoint doesn’t mean that they’re wrong. Don’t forget that it is human to

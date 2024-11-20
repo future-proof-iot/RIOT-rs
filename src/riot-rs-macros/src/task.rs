@@ -29,7 +29,7 @@
 /// async fn task(peripherals: /* your peripheral type */) {}
 /// ```
 ///
-/// See RIOT-rs examples for more.
+/// See Ariel OS examples for more.
 ///
 /// # Panics
 ///
