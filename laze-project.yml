@@ -638,6 +638,9 @@ modules:
       - network_device
     selects:
       - hw/usb-device-port
+    conflicts:
+      # there is an issue on esp32s3, the only esp32 that we have usb support for.
+      - xtensa
     env:
       global:
         FEATURES:
@@ -646,6 +649,7 @@ modules:
   - name: hw/usb-device-port
     help: provided if a device has a USB device port wired up
     context:
+      - espressif-esp32-s3-wroom-1
       - nrf5340dk
       - nrf52840dk
       - rpi-pico
