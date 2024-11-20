@@ -9,6 +9,7 @@ This directory contains example applications that showcase how to use RIOT-rs.
 - [embassy-usb-keyboard/](./embassy-usb-keyboard): USB HID example
 - [hello-world/](./hello-world): a classic, async version
 - [hello-world-threading/](./hello-world-threading): a classic, using a thread
+- [log](./log): Example demonstrating different log levels for printing feedback messages.
 - [minimal/](./minimal): minimized to the max RIOT-rs config
 - [tcp-echo/](./tcp-echo): TCP echo example
 - [thread-async-interop/](./thread-async-interop): how to make async tasks and preemptively scheduled threads interoperate
