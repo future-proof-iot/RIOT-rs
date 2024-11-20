@@ -1,4 +1,8 @@
+//! Provides GPIO access.
+
 pub mod input {
+    //! Input-specific types.
+
     use embassy_stm32::{
         gpio::{Level, Pull},
         Peripheral,
@@ -11,6 +15,7 @@ pub mod input {
     #[doc(hidden)]
     pub use embassy_stm32::exti::ExtiInput as IntEnabledInput;
 
+    /// Whether inputs support configuring whether a Schmitt trigger is enabled.
     pub const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
     #[doc(hidden)]
@@ -42,6 +47,8 @@ pub mod input {
 }
 
 pub mod output {
+    //! Output-specific types.
+
     use embassy_stm32::{
         gpio::{Level, Speed as StmSpeed},
         Peripheral,
@@ -52,7 +59,9 @@ pub mod output {
     #[doc(hidden)]
     pub use embassy_stm32::gpio::{Output, Pin as OutputPin};
 
+    /// Whether outputs support configuring their drive strength.
     pub const DRIVE_STRENGTH_CONFIGURABLE: bool = false;
+    /// Whether outputs support configuring their speed/slew rate.
     pub const SPEED_CONFIGURABLE: bool = true;
 
     #[doc(hidden)]
@@ -69,8 +78,10 @@ pub mod output {
         Output::new(pin, initial_level, speed.into())
     }
 
+    /// Available drive strength settings.
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum DriveStrength {
+        /// Configuring the speed of outputs is not supported.
         UnsupportedByHardware,
     }
 
@@ -95,11 +106,16 @@ pub mod output {
         }
     }
 
+    /// Available output speed/slew rate settings.
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum Speed {
+        /// Low.
         Low,
+        /// Medium.
         Medium,
+        /// High.
         High,
+        /// Very high.
         VeryHigh,
     }
 
