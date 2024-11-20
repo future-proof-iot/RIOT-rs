@@ -11,3 +11,6 @@ apps:
     conflicts:
       # see https://github.com/future-proof-iot/RIOT-rs/issues/418
       - thumbv6m-none-eabi
+      # no xtensa / riscv gcc on CI
+      - xtensa
+      - riscv
