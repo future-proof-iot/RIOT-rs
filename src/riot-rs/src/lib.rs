@@ -1,10 +1,10 @@
 //! RIOT-rs is an operating system for secure, memory-safe, low-power Internet of Things (IoT).
 //!
-//! See the [README](https://github.com/future-proof-iot/RIOT-rs) for more details.
+//! See the [README](https://github.com/ariel-os/ariel-os) for more details.
 //!
 //! # Examples
 //!
-//! Application examples can be found in the [`examples` directory](https://github.com/future-proof-iot/RIOT-rs/tree/main/examples).
+//! Application examples can be found in the [`examples` directory](https://github.com/ariel-os/ariel-os/tree/main/examples).
 //!
 //! # Cargo features
 #![doc = document_features::document_features!(feature_label = r#"<span class="stab portability"><code>{feature}</code></span>"#)]

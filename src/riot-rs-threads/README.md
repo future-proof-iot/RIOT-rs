@@ -32,7 +32,7 @@ experimental, expect changes and breakage. Feedback welcome!
   - [x] locks/mutexes
   - [x] thread flags
   - [ ] channels
-- [ ] integrate into [RIOT-rs](https://github.com/future-proof-iot/RIOT-rs)
+- [ ] integrate into [RIOT-rs](https://github.com/ariel-os/ariel-os)
 - [ ] make scheduler implementation pluggable
 - [ ] provide formally verified implementation
 - [ ] provide best-in-class performance

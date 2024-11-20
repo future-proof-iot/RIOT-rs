@@ -8,7 +8,7 @@ How to use
 ----------
 
 The crate is not supposed to be used on its own, but as dependendy of
-[RIOT-rs](https://github.com/future-proof-iot/RIOT-rs).
+[RIOT-rs](https://github.com/ariel-os/ariel-os).
 
 Code layout
 -----------

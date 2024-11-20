@@ -37,8 +37,8 @@ The handler needs to concern itself with security aspects of the request content
 (eg. file format parsers should treat incoming data as possibly malformed),
 but the decision whether or not a request is allowed is delegated to an [access policy](#server-access-policy).
 
-[provided as `examples/coap`]: https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/coap
-[its `run()` function]: https://github.com/future-proof-iot/RIOT-rs/blob/2b76e560394884d3c8f7eaae51beefd59a316d7b/examples/coap/src/main.rs#L70
+[provided as `examples/coap`]: https://github.com/ariel-os/ariel-os/tree/main/examples/coap
+[its `run()` function]: https://github.com/ariel-os/ariel-os/blob/2b76e560394884d3c8f7eaae51beefd59a316d7b/examples/coap/src/main.rs#L70
 
 
 ## Usage: Client side

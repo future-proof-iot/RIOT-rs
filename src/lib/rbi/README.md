@@ -1,6 +1,6 @@
 # About
 
-This library is part of [RIOT-rs](https://github.com/future-proof-iot/RIOT-rs).
+This library is part of [RIOT-rs](https://github.com/ariel-os/ariel-os).
 
 This module provides a FIFO index queue that can be used for implementing
 a ring buffer. It works in `no_std` settings.

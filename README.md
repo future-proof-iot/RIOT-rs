@@ -57,11 +57,11 @@ or instead, run your module in a [riot-wrappers](https://github.com/RIOT-OS/rust
 
 The following assumes you have a Nordic nrf52840dk connected to your PC.
 (For other supported boards, you can find your board's name in
-[./src/riot-rs-boards/Cargo.toml](https://github.com/future-proof-iot/RIOT-rs/blob/main/src/riot-rs-boards/Cargo.toml)
+[./src/riot-rs-boards/Cargo.toml](https://github.com/ariel-os/ariel-os/blob/main/src/riot-rs-boards/Cargo.toml)
 and use it instead of 'nrf52840dk' in the below guidelines.)
 
 The following instructions will enable you to flash and run the [`hello-world`
-example](https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/hello-world):
+example](https://github.com/ariel-os/ariel-os/tree/main/examples/hello-world):
 
 ### Prerequisites
 
@@ -139,8 +139,8 @@ Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall
 be dual licensed as above, without any additional terms or conditions.
 
-[build-badge]: https://github.com/future-proof-iot/RIOT-rs/actions/workflows/main.yml/badge.svg
-[build-info]: https://github.com/future-proof-iot/RIOT-rs/actions/workflows/main.yml
+[build-badge]: https://github.com/ariel-os/ariel-os/actions/workflows/main.yml/badge.svg
+[build-info]: https://github.com/ariel-os/ariel-os/actions/workflows/main.yml
 [matrix-badge]: https://img.shields.io/badge/chat-Matrix-brightgreen.svg
 [matrix-link]: https://matrix.to/#/#RIOT-rs:matrix.org
 [book-badge]: https://img.shields.io/badge/Book-%F0%9F%93%94-blue

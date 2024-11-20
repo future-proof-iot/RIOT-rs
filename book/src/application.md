@@ -79,6 +79,6 @@ TODO
 [spawner-attr-docs]: https://future-proof-iot.github.io/RIOT-rs/dev/docs/api/riot_rs/attr.spawner.html
 [task-attr-docs]: https://future-proof-iot.github.io/RIOT-rs/dev/docs/api/riot_rs/attr.task.html
 [spawner-or-task]: #the-spawner-and-task-riot-rs-macros
-[blinky-example-src]: https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/blinky
+[blinky-example-src]: https://github.com/ariel-os/ariel-os/tree/main/examples/blinky
 [define_peripherals-docs]: https://future-proof-iot.github.io/RIOT-rs/dev/docs/api/riot_rs/macro.define_peripherals.html
 [group_peripherals-docs]: https://future-proof-iot.github.io/RIOT-rs/dev/docs/api/riot_rs/macro.group_peripherals.html

@@ -17,7 +17,7 @@ RIOT-rs and its leadership embrace the following values:
 
 ## Digital commons
 
-RIOT-rs is a digital public good, or digital common, supported by public funding. The project's outcome is [open source](https://github.com/future-proof-iot/RIOT-rs/blob/main/LICENSE) and freely available for everyone.
+RIOT-rs is a digital public good, or digital common, supported by public funding. The project's outcome is [open source](https://github.com/ariel-os/ariel-os/blob/main/LICENSE) and freely available for everyone.
 
 
 ## Decision making
@@ -36,7 +36,7 @@ The founder-leaders are the final decision-makers. Emmanuel Baccelli is responsi
 
 ### Team members
 
-Specific tasks have been divided among the team members by the founder-leaders. Team members have write access to the [project GitHub repository](https://github.com/future-proof-iot/RIOT-rs) and can merge pull requests. Team members collectively maintain and manage the project's resources and contributors.
+Specific tasks have been divided among the team members by the founder-leaders. Team members have write access to the [project GitHub repository](https://github.com/ariel-os/ariel-os) and can merge pull requests. Team members collectively maintain and manage the project's resources and contributors.
 
 This privilege is granted with some expectation of responsibility: team members are people who care about the RIOT-rs project and want to help it grow and improve. A team member is not just someone who can make changes, but someone who has demonstrated their ability to collaborate with the team, get the most knowledgeable people to review code and docs, contribute high-quality code, and follow through to fix issues (in code or tests). A team member is a contributor to the project's success and a citizen helping the project succeed.
 
@@ -63,7 +63,7 @@ Team members meet weekly online to discuss the current progress of the project. 
 
 ### GitHub
 
-All code and documentation of RIOT-rs is available at the [RIOT-rs GitHub](https://github.com/future-proof-iot/RIOT-rs).
+All code and documentation of RIOT-rs is available at the [RIOT-rs GitHub](https://github.com/ariel-os/ariel-os).
 
 
 *The present text was written by Karin Lammers and is licensed as [CC BY 4.0](https://creativecommons.org/licenses/by/4.0/), including components and inspiration from  [The Maintainer Council Template](https://contribute.cncf.io/maintainers/templates/governance-maintainer/), licensed likewise.*

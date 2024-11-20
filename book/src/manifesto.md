@@ -4,7 +4,7 @@ We must (re)write the foundations of system software on more solid ground. Even 
 
 So what does it mean for the main embedded operating systems targeting networked microcontrollers (Zephyr, FreeRTOS, or [RIOT](https://github.com/RIOT-OS/RIOT/)) which are primarily written in C? 
 
-Well, how about using instead a memory-safe language, [Rust](https://www.rust-lang.org/), as foundation. And for good measure, how about formal verification for the critical modules cherry-picked incrementally, along the way. Implementing the above guidelines is exactly the mission of [RIOT-rs](https://github.com/future-proof-iot/RIOT-rs): collaboration to produce open source re-write(s) of RIOT core modules providing a basis for next-level cybersecurity in IoT.
+Well, how about using instead a memory-safe language, [Rust](https://www.rust-lang.org/), as foundation. And for good measure, how about formal verification for the critical modules cherry-picked incrementally, along the way. Implementing the above guidelines is exactly the mission of [RIOT-rs](https://github.com/ariel-os/ariel-os): collaboration to produce open source re-write(s) of RIOT core modules providing a basis for next-level cybersecurity in IoT.
 
 Curious about more details on principles driving RIOT-rs development? Here you go. 
 
@@ -18,4 +18,4 @@ True to the spirit of RIOT development, RIOT-rs aims at a level of integration a
 
 Last but not least the CI process for each pull-request to RIOT-rs includes extensive and rigorous tests which are automated for all supported configuration and hardware. And for selected modules, a **formal verification workflow** is used based on [hax](https://github.com/hacspec/hax), running directly on the functional Rust.
 
-Long story short: RIOT-rs embodies the developing love affair between RIOT and embedded Rust, fostering stronger IoT cybersecurity. This is a joyous open source community, so... you're welcome to [join us](https://github.com/future-proof-iot/RIOT-rs)! 
+Long story short: RIOT-rs embodies the developing love affair between RIOT and embedded Rust, fostering stronger IoT cybersecurity. This is a joyous open source community, so... you're welcome to [join us](https://github.com/ariel-os/ariel-os)! 

@@ -6,5 +6,5 @@ src = "src"
 title = "RIOT-rs manual"
 
 [output.html]
-git-repository-url = "https://github.com/future-proof-iot/RIOT-rs"
-edit-url-template = "https://github.com/future-proof-iot/RIOT-rs/edit/master/book/{path}"
+git-repository-url = "https://github.com/ariel-os/ariel-os"
+edit-url-template = "https://github.com/ariel-os/ariel-os/edit/master/book/{path}"
