@@ -1,6 +1,6 @@
 # Building an Application
 
-This chapters covers fundamental concepts required to build a RIOT-rs application.
+This chapters covers fundamental concepts required to build an Ariel OS application.
 
 ## Obtaining Peripheral Access
 
@@ -51,7 +51,7 @@ Functions can currently be registered as either `spawner`s or `task`s:
   They must also be used to use *RIOT-rs configuration hooks*, which can be requested with their associated macro parameter, and allow to provide configuration during boot.
   Please refer to the documentation of [`task`][task-attr-docs] for a list of available hooks and to [Configuration Hooks](#configuration-hooks) to know more about hook usage.
 
-Both of these can be provided with an instance of a RIOT-rs peripheral struct when needed, using the `peripherals` macro parameters (see the macros' documentation) and taking that RIOT-rs peripheral struct as parameter.
+Both of these can be provided with an instance of an Ariel OS peripheral struct when needed, using the `peripherals` macro parameters (see the macros' documentation) and taking that RIOT-rs peripheral struct as parameter.
 
 > The Embassy peripherals obtained this way are regular Embassy peripherals, which are compatible with both RIOT-rs portable drivers and [Embassy HAL crates'][embassy-hal-crates] HAL-specific drivers.
 

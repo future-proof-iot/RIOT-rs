@@ -8,7 +8,7 @@
 //! * Identifiers are reasonably unique: They are either unique by construction (serial number, MAC
 //!   address) or random identifiers (>= 64 bit).
 //!
-//! * The scope of the identifier is within a RIOT-rs board. Their scope may be broader, eg. when
+//! * The scope of the identifier is within an Ariel OS board. Their scope may be broader, eg. when
 //!   a identifier is unique per MCU family, or even globally.
 //!
 //! * Identifiers do not change during regular development with a device, which includes the use of

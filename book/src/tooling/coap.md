@@ -97,7 +97,7 @@ Examples of described policy entries are:
 * The device has a shared secret from its authorization server, with which the authorization server secures the tokens it issues to clients. Clients may perform any action as long as they securely present a token that allows it. For example, a token may allow GET on `/limit` and PUT on `/led/0`.
 * Any (even unauthenticated) device may GET `/hello/`.
 
-#### Interacting with a RIOT-rs CoAP server from the host
+#### Interacting with an Ariel OS CoAP server from the host
 
 A convenient policy (which is the default of RIOT-rs's examples)
 is to grant the user who flashes the device all access on it.
