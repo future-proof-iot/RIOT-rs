@@ -1,3 +1,5 @@
+//! Provides GPIO access.
+
 #[doc(hidden)]
 pub fn init(peripherals: &mut crate::OptionalPeripherals) {
     let io = esp_hal::gpio::Io::new(
@@ -62,6 +64,8 @@ pub fn init(peripherals: &mut crate::OptionalPeripherals) {
 }
 
 pub mod input {
+    //! Input-specific types.
+
     use esp_hal::{
         gpio::{Level, Pull},
         peripheral::Peripheral,
@@ -78,6 +82,7 @@ pub mod input {
     #[doc(hidden)]
     pub use esp_hal::gpio::Input as IntEnabledInput;
 
+    /// Whether inputs support configuring whether a Schmitt trigger is enabled.
     pub const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
     #[doc(hidden)]
@@ -111,13 +116,18 @@ pub mod input {
 }
 
 pub mod output {
+    //! Output-specific types.
+
     use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
+
     use esp_hal::{gpio::Level, peripheral::Peripheral};
 
     #[doc(hidden)]
     pub use esp_hal::gpio::{Output, OutputPin};
 
+    /// Whether outputs support configuring their drive strength.
     pub const DRIVE_STRENGTH_CONFIGURABLE: bool = true;
+    /// Whether outputs support configuring their speed/slew rate.
     pub const SPEED_CONFIGURABLE: bool = false;
 
     #[doc(hidden)]
@@ -136,12 +146,17 @@ pub mod output {
         output
     }
 
+    /// Available drive strength settings.
     // We do not provide a `Default` impl as not all pins have the same reset value.
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum DriveStrength {
+        /// 5 mA.
         _5mA,
+        /// 10 mA.
         _10mA,
+        /// 20 mA.
         _20mA,
+        /// 40 mA.
         _40mA,
     }
 
@@ -172,8 +187,10 @@ pub mod output {
         }
     }
 
+    /// Available output speed/slew rate settings.
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum Speed {
+        /// Configuring the speed of outputs is not supported.
         UnsupportedByHardware,
     }
 
