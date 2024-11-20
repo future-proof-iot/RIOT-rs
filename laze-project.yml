@@ -638,6 +638,9 @@ modules:
       - network_device
     selects:
       - hw/usb-device-port
+    conflicts:
+      # there is an issue on esp32s3, the only esp32 that we have usb support for.
+      - xtensa
     env:
       global:
         FEATURES:
