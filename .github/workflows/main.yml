@@ -481,7 +481,7 @@ jobs:
           fi
 
       - name: Report nightly failure
-        if: failure() && github.event_name == 'schedule' && github.repository == 'future-proof-iot/RIOT-rs'
+        if: failure() && github.event_name == 'schedule' && github.repository == 'ariel-os/ariel-os'
         uses: s3krit/matrix-message-action@v0.0.3
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
