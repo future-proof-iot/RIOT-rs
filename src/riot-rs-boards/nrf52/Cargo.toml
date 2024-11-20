@@ -15,8 +15,8 @@ nrf52833-pac = { version = "0.12.2", default-features = false, features = [
 nrf52840-pac = { version = "0.12.2", default-features = false, features = [
   "rt",
 ], optional = true }
-riot-rs-debug = { workspace = true, features = ["rtt-target"] }
-riot-rs-rt = { path = "../../riot-rs-rt" }
+ariel-os-debug = { workspace = true, features = ["rtt-target"] }
+ariel-os-rt = { path = "../../ariel-os-rt" }
 
 [features]
 nrf52832 = ["dep:nrf52832-pac"]

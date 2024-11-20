@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs-coap"
+name = "ariel-os-coap"
 version.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -27,9 +27,9 @@ embedded-nal-async = "0.8"
 embedded-nal-coap = { workspace = true }
 lakers-crypto-rustcrypto = "0.6.0"
 lakers = { version = "0.6.0", default-features = false }
-riot-rs-debug.workspace = true
-riot-rs-embassy = { workspace = true, features = ["net"] }
-riot-rs-random = { workspace = true, features = ["csprng"] }
+ariel-os-debug.workspace = true
+ariel-os-embassy = { workspace = true, features = ["net"] }
+ariel-os-random = { workspace = true, features = ["csprng"] }
 static_cell = "2.1.0"
 
 # FIXME: Should go out eventually

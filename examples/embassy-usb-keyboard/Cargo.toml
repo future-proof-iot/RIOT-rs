@@ -13,11 +13,11 @@ workspace = true
 embassy-nrf = { workspace = true, default-features = false }
 embassy-sync = { workspace = true }
 embassy-usb = { workspace = true, features = ["usbd-hid"] }
-riot-rs = { path = "../../src/riot-rs", features = [
+ariel-os = { path = "../../src/ariel-os", features = [
   "time",
   "usb",
   "override-usb-config",
 ] }
-riot-rs-boards = { path = "../../src/riot-rs-boards" }
+ariel-os-boards = { path = "../../src/ariel-os-boards" }
 static_cell = { workspace = true }
 usbd-hid = "0.8.2"

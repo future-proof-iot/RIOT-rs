@@ -1,5 +1,5 @@
 If you believe someone is violating the code of conduct we ask that you
-report it to us by emailing <conduct@riot-rs.org>.
+report it to us by emailing <conduct@ariel-os.org>.
 
 **All reports will be kept confidential.** In some cases we may determine that a
 public statement will need to be made. If that's the case, the identities of all

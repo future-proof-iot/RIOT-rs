@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs-identity"
+name = "ariel-os-identity"
 version.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -10,5 +10,5 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
-riot-rs-embassy = { workspace = true }
-riot-rs-embassy-common = { workspace = true }
+ariel-os-embassy = { workspace = true }
+ariel-os-embassy-common = { workspace = true }

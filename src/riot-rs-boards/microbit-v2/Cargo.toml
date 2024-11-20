@@ -9,7 +9,7 @@ edition = "2021"
 cortex-m-rt.workspace = true
 cortex-m.workspace = true
 
-riot-rs-debug.workspace = true
-riot-rs-rt.workspace = true
+ariel-os-debug.workspace = true
+ariel-os-rt.workspace = true
 
 nrf52 = { path = "../nrf52", features = ["nrf52833"] }

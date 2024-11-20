@@ -486,14 +486,14 @@ impl From<CoreId> for usize {
 /// # Safety
 ///
 /// This function is crafted to be called at a specific point in the Ariel OS
-/// initialization, by `riot-rs-rt`. Don't call this unless you know you need to.
+/// initialization, by `ariel-os-rt`. Don't call this unless you know you need to.
 ///
 /// Currently it expects at least:
 /// - Cortex-M: to be called from the reset handler while MSP is active
 pub unsafe fn start_threading() {
     #[cfg(feature = "multi-core")]
     {
-        riot_rs_debug::log::debug!("riot-rs-threads: SMP mode with {} cores", CORES_NUMOF);
+        riot_rs_debug::log::debug!("ariel-os-threads: SMP mode with {} cores", CORES_NUMOF);
 
         // Idle thread that prompts the core to enter deep sleep.
         fn idle_thread() {

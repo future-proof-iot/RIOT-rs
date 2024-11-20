@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs-threads"
+name = "ariel-os-threads"
 version = "0.1.0"
 edition = "2021"
 authors = [
@@ -19,9 +19,9 @@ cfg-if.workspace = true
 critical-section.workspace = true
 linkme = { workspace = true }
 paste.workspace = true
-riot-rs-debug.workspace = true
-riot-rs-runqueue.workspace = true
-riot-rs-utils.workspace = true
+ariel-os-debug.workspace = true
+ariel-os-runqueue.workspace = true
+ariel-os-utils.workspace = true
 static_cell.workspace = true
 
 defmt = { workspace = true, optional = true }
@@ -52,7 +52,7 @@ rp-pac = { workspace = true, optional = true }
 embassy-rp = { workspace = true, optional = true }
 
 [features]
-defmt = ["dep:defmt", "riot-rs-runqueue/defmt"]
+defmt = ["dep:defmt", "ariel-os-runqueue/defmt"]
 multi-core = [
   "dep:static_cell",
   "dep:rp-pac",

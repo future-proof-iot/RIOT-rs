@@ -6,5 +6,5 @@ license.workspace = true
 edition = "2021"
 
 [dependencies]
-riot-rs-rt = { workspace = true, features = ["_esp32s3"] }
-riot-rs-debug.workspace = true
+ariel-os-rt = { workspace = true, features = ["_esp32s3"] }
+ariel-os-debug.workspace = true

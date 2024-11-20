@@ -22,7 +22,7 @@ community. In addition, violations of this code outside these spaces may also
 affect a person's ability to participate within them.
 
 If you believe someone is violating the code of conduct, we ask that you report
-it by emailing <conduct@riot-rs.org>. For more details please see our [Reporting
+it by emailing <conduct@ariel-os.org>. For more details please see our [Reporting
 Guidelines](https://ariel-os.github.io/ariel-os/dev/docs/book/COC_reporting.html).
 
 -   **Be friendly and patient.**
@@ -75,4 +75,4 @@ community](https://www.djangoproject.com/conduct/).
 Questions?
 ----------
 
-If you have questions, please feel free to [contact us](mailto:conduct@riot-rs.org).
+If you have questions, please feel free to [contact us](mailto:conduct@ariel-os.org).

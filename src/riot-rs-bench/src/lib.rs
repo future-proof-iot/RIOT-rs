@@ -11,7 +11,7 @@ cfg_if::cfg_if! {
     } else if #[cfg(context = "esp")] {
         mod esp;
         use esp as bench;
-    } else if #[cfg(context = "riot-rs")] {
+    } else if #[cfg(context = "ariel-os")] {
         // When run with laze but the MCU family is not supported
         compile_error!("benchmarking is not supported for this MCU family");
     } else {

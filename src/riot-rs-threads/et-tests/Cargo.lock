@@ -84,7 +84,7 @@ dependencies = [
  "cortex-m-semihosting",
  "critical-section",
  "panic-semihosting",
- "riot-rs-runqueue",
+ "ariel-os-runqueue",
 ]
 
 [[package]]
@@ -142,9 +142,9 @@ dependencies = [
 ]
 
 [[package]]
-name = "riot-rs-runqueue"
+name = "ariel-os-runqueue"
 version = "0.1.2"
-source = "git+https://github.com/ariel-os/riot-rs-runqueue?branch=main#f7e947be215c2e8bc2c1d6d8598393d20bf940d3"
+source = "git+https://github.com/ariel-os/ariel-os-runqueue?branch=main#f7e947be215c2e8bc2c1d6d8598393d20bf940d3"
 
 [[package]]
 name = "rustc_version"

@@ -50,7 +50,7 @@ pub use static_cell::{ConstStaticCell, StaticCell};
 
 /// This module contains all third party crates as used by Ariel OS.
 ///
-/// TODO: The version of this crate (`riot-rs`) will correspond to changes in
+/// TODO: The version of this crate (`ariel-os`) will correspond to changes in
 /// these dependencies (keeping semver guarantees).
 pub mod reexports {
     pub use riot_rs_embassy::reexports::*;

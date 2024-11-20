@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs-rt"
+name = "ariel-os-rt"
 version = "0.1.0"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 license.workspace = true
@@ -11,9 +11,9 @@ workspace = true
 [dependencies]
 cfg-if.workspace = true
 linkme.workspace = true
-riot-rs-debug.workspace = true
-riot-rs-threads = { path = "../riot-rs-threads", optional = true }
-riot-rs-utils = { workspace = true }
+ariel-os-debug.workspace = true
+ariel-os-threads = { path = "../ariel-os-threads", optional = true }
+ariel-os-utils = { workspace = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
 cortex-m = { workspace = true }
@@ -34,9 +34,9 @@ cortex-m = { workspace = true, features = ["critical-section-single-core"] }
 cortex-m = { workspace = true, features = ["critical-section-single-core"] }
 
 [features]
-threading = ["dep:riot-rs-threads"]
+threading = ["dep:ariel-os-threads"]
 
-debug-console = ["riot-rs-debug/debug-console"]
+debug-console = ["ariel-os-debug/debug-console"]
 executor-single-thread = []
 silent-panic = []
 _panic-handler = []
@@ -52,4 +52,4 @@ _esp32c6 = []
 _esp32s3 = []
 
 [dev-dependencies]
-riot-rs-boards = { path = "../riot-rs-boards" }
+ariel-os-boards = { path = "../ariel-os-boards" }

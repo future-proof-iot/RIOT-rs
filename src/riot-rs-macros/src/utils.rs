@@ -1,14 +1,14 @@
 use quote::format_ident;
 
-const RIOT_RS_CRATE_NAME: &str = "riot-rs";
+const RIOT_RS_CRATE_NAME: &str = "ariel-os";
 
-/// Returns a [`struct@syn::Ident`] identifying the `riot-rs` dependency.
+/// Returns a [`struct@syn::Ident`] identifying the `ariel-os` dependency.
 ///
 /// # Panics
 ///
-/// - Panics when the `riot-rs` crate cannot be found as a dependency of the crate in which
+/// - Panics when the `ariel-os` crate cannot be found as a dependency of the crate in which
 ///   this function is called.
-/// - Panics if `riot-rs` is used as a dependency of itself.
+/// - Panics if `ariel-os` is used as a dependency of itself.
 pub fn riot_rs_crate() -> syn::Ident {
     find_crate(RIOT_RS_CRATE_NAME)
         .unwrap_or_else(|| panic!("{RIOT_RS_CRATE_NAME} should be present in `Cargo.toml`"))

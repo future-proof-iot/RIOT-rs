@@ -7,5 +7,5 @@ license.workspace = true
 publish = false
 
 [dependencies]
-riot-rs = { path = "../../src/riot-rs", features = ["core-affinity"] }
-riot-rs-boards = { path = "../../src/riot-rs-boards" }
+ariel-os = { path = "../../src/ariel-os", features = ["core-affinity"] }
+ariel-os-boards = { path = "../../src/ariel-os-boards" }

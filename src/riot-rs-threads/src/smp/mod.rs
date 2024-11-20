@@ -109,9 +109,9 @@ impl Default for CoreAffinity {
 
 /// Main stack size for the second core, that is also used by the ISR.
 ///
-/// Uses default from `riot-rs-rt` if not specified.
+/// Uses default from `ariel-os-rt` if not specified.
 /// The `CONFIG_ISR_STACKSIZE` env name and default is copied from
-/// `riot-rs-rt`.
+/// `ariel-os-rt`.
 #[allow(dead_code, reason = "used in chip submodules")]
 const ISR_STACKSIZE_CORE1: usize = usize_from_env_or!(
     "CONFIG_ISR_STACKSIZE_CORE1",

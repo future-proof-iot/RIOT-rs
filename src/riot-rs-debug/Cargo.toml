@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs-debug"
+name = "ariel-os-debug"
 version.workspace = true
 authors.workspace = true
 license.workspace = true

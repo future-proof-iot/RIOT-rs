@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs-bench"
+name = "ariel-os-bench"
 version.workspace = true
 authors.workspace = true
 license.workspace = true

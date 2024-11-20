@@ -1,7 +1,7 @@
 defaults:
   apps:
     context:
-      - riot-rs
+      - ariel-os
 
 subdirs:
   - benchmark

@@ -14,5 +14,5 @@ embassy-sync = { workspace = true }
 embedded-hal = { workspace = true }
 embedded-hal-async = { workspace = true }
 once_cell = { workspace = true }
-riot-rs = { path = "../../src/riot-rs", features = ["i2c"] }
-riot-rs-boards = { path = "../../src/riot-rs-boards" }
+ariel-os = { path = "../../src/ariel-os", features = ["i2c"] }
+ariel-os-boards = { path = "../../src/ariel-os-boards" }

@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs"
+name = "ariel-os"
 version.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -11,60 +11,60 @@ workspace = true
 [dependencies]
 document-features = { workspace = true }
 linkme = { workspace = true }
-riot-rs-bench = { workspace = true, optional = true }
-riot-rs-boards = { path = "../riot-rs-boards" }
-riot-rs-coap = { path = "../riot-rs-coap", optional = true }
-riot-rs-debug = { workspace = true }
-riot-rs-embassy = { path = "../riot-rs-embassy" }
-riot-rs-identity = { workspace = true }
-riot-rs-macros = { path = "../riot-rs-macros" }
-riot-rs-random = { workspace = true, optional = true }
-riot-rs-rt = { path = "../riot-rs-rt" }
-riot-rs-storage = { workspace = true, optional = true }
-riot-rs-threads = { path = "../riot-rs-threads", optional = true }
-riot-rs-utils = { workspace = true }
+ariel-os-bench = { workspace = true, optional = true }
+ariel-os-boards = { path = "../ariel-os-boards" }
+ariel-os-coap = { path = "../ariel-os-coap", optional = true }
+ariel-os-debug = { workspace = true }
+ariel-os-embassy = { path = "../ariel-os-embassy" }
+ariel-os-identity = { workspace = true }
+ariel-os-macros = { path = "../ariel-os-macros" }
+ariel-os-random = { workspace = true, optional = true }
+ariel-os-rt = { path = "../ariel-os-rt" }
+ariel-os-storage = { workspace = true, optional = true }
+ariel-os-threads = { path = "../ariel-os-threads", optional = true }
+ariel-os-utils = { workspace = true }
 static_cell = { workspace = true }
 
 [features]
-default = ["riot-rs-rt/_panic-handler"]
+default = ["ariel-os-rt/_panic-handler"]
 
 #! ## System functionality
 ## Enables GPIO interrupt support.
-external-interrupts = ["riot-rs-embassy/external-interrupts"]
+external-interrupts = ["ariel-os-embassy/external-interrupts"]
 ## Enables storage support.
-storage = ["dep:riot-rs-storage", "riot-rs-embassy/storage"]
+storage = ["dep:ariel-os-storage", "ariel-os-embassy/storage"]
 ## Enables threading support, see the [`macro@thread`] attribute macro.
 threading = [
-  "dep:riot-rs-threads",
-  "riot-rs-rt/threading",
-  "riot-rs-embassy/threading",
+  "dep:ariel-os-threads",
+  "ariel-os-rt/threading",
+  "ariel-os-embassy/threading",
 ]
 ## Enables the internal executor's timer queue, required for timer support.
-time = ["riot-rs-embassy/time"]
+time = ["ariel-os-embassy/time"]
 ## Enables the [`random`] module.
-random = ["riot-rs-random"]
+random = ["ariel-os-random"]
 ## Enables a cryptographically secure random number generator in the [`random`] module.
-csprng = ["riot-rs-random/csprng"]
+csprng = ["ariel-os-random/csprng"]
 ## Enables seeding the random number generator from hardware.
-hwrng = ["riot-rs-embassy/hwrng"]
+hwrng = ["ariel-os-embassy/hwrng"]
 
 #! ## Network protocols
 ## Enables support for TCP.
-tcp = ["riot-rs-embassy/tcp"]
+tcp = ["ariel-os-embassy/tcp"]
 ## Enables support for UDP.
-udp = ["riot-rs-embassy/udp"]
+udp = ["ariel-os-embassy/udp"]
 ## Enables support for [CoAP](https://ariel-os.github.io/ariel-os/dev/docs/book/tooling/coap.html).
-coap = ["dep:riot-rs-coap", "random"]
+coap = ["dep:ariel-os-coap", "random"]
 
 #! ## Serial communication
 ## Enables I2C support.
-i2c = ["riot-rs-embassy/i2c"]
+i2c = ["ariel-os-embassy/i2c"]
 ## Enables SPI support.
-spi = ["riot-rs-embassy/spi"]
+spi = ["ariel-os-embassy/spi"]
 ## Enables USB support.
-usb = ["riot-rs-embassy/usb"]
+usb = ["ariel-os-embassy/usb"]
 ## Enables USB HID support.
-usb-hid = ["riot-rs-embassy/usb-hid"]
+usb-hid = ["ariel-os-embassy/usb-hid"]
 
 #! ## System configuration
 #! The [`macro@config`] attribute macro allows to provide configuration for
@@ -72,19 +72,19 @@ usb-hid = ["riot-rs-embassy/usb-hid"]
 #! The features below need to be enabled so that the provided custom
 #! configuration is taken into account.
 ## Enables custom network configuration.
-override-network-config = ["riot-rs-embassy/override-network-config"]
+override-network-config = ["ariel-os-embassy/override-network-config"]
 ## Enables custom USB configuration.
-override-usb-config = ["riot-rs-embassy/override-usb-config"]
+override-usb-config = ["ariel-os-embassy/override-usb-config"]
 
 #! ## Multicore functionality
 ## Enables support for core affinities (restricting threads to specific cores).
-core-affinity = ["multi-core", "riot-rs-threads?/core-affinity"]
+core-affinity = ["multi-core", "ariel-os-threads?/core-affinity"]
 #! Exactly one of the features below must be enabled at once.
 #! Selection of these should be done through laze configuration.
 ## Enables one single core, even if the hardware provides multiple cores.
-single-core = ["riot-rs-rt/single-core"]
+single-core = ["ariel-os-rt/single-core"]
 ## Enables support for SMP.
-multi-core = ["riot-rs-threads?/multi-core", "riot-rs-rt/multi-core"]
+multi-core = ["ariel-os-threads?/multi-core", "ariel-os-rt/multi-core"]
 
 #! ## Network type selection
 #! At most one of the features below can be enabled at once.
@@ -92,46 +92,46 @@ multi-core = ["riot-rs-threads?/multi-core", "riot-rs-rt/multi-core"]
 #! [laze](https://github.com/kaspar030/laze) based on what the board supports,
 #! and don't need to be selected manually.
 ## Selects Ethernet over USB (USB CDC-NCM).
-usb-ethernet = ["riot-rs-embassy/usb-ethernet"]
+usb-ethernet = ["ariel-os-embassy/usb-ethernet"]
 ## Selects Wi-Fi (with the CYW43 chip).
-wifi-cyw43 = ["riot-rs-embassy/wifi-cyw43"]
+wifi-cyw43 = ["ariel-os-embassy/wifi-cyw43"]
 ## Selects Wi-Fi (on ESP chips).
-wifi-esp = ["riot-rs-embassy/wifi-esp"]
+wifi-esp = ["ariel-os-embassy/wifi-esp"]
 
 #! ## Development and debugging
 ## Enables the debug console, required to use
 ## [`println!`](riot_rs_debug::println).
-debug-console = ["riot-rs-rt/debug-console"]
+debug-console = ["ariel-os-rt/debug-console"]
 ## Enables logging support through `defmt`.
 defmt = [
-  "riot-rs-coap?/defmt",
-  "riot-rs-debug/defmt",
-  "riot-rs-embassy/defmt",
-  "riot-rs-threads?/defmt",
-  "riot-rs-bench?/defmt",
+  "ariel-os-coap?/defmt",
+  "ariel-os-debug/defmt",
+  "ariel-os-embassy/defmt",
+  "ariel-os-threads?/defmt",
+  "ariel-os-bench?/defmt",
 ]
 ## Enables benchmarking facilities.
-bench = ["dep:riot-rs-bench"]
+bench = ["dep:ariel-os-bench"]
 ## Prints nothing in case of panics (may help reduce binary size).
-silent-panic = ["riot-rs-rt/silent-panic"]
+silent-panic = ["ariel-os-rt/silent-panic"]
 ## Allows to have no boards selected, useful to run target-independent tooling.
-no-boards = ["riot-rs-boards/no-boards", "executor-none"]
+no-boards = ["ariel-os-boards/no-boards", "executor-none"]
 
 # These are selected by laze
-rtt-target = ["riot-rs-debug/rtt-target"]
-esp-println = ["riot-rs-debug/esp-println"]
-semihosting = ["riot-rs-debug/semihosting"]
+rtt-target = ["ariel-os-debug/rtt-target"]
+esp-println = ["ariel-os-debug/esp-println"]
+semihosting = ["ariel-os-debug/semihosting"]
 
-net = ["riot-rs-embassy/net"]
+net = ["ariel-os-embassy/net"]
 
 #! ## Executor type selection for the (autostarted) main executor
 #! Exactly one of the features below must be enabled at once.
 ## Enables the interrupt executor.
-executor-interrupt = ["riot-rs-embassy/executor-interrupt"]
+executor-interrupt = ["ariel-os-embassy/executor-interrupt"]
 ## Enables the single thread-mode executor.
-executor-single-thread = ["riot-rs-embassy/executor-single-thread"]
-## Enables the riot-rs-threading thread executor.
-executor-thread = ["riot-rs-embassy/executor-thread", "threading"]
+executor-single-thread = ["ariel-os-embassy/executor-single-thread"]
+## Enables the ariel-os-threading thread executor.
+executor-thread = ["ariel-os-embassy/executor-thread", "threading"]
 # Don't start any executor automatically.
 # *Used for internal testing only.*
-executor-none = ["riot-rs-embassy/executor-none"]
+executor-none = ["ariel-os-embassy/executor-none"]

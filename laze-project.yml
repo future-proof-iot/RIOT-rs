@@ -5,7 +5,7 @@ contexts:
       bindir: "${build-dir}/bin/${builder}/${app}"
 
   # base context for all Ariel OS applications
-  - name: riot-rs
+  - name: ariel-os
     parent: default
     selects:
       - executor-default
@@ -16,9 +16,9 @@ contexts:
       RUSTFLAGS:
         - --cfg builder=\"${builder}\"
         - --cfg context=\"${builder}\"
-        - --cfg context=\"riot-rs\"
+        - --cfg context=\"ariel-os\"
       FEATURES:
-        - riot-rs-boards/${BOARD}
+        - ariel-os-boards/${BOARD}
       SCRIPTS: ${relroot}/scripts
       # laze doesn't know the concept of "export" as make does, so each variable
       # that needs to be passed via environment needs to be listed in that rule
@@ -87,7 +87,7 @@ contexts:
 
       cargo-test:
         cmd:
-          - cd ${relpath} && ${CARGO_ENV} cargo test --${PROFILE} --features=riot-rs-boards/${builder},riot-rs-rt/debug-console --manifest-path ${app}/Cargo.toml
+          - cd ${relpath} && ${CARGO_ENV} cargo test --${PROFILE} --features=ariel-os-boards/${builder},ariel-os-rt/debug-console --manifest-path ${app}/Cargo.toml
         build: false
 
       debug:
@@ -166,7 +166,7 @@ contexts:
 
   - name: nrf
     help: Nordic MCU support (based on embassy-nrf)
-    parent: riot-rs
+    parent: ariel-os
     selects:
       - ?probe-rs
     env:
@@ -215,7 +215,7 @@ contexts:
   - name: nrf52
     parent: nrf
     selects:
-      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv7em-none-eabi # actually eabihf, but ariel-os doesn't support hard float yet
     env:
       CARGO_RUNNER:
         - ${SCRIPTS}/debug-openocd.sh
@@ -228,7 +228,7 @@ contexts:
   - name: nrf5340
     parent: nrf
     selects:
-      - thumbv8m.main-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv8m.main-none-eabi # actually eabihf, but ariel-os doesn't support hard float yet
     env:
       PROBE_RS_CHIP: nrf5340_xxAA
       RUSTFLAGS:
@@ -256,7 +256,7 @@ contexts:
 
   - name: rp
     help: Raspberry Pi pico MCU support (based on embassy-rp)
-    parent: riot-rs
+    parent: ariel-os
     selects:
       - rp-link-arg
       - thumbv6m-none-eabi
@@ -282,7 +282,7 @@ contexts:
           - probe-rs debug --chip ${PROBE_RS_CHIP} --exe ${out}
 
   - name: esp
-    parent: riot-rs
+    parent: ariel-os
     selects:
       - ?debug-console
       - ?esp-println
@@ -346,7 +346,7 @@ contexts:
 
   - name: stm32
     help: STM32 support (based on embassy-stm32)
-    parent: riot-rs
+    parent: ariel-os
     selects:
       - ?probe-rs
     env:
@@ -357,7 +357,7 @@ contexts:
   - name: stm32f401retx
     parent: stm32
     selects:
-      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv7em-none-eabi # actually eabihf, but ariel-os doesn't support hard float yet
     env:
       PROBE_RS_CHIP: STM32F401RETx
       PROBE_RS_PROTOCOL: swd
@@ -370,7 +370,7 @@ contexts:
   - name: stm32wb55rgvx
     parent: stm32
     selects:
-      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv7em-none-eabi # actually eabihf, but ariel-os doesn't support hard float yet
     env:
       PROBE_RS_CHIP: STM32WB55RGVx
       PROBE_RS_PROTOCOL: swd
@@ -383,7 +383,7 @@ contexts:
   - name: stm32h755zitx
     parent: stm32
     selects:
-      - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+      - thumbv7em-none-eabi # actually eabihf, but ariel-os doesn't support hard float yet
     env:
       PROBE_RS_CHIP: STM32H755ZITx
       PROBE_RS_PROTOCOL: swd
@@ -482,19 +482,19 @@ modules:
       - ?lto
 
   - name: debug-console
-    context: riot-rs
+    context: ariel-os
     env:
       global:
         FEATURES:
-          - riot-rs/debug-console
+          - ariel-os/debug-console
 
   - name: defmt
     help: Enable use of defmt
-    context: riot-rs
+    context: ariel-os
     env:
       global:
         FEATURES:
-          - riot-rs/defmt
+          - ariel-os/defmt
         RUSTFLAGS:
           - -Clink-arg=-Tdefmt.x
         ESPFLASH_LOG_FORMAT: '--log-format defmt'
@@ -505,14 +505,14 @@ modules:
           - DEFMT_LOG=info,${LOG}
 
   - name: silent-panic
-    context: riot-rs
+    context: ariel-os
     env:
       global:
         FEATURES:
-          - riot-rs/silent-panic
+          - ariel-os/silent-panic
 
   - name: lto
-    context: riot-rs
+    context: ariel-os
     env:
       global:
         RUSTFLAGS:
@@ -521,56 +521,56 @@ modules:
           - -Ccodegen-units=1
 
   - name: inline225
-    context: riot-rs
+    context: ariel-os
     env:
       global:
         RUSTFLAGS:
           - -Cllvm-args=-inline-threshold -Cllvm-args=225
 
   - name: build_std
-    context: riot-rs
+    context: ariel-os
     env:
       global:
         CARGO_ARGS:
           - -Zbuild-std
 
   - name: no_overflow_checks
-    context: riot-rs
+    context: ariel-os
     env:
       global:
         RUSTFLAGS:
           - -Coverflow-checks=off
 
   - name: opt_speed
-    context: riot-rs
+    context: ariel-os
     env:
       global:
         RUSTFLAGS:
           - -Copt-level=3
-        # note: this overrides CFLAGS_OPT in riot-rs context
+        # note: this overrides CFLAGS_OPT in ariel-os context
         CFLAGS_OPT: -O3
 
   - name: opt_size
-    context: riot-rs
+    context: ariel-os
     env:
       global:
         RUSTFLAGS:
           - -Copt-level=z
-        # note: this overrides CFLAGS_OPT in riot-rs context
+        # note: this overrides CFLAGS_OPT in ariel-os context
         CFLAGS_OPT: -Oz
 
   - name: thread_info
     # enable thread names & stack info
-    context: riot-rs
+    context: ariel-os
     env:
       global:
         FEATURES:
-          - riot-rs/thread_info
+          - ariel-os/thread_info
 
   - name: cross-language-lto
     # use clang/lld to link, enables cross-language LTO.
     # This requires rustc's llvm and clang's llvm version to match.
-    context: riot-rs
+    context: ariel-os
     depends:
       - lto
     env:
@@ -620,7 +620,7 @@ modules:
     env:
       global:
         FEATURES:
-          - riot-rs/storage
+          - ariel-os/storage
         RUSTFLAGS:
           - -Clink-arg=-Tstorage.x
 
@@ -632,7 +632,7 @@ modules:
     env:
       global:
         FEATURES:
-          - riot-rs/threading
+          - ariel-os/threading
 
   - name: wifi-cyw43
     context:
@@ -642,7 +642,7 @@ modules:
     env:
       global:
         FEATURES:
-          - riot-rs/wifi-cyw43
+          - ariel-os/wifi-cyw43
 
   - name: usb-ethernet
     provides_unique:
@@ -655,7 +655,7 @@ modules:
     env:
       global:
         FEATURES:
-          - riot-rs/usb-ethernet
+          - ariel-os/usb-ethernet
 
   - name: hw/usb-device-port
     help: provided if a device has a USB device port wired up
@@ -677,7 +677,7 @@ modules:
     help: The board's peripherals are suitable for passing into riot_rs_random::construct_rng.
     context:
       # these are precisely those for which the hwrng feature of
-      # riot-rs-embassy builds, which would fail if the big if(context=...)
+      # ariel-os-embassy builds, which would fail if the big if(context=...)
       # doesn't have an entry in the cfg(feature = "hwrng") part of init_task
       - esp
       - nrf51
@@ -688,7 +688,7 @@ modules:
     env:
       global:
         FEATURES:
-          - riot-rs/hwrng
+          - ariel-os/hwrng
 
   - name: random
     help: A system-wide RNG is available (through the riot_rs::random module).
@@ -701,7 +701,7 @@ modules:
     env:
       global:
         FEATURES:
-          - riot-rs/random
+          - ariel-os/random
 
   - name: sw/benchmark
     help: provided if a target supports `benchmark()`
@@ -729,16 +729,16 @@ modules:
         RUSTFLAGS:
           - -Clink-arg=-Trom_functions.x
         FEATURES:
-          - riot-rs/wifi-esp
+          - ariel-os/wifi-esp
 
   - name: executor-thread
-    help: use embassy executor within riot-rs-threads thread
+    help: use embassy executor within ariel-os-threads thread
     provides_unique:
       - executor
     env:
       global:
         FEATURES:
-          - riot-rs/executor-thread
+          - ariel-os/executor-thread
 
   - name: executor-single-thread
     help: use Embassy executor within single "thread mode" thread
@@ -749,7 +749,7 @@ modules:
     env:
       global:
         FEATURES:
-          - riot-rs/executor-single-thread
+          - ariel-os/executor-single-thread
 
   # Enabled for MCU families that provide a dedicated software interrupt (SWI),
   # and thus do not require to sacrifice another, arbitrarily-chosen peripheral
@@ -764,7 +764,7 @@ modules:
     env:
       global:
         FEATURES:
-          - riot-rs/executor-interrupt
+          - ariel-os/executor-interrupt
 
   - name: executor-default
     help: executor preference
@@ -783,7 +783,7 @@ modules:
     env:
       global:
         FEATURES:
-          - riot-rs/single-core
+          - ariel-os/single-core
 
   - name: multi-core
     help: usage platform as multi-core system
@@ -795,35 +795,35 @@ modules:
     env:
       global:
         FEATURES:
-          - riot-rs/multi-core
+          - ariel-os/multi-core
 
   - name: rtt-target
-    help: use rtt-target in riot-rs-debug
+    help: use rtt-target in ariel-os-debug
     provides_unique:
-      - riot-rs-debug-backend
+      - ariel-os-debug-backend
     env:
       global:
         FEATURES:
-          - riot-rs/rtt-target
+          - ariel-os/rtt-target
 
   - name: esp-println
-    help: use esp-println in riot-rs-debug
+    help: use esp-println in ariel-os-debug
     context:
       - esp
     provides_unique:
-      - riot-rs-debug-backend
+      - ariel-os-debug-backend
     env:
       global:
         CARGO_RUNNER: '"espflash flash --monitor ${ESPFLASH_LOG_FORMAT}"'
         FEATURES:
-          - riot-rs/esp-println
+          - ariel-os/esp-println
 
   - name: semihosting
-    help: enable semihosting in riot-rs-debug
+    help: enable semihosting in ariel-os-debug
     env:
       global:
         FEATURES:
-          - riot-rs/semihosting
+          - ariel-os/semihosting
 
 builders:
   # host builder (for housekeeping tasks)

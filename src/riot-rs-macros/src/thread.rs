@@ -33,7 +33,7 @@
 ///
 /// # Panics
 ///
-/// This macro panics when the `riot-rs` crate cannot be found as a dependency of the crate where
+/// This macro panics when the `ariel-os` crate cannot be found as a dependency of the crate where
 /// this macro is used.
 #[proc_macro_attribute]
 pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
@@ -56,10 +56,10 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
     let thread_function = syn::parse_macro_input!(item as syn::ItemFn);
 
     let thread_crate = {
-        match (find_crate("riot-rs"), find_crate("riot-rs-threads")) {
+        match (find_crate("ariel-os"), find_crate("ariel-os-threads")) {
             (Some(riot_rs), _) => quote! { #riot_rs::thread },
             (None, Some(riot_rs_threads)) => quote! { #riot_rs_threads },
-            _ => panic!(r#"neither "riot-rs" nor "riot-rs-threads" found in dependencies!"#),
+            _ => panic!(r#"neither "ariel-os" nor "ariel-os-threads" found in dependencies!"#),
         }
     };
 

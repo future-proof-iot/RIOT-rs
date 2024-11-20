@@ -10,10 +10,10 @@ embassy-stm32 = { workspace = true, features = [
   "memory-x",
   "rt",
 ] }
-riot-rs-debug = { workspace = true, features = ["rtt-target"] }
-riot-rs-rt.workspace = true
-riot-rs-stm32 = { workspace = true, features = [
+ariel-os-debug = { workspace = true, features = ["rtt-target"] }
+ariel-os-rt.workspace = true
+ariel-os-stm32 = { workspace = true, features = [
   "stm32-hash-rng",
   "stm32-usb-synopsis",
 ] }
-stm32 = { path = "../../riot-rs-chips/stm32" }
+stm32 = { path = "../../ariel-os-chips/stm32" }

@@ -118,7 +118,7 @@ pub fn init() -> OptionalPeripherals {
 
         use esp_wifi::{init, EspWifiInitFor};
 
-        riot_rs_debug::log::debug!("riot-rs-embassy::hal::esp::init(): wifi");
+        riot_rs_debug::log::debug!("ariel-os-embassy::hal::esp::init(): wifi");
 
         let timer = TimerGroup::new(peripherals.TIMG0.take().unwrap()).timer0;
 

@@ -90,7 +90,7 @@ dependencies = [
  "cortex-m-semihosting",
  "critical-section",
  "panic-semihosting",
- "riot-rs-runqueue",
+ "ariel-os-runqueue",
 ]
 
 [[package]]
@@ -137,7 +137,7 @@ dependencies = [
 ]
 
 [[package]]
-name = "riot-rs-runqueue"
+name = "ariel-os-runqueue"
 version = "0.1.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "cffd42e93847edf1e2523e289c679b7a719d5208087451bae9550958b5c7fc5b"

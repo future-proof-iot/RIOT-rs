@@ -13,7 +13,7 @@ cortex-m-rt.workspace = true
 cortex-m-semihosting = "0.5.0"
 panic-semihosting = { version = "0.6.0", features = ["exit"] }
 
-riot-rs-threads = { path = ".." }
+ariel-os-threads = { path = ".." }
 
 [profile.release]
 debug = true

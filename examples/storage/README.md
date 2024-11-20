@@ -2,7 +2,7 @@
 
 ## About
 
-This application demonstrates use of the riot-rs-storage API.
+This application demonstrates use of the ariel-os-storage API.
 
 Note: The application is not stateless, as it writes to flash.
 

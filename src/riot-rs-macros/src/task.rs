@@ -33,7 +33,7 @@
 ///
 /// # Panics
 ///
-/// This macro panics when the `riot-rs` crate cannot be found as a dependency of the crate where
+/// This macro panics when the `ariel-os` crate cannot be found as a dependency of the crate where
 /// this macro is used.
 #[proc_macro_attribute]
 pub fn task(args: TokenStream, item: TokenStream) -> TokenStream {

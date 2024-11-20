@@ -7,8 +7,8 @@ edition.workspace = true
 publish = false
 
 [dependencies]
-riot-rs = { path = "../../src/riot-rs", features = ["storage"] }
-riot-rs-boards = { path = "../../src/riot-rs-boards" }
+ariel-os = { path = "../../src/ariel-os", features = ["storage"] }
+ariel-os-boards = { path = "../../src/ariel-os-boards" }
 arrayvec = { version = "0.7.4", default-features = false, features = ["serde"] }
 heapless = { workspace = true, features = ["serde", "defmt-03"] }
 serde = { workspace = true, default-features = false, features = ["derive"] }

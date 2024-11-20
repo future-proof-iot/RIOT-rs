@@ -129,7 +129,7 @@ jobs:
           source ~/source-this-first.sh
           echo "LAZE_BUILDERS=ai-c3,espressif-esp32-c6-devkitc-1,espressif-esp32-s3-wroom-1,microbit-v2,nrf52840dk,nrf5340dk,rpi-pico,rpi-pico-w,st-nucleo-h755zi-q,st-nucleo-wb55" >> "$GITHUB_ENV"
 
-      - name: "riot-rs compilation test"
+      - name: "ariel-os compilation test"
         if: steps.result-cache.outputs.cache-hit != 'true'
         run: |
           source ~/source-this-first.sh
@@ -164,13 +164,13 @@ jobs:
                     no-boards,
                     spi,
                     " \
-                -p riot-rs \
-                -p riot-rs-embassy \
-                -p riot-rs-embassy-common \
-                -p riot-rs-identity \
-                -p riot-rs-macros \
-                -p riot-rs-runqueue \
-                -p riot-rs-threads \
+                -p ariel-os \
+                -p ariel-os-embassy \
+                -p ariel-os-embassy-common \
+                -p ariel-os-identity \
+                -p ariel-os-macros \
+                -p ariel-os-runqueue \
+                -p ariel-os-threads \
 
             cargo test \
                 -p coapcore \
@@ -188,7 +188,7 @@ jobs:
                     i2c,
                     spi,
                     " \
-                -p riot-rs-rp
+                -p ariel-os-rp
 
       - name: cargo test for nRF
         run: |
@@ -199,7 +199,7 @@ jobs:
                     i2c,
                     spi,
                     " \
-                -p riot-rs-nrf
+                -p ariel-os-nrf
 
       - name: cargo test for STM32
         run: |
@@ -210,7 +210,7 @@ jobs:
                     i2c,
                     spi,
                     " \
-                -p riot-rs-stm32
+                -p ariel-os-stm32
 
   lint:
     runs-on: ubuntu-latest
@@ -226,7 +226,7 @@ jobs:
         uses: dtolnay/rust-toolchain@master
         with:
           toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
-          # Required for checking riot-rs-esp
+          # Required for checking ariel-os-esp
           targets: riscv32imac-unknown-none-elf
           components: clippy, rustfmt
 
@@ -273,21 +273,21 @@ jobs:
                 usb,
                 usb-ethernet,
                 "
-            -p riot-rs
-            -p riot-rs-boards
-            -p riot-rs-chips
-            -p riot-rs-coap
-            -p riot-rs-debug
-            -p riot-rs-embassy
-            -p riot-rs-embassy-common
-            -p riot-rs-hal
-            -p riot-rs-identity
-            -p riot-rs-macros
-            -p riot-rs-random
-            -p riot-rs-rt
-            -p riot-rs-storage
-            -p riot-rs-threads
-            -p riot-rs-utils
+            -p ariel-os
+            -p ariel-os-boards
+            -p ariel-os-chips
+            -p ariel-os-coap
+            -p ariel-os-debug
+            -p ariel-os-embassy
+            -p ariel-os-embassy-common
+            -p ariel-os-hal
+            -p ariel-os-identity
+            -p ariel-os-macros
+            -p ariel-os-random
+            -p ariel-os-rt
+            -p ariel-os-storage
+            -p ariel-os-threads
+            -p ariel-os-utils
             --
             --deny warnings
 
@@ -306,7 +306,7 @@ jobs:
                 i2c,
                 spi,
                 "
-            -p riot-rs-esp
+            -p ariel-os-esp
             --
             --deny warnings
 
@@ -323,7 +323,7 @@ jobs:
                 i2c,
                 spi,
                 "
-            -p riot-rs-rp
+            -p ariel-os-rp
             --
             --deny warnings
 
@@ -340,7 +340,7 @@ jobs:
                 i2c,
                 spi,
                 "
-            -p riot-rs-nrf
+            -p ariel-os-nrf
             --
             --deny warnings
 
@@ -357,7 +357,7 @@ jobs:
                 i2c,
                 spi,
                 "
-            -p riot-rs-stm32
+            -p ariel-os-stm32
             --
             --deny warnings
 
@@ -367,7 +367,7 @@ jobs:
       - name: rustdoc
         run: |
             RUSTDOCFLAGS='-D warnings' cargo doc \
-                -p riot-rs \
+                -p ariel-os \
                 --features "
                     bench,
                     coap,
@@ -379,7 +379,7 @@ jobs:
                     net,
                     no-boards,
                     random,
-                    riot-rs-coap/doc,
+                    ariel-os-coap/doc,
                     spi,
                     storage,
                     threading,
@@ -398,7 +398,7 @@ jobs:
                     i2c,
                     spi,
                     " \
-                -p riot-rs-esp
+                -p ariel-os-esp
 
       - name: rustdoc for RP
         run: |
@@ -409,7 +409,7 @@ jobs:
                     i2c,
                     spi,
                     " \
-                -p riot-rs-rp
+                -p ariel-os-rp
 
       - name: rustdoc for nRF
         run: |
@@ -420,7 +420,7 @@ jobs:
                     i2c,
                     spi,
                     " \
-                -p riot-rs-nrf
+                -p ariel-os-nrf
 
       - name: rustdoc for STM32
         run: |
@@ -431,7 +431,7 @@ jobs:
                     i2c,
                     spi,
                     " \
-                -p riot-rs-stm32
+                -p ariel-os-stm32
 
       - name: rustfmt
         run: cargo fmt --check --all

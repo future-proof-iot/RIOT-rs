@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs-hal"
+name = "ariel-os-hal"
 version = "0.1.0"
 license.workspace = true
 edition = "2021"
@@ -11,16 +11,16 @@ workspace = true
 cfg-if.workspace = true
 
 [target.'cfg(context = "esp")'.dependencies]
-riot-rs-esp = { path = "../riot-rs-esp" }
+ariel-os-esp = { path = "../ariel-os-esp" }
 
 [target.'cfg(context = "nrf")'.dependencies]
-riot-rs-nrf = { path = "../riot-rs-nrf" }
+ariel-os-nrf = { path = "../ariel-os-nrf" }
 
 [target.'cfg(context = "rp")'.dependencies]
-riot-rs-rp = { path = "../riot-rs-rp" }
+ariel-os-rp = { path = "../ariel-os-rp" }
 
 [target.'cfg(context = "stm32")'.dependencies]
-riot-rs-stm32 = { workspace = true }
+ariel-os-stm32 = { workspace = true }
 
 # Required for platform-independent tooling
 [target.'cfg(not(any(context = "esp", context = "nrf", context = "rp", context = "stm32")))'.dependencies]
@@ -31,67 +31,67 @@ embedded-hal = { workspace = true }
 embedded-hal-async = { workspace = true }
 embedded-storage-async = { workspace = true }
 
-riot-rs-embassy-common = { workspace = true }
+ariel-os-embassy-common = { workspace = true }
 
 [features]
 external-interrupts = [
-  "riot-rs-esp/external-interrupts",
-  "riot-rs-nrf/external-interrupts",
-  "riot-rs-rp/external-interrupts",
-  "riot-rs-stm32/external-interrupts",
+  "ariel-os-esp/external-interrupts",
+  "ariel-os-nrf/external-interrupts",
+  "ariel-os-rp/external-interrupts",
+  "ariel-os-stm32/external-interrupts",
 ]
 
 i2c = [
-  "riot-rs-esp/i2c",
-  "riot-rs-nrf/i2c",
-  "riot-rs-rp/i2c",
-  "riot-rs-stm32/i2c",
+  "ariel-os-esp/i2c",
+  "ariel-os-nrf/i2c",
+  "ariel-os-rp/i2c",
+  "ariel-os-stm32/i2c",
 ]
 
 spi = [
-  "riot-rs-esp/spi",
-  "riot-rs-nrf/spi",
-  "riot-rs-rp/spi",
-  "riot-rs-stm32/spi",
+  "ariel-os-esp/spi",
+  "ariel-os-nrf/spi",
+  "ariel-os-rp/spi",
+  "ariel-os-stm32/spi",
 ]
 
 usb = [
-  "riot-rs-esp/usb",
-  "riot-rs-nrf/usb",
-  "riot-rs-rp/usb",
-  "riot-rs-stm32/usb",
+  "ariel-os-esp/usb",
+  "ariel-os-nrf/usb",
+  "ariel-os-rp/usb",
+  "ariel-os-stm32/usb",
 ]
 
 hwrng = [
-  "riot-rs-esp/hwrng",
-  "riot-rs-nrf/hwrng",
-  "riot-rs-rp/hwrng",
-  "riot-rs-stm32/hwrng",
+  "ariel-os-esp/hwrng",
+  "ariel-os-nrf/hwrng",
+  "ariel-os-rp/hwrng",
+  "ariel-os-stm32/hwrng",
 ]
 
 storage = [
-  #"riot-rs-esp/storage",
-  "riot-rs-nrf/storage",
-  "riot-rs-rp/storage",
-  #"riot-rs-stm32/storage",
+  #"ariel-os-esp/storage",
+  "ariel-os-nrf/storage",
+  "ariel-os-rp/storage",
+  #"ariel-os-stm32/storage",
 ]
 
-wifi-cyw43 = ["riot-rs-rp/wifi-cyw43"]
-wifi-esp = ["riot-rs-esp/wifi-esp"]
+wifi-cyw43 = ["ariel-os-rp/wifi-cyw43"]
+wifi-esp = ["ariel-os-esp/wifi-esp"]
 
-executor-single-thread = ["riot-rs-esp/executor-single-thread"]
+executor-single-thread = ["ariel-os-esp/executor-single-thread"]
 
 executor-interrupt = [
-  #"riot-rs-esp/executor-interrupt",
-  "riot-rs-nrf/executor-interrupt",
-  "riot-rs-rp/executor-interrupt",
-  "riot-rs-stm32/executor-interrupt",
+  #"ariel-os-esp/executor-interrupt",
+  "ariel-os-nrf/executor-interrupt",
+  "ariel-os-rp/executor-interrupt",
+  "ariel-os-stm32/executor-interrupt",
 ]
 
 defmt = [
-  "riot-rs-embassy-common/defmt",
-  "riot-rs-esp/defmt",
-  "riot-rs-nrf/defmt",
-  "riot-rs-rp/defmt",
-  "riot-rs-stm32/defmt",
+  "ariel-os-embassy-common/defmt",
+  "ariel-os-esp/defmt",
+  "ariel-os-nrf/defmt",
+  "ariel-os-rp/defmt",
+  "ariel-os-stm32/defmt",
 ]

@@ -49,7 +49,7 @@ jobs:
       - name: Build rustdoc docs
         run: |
           cargo doc \
-              -p riot-rs \
+              -p ariel-os \
               --features "
                   bench,
                   coap,
@@ -61,7 +61,7 @@ jobs:
                   net,
                   no-boards,
                   random,
-                  riot-rs-coap/doc,
+                  ariel-os-coap/doc,
                   spi,
                   storage,
                   threading,

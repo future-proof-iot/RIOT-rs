@@ -78,7 +78,7 @@ TODO
 [embassy-hal-crates]: ./glossary.md#embassy-hal-crates
 [spawner-attr-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/riot_rs/attr.spawner.html
 [task-attr-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/riot_rs/attr.task.html
-[spawner-or-task]: #the-spawner-and-task-riot-rs-macros
+[spawner-or-task]: #the-spawner-and-task-ariel-os-macros
 [blinky-example-src]: https://github.com/ariel-os/ariel-os/tree/main/examples/blinky
 [define_peripherals-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/riot_rs/macro.define_peripherals.html
 [group_peripherals-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/riot_rs/macro.group_peripherals.html

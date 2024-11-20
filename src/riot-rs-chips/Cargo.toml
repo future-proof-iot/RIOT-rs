@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs-chips"
+name = "ariel-os-chips"
 version = "0.1.0"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 license.workspace = true

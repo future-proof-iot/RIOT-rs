@@ -75,7 +75,7 @@ cfg_if::cfg_if! {
         use usb::ethernet::NetworkDevice;
     } else if #[cfg(feature = "wifi")] {
         use wifi::NetworkDevice;
-    } else if #[cfg(context = "riot-rs")] {
+    } else if #[cfg(context = "ariel-os")] {
         compile_error!("no backend for net is active");
     } else {
         use network::DummyDriver as NetworkDevice;
@@ -113,7 +113,7 @@ compile_error!(r#""executor-single-thread" and "threading" are mutually exclusiv
 #[cfg(feature = "executor-interrupt")]
 #[distributed_slice(riot_rs_rt::INIT_FUNCS)]
 pub(crate) fn init() {
-    debug!("riot-rs-embassy::init(): using interrupt mode executor");
+    debug!("ariel-os-embassy::init(): using interrupt mode executor");
     let p = hal::init();
 
     #[cfg(any(context = "nrf", context = "rp2040", context = "stm32"))]
@@ -129,7 +129,7 @@ pub(crate) fn init() {
 #[cfg(feature = "executor-single-thread")]
 #[export_name = "riot_rs_embassy_init"]
 fn init() -> ! {
-    debug!("riot-rs-embassy::init(): using single thread executor");
+    debug!("ariel-os-embassy::init(): using single thread executor");
     let p = hal::init();
 
     static EXECUTOR: StaticCell<hal::Executor> = StaticCell::new();
@@ -156,7 +156,7 @@ mod executor_thread {
 #[cfg(feature = "executor-thread")]
 #[riot_rs_macros::thread(autostart, no_wait, stacksize = executor_thread::STACKSIZE, priority = executor_thread::PRIORITY)]
 fn init() {
-    debug!("riot-rs-embassy::init(): using thread executor");
+    debug!("ariel-os-embassy::init(): using thread executor");
     let p = hal::init();
 
     static EXECUTOR: StaticCell<thread_executor::Executor> = StaticCell::new();
@@ -170,7 +170,7 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
     let spawner = asynch::Spawner::for_current_executor().await;
     asynch::set_spawner(spawner.make_send());
 
-    debug!("riot-rs-embassy::init_task()");
+    debug!("ariel-os-embassy::init_task()");
 
     #[cfg(all(context = "stm32", feature = "external-interrupts"))]
     hal::extint_registry::EXTINT_REGISTRY.init(&mut peripherals);
@@ -332,7 +332,7 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
     // mark used
     let _ = peripherals;
 
-    debug!("riot-rs-embassy::init_task() done");
+    debug!("ariel-os-embassy::init_task() done");
 
     #[cfg(feature = "threading")]
     riot_rs_threads::events::THREAD_START_EVENT.set();

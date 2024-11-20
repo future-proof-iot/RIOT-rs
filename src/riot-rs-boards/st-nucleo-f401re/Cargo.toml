@@ -8,5 +8,5 @@ edition = "2021"
 
 [dependencies]
 embassy-stm32 = { workspace = true, features = ["stm32f401re"] }
-riot-rs-debug = { workspace = true, features = ["rtt-target"] }
-riot-rs-rt.workspace = true
+ariel-os-debug = { workspace = true, features = ["rtt-target"] }
+ariel-os-rt.workspace = true

@@ -7,6 +7,6 @@ license.workspace = true
 publish = false
 
 [dependencies]
-riot-rs = { path = "../../src/riot-rs" }
-riot-rs-boards = { path = "../../src/riot-rs-boards" }
+ariel-os = { path = "../../src/ariel-os" }
+ariel-os-boards = { path = "../../src/ariel-os-boards" }
 portable-atomic = { workspace = true }

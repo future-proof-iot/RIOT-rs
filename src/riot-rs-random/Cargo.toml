@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs-random"
+name = "ariel-os-random"
 version.workspace = true
 authors.workspace = true
 license.workspace = true

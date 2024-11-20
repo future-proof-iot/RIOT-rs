@@ -57,7 +57,7 @@ or instead, run your module in a [riot-wrappers](https://github.com/RIOT-OS/rust
 
 The following assumes you have a Nordic nrf52840dk connected to your PC.
 (For other supported boards, you can find your board's name in
-[./src/riot-rs-boards/Cargo.toml](https://github.com/ariel-os/ariel-os/blob/main/src/riot-rs-boards/Cargo.toml)
+[./src/ariel-os-boards/Cargo.toml](https://github.com/ariel-os/ariel-os/blob/main/src/ariel-os-boards/Cargo.toml)
 and use it instead of 'nrf52840dk' in the below guidelines.)
 
 The following instructions will enable you to flash and run the [`hello-world`

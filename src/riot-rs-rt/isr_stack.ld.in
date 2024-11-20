@@ -11,4 +11,4 @@ SECTIONS
 
 INSERT BEFORE .data;
 
-ASSERT(_stack_start != _stack_bottom, "ERROR(riot-rs-rt): isr stack too small");
+ASSERT(_stack_start != _stack_bottom, "ERROR(ariel-os-rt): isr stack too small");

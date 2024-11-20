@@ -27,13 +27,13 @@ cfg_if::cfg_if! {
         mod esp;
         use esp as arch;
     }
-    else if #[cfg(context = "riot-rs")] {
+    else if #[cfg(context = "ariel-os")] {
         // When run with laze but the MCU family is not supported
         compile_error!("no runtime is defined for this MCU family");
     } else {
         // Provide a default implementation, for arch-independent tooling
         mod arch {
-            #[cfg_attr(not(context = "riot-rs"), allow(dead_code))]
+            #[cfg_attr(not(context = "ariel-os"), allow(dead_code))]
             pub fn init() {}
         }
     }
@@ -64,7 +64,7 @@ use linkme::distributed_slice;
 pub static INIT_FUNCS: [fn()] = [..];
 
 #[inline]
-#[cfg_attr(not(context = "riot-rs"), allow(dead_code))]
+#[cfg_attr(not(context = "ariel-os"), allow(dead_code))]
 fn startup() -> ! {
     arch::init();
 

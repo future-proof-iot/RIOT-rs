@@ -11,8 +11,8 @@ workspace = true
 
 [dependencies]
 heapless = { workspace = true }
-riot-rs = { path = "../../src/riot-rs", features = [
+ariel-os = { path = "../../src/ariel-os", features = [
   "override-network-config",
   "udp",
 ] }
-riot-rs-boards = { path = "../../src/riot-rs-boards" }
+ariel-os-boards = { path = "../../src/ariel-os-boards" }

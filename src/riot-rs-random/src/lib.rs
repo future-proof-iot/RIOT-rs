@@ -13,7 +13,7 @@
 //! the [`FastRng`] and [`CryptoRng`] types.
 //!
 //! Before accessing the RNG, it needs to be initialized through the [`construct_rng()`] function.
-//! This is taken care of by the `riot-rs-embassy` initialization functions. Applications can
+//! This is taken care of by the `ariel-os-embassy` initialization functions. Applications can
 //! ensure that this has happened by depending on the laze feature `random`.
 //!
 //! ---

@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs-esp"
+name = "ariel-os-esp"
 version.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -28,10 +28,10 @@ esp-wifi = { workspace = true, default-features = false, features = [
 fugit = { workspace = true, optional = true }
 once_cell = { workspace = true }
 paste = { workspace = true }
-riot-rs-debug = { workspace = true }
-riot-rs-embassy-common = { workspace = true }
-riot-rs-random = { workspace = true, optional = true }
-riot-rs-utils = { workspace = true }
+ariel-os-debug = { workspace = true }
+ariel-os-embassy-common = { workspace = true }
+ariel-os-random = { workspace = true, optional = true }
+ariel-os-utils = { workspace = true }
 static_cell = { workspace = true }
 
 [target.'cfg(context = "cortex-m")'.dependencies]
@@ -77,20 +77,20 @@ esp-wifi = { workspace = true, default-features = false, features = [
 
 [features]
 ## Enables GPIO interrupt support.
-external-interrupts = ["riot-rs-embassy-common/external-interrupts"]
+external-interrupts = ["ariel-os-embassy-common/external-interrupts"]
 
 ## Enables seeding the random number generator from hardware.
-hwrng = ["dep:riot-rs-random"]
+hwrng = ["dep:ariel-os-random"]
 
 ## Enables I2C support.
 i2c = [
   "dep:fugit",
-  "riot-rs-embassy-common/i2c",
+  "ariel-os-embassy-common/i2c",
   "embassy-executor/integrated-timers",
 ]
 
 ## Enables SPI support.
-spi = ["dep:fugit", "riot-rs-embassy-common/spi"]
+spi = ["dep:fugit", "ariel-os-embassy-common/spi"]
 
 ## Enables defmt support.
 defmt = ["dep:defmt", "esp-hal/defmt", "esp-wifi?/defmt", "fugit?/defmt"]

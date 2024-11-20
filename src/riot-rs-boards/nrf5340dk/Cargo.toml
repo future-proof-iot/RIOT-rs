@@ -9,6 +9,6 @@ edition.workspace = true
 cortex-m.workspace = true
 cortex-m-rt.workspace = true
 
-riot-rs-debug.workspace = true
+ariel-os-debug.workspace = true
 
 nrf5340 = { path = "../nrf5340" }

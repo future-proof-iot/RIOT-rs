@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs-embassy"
+name = "ariel-os-embassy"
 version = "0.1.0"
 license.workspace = true
 edition = "2021"
@@ -28,15 +28,15 @@ embassy-usb = { workspace = true, optional = true }
 embedded-hal = { workspace = true }
 embedded-hal-async = { workspace = true }
 
-riot-rs-embassy-common = { workspace = true }
-riot-rs-hal = { path = "../riot-rs-hal" }
-riot-rs-threads = { path = "../riot-rs-threads", optional = true }
-riot-rs-debug = { workspace = true }
-riot-rs-macros = { path = "../riot-rs-macros" }
-riot-rs-rt = { path = "../riot-rs-rt" }
-riot-rs-random = { path = "../riot-rs-random", optional = true }
-riot-rs-storage = { workspace = true, optional = true }
-riot-rs-utils = { workspace = true }
+ariel-os-embassy-common = { workspace = true }
+ariel-os-hal = { path = "../ariel-os-hal" }
+ariel-os-threads = { path = "../ariel-os-threads", optional = true }
+ariel-os-debug = { workspace = true }
+ariel-os-macros = { path = "../ariel-os-macros" }
+ariel-os-rt = { path = "../ariel-os-rt" }
+ariel-os-random = { path = "../ariel-os-random", optional = true }
+ariel-os-storage = { workspace = true, optional = true }
+ariel-os-utils = { workspace = true }
 
 heapless = "0.8.0"
 once_cell = { workspace = true }
@@ -51,55 +51,55 @@ embassy-executor = { workspace = true, default-features = false, features = [
 [features]
 ## Enables GPIO interrupt support.
 external-interrupts = [
-  "riot-rs-embassy-common/external-interrupts",
-  "riot-rs-hal/external-interrupts",
+  "ariel-os-embassy-common/external-interrupts",
+  "ariel-os-hal/external-interrupts",
 ]
 time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
 
 ## Enables I2C support.
 i2c = [
   "dep:embassy-embedded-hal",
-  "riot-rs-embassy-common/i2c",
-  "riot-rs-hal/i2c",
+  "ariel-os-embassy-common/i2c",
+  "ariel-os-hal/i2c",
 ]
 ## Enables SPI support.
 spi = [
   "dep:embassy-embedded-hal",
-  "riot-rs-embassy-common/spi",
-  "riot-rs-hal/spi",
+  "ariel-os-embassy-common/spi",
+  "ariel-os-hal/spi",
 ]
 
 ## Enables USB support.
-usb = ["dep:embassy-usb", "riot-rs-hal/usb"]
+usb = ["dep:embassy-usb", "ariel-os-hal/usb"]
 usb-hid = ["dep:usbd-hid", "embassy-usb?/usbd-hid", "usb"]
 
 # embassy-net requires embassy-time and support for timeouts in the executor
 net = ["dep:embassy-net", "time"]
 usb-ethernet = ["usb", "net"]
-## Use a hardware RNG to seed into the riot-rs-random system-wide RNG
-hwrng = ["riot-rs-hal/hwrng"]
+## Use a hardware RNG to seed into the ariel-os-random system-wide RNG
+hwrng = ["ariel-os-hal/hwrng"]
 
 ## Enables support for TCP.
 tcp = ["embassy-net?/tcp"]
 ## Enables support for UDP.
 udp = ["embassy-net?/udp"]
 
-## Enable storage support [`riot-rs::storage`].
-storage = ["dep:riot-rs-storage", "riot-rs-hal/storage", "time"]
+## Enable storage support [`ariel-os::storage`].
+storage = ["dep:ariel-os-storage", "ariel-os-hal/storage", "time"]
 
 wifi = []
-wifi-cyw43 = ["riot-rs-hal/wifi-cyw43", "net", "wifi"]
-wifi-esp = ["riot-rs-hal/wifi-esp", "net", "wifi"]
+wifi-cyw43 = ["ariel-os-hal/wifi-cyw43", "net", "wifi"]
+wifi-esp = ["ariel-os-hal/wifi-esp", "net", "wifi"]
 
-threading = ["dep:riot-rs-threads"]
+threading = ["dep:ariel-os-threads"]
 override-network-config = []
 override-usb-config = []
 
 executor-single-thread = [
-  "riot-rs-hal/executor-single-thread",
-  "riot-rs-rt/executor-single-thread",
+  "ariel-os-hal/executor-single-thread",
+  "ariel-os-rt/executor-single-thread",
 ]
-executor-interrupt = ["riot-rs-hal/executor-interrupt"]
+executor-interrupt = ["ariel-os-hal/executor-interrupt"]
 executor-thread = ["threading"]
 executor-none = []
 
@@ -107,7 +107,7 @@ defmt = [
   "embassy-net?/defmt",
   "embassy-time?/defmt",
   "embassy-usb?/defmt",
-  "riot-rs-hal/defmt",
-  "riot-rs-embassy-common/defmt",
+  "ariel-os-hal/defmt",
+  "ariel-os-embassy-common/defmt",
   "usbd-hid?/defmt",
 ]

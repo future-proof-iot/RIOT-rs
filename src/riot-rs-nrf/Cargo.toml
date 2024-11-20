@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs-nrf"
+name = "ariel-os-nrf"
 version.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -25,9 +25,9 @@ embassy-nrf = { workspace = true, default-features = false, features = [
 embedded-hal-async = { workspace = true }
 paste = { workspace = true }
 portable-atomic = { workspace = true }
-riot-rs-debug = { workspace = true }
-riot-rs-embassy-common = { workspace = true }
-riot-rs-random = { workspace = true, optional = true }
+ariel-os-debug = { workspace = true }
+ariel-os-embassy-common = { workspace = true }
+ariel-os-random = { workspace = true, optional = true }
 
 [target.'cfg(context = "nrf52832")'.dependencies]
 # Disable NFC support for now, as we do not support it yet.
@@ -52,17 +52,17 @@ embassy-nrf = { workspace = true, features = [
 ## Enables GPIO interrupt support.
 external-interrupts = [
   "embassy-nrf/gpiote",
-  "riot-rs-embassy-common/external-interrupts",
+  "ariel-os-embassy-common/external-interrupts",
 ]
 
 ## Enables seeding the random number generator from hardware.
-hwrng = ["dep:riot-rs-random"]
+hwrng = ["dep:ariel-os-random"]
 
 ## Enables I2C support.
-i2c = ["riot-rs-embassy-common/i2c", "embassy-executor/integrated-timers"]
+i2c = ["ariel-os-embassy-common/i2c", "embassy-executor/integrated-timers"]
 
 ## Enables SPI support.
-spi = ["riot-rs-embassy-common/spi", "embassy-executor/integrated-timers"]
+spi = ["ariel-os-embassy-common/spi", "embassy-executor/integrated-timers"]
 
 ## Enables storage support.
 storage = ["dep:embassy-embedded-hal"]

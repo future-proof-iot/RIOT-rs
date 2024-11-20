@@ -1,4 +1,4 @@
-riot-rs-runqueue
+ariel-os-runqueue
 ================
 
 This repository contains the Runqueue as used by Ariel OS.
@@ -29,7 +29,7 @@ For the time being, it is recommended to use a current nightly.
 Copyright & License
 -------------------
 
-riot-rs-runqueue is licensed under either of
+ariel-os-runqueue is licensed under either of
 
     Apache License, Version 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0)
     MIT license (LICENSE-MIT or http://opensource.org/licenses/MIT)

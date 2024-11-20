@@ -2,7 +2,7 @@
 /// associated driver during initial system configuration.
 ///
 /// **Important**: for this configuration to be taken into account, a specific Cargo feature may
-/// need to be enabled on the `riot-rs` dependency, for each configuration type (see table below).
+/// need to be enabled on the `ariel-os` dependency, for each configuration type (see table below).
 ///
 /// The name of the function does not matter as it will be renamed by the macro.
 ///
@@ -40,7 +40,7 @@
 ///
 /// # Panics
 ///
-/// This macro panics when the `riot-rs` crate cannot be found as a dependency of the crate where
+/// This macro panics when the `ariel-os` crate cannot be found as a dependency of the crate where
 /// this macro is used.
 #[proc_macro_attribute]
 pub fn config(args: TokenStream, item: TokenStream) -> TokenStream {

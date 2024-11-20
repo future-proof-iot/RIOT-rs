@@ -6,7 +6,7 @@ license.workspace = true
 edition = "2021"
 
 [dependencies]
-riot-rs-debug = { workspace = true, features = ["rtt-target"] }
+ariel-os-debug = { workspace = true, features = ["rtt-target"] }
 
 [build-dependencies]
 ld-memory = { workspace = true, features = ["build-rs"] }

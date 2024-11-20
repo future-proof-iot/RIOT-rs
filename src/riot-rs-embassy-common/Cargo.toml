@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs-embassy-common"
+name = "ariel-os-embassy-common"
 version.workspace = true
 authors.workspace = true
 license.workspace = true

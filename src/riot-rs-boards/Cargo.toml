@@ -1,5 +1,5 @@
 [package]
-name = "riot-rs-boards"
+name = "ariel-os-boards"
 version.workspace = true
 authors.workspace = true
 license.workspace = true
@@ -12,7 +12,7 @@ workspace = true
 cfg-if.workspace = true
 linkme.workspace = true
 
-riot-rs-rt = { path = "../riot-rs-rt" }
+ariel-os-rt = { path = "../ariel-os-rt" }
 
 ai-c3 = { optional = true, path = "ai-c3" }
 espressif-esp32-c6-devkitc-1 = { optional = true, path = "espressif-esp32-c6-devkitc-1" }

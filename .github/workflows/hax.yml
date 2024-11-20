@@ -17,12 +17,12 @@ jobs:
           # pin hax to known-working
           hax_reference: cc29a3f8c0eee80a1682be78cb3b0447a0257d5b
 
-      - name: 🏃 Extract `riot-rs-runqueue`
-        working-directory: ./src/riot-rs-runqueue
+      - name: 🏃 Extract `ariel-os-runqueue`
+        working-directory: ./src/ariel-os-runqueue
         run: |
           rm -f proofs/fstar/extraction/*.fst*
           cargo hax into fstar
 
-      - name: 🏃 Lax check `riot-rs-runqueue`
-        working-directory: ./src/riot-rs-runqueue/proofs/fstar/extraction
+      - name: 🏃 Lax check `ariel-os-runqueue`
+        working-directory: ./src/ariel-os-runqueue/proofs/fstar/extraction
         run: OTHERFLAGS="--lax" make
