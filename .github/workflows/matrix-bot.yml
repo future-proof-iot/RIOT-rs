@@ -10,7 +10,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: send message
-        uses: future-proof-iot/Matrix-Message@v0.0.4
+        uses: ariel-os/Matrix-Message@v0.0.4
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
@@ -24,7 +24,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: send message
-        uses: future-proof-iot/Matrix-Message@v0.0.4
+        uses: ariel-os/Matrix-Message@v0.0.4
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
@@ -38,7 +38,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: send message
-        uses: future-proof-iot/Matrix-Message@v0.0.4
+        uses: ariel-os/Matrix-Message@v0.0.4
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
@@ -52,7 +52,7 @@ jobs:
     continue-on-error: true
     steps:
       - name: send message
-        uses: future-proof-iot/Matrix-Message@v0.0.4
+        uses: ariel-os/Matrix-Message@v0.0.4
         with:
           room_id: ${{ secrets.MATRIX_ROOM_ID }}
           access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
