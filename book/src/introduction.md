@@ -27,4 +27,4 @@ RIOT-rs can also be used to host legacy C application and libraries.
 However, the essence and ultimate goal of the RIOT-rs is to
 provide everything one might need in Rust.
 
-![Architecture](figures/RIOT-rs-arch-diagram1.svg)
+![Architecture](figures/ariel-os-arch-diagram1.svg)

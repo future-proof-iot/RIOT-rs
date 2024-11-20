@@ -9,7 +9,7 @@
 RIOT-rs is an operating system for secure, memory-safe, low-power Internet of Things (IoT).
 RIOT-rs is based on Rust from the ground up, and uses formal verification
 for critical modules. To learn more about our motivations, see this
-[manifesto](https://ariel-os.github.io/RIOT-rs/dev/docs/book/manifesto.html).
+[manifesto](https://ariel-os.github.io/ariel-os/dev/docs/book/manifesto.html).
 
 Hardware targets include varieties of IoT hardware based on 
 32-bit microcontroller architectures (such as Cortex-M, RISC-V).
@@ -116,7 +116,7 @@ recommended to use a current nightly.
 ## Coding Conventions
 
 Please see the chapter on
-[coding conventions](https://ariel-os.github.io/RIOT-rs/dev/docs/book/coding-conventions.html)
+[coding conventions](https://ariel-os.github.io/ariel-os/dev/docs/book/coding-conventions.html)
 in the documentation.
 
 ## Copyright & License
@@ -145,5 +145,5 @@ be dual licensed as above, without any additional terms or conditions.
 [matrix-link]: https://matrix.to/#/#RIOT-rs:matrix.org
 [book-badge]: https://img.shields.io/badge/Book-%F0%9F%93%94-blue
 [rustdoc-badge]: https://img.shields.io/badge/Documentation-%F0%9F%93%94-blue
-[documentation-mdbook]: https://ariel-os.github.io/RIOT-rs/dev/docs/book/
-[documentation-dev-rustdoc]: https://ariel-os.github.io/RIOT-rs/dev/docs/api/
+[documentation-mdbook]: https://ariel-os.github.io/ariel-os/dev/docs/book/
+[documentation-dev-rustdoc]: https://ariel-os.github.io/ariel-os/dev/docs/api/

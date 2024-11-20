@@ -16,7 +16,7 @@
 //! Debug2Format merely print the type name or even make it empty).
 //!
 //! See the book for [how defmt is configured in
-//! RIOT-rs](https://ariel-os.github.io/RIOT-rs/dev/docs/book/tooling/defmt.html).
+//! RIOT-rs](https://ariel-os.github.io/ariel-os/dev/docs/book/tooling/defmt.html).
 //!
 //! **Warning**: At the Debug level, this module may show cryptographic key material. This will be
 //! revised once all components have been interop-tested.

@@ -43,5 +43,5 @@ In this folder, run
     INFO  main(): now=900ms threadtest() counter=9
     INFO  main(): all good, exiting.
 
-[`signal`]: https://ariel-os.github.io/RIOT-rs/dev/docs/api/embassy_sync/signal/struct.Signal.html
-[`block_on`]: https://ariel-os.github.io/RIOT-rs/dev/docs/api/riot_rs/blocker/fn.block_on.html
+[`signal`]: https://ariel-os.github.io/ariel-os/dev/docs/api/embassy_sync/signal/struct.Signal.html
+[`block_on`]: https://ariel-os.github.io/ariel-os/dev/docs/api/riot_rs/blocker/fn.block_on.html

@@ -53,7 +53,7 @@ hwrng = ["riot-rs-embassy/hwrng"]
 tcp = ["riot-rs-embassy/tcp"]
 ## Enables support for UDP.
 udp = ["riot-rs-embassy/udp"]
-## Enables support for [CoAP](https://ariel-os.github.io/RIOT-rs/dev/docs/book/tooling/coap.html).
+## Enables support for [CoAP](https://ariel-os.github.io/ariel-os/dev/docs/book/tooling/coap.html).
 coap = ["dep:riot-rs-coap", "random"]
 
 #! ## Serial communication
