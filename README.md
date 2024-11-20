@@ -142,7 +142,7 @@ be dual licensed as above, without any additional terms or conditions.
 [build-badge]: https://github.com/ariel-os/ariel-os/actions/workflows/main.yml/badge.svg
 [build-info]: https://github.com/ariel-os/ariel-os/actions/workflows/main.yml
 [matrix-badge]: https://img.shields.io/badge/chat-Matrix-brightgreen.svg
-[matrix-link]: https://matrix.to/#/#RIOT-rs:matrix.org
+[matrix-link]: https://matrix.to/#/#ariel-os:matrix.org
 [book-badge]: https://img.shields.io/badge/Book-%F0%9F%93%94-blue
 [rustdoc-badge]: https://img.shields.io/badge/Documentation-%F0%9F%93%94-blue
 [documentation-mdbook]: https://ariel-os.github.io/ariel-os/dev/docs/book/

@@ -53,12 +53,12 @@ Decisions about the RIOT-rs project are made in the matrix chat room and during 
 
 ### Matrix chat room
 
-The [RIOT-rs Matrix chat room](https://matrix.to/#/#RIOT-rs:matrix.org) is the main communication channel for all users, contributors and team members of RIOT-rs. It is open to anyone interested in the project, so feel free to join! 
+The [RIOT-rs Matrix chat room](https://matrix.to/#/#ariel-os:matrix.org) is the main communication channel for all users, contributors and team members of RIOT-rs. It is open to anyone interested in the project, so feel free to join! 
 
 
 ### Weekly meeting
 
-Team members meet weekly online to discuss the current progress of the project. The meeting is open to interested contributors. The link to the meeting is available in the [Matrix chat](https://matrix.to/#/#RIOT-rs:matrix.org).
+Team members meet weekly online to discuss the current progress of the project. The meeting is open to interested contributors. The link to the meeting is available in the [Matrix chat](https://matrix.to/#/#ariel-os:matrix.org).
 
 
 ### GitHub
