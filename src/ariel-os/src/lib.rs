@@ -15,37 +15,37 @@ pub mod buildinfo;
 
 #[cfg(feature = "bench")]
 #[doc(inline)]
-pub use riot_rs_bench as bench;
+pub use ariel_os_bench as bench;
 #[cfg(feature = "coap")]
 #[doc(inline)]
-pub use riot_rs_coap as coap;
+pub use ariel_os_coap as coap;
 #[doc(inline)]
-pub use riot_rs_debug as debug;
+pub use ariel_os_debug as debug;
 #[doc(inline)]
-pub use riot_rs_identity as identity;
+pub use ariel_os_identity as identity;
 #[cfg(feature = "random")]
 #[doc(inline)]
-pub use riot_rs_random as random;
+pub use ariel_os_random as random;
 #[doc(inline)]
-pub use riot_rs_rt as rt;
+pub use ariel_os_rt as rt;
 #[cfg(feature = "storage")]
 #[doc(inline)]
-pub use riot_rs_storage as storage;
+pub use ariel_os_storage as storage;
 #[cfg(feature = "threading")]
 #[doc(inline)]
-pub use riot_rs_threads as thread;
+pub use ariel_os_threads as thread;
 
 // Attribute macros
-pub use riot_rs_macros::config;
-pub use riot_rs_macros::spawner;
-pub use riot_rs_macros::task;
+pub use ariel_os_macros::config;
+pub use ariel_os_macros::spawner;
+pub use ariel_os_macros::task;
 #[cfg(any(feature = "threading", doc))]
-pub use riot_rs_macros::thread;
+pub use ariel_os_macros::thread;
 
 // ensure this gets linked
-use riot_rs_boards as _;
+use ariel_os_boards as _;
 
-pub use riot_rs_embassy::api::*;
+pub use ariel_os_embassy::api::*;
 pub use static_cell::{ConstStaticCell, StaticCell};
 
 /// This module contains all third party crates as used by Ariel OS.
@@ -53,7 +53,7 @@ pub use static_cell::{ConstStaticCell, StaticCell};
 /// TODO: The version of this crate (`ariel-os`) will correspond to changes in
 /// these dependencies (keeping semver guarantees).
 pub mod reexports {
-    pub use riot_rs_embassy::reexports::*;
+    pub use ariel_os_embassy::reexports::*;
     // These are used by proc-macros we provide
     pub use linkme;
     pub use static_cell;

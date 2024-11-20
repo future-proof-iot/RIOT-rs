@@ -5,7 +5,7 @@ use esp_hal::{
     peripherals,
     spi::{master::Spi as InnerSpi, FullDuplexMode},
 };
-use riot_rs_embassy_common::{
+use ariel_os_embassy_common::{
     impl_async_spibus_for_driver_enum,
     spi::{main::Kilohertz, BitOrder, Mode},
 };
@@ -41,8 +41,8 @@ pub enum Frequency {
     F(Kilohertz),
 }
 
-riot_rs_embassy_common::impl_spi_from_frequency!();
-riot_rs_embassy_common::impl_spi_frequency_const_functions!(MAX_FREQUENCY);
+ariel_os_embassy_common::impl_spi_from_frequency!();
+ariel_os_embassy_common::impl_spi_frequency_const_functions!(MAX_FREQUENCY);
 
 impl From<Frequency> for fugit::HertzU32 {
     fn from(freq: Frequency) -> Self {

@@ -4,7 +4,7 @@
 pub mod main;
 
 use embassy_rp::spi::{Phase, Polarity};
-use riot_rs_embassy_common::spi::Mode;
+use ariel_os_embassy_common::spi::Mode;
 
 fn from_mode(mode: Mode) -> (Polarity, Phase) {
     match mode {

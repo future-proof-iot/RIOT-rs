@@ -2,11 +2,11 @@
 #![no_std]
 #![feature(used_with_arg)]
 
-use riot_rs::debug::log::*;
+use ariel_os::debug::log::*;
 
-#[riot_rs::thread(autostart)]
+#[ariel_os::thread(autostart)]
 fn main() {
-    match riot_rs::bench::benchmark(1000, || {
+    match ariel_os::bench::benchmark(1000, || {
         // Insert the function to benchmark here.
         // Consider using `core::hint::black_box()` where necessary.
     }) {

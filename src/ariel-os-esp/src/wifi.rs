@@ -1,4 +1,4 @@
-use riot_rs_utils::str_from_env;
+use ariel_os_utils::str_from_env;
 
 #[cfg(feature = "wifi-esp")]
 pub mod esp_wifi;

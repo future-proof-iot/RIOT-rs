@@ -3,10 +3,10 @@
 
 // This will not get used because the attribute macro is expected to fail
 #[allow(unused_imports)]
-use riot_rs::reexports::embassy_net;
+use ariel_os::reexports::embassy_net;
 
 // FAIL: misspelled config kind
-#[riot_rs::config(networkk)]
+#[ariel_os::config(networkk)]
 fn network_config() -> embassy_net::Config {
     use embassy_net::Ipv4Address;
 

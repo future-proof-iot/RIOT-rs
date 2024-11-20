@@ -1,6 +1,6 @@
 use embassy_nrf::{gpio::Pin, Peripheral};
 use portable_atomic::{AtomicU8, Ordering};
-use riot_rs_embassy_common::gpio::input::InterruptError;
+use ariel_os_embassy_common::gpio::input::InterruptError;
 
 #[cfg(context = "nrf51")]
 const INT_CHANNEL_COUNT: u8 = 4;

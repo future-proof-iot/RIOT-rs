@@ -5,7 +5,7 @@ use embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex;
 
 use crate::{gpio, hal};
 
-pub use riot_rs_embassy_common::spi::main::*;
+pub use ariel_os_embassy_common::spi::main::*;
 
 /// An SPI driver implementing [`embedded_hal_async::spi::SpiDevice`].
 ///
@@ -34,7 +34,7 @@ pub type SpiDevice =
 /// Assuming the MCU is only able to do up to 8 MHz:
 ///
 /// ```
-/// # use riot_rs_embassy::{hal, spi::main::{highest_freq_in, Kilohertz}};
+/// # use ariel_os_embassy::{hal, spi::main::{highest_freq_in, Kilohertz}};
 /// let freq = const { highest_freq_in(Kilohertz::kHz(200)..=Kilohertz::MHz(16)) };
 /// assert_eq!(freq, hal::spi::main::Frequency::F(Kilohertz::MHz(8)));
 /// ```
@@ -44,7 +44,7 @@ pub type SpiDevice =
 /// This function is only intended to be used in a `const` context.
 /// It panics if no suitable frequency can be found.
 pub const fn highest_freq_in(
-    range: core::ops::RangeInclusive<riot_rs_embassy_common::spi::main::Kilohertz>,
+    range: core::ops::RangeInclusive<ariel_os_embassy_common::spi::main::Kilohertz>,
 ) -> hal::spi::main::Frequency {
     let min = range.start().to_kHz();
     let max = range.end().to_kHz();
@@ -105,7 +105,7 @@ mod tests {
     #[test]
     fn test_valid_highest_freq_in() {
         use hal::spi::main::Frequency;
-        use riot_rs_embassy_common::spi::main::Kilohertz;
+        use ariel_os_embassy_common::spi::main::Kilohertz;
 
         const FREQ_0: Frequency = highest_freq_in(Kilohertz::kHz(50)..=Kilohertz::kHz(150));
         const FREQ_1: Frequency = highest_freq_in(Kilohertz::kHz(100)..=Kilohertz::MHz(8));

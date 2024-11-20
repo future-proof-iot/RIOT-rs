@@ -68,7 +68,7 @@ jobs:
                   usb,
                   usb-hid,
                   "
-          echo "<meta http-equiv=\"refresh\" content=\"0; url=riot_rs\">" > target/doc/index.html
+          echo "<meta http-equiv=\"refresh\" content=\"0; url=ariel_os\">" > target/doc/index.html
           mkdir -p ./_site/dev/docs/api && mv target/doc/* ./_site/dev/docs/api
 
       - name: Install mdbook

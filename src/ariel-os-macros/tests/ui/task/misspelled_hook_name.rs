@@ -4,8 +4,8 @@
 
 // As the macro will fail, this import will not get used
 #[allow(unused_imports)]
-use riot_rs::usb::UsbBuilderHook;
+use ariel_os::usb::UsbBuilderHook;
 
 // FAIL: misspelled hook name
-#[riot_rs::task(autostart, usb_builder_hooook)]
+#[ariel_os::task(autostart, usb_builder_hooook)]
 async fn main() {}

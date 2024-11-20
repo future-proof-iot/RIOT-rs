@@ -1,5 +1,5 @@
 use crate::CoreId;
-use riot_rs_utils::usize_from_env_or;
+use ariel_os_utils::usize_from_env_or;
 
 impl CoreId {
     /// Creates a new [`CoreId`].

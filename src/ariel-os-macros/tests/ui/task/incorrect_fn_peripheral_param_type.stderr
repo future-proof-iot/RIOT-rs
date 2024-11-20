@@ -1,7 +1,7 @@
 error[E0599]: no method named `take_peripherals` found for mutable reference `&mut OptionalPeripherals` in the current scope
  --> tests/ui/task/incorrect_fn_peripheral_param_type.rs:7:1
   |
-7 | #[riot_rs::task(autostart, peripherals)]
+7 | #[ariel_os::task(autostart, peripherals)]
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ method not found in `&mut OptionalPeripherals`
   |
-  = note: this error originates in the attribute macro `riot_rs::task` (in Nightly builds, run with -Z macro-backtrace for more info)
+  = note: this error originates in the attribute macro `ariel_os::task` (in Nightly builds, run with -Z macro-backtrace for more info)

@@ -1,7 +1,7 @@
 #[doc(alias = "master")]
 pub mod main;
 
-use riot_rs_embassy_common::spi::{BitOrder, Mode};
+use ariel_os_embassy_common::spi::{BitOrder, Mode};
 
 fn from_mode(mode: Mode) -> esp_hal::spi::SpiMode {
     match mode {

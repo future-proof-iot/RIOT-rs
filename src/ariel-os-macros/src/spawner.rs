@@ -5,7 +5,7 @@
 /// - a `Spawner` as first parameter,
 /// - a peripheral struct, as optional second parameter.
 ///
-/// The peripheral struct must be defined with the `riot_rs::define_peripherals!` macro.
+/// The peripheral struct must be defined with the `ariel_os::define_peripherals!` macro.
 ///
 /// See [`macro@task`] to use a long-lived async function instead.
 ///
@@ -18,9 +18,9 @@
 /// # Examples
 ///
 /// ```ignore
-/// use riot_rs::asynch::Spawner;
+/// use ariel_os::asynch::Spawner;
 ///
-/// #[riot_rs::spawner(autostart, peripherals)]
+/// #[ariel_os::spawner(autostart, peripherals)]
 /// fn spawner(spawner: Spawner, peripherals: /* your peripheral type */) {}
 /// ```
 ///
@@ -73,7 +73,7 @@ pub fn spawner(args: TokenStream, item: TokenStream) -> TokenStream {
         return error.to_compile_error().into();
     }
 
-    let riot_rs_crate = utils::riot_rs_crate();
+    let ariel_os_crate = utils::ariel_os_crate();
 
     let new_function_name = format_ident!("__start_{spawner_function_name}");
 
@@ -84,13 +84,13 @@ pub fn spawner(args: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     let expanded = quote! {
-        #[#riot_rs_crate::reexports::linkme::distributed_slice(#riot_rs_crate::EMBASSY_TASKS)]
-        #[linkme(crate = #riot_rs_crate::reexports::linkme)]
+        #[#ariel_os_crate::reexports::linkme::distributed_slice(#ariel_os_crate::EMBASSY_TASKS)]
+        #[linkme(crate = #ariel_os_crate::reexports::linkme)]
         fn #new_function_name(
-            spawner: #riot_rs_crate::asynch::Spawner,
-            mut peripherals: &mut #riot_rs_crate::hal::OptionalPeripherals,
+            spawner: #ariel_os_crate::asynch::Spawner,
+            mut peripherals: &mut #ariel_os_crate::hal::OptionalPeripherals,
         ) {
-            use #riot_rs_crate::define_peripherals::TakePeripherals;
+            use #ariel_os_crate::define_peripherals::TakePeripherals;
             #spawner_function_name(spawner #peripheral_param);
         }
 

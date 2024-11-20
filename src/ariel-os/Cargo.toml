@@ -100,7 +100,7 @@ wifi-esp = ["ariel-os-embassy/wifi-esp"]
 
 #! ## Development and debugging
 ## Enables the debug console, required to use
-## [`println!`](riot_rs_debug::println).
+## [`println!`](ariel_os_debug::println).
 debug-console = ["ariel-os-rt/debug-console"]
 ## Enables logging support through `defmt`.
 defmt = [

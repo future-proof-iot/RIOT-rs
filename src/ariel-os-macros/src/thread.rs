@@ -15,7 +15,7 @@
 /// This starts a thread with default values:
 ///
 /// ```ignore
-/// #[riot_rs::thread(autostart)]
+/// #[ariel_os::thread(autostart)]
 /// fn print_hello_world() {
 ///     println!("Hello world!");
 /// }
@@ -25,7 +25,7 @@
 ///
 /// ```ignore
 /// // `stacksize` and `priority` can be arbitrary expressions.
-/// #[riot_rs::thread(autostart, stacksize = 1024, priority = 2)]
+/// #[ariel_os::thread(autostart, stacksize = 1024, priority = 2)]
 /// fn print_hello_world() {
 ///     println!("Hello world!");
 /// }
@@ -57,8 +57,8 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
 
     let thread_crate = {
         match (find_crate("ariel-os"), find_crate("ariel-os-threads")) {
-            (Some(riot_rs), _) => quote! { #riot_rs::thread },
-            (None, Some(riot_rs_threads)) => quote! { #riot_rs_threads },
+            (Some(ariel_os), _) => quote! { #ariel_os::thread },
+            (None, Some(ariel_os_threads)) => quote! { #ariel_os_threads },
             _ => panic!(r#"neither "ariel-os" nor "ariel-os-threads" found in dependencies!"#),
         }
     };

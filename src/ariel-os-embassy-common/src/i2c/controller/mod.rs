@@ -25,11 +25,11 @@ pub enum Frequency {
 #[macro_export]
 macro_rules! impl_i2c_from_frequency {
     () => {
-        impl From<riot_rs_embassy_common::i2c::controller::Frequency> for Frequency {
-            fn from(freq: riot_rs_embassy_common::i2c::controller::Frequency) -> Self {
+        impl From<ariel_os_embassy_common::i2c::controller::Frequency> for Frequency {
+            fn from(freq: ariel_os_embassy_common::i2c::controller::Frequency) -> Self {
                 match freq {
-                    riot_rs_embassy_common::i2c::controller::Frequency::_100k => Frequency::_100k,
-                    riot_rs_embassy_common::i2c::controller::Frequency::_400k => Frequency::_400k,
+                    ariel_os_embassy_common::i2c::controller::Frequency::_100k => Frequency::_100k,
+                    ariel_os_embassy_common::i2c::controller::Frequency::_400k => Frequency::_400k,
                 }
             }
         }
@@ -40,13 +40,13 @@ macro_rules! impl_i2c_from_frequency {
 #[macro_export]
 macro_rules! impl_i2c_from_frequency_up_to {
     () => {
-        impl From<riot_rs_embassy_common::i2c::controller::Frequency> for Frequency {
-            fn from(freq: riot_rs_embassy_common::i2c::controller::Frequency) -> Self {
+        impl From<ariel_os_embassy_common::i2c::controller::Frequency> for Frequency {
+            fn from(freq: ariel_os_embassy_common::i2c::controller::Frequency) -> Self {
                 match freq {
-                    riot_rs_embassy_common::i2c::controller::Frequency::_100k => {
+                    ariel_os_embassy_common::i2c::controller::Frequency::_100k => {
                         Frequency::UpTo100k($crate::i2c::controller::Kilohertz::kHz(100))
                     }
-                    riot_rs_embassy_common::i2c::controller::Frequency::_400k => {
+                    ariel_os_embassy_common::i2c::controller::Frequency::_400k => {
                         Frequency::UpTo400k($crate::i2c::controller::Kilohertz::kHz(400))
                     }
                 }

@@ -1,4 +1,4 @@
-use riot_rs_utils::str_from_env;
+use ariel_os_utils::str_from_env;
 
 // TODO: this should be factored out in ariel-os-embassy again
 pub(crate) const WIFI_NETWORK: &str =

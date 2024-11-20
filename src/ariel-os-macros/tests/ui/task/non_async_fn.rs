@@ -3,5 +3,5 @@
 #![feature(used_with_arg)]
 
 // FAIL: the function must be async
-#[riot_rs::task]
+#[ariel_os::task]
 fn main() {}

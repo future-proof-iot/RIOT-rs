@@ -7,7 +7,7 @@ use embassy_stm32::{
     time::Hertz,
     Peripheral,
 };
-use riot_rs_embassy_common::{
+use ariel_os_embassy_common::{
     impl_async_spibus_for_driver_enum,
     spi::{main::Kilohertz, BitOrder, Mode},
 };
@@ -55,8 +55,8 @@ impl From<Frequency> for Hertz {
     }
 }
 
-riot_rs_embassy_common::impl_spi_from_frequency!();
-riot_rs_embassy_common::impl_spi_frequency_const_functions!(MAX_FREQUENCY);
+ariel_os_embassy_common::impl_spi_from_frequency!();
+ariel_os_embassy_common::impl_spi_frequency_const_functions!(MAX_FREQUENCY);
 
 macro_rules! define_spi_drivers {
     ($( $interrupt:ident => $peripheral:ident ),* $(,)?) => {

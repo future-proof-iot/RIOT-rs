@@ -19,7 +19,7 @@ use embassy_sync::{
     mutex::{Mutex, MutexGuard},
     once_lock::OnceLock,
 };
-use riot_rs_hal::{
+use ariel_os_hal::{
     storage::{init as flash_init, Flash, FlashError},
     OptionalPeripherals,
 };
@@ -55,7 +55,7 @@ fn flash_range_from_linker() -> Range<u32> {
 }
 
 fn init_(p: &mut OptionalPeripherals) {
-    use riot_rs_debug::log::info;
+    use ariel_os_debug::log::info;
     let flash_range = flash_range_from_linker();
     info!("storage: using flash range {}", &flash_range);
 
@@ -90,7 +90,7 @@ pub async fn init(p: &mut OptionalPeripherals) {
             // all good
         }
         _ => {
-            riot_rs_debug::log::info!("storage: initializing");
+            ariel_os_debug::log::info!("storage: initializing");
             let mut s = lock().await;
             s.erase_all().await.unwrap();
             s.insert(MARKER_KEY, MARKER_VALUE).await.unwrap();

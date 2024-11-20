@@ -2,11 +2,11 @@
 #![no_std]
 #![feature(used_with_arg)]
 
-use riot_rs::{debug::println, thread};
+use ariel_os::{debug::println, thread};
 
-#[riot_rs::thread(autostart)]
+#[ariel_os::thread(autostart)]
 fn thread0() {
-    match riot_rs::bench::benchmark(10000, || thread::yield_same()) {
+    match ariel_os::bench::benchmark(10000, || thread::yield_same()) {
         Ok(ticks) => {
             println!(
                 "took {} ticks per iteration ({} per context switch)",
@@ -20,7 +20,7 @@ fn thread0() {
     }
 }
 
-#[riot_rs::thread(autostart)]
+#[ariel_os::thread(autostart)]
 fn thread1() {
     loop {
         thread::yield_same()

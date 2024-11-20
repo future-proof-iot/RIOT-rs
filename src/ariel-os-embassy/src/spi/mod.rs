@@ -4,4 +4,4 @@
 #[doc(alias = "master")]
 pub mod main;
 
-pub use riot_rs_embassy_common::spi::*;
+pub use ariel_os_embassy_common::spi::*;

@@ -28,7 +28,7 @@ use crate::hal::gpio::input::IntEnabledInput as HalIntEnabledInput;
 use input::InputBuilder;
 use output::OutputBuilder;
 
-pub use riot_rs_embassy_common::gpio::{DriveStrength, Level, Pull, Speed};
+pub use ariel_os_embassy_common::gpio::{DriveStrength, Level, Pull, Speed};
 
 // We do not provide an `impl` block because it would be grouped separately in the documentation.
 macro_rules! inner_impl_input_methods {
@@ -181,7 +181,7 @@ impl_embedded_hal_input_trait!(IntEnabledInput, HalIntEnabledInput);
 
 pub mod input {
     //! Input-specific types.
-    use riot_rs_embassy_common::gpio::Pull;
+    use ariel_os_embassy_common::gpio::Pull;
 
     use crate::hal::{self, gpio::input::InputPin as HalInputPin, peripheral::Peripheral};
 
@@ -190,10 +190,10 @@ pub mod input {
     #[cfg(feature = "external-interrupts")]
     use super::IntEnabledInput;
 
-    pub use riot_rs_embassy_common::gpio::input::Error;
+    pub use ariel_os_embassy_common::gpio::input::Error;
 
     #[cfg(feature = "external-interrupts")]
-    pub use riot_rs_embassy_common::gpio::input::InterruptError;
+    pub use ariel_os_embassy_common::gpio::input::InterruptError;
 
     /// Builder type for [`Input`], can be obtained with [`Input::builder()`].
     pub struct InputBuilder<P: Peripheral<P: HalInputPin>> {
@@ -330,7 +330,7 @@ impl Output {
 
 pub mod output {
     //! Output-specific types.
-    use riot_rs_embassy_common::gpio::{DriveStrength, FromDriveStrength, FromSpeed, Level, Speed};
+    use ariel_os_embassy_common::gpio::{DriveStrength, FromDriveStrength, FromSpeed, Level, Speed};
 
     use crate::hal::{self, gpio::output::OutputPin as HalOutputPin, peripheral::Peripheral};
 

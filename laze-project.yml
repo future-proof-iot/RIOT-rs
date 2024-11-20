@@ -674,7 +674,7 @@ modules:
           - --cfg capability=\"hw/usb-device-port\"
 
   - name: hwrng
-    help: The board's peripherals are suitable for passing into riot_rs_random::construct_rng.
+    help: The board's peripherals are suitable for passing into ariel_os_random::construct_rng.
     context:
       # these are precisely those for which the hwrng feature of
       # ariel-os-embassy builds, which would fail if the big if(context=...)
@@ -691,9 +691,9 @@ modules:
           - ariel-os/hwrng
 
   - name: random
-    help: A system-wide RNG is available (through the riot_rs::random module).
+    help: A system-wide RNG is available (through the ariel_os::random module).
 
-      As the riot_rs::random module will refuse operation at run time if not
+      As the ariel_os::random module will refuse operation at run time if not
       properly initialized, this depends on sources of original entropy.
     depends:
       # could later alternatively depend on mutable config storage

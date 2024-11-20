@@ -44,4 +44,4 @@ In this folder, run
     INFO  main(): all good, exiting.
 
 [`signal`]: https://ariel-os.github.io/ariel-os/dev/docs/api/embassy_sync/signal/struct.Signal.html
-[`block_on`]: https://ariel-os.github.io/ariel-os/dev/docs/api/riot_rs/blocker/fn.block_on.html
+[`block_on`]: https://ariel-os.github.io/ariel-os/dev/docs/api/ariel_os/blocker/fn.block_on.html

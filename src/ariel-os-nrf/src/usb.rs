@@ -6,7 +6,7 @@ use embassy_nrf::{
         Driver,
     },
 };
-use riot_rs_debug::log::debug;
+use ariel_os_debug::log::debug;
 
 #[cfg(context = "nrf52")]
 bind_interrupts!(struct Irqs {

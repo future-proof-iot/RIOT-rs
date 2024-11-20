@@ -9,7 +9,7 @@ const ARIEL_OS_CRATE_NAME: &str = "ariel-os";
 /// - Panics when the `ariel-os` crate cannot be found as a dependency of the crate in which
 ///   this function is called.
 /// - Panics if `ariel-os` is used as a dependency of itself.
-pub fn riot_rs_crate() -> syn::Ident {
+pub fn ariel_os_crate() -> syn::Ident {
     find_crate(ARIEL_OS_CRATE_NAME)
         .unwrap_or_else(|| panic!("{ARIEL_OS_CRATE_NAME} should be present in `Cargo.toml`"))
 }

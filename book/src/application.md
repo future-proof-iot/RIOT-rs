@@ -22,14 +22,14 @@ The [`group_peripherals!`][group_peripherals-docs] macro can also be useful.
 The [`define_peripherals!`][define_peripherals-docs] macro allows to define a *Ariel OS peripheral struct*, an instance of which can be obtained with [`spawner` or `task`][spawner-or-task]:
 
 ```rust,ignore
-riot_rs::define_peripherals!(LedPeripherals { led: P0_13 });
+ariel_os::define_peripherals!(LedPeripherals { led: P0_13 });
 ```
 
 Multiple Ariel OS peripheral structs can be grouped into another Ariel OS peripheral struct using the [`group_peripherals!`][group_peripherals-docs] macro:
 
 <!-- TODO: this needs to be kept up to date -->
 ```rust,ignore
-riot_rs::group_peripherals!(Peripherals {
+ariel_os::group_peripherals!(Peripherals {
     leds: LedPeripherals,
     buttons: ButtonPeripherals,
 });
@@ -60,7 +60,7 @@ Both of these can be provided with an instance of an Ariel OS peripheral struct 
 Here is an example of the `task` macro (the `pins` module internally uses `define_peripherals!`) from the [`blinky` example][blinky-example-src]:
 
 ```rust,ignore
-#[riot_rs::task(autostart, peripherals)]
+#[ariel_os::task(autostart, peripherals)]
 async fn blinky(peripherals: pins::LedPeripherals) {
     let mut led = Output::new(peripherals.led, Level::Low);
 
@@ -76,9 +76,9 @@ async fn blinky(peripherals: pins::LedPeripherals) {
 TODO
 
 [embassy-hal-crates]: ./glossary.md#embassy-hal-crates
-[spawner-attr-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/riot_rs/attr.spawner.html
-[task-attr-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/riot_rs/attr.task.html
+[spawner-attr-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/ariel_os/attr.spawner.html
+[task-attr-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/ariel_os/attr.task.html
 [spawner-or-task]: #the-spawner-and-task-ariel-os-macros
 [blinky-example-src]: https://github.com/ariel-os/ariel-os/tree/main/examples/blinky
-[define_peripherals-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/riot_rs/macro.define_peripherals.html
-[group_peripherals-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/riot_rs/macro.group_peripherals.html
+[define_peripherals-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/ariel_os/macro.define_peripherals.html
+[group_peripherals-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/ariel_os/macro.group_peripherals.html

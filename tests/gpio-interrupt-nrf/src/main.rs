@@ -3,7 +3,7 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use riot_rs::{
+use ariel_os::{
     debug::log::info,
     gpio::{self, Input, Pull},
     hal::peripherals,
@@ -13,7 +13,7 @@ use riot_rs::{
 todo!();
 
 #[cfg(context = "nrf52")]
-riot_rs::define_peripherals!(ButtonPeripherals {
+ariel_os::define_peripherals!(ButtonPeripherals {
     btn_0: P0_00,
     btn_1: P0_01,
     btn_2: P0_02,
@@ -26,7 +26,7 @@ riot_rs::define_peripherals!(ButtonPeripherals {
 });
 
 #[cfg(context = "nrf5340")]
-riot_rs::define_peripherals!(ButtonPeripherals {
+ariel_os::define_peripherals!(ButtonPeripherals {
     btn_0: P0_00,
     btn_1: P0_01,
     btn_2: P0_04,
@@ -38,7 +38,7 @@ riot_rs::define_peripherals!(ButtonPeripherals {
     btn_8: P0_10,
 });
 
-#[riot_rs::task(autostart, peripherals)]
+#[ariel_os::task(autostart, peripherals)]
 async fn main(peripherals: ButtonPeripherals) {
     let _btn_0 = Input::builder(peripherals.btn_0, Pull::Up)
         .build_with_interrupt()

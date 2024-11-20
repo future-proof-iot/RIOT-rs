@@ -16,7 +16,7 @@ compile_error!(
     "feature \"single-core\" and feature \"multi-core\" cannot be enabled at the same time"
 );
 
-use riot_rs_debug::{log::debug, println};
+use ariel_os_debug::{log::debug, println};
 
 cfg_if::cfg_if! {
     if #[cfg(context = "cortex-m")] {
@@ -40,7 +40,7 @@ cfg_if::cfg_if! {
 }
 
 const ISR_STACKSIZE: usize =
-    riot_rs_utils::usize_from_env_or!("CONFIG_ISR_STACKSIZE", 8192, "ISR stack size (in bytes)");
+    ariel_os_utils::usize_from_env_or!("CONFIG_ISR_STACKSIZE", 8192, "ISR stack size (in bytes)");
 
 #[link_section = ".isr_stack"]
 #[used(linker)]
@@ -52,7 +52,7 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
     #[cfg(not(feature = "silent-panic"))]
     {
         println!("panic: {}\n", _info);
-        riot_rs_debug::exit(riot_rs_debug::EXIT_FAILURE);
+        ariel_os_debug::exit(ariel_os_debug::EXIT_FAILURE);
     }
     #[allow(clippy::empty_loop)]
     loop {}
@@ -69,9 +69,9 @@ fn startup() -> ! {
     arch::init();
 
     #[cfg(feature = "debug-console")]
-    riot_rs_debug::init();
+    ariel_os_debug::init();
 
-    debug!("riot_rs_rt::startup()");
+    debug!("ariel_os_rt::startup()");
 
     for f in INIT_FUNCS {
         f();
@@ -88,10 +88,10 @@ fn startup() -> ! {
     #[cfg(feature = "executor-single-thread")]
     {
         extern "Rust" {
-            fn riot_rs_embassy_init() -> !;
+            fn ariel_os_embassy_init() -> !;
         }
-        debug!("riot_rs_rt::startup() launching single thread executor");
-        unsafe { riot_rs_embassy_init() };
+        debug!("ariel_os_rt::startup() launching single thread executor");
+        unsafe { ariel_os_embassy_init() };
     }
 
     #[cfg(not(any(feature = "threading", feature = "executor-single-thread")))]

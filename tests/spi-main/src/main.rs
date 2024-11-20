@@ -1,6 +1,6 @@
 //! This example is merely to illustrate and test raw bus usage.
 //!
-//! Please use [`riot_rs::sensors`] instead for a high-level sensor abstraction that is
+//! Please use [`ariel_os::sensors`] instead for a high-level sensor abstraction that is
 //! HAL-agnostic.
 //!
 //! This example requires a LIS3DH sensor (3-axis accelerometer).
@@ -14,7 +14,7 @@ mod pins;
 
 use embassy_sync::mutex::Mutex;
 use embedded_hal_async::spi::{Operation, SpiDevice as _};
-use riot_rs::{
+use ariel_os::{
     debug::{
         exit,
         log::{debug, info},
@@ -34,7 +34,7 @@ pub static SPI_BUS: once_cell::sync::OnceCell<
     Mutex<embassy_sync::blocking_mutex::raw::CriticalSectionRawMutex, hal::spi::main::Spi>,
 > = once_cell::sync::OnceCell::new();
 
-#[riot_rs::task(autostart, peripherals)]
+#[ariel_os::task(autostart, peripherals)]
 async fn main(peripherals: pins::Peripherals) {
     let mut spi_config = hal::spi::main::Config::default();
     spi_config.frequency = const { highest_freq_in(Kilohertz::kHz(1000)..=Kilohertz::kHz(2000)) };

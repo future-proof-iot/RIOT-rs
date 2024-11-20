@@ -173,8 +173,8 @@ unsafe fn HardFault(ef: &ExceptionFrame) -> ! {
 unsafe fn DefaultHandler(_irqn: i16) {
     #[cfg(not(feature = "silent-panic"))]
     {
-        riot_rs_debug::log::debug!("IRQn = {}", _irqn);
-        riot_rs_debug::exit(riot_rs_debug::EXIT_FAILURE);
+        ariel_os_debug::log::debug!("IRQn = {}", _irqn);
+        ariel_os_debug::exit(ariel_os_debug::EXIT_FAILURE);
     }
     #[allow(clippy::empty_loop)]
     loop {}

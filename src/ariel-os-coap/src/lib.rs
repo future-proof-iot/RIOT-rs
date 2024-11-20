@@ -2,7 +2,7 @@
 //!
 //! This crate mainly provides easy-to-use wrappers around the [`coapcore`] crate, with presets
 //! tailored towards Ariel OS: It utilizes [`embassy_net`] to open a network accessible CoAP socket
-//! and selects [`embedded_nal_coap`] for CoAP over UDP, it selects [`riot_rs_random`] as a source
+//! and selects [`embedded_nal_coap`] for CoAP over UDP, it selects [`ariel_os_random`] as a source
 //! of randomness, and [`lakers_crypto_rustcrypto`] for the cryptographic algorithm
 //! implementations.
 #![no_std]
@@ -16,8 +16,8 @@ use coap_handler_implementations::ReportingHandlerBuilder;
 use coapcore::seccontext;
 use embassy_net::udp::{PacketMetadata, UdpSocket};
 use embassy_sync::once_lock::OnceLock;
-use riot_rs_debug::log::info;
-use riot_rs_embassy::sendcell::SendCell;
+use ariel_os_debug::log::info;
+use ariel_os_embassy::sendcell::SendCell;
 use static_cell::StaticCell;
 
 const CONCURRENT_REQUESTS: usize = 3;
@@ -39,7 +39,7 @@ pub async fn coap_run(handler: impl coap_handler::Handler + coap_handler::Report
 
     static COAP: StaticCell<embedded_nal_coap::CoAPShared<CONCURRENT_REQUESTS>> = StaticCell::new();
 
-    let stack = riot_rs_embassy::network::network_stack().await.unwrap();
+    let stack = ariel_os_embassy::network::network_stack().await.unwrap();
 
     // FIXME trim to CoAP requirements
     let mut rx_meta = [PacketMetadata::EMPTY; 16];
@@ -73,7 +73,7 @@ pub async fn coap_run(handler: impl coap_handler::Handler + coap_handler::Report
     // be limiting in special applications.
     let handler = handler.with_wkc();
     let mut handler = seccontext::OscoreEdhocHandler::new(own_identity, handler, || {
-        lakers_crypto_rustcrypto::Crypto::new(riot_rs_random::crypto_rng())
+        lakers_crypto_rustcrypto::Crypto::new(ariel_os_random::crypto_rng())
     });
 
     info!("Server is ready.");
@@ -89,7 +89,7 @@ pub async fn coap_run(handler: impl coap_handler::Handler + coap_handler::Report
         .run(
             &mut unconnected,
             &mut handler,
-            &mut riot_rs_random::fast_rng(),
+            &mut ariel_os_random::fast_rng(),
         )
         .await
         .expect("UDP error");

@@ -5,7 +5,7 @@ use embassy_nrf::{
     twim::{InterruptHandler, Twim},
     Peripheral,
 };
-use riot_rs_embassy_common::impl_async_i2c_for_driver_enum;
+use ariel_os_embassy_common::impl_async_i2c_for_driver_enum;
 
 /// I2C bus configuration.
 #[non_exhaustive]
@@ -90,7 +90,7 @@ impl Frequency {
     }
 }
 
-riot_rs_embassy_common::impl_i2c_from_frequency!();
+ariel_os_embassy_common::impl_i2c_from_frequency!();
 
 impl From<Frequency> for embassy_nrf::twim::Frequency {
     fn from(freq: Frequency) -> Self {
@@ -159,7 +159,7 @@ macro_rules! define_i2c_drivers {
         }
 
         impl embedded_hal_async::i2c::ErrorType for I2c {
-            type Error = riot_rs_embassy_common::i2c::controller::Error;
+            type Error = ariel_os_embassy_common::i2c::controller::Error;
         }
 
         impl_async_i2c_for_driver_enum!(I2c, $( $peripheral ),*);
@@ -167,10 +167,10 @@ macro_rules! define_i2c_drivers {
 }
 
 // We cannot impl From because both types are external to this crate.
-fn from_error(err: embassy_nrf::twim::Error) -> riot_rs_embassy_common::i2c::controller::Error {
+fn from_error(err: embassy_nrf::twim::Error) -> ariel_os_embassy_common::i2c::controller::Error {
     use embassy_nrf::twim::Error::*;
 
-    use riot_rs_embassy_common::i2c::controller::{Error, NoAcknowledgeSource};
+    use ariel_os_embassy_common::i2c::controller::{Error, NoAcknowledgeSource};
 
     match err {
         TxBufferTooLong => Error::Other,

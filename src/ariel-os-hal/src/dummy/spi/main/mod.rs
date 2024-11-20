@@ -5,7 +5,7 @@
 //! These driver instances are meant to be shared between tasks using
 //! `SpiDevice`.
 
-use riot_rs_embassy_common::spi::main::Kilohertz;
+use ariel_os_embassy_common::spi::main::Kilohertz;
 
 const MAX_FREQUENCY: Kilohertz = Kilohertz::MHz(8);
 
@@ -28,4 +28,4 @@ pub enum Frequency {
     F(Kilohertz),
 }
 
-riot_rs_embassy_common::impl_spi_frequency_const_functions!(MAX_FREQUENCY);
+ariel_os_embassy_common::impl_spi_frequency_const_functions!(MAX_FREQUENCY);

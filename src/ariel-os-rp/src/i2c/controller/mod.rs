@@ -5,7 +5,7 @@ use embassy_rp::{
     i2c::{InterruptHandler, SclPin, SdaPin},
     peripherals, Peripheral,
 };
-use riot_rs_embassy_common::{i2c::controller::Kilohertz, impl_async_i2c_for_driver_enum};
+use ariel_os_embassy_common::{i2c::controller::Kilohertz, impl_async_i2c_for_driver_enum};
 
 const KHZ_TO_HZ: u32 = 1000;
 
@@ -99,7 +99,7 @@ impl Frequency {
     }
 }
 
-riot_rs_embassy_common::impl_i2c_from_frequency_up_to!();
+ariel_os_embassy_common::impl_i2c_from_frequency_up_to!();
 
 macro_rules! define_i2c_drivers {
     ($( $interrupt:ident => $peripheral:ident ),* $(,)?) => {
@@ -164,7 +164,7 @@ macro_rules! define_i2c_drivers {
         }
 
         impl embedded_hal_async::i2c::ErrorType for I2c {
-            type Error = riot_rs_embassy_common::i2c::controller::Error;
+            type Error = ariel_os_embassy_common::i2c::controller::Error;
         }
 
         impl_async_i2c_for_driver_enum!(I2c, $( $peripheral ),*);
@@ -172,10 +172,10 @@ macro_rules! define_i2c_drivers {
 }
 
 // We cannot impl From because both types are external to this crate.
-fn from_error(err: embassy_rp::i2c::Error) -> riot_rs_embassy_common::i2c::controller::Error {
+fn from_error(err: embassy_rp::i2c::Error) -> ariel_os_embassy_common::i2c::controller::Error {
     use embassy_rp::i2c::{AbortReason, Error::*};
 
-    use riot_rs_embassy_common::i2c::controller::{Error, NoAcknowledgeSource};
+    use ariel_os_embassy_common::i2c::controller::{Error, NoAcknowledgeSource};
 
     match err {
         Abort(reason) => match reason {

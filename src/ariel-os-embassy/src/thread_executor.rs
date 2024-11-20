@@ -6,7 +6,7 @@
 use core::marker::PhantomData;
 
 use embassy_executor::{raw, Spawner};
-use riot_rs_threads::{current_pid, thread_flags, thread_flags::ThreadFlags, ThreadId};
+use ariel_os_threads::{current_pid, thread_flags, thread_flags::ThreadFlags, ThreadId};
 
 // This is only used between `__pender` and `Executor::run( )`, actual flag
 // doesn't matter.

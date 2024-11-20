@@ -5,7 +5,7 @@ use embassy_nrf::{
     spim::{InterruptHandler, Spim},
     Peripheral,
 };
-use riot_rs_embassy_common::{
+use ariel_os_embassy_common::{
     impl_async_spibus_for_driver_enum,
     spi::{BitOrder, Mode},
 };
@@ -94,16 +94,16 @@ impl Frequency {
     }
 }
 
-impl From<riot_rs_embassy_common::spi::main::Frequency> for Frequency {
-    fn from(freq: riot_rs_embassy_common::spi::main::Frequency) -> Self {
+impl From<ariel_os_embassy_common::spi::main::Frequency> for Frequency {
+    fn from(freq: ariel_os_embassy_common::spi::main::Frequency) -> Self {
         match freq {
-            riot_rs_embassy_common::spi::main::Frequency::_125k => Self::_125k,
-            riot_rs_embassy_common::spi::main::Frequency::_250k => Self::_250k,
-            riot_rs_embassy_common::spi::main::Frequency::_500k => Self::_500k,
-            riot_rs_embassy_common::spi::main::Frequency::_1M => Self::_1M,
-            riot_rs_embassy_common::spi::main::Frequency::_2M => Self::_2M,
-            riot_rs_embassy_common::spi::main::Frequency::_4M => Self::_4M,
-            riot_rs_embassy_common::spi::main::Frequency::_8M => Self::_8M,
+            ariel_os_embassy_common::spi::main::Frequency::_125k => Self::_125k,
+            ariel_os_embassy_common::spi::main::Frequency::_250k => Self::_250k,
+            ariel_os_embassy_common::spi::main::Frequency::_500k => Self::_500k,
+            ariel_os_embassy_common::spi::main::Frequency::_1M => Self::_1M,
+            ariel_os_embassy_common::spi::main::Frequency::_2M => Self::_2M,
+            ariel_os_embassy_common::spi::main::Frequency::_4M => Self::_4M,
+            ariel_os_embassy_common::spi::main::Frequency::_8M => Self::_8M,
         }
     }
 }

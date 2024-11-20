@@ -4,7 +4,7 @@ use embassy_stm32::{
     peripherals, OptionalPeripherals, Peripheral,
 };
 use portable_atomic::{AtomicBool, AtomicU16, Ordering};
-use riot_rs_embassy_common::gpio::input::InterruptError;
+use ariel_os_embassy_common::gpio::input::InterruptError;
 
 pub static EXTINT_REGISTRY: ExtIntRegistry = ExtIntRegistry::new();
 

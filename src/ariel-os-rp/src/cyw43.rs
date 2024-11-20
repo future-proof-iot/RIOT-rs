@@ -7,7 +7,7 @@ use embassy_rp::{
     gpio::{Level, Output},
     pio::Pio,
 };
-use riot_rs_debug::log::info;
+use ariel_os_debug::log::info;
 use rpi_pico_w::{CywSpi, Irqs};
 use static_cell::StaticCell;
 

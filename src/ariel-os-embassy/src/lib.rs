@@ -8,7 +8,7 @@
 pub mod define_peripherals;
 pub mod gpio;
 
-pub use riot_rs_hal as hal;
+pub use ariel_os_hal as hal;
 
 #[cfg(feature = "i2c")]
 pub mod i2c;
@@ -25,13 +25,13 @@ pub mod network;
 #[cfg(feature = "wifi")]
 mod wifi;
 
-use riot_rs_debug::log::debug;
+use ariel_os_debug::log::debug;
 
 // re-exports
 pub use linkme::{self, distributed_slice};
 pub use static_cell::{ConstStaticCell, StaticCell};
 
-// All items of this module are re-exported at the root of `riot_rs`.
+// All items of this module are re-exported at the root of `ariel_os`.
 pub mod api {
     pub use crate::{
         asynch, define_peripherals, delegate, gpio, group_peripherals, hal, EMBASSY_TASKS,
@@ -55,7 +55,7 @@ pub mod api {
     pub use crate::usb;
 }
 
-// These are made available in `riot_rs::reexports`.
+// These are made available in `ariel_os::reexports`.
 pub mod reexports {
     #[cfg(feature = "net")]
     pub use embassy_net;
@@ -111,7 +111,7 @@ compile_error!(
 compile_error!(r#""executor-single-thread" and "threading" are mutually exclusive!"#);
 
 #[cfg(feature = "executor-interrupt")]
-#[distributed_slice(riot_rs_rt::INIT_FUNCS)]
+#[distributed_slice(ariel_os_rt::INIT_FUNCS)]
 pub(crate) fn init() {
     debug!("ariel-os-embassy::init(): using interrupt mode executor");
     let p = hal::init();
@@ -127,7 +127,7 @@ pub(crate) fn init() {
 }
 
 #[cfg(feature = "executor-single-thread")]
-#[export_name = "riot_rs_embassy_init"]
+#[export_name = "ariel_os_embassy_init"]
 fn init() -> ! {
     debug!("ariel-os-embassy::init(): using single thread executor");
     let p = hal::init();
@@ -140,13 +140,13 @@ fn init() -> ! {
 
 #[cfg(feature = "executor-thread")]
 mod executor_thread {
-    pub(crate) const STACKSIZE: usize = riot_rs_utils::usize_from_env_or!(
+    pub(crate) const STACKSIZE: usize = ariel_os_utils::usize_from_env_or!(
         "CONFIG_EXECUTOR_THREAD_STACKSIZE",
         16384,
         "executor thread stack size"
     );
 
-    pub(crate) const PRIORITY: u8 = riot_rs_utils::u8_from_env_or!(
+    pub(crate) const PRIORITY: u8 = ariel_os_utils::u8_from_env_or!(
         "CONFIG_EXECUTOR_THREAD_PRIORITY",
         8,
         "executor thread priority"
@@ -154,7 +154,7 @@ mod executor_thread {
 }
 
 #[cfg(feature = "executor-thread")]
-#[riot_rs_macros::thread(autostart, no_wait, stacksize = executor_thread::STACKSIZE, priority = executor_thread::PRIORITY)]
+#[ariel_os_macros::thread(autostart, no_wait, stacksize = executor_thread::STACKSIZE, priority = executor_thread::PRIORITY)]
 fn init() {
     debug!("ariel-os-embassy::init(): using thread executor");
     let p = hal::init();
@@ -190,7 +190,7 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
     // doesn't impact runtime RAM or flash use.
 
     #[cfg(feature = "storage")]
-    riot_rs_storage::init(&mut peripherals).await;
+    ariel_os_storage::init(&mut peripherals).await;
 
     #[cfg(all(feature = "usb", context = "nrf"))]
     hal::usb::init();
@@ -284,7 +284,7 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
 
         use crate::sendcell::SendCell;
 
-        const MAX_CONCURRENT_SOCKETS: usize = riot_rs_utils::usize_from_env_or!(
+        const MAX_CONCURRENT_SOCKETS: usize = ariel_os_utils::usize_from_env_or!(
             "CONFIG_NETWORK_MAX_CONCURRENT_SOCKETS",
             4,
             "maximum number of concurrent sockets allowed by the network stack"
@@ -335,5 +335,5 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
     debug!("ariel-os-embassy::init_task() done");
 
     #[cfg(feature = "threading")]
-    riot_rs_threads::events::THREAD_START_EVENT.set();
+    ariel_os_threads::events::THREAD_START_EVENT.set();
 }

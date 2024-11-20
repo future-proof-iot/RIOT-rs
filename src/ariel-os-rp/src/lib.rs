@@ -29,7 +29,7 @@ pub mod i2c;
 
 #[doc(hidden)]
 pub mod identity {
-    use riot_rs_embassy_common::identity;
+    use ariel_os_embassy_common::identity;
 
     pub type DeviceId = identity::NoDeviceId<identity::NotImplemented>;
 }
@@ -58,7 +58,7 @@ pub use embassy_executor::InterruptExecutor as Executor;
 pub use embassy_rp::interrupt;
 
 #[cfg(feature = "executor-interrupt")]
-riot_rs_embassy_common::executor_swi!(SWI_IRQ_1);
+ariel_os_embassy_common::executor_swi!(SWI_IRQ_1);
 
 #[cfg(feature = "executor-interrupt")]
 #[doc(hidden)]

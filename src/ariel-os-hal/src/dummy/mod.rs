@@ -16,7 +16,7 @@ pub mod hwrng;
 pub mod i2c;
 
 pub mod identity {
-    use riot_rs_embassy_common::identity;
+    use ariel_os_embassy_common::identity;
 
     pub type DeviceId = identity::NoDeviceId<identity::NotImplemented>;
 }

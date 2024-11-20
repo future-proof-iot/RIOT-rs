@@ -1,7 +1,7 @@
 //! Provides network access.
 //!
 //! The network link to use is selected through Cargo features.
-//! Additionally, the [`riot_rs::config`](riot_rs_macros::config) attribute macro allows to provide
+//! Additionally, the [`ariel_os::config`](ariel_os_macros::config) attribute macro allows to provide
 //! custom network configuration.
 
 #![deny(missing_docs)]
@@ -42,9 +42,9 @@ pub(crate) fn config() -> embassy_net::Config {
     #[cfg(feature = "override-network-config")]
     {
         extern "Rust" {
-            fn riot_rs_network_config() -> embassy_net::Config;
+            fn ariel_os_network_config() -> embassy_net::Config;
         }
-        unsafe { riot_rs_network_config() }
+        unsafe { ariel_os_network_config() }
     }
 }
 

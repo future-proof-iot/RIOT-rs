@@ -7,7 +7,7 @@ use embassy_stm32::{
     time::Hertz,
     Peripheral,
 };
-use riot_rs_embassy_common::{i2c::controller::Kilohertz, impl_async_i2c_for_driver_enum};
+use ariel_os_embassy_common::{i2c::controller::Kilohertz, impl_async_i2c_for_driver_enum};
 
 /// I2C bus configuration.
 #[non_exhaustive]
@@ -99,7 +99,7 @@ impl Frequency {
     }
 }
 
-riot_rs_embassy_common::impl_i2c_from_frequency_up_to!();
+ariel_os_embassy_common::impl_i2c_from_frequency_up_to!();
 
 impl From<Frequency> for Hertz {
     fn from(freq: Frequency) -> Self {
@@ -131,7 +131,7 @@ macro_rules! define_i2c_drivers {
                     let mut i2c_config = embassy_stm32::i2c::Config::default();
                     i2c_config.sda_pullup = config.sda_pullup;
                     i2c_config.scl_pullup = config.scl_pullup;
-                    i2c_config.timeout = riot_rs_embassy_common::i2c::controller::I2C_TIMEOUT;
+                    i2c_config.timeout = ariel_os_embassy_common::i2c::controller::I2C_TIMEOUT;
 
                     bind_interrupts!(
                         struct Irqs {
@@ -172,7 +172,7 @@ macro_rules! define_i2c_drivers {
         }
 
         impl embedded_hal_async::i2c::ErrorType for I2c {
-            type Error = riot_rs_embassy_common::i2c::controller::Error;
+            type Error = ariel_os_embassy_common::i2c::controller::Error;
         }
 
         impl_async_i2c_for_driver_enum!(I2c, $( $peripheral ),*);
@@ -180,10 +180,10 @@ macro_rules! define_i2c_drivers {
 }
 
 // We cannot impl From because both types are external to this crate.
-fn from_error(err: embassy_stm32::i2c::Error) -> riot_rs_embassy_common::i2c::controller::Error {
+fn from_error(err: embassy_stm32::i2c::Error) -> ariel_os_embassy_common::i2c::controller::Error {
     use embassy_stm32::i2c::Error::*;
 
-    use riot_rs_embassy_common::i2c::controller::{Error, NoAcknowledgeSource};
+    use ariel_os_embassy_common::i2c::controller::{Error, NoAcknowledgeSource};
 
     match err {
         Bus => Error::Bus,

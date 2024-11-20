@@ -2,12 +2,12 @@
 #![no_std]
 #![feature(used_with_arg)]
 
-use riot_rs::debug::log::*;
+use ariel_os::debug::log::*;
 
-#[riot_rs::thread(autostart)]
+#[ariel_os::thread(autostart)]
 fn main() {
     use rand::Rng as _;
-    let mut rng = riot_rs::random::fast_rng();
+    let mut rng = ariel_os::random::fast_rng();
 
     let value = rng.gen_range(1..=6);
 

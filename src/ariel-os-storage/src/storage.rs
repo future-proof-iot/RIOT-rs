@@ -21,7 +21,7 @@ pub const DATA_BUFFER_SIZE: usize = 128usize;
 /// Object holding an instance of a key-value pair storage.
 ///
 /// You should probably look into using the global instance accessible via
-/// `riot_rs_storage::storage::{get,insert,remove}`.
+/// `ariel_os_storage::storage::{get,insert,remove}`.
 pub struct Storage<F> {
     flash: F,
     storage_range: Range<u32>,

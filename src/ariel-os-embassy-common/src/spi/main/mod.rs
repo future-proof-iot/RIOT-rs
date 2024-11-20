@@ -26,28 +26,28 @@ pub enum Frequency {
 #[macro_export]
 macro_rules! impl_spi_from_frequency {
     () => {
-        impl From<riot_rs_embassy_common::spi::main::Frequency> for Frequency {
-            fn from(freq: riot_rs_embassy_common::spi::main::Frequency) -> Self {
+        impl From<ariel_os_embassy_common::spi::main::Frequency> for Frequency {
+            fn from(freq: ariel_os_embassy_common::spi::main::Frequency) -> Self {
                 match freq {
-                    riot_rs_embassy_common::spi::main::Frequency::_125k => {
+                    ariel_os_embassy_common::spi::main::Frequency::_125k => {
                         Self::F($crate::spi::main::Kilohertz::kHz(125))
                     }
-                    riot_rs_embassy_common::spi::main::Frequency::_250k => {
+                    ariel_os_embassy_common::spi::main::Frequency::_250k => {
                         Self::F($crate::spi::main::Kilohertz::kHz(250))
                     }
-                    riot_rs_embassy_common::spi::main::Frequency::_500k => {
+                    ariel_os_embassy_common::spi::main::Frequency::_500k => {
                         Self::F($crate::spi::main::Kilohertz::kHz(500))
                     }
-                    riot_rs_embassy_common::spi::main::Frequency::_1M => {
+                    ariel_os_embassy_common::spi::main::Frequency::_1M => {
                         Self::F($crate::spi::main::Kilohertz::MHz(1))
                     }
-                    riot_rs_embassy_common::spi::main::Frequency::_2M => {
+                    ariel_os_embassy_common::spi::main::Frequency::_2M => {
                         Self::F($crate::spi::main::Kilohertz::MHz(2))
                     }
-                    riot_rs_embassy_common::spi::main::Frequency::_4M => {
+                    ariel_os_embassy_common::spi::main::Frequency::_4M => {
                         Self::F($crate::spi::main::Kilohertz::MHz(4))
                     }
-                    riot_rs_embassy_common::spi::main::Frequency::_8M => {
+                    ariel_os_embassy_common::spi::main::Frequency::_8M => {
                         Self::F($crate::spi::main::Kilohertz::MHz(8))
                     }
                 }

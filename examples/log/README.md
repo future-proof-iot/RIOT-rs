@@ -21,12 +21,12 @@ The log level can be provided on the command line as argument to laze via the
 
 In this folder, run
 
-    laze build -b nrf52840dk -DLOG+=info -DLOG+=riot_rs_embassy=warn run
+    laze build -b nrf52840dk -DLOG+=info -DLOG+=ariel_os_embassy=warn run
 
 ## Expected output
 
 The output of this example depends on the enabled log level. With trace set as
-log level, the following output is expected from this example (RIOT-rs startup
+log level, the following output is expected from this example (Ariel OS startup
 logging not shown):
 
 ```

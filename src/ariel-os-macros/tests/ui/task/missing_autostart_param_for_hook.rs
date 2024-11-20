@@ -4,8 +4,8 @@
 
 // As the macro will fail, this import will not get used
 #[allow(unused_imports)]
-use riot_rs::usb::UsbBuilderHook;
+use ariel_os::usb::UsbBuilderHook;
 
 // FAIL: using hooks require the task to be autostart
-#[riot_rs::task(usb_builder_hook)]
+#[ariel_os::task(usb_builder_hook)]
 async fn main() {}

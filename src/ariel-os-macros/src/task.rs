@@ -11,7 +11,7 @@
 ///     - `peripherals`: (*optional*) provide the function with a peripheral struct as the first
 ///         parameter.
 ///         The `peripherals` parameter can only be used on `autostart` tasks.
-///         The peripheral struct must be defined with the `riot_rs::define_peripherals!` macro.
+///         The peripheral struct must be defined with the `ariel_os::define_peripherals!` macro.
 ///     - hooks: (*optional*) available hooks are:
 ///         - `usb_builder_hook`: when present, the macro will define a static `USB_BUILDER_HOOK`
 ///           of type `UsbBuilderHook`, allowing to access and modify the system-provided
@@ -23,9 +23,9 @@
 /// # Examples
 ///
 /// ```ignore
-/// use riot_rs::usb::UsbBuilderHook;
+/// use ariel_os::usb::UsbBuilderHook;
 ///
-/// #[riot_rs::task(autostart, peripherals, usb_builder_hook)]
+/// #[ariel_os::task(autostart, peripherals, usb_builder_hook)]
 /// async fn task(peripherals: /* your peripheral type */) {}
 /// ```
 ///
@@ -79,7 +79,7 @@ pub fn task(args: TokenStream, item: TokenStream) -> TokenStream {
 
     // TODO: forbid generics on the function
 
-    let riot_rs_crate = utils::riot_rs_crate();
+    let ariel_os_crate = utils::ariel_os_crate();
 
     let expanded = if attrs.autostart {
         let peripheral_param = if attrs.peripherals {
@@ -89,32 +89,32 @@ pub fn task(args: TokenStream, item: TokenStream) -> TokenStream {
         };
 
         let hooks = Hook::hook_definitions();
-        let delegates = task::generate_delegates(&riot_rs_crate, &hooks, &attrs);
+        let delegates = task::generate_delegates(&ariel_os_crate, &hooks, &attrs);
 
         let new_function_name = format_ident!("__start_{task_function_name}");
 
         quote! {
             #delegates
 
-            #[#riot_rs_crate::reexports::linkme::distributed_slice(#riot_rs_crate::EMBASSY_TASKS)]
-            #[linkme(crate = #riot_rs_crate::reexports::linkme)]
+            #[#ariel_os_crate::reexports::linkme::distributed_slice(#ariel_os_crate::EMBASSY_TASKS)]
+            #[linkme(crate = #ariel_os_crate::reexports::linkme)]
             fn #new_function_name(
-                spawner: #riot_rs_crate::asynch::Spawner,
-                mut peripherals: &mut #riot_rs_crate::hal::OptionalPeripherals,
+                spawner: #ariel_os_crate::asynch::Spawner,
+                mut peripherals: &mut #ariel_os_crate::hal::OptionalPeripherals,
             ) {
-                use #riot_rs_crate::define_peripherals::TakePeripherals;
+                use #ariel_os_crate::define_peripherals::TakePeripherals;
                 let task = #task_function_name(#peripheral_param);
                 spawner.spawn(task).unwrap();
             }
 
-            #[#riot_rs_crate::reexports::embassy_executor::task(embassy_executor = #riot_rs_crate::reexports::embassy_executor)]
+            #[#ariel_os_crate::reexports::embassy_executor::task(embassy_executor = #ariel_os_crate::reexports::embassy_executor)]
             #task_function
         }
     } else {
         let pool_size = attrs.pool_size.unwrap_or_else(|| syn::parse_quote! { 1 });
 
         quote! {
-            #[#riot_rs_crate::reexports::embassy_executor::task(pool_size = #pool_size, embassy_executor = #riot_rs_crate::reexports::embassy_executor)]
+            #[#ariel_os_crate::reexports::embassy_executor::task(pool_size = #pool_size, embassy_executor = #ariel_os_crate::reexports::embassy_executor)]
             #task_function
         }
     };
@@ -203,14 +203,14 @@ mod task {
         pub fn hook_definitions() -> [HookDefinition; 1] {
             use quote::quote;
 
-            let riot_rs_crate = crate::utils::riot_rs_crate();
+            let ariel_os_crate = crate::utils::ariel_os_crate();
 
             // New hooks need to be defined here, in the order they are run during system
             // initialization
             [HookDefinition {
                 kind: Self::UsbBuilder,
-                delegate_inner_type: quote! {#riot_rs_crate::usb::UsbBuilder},
-                distributed_slice_type: quote! {#riot_rs_crate::usb::USB_BUILDER_HOOKS},
+                delegate_inner_type: quote! {#ariel_os_crate::usb::UsbBuilder},
+                distributed_slice_type: quote! {#ariel_os_crate::usb::USB_BUILDER_HOOKS},
             }]
         }
     }
@@ -223,13 +223,13 @@ mod task {
     }
 
     pub fn generate_delegates(
-        riot_rs_crate: &syn::Ident,
+        ariel_os_crate: &syn::Ident,
         hooks: &[HookDefinition],
         attrs: &Attributes,
     ) -> proc_macro2::TokenStream {
         use quote::{format_ident, quote};
 
-        let delegate_type = quote! {#riot_rs_crate::delegate::Delegate};
+        let delegate_type = quote! {#ariel_os_crate::delegate::Delegate};
 
         let enabled_hooks = hooks.iter().filter(|hook| match hook.kind {
             Hook::UsbBuilder => attrs.hooks.iter().any(|h| *h == Hook::UsbBuilder),
@@ -250,8 +250,8 @@ mod task {
             quote! {
                 static #delegate_hook_ident: #delegate_type<#delegate_inner_type> = #delegate_type::new();
 
-                #[#riot_rs_crate::reexports::linkme::distributed_slice(#distributed_slice_type)]
-                #[linkme(crate=#riot_rs_crate::reexports::linkme)]
+                #[#ariel_os_crate::reexports::linkme::distributed_slice(#distributed_slice_type)]
+                #[linkme(crate=#ariel_os_crate::reexports::linkme)]
                     static #delegate_hook_ref_ident: #type_name = &#delegate_hook_ident;
                 }
             }

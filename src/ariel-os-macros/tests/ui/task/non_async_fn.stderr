@@ -1,7 +1,7 @@
 error: custom attribute panicked
  --> tests/ui/task/non_async_fn.rs:6:1
   |
-6 | #[riot_rs::task]
+6 | #[ariel_os::task]
   | ^^^^^^^^^^^^^^^^
   |
   = help: message: the function must be async

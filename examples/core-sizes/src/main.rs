@@ -2,17 +2,17 @@
 #![no_std]
 #![feature(used_with_arg)]
 
-use riot_rs::debug::{exit, log::*, EXIT_SUCCESS};
+use ariel_os::debug::{exit, log::*, EXIT_SUCCESS};
 
-#[riot_rs::thread(autostart)]
+#[ariel_os::thread(autostart)]
 fn main() {
     info!(
-        "riot_rs::thread::sync::Lock: {}",
-        core::mem::size_of::<riot_rs::thread::sync::Lock>(),
+        "ariel_os::thread::sync::Lock: {}",
+        core::mem::size_of::<ariel_os::thread::sync::Lock>(),
     );
     info!(
-        "riot_rs::thread::Thread: {}",
-        riot_rs::thread::thread_struct_size()
+        "ariel_os::thread::Thread: {}",
+        ariel_os::thread::thread_struct_size()
     );
 
     exit(EXIT_SUCCESS);

@@ -3,7 +3,7 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use riot_rs::{
+use ariel_os::{
     debug::log::info,
     gpio::{self, Input, Pull},
     hal::peripherals,
@@ -11,13 +11,13 @@ use riot_rs::{
 
 // These pins should be available on all STM32 chips.
 #[cfg(context = "stm32")]
-riot_rs::define_peripherals!(ButtonPeripherals {
+ariel_os::define_peripherals!(ButtonPeripherals {
     btn_a0: PA0,
     btn_a1: PA1,
     btn_b0: PB0,
 });
 
-#[riot_rs::task(autostart, peripherals)]
+#[ariel_os::task(autostart, peripherals)]
 async fn main(peripherals: ButtonPeripherals) {
     let _btn_a0 = Input::builder(peripherals.btn_a0, Pull::Up)
         .build_with_interrupt()

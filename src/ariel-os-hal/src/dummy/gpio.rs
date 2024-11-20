@@ -1,4 +1,4 @@
-use riot_rs_embassy_common::gpio::{DriveStrength, Level, Pull, Speed};
+use ariel_os_embassy_common::gpio::{DriveStrength, Level, Pull, Speed};
 
 macro_rules! define_input_like {
     ($type:ident) => {
@@ -89,7 +89,7 @@ pub mod input {
         _pin: impl Peripheral<P: InputPin> + 'static,
         _pull: crate::gpio::Pull,
         _schmitt_trigger: bool,
-    ) -> Result<Input<'static>, riot_rs_embassy_common::gpio::input::Error> {
+    ) -> Result<Input<'static>, ariel_os_embassy_common::gpio::input::Error> {
         unimplemented!();
     }
 
@@ -98,7 +98,7 @@ pub mod input {
         _pin: impl Peripheral<P: InputPin> + 'static,
         _pull: crate::gpio::Pull,
         _schmitt_trigger: bool,
-    ) -> Result<IntEnabledInput<'static>, riot_rs_embassy_common::gpio::input::Error> {
+    ) -> Result<IntEnabledInput<'static>, ariel_os_embassy_common::gpio::input::Error> {
         unimplemented!();
     }
 
@@ -111,12 +111,12 @@ pub mod input {
         High,
     }
 
-    riot_rs_embassy_common::define_into_level!();
+    ariel_os_embassy_common::define_into_level!();
 }
 
 pub mod output {
     use embedded_hal::digital::StatefulOutputPin;
-    use riot_rs_embassy_common::gpio::{FromDriveStrength, FromSpeed};
+    use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
 
     use crate::peripheral::Peripheral;
 

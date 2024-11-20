@@ -9,7 +9,7 @@ pub mod input {
     };
 
     #[cfg(feature = "external-interrupts")]
-    use riot_rs_embassy_common::gpio::input::InterruptError;
+    use ariel_os_embassy_common::gpio::input::InterruptError;
 
     #[doc(hidden)]
     pub use embassy_rp::gpio::{Input, Pin as InputPin};
@@ -25,7 +25,7 @@ pub mod input {
     #[doc(hidden)]
     pub fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
-        pull: riot_rs_embassy_common::gpio::Pull,
+        pull: ariel_os_embassy_common::gpio::Pull,
         schmitt_trigger: bool,
     ) -> Result<Input<'static>, core::convert::Infallible> {
         let pull = from_pull(pull);
@@ -40,7 +40,7 @@ pub mod input {
     #[doc(hidden)]
     pub fn new_int_enabled(
         pin: impl Peripheral<P: InputPin> + 'static,
-        pull: riot_rs_embassy_common::gpio::Pull,
+        pull: ariel_os_embassy_common::gpio::Pull,
         schmitt_trigger: bool,
     ) -> Result<IntEnabledInput<'static>, InterruptError> {
         // This HAL does not require special treatment of external interrupts.
@@ -52,8 +52,8 @@ pub mod input {
         }
     }
 
-    riot_rs_embassy_common::define_from_pull!();
-    riot_rs_embassy_common::define_into_level!();
+    ariel_os_embassy_common::define_from_pull!();
+    ariel_os_embassy_common::define_into_level!();
 }
 
 pub mod output {
@@ -63,7 +63,7 @@ pub mod output {
         gpio::{Drive, Level, SlewRate},
         Peripheral,
     };
-    use riot_rs_embassy_common::gpio::{FromDriveStrength, FromSpeed};
+    use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
 
     #[doc(hidden)]
     pub use embassy_rp::gpio::{Output, Pin as OutputPin};
@@ -76,13 +76,13 @@ pub mod output {
     #[doc(hidden)]
     pub fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
-        initial_level: riot_rs_embassy_common::gpio::Level,
+        initial_level: ariel_os_embassy_common::gpio::Level,
         drive_strength: DriveStrength,
         speed: Speed,
     ) -> Output<'static> {
         let initial_level = match initial_level {
-            riot_rs_embassy_common::gpio::Level::Low => Level::Low,
-            riot_rs_embassy_common::gpio::Level::High => Level::High,
+            ariel_os_embassy_common::gpio::Level::Low => Level::Low,
+            ariel_os_embassy_common::gpio::Level::High => Level::High,
         };
         let mut output = Output::new(pin, initial_level);
         output.set_drive_strength(drive_strength.into());
@@ -123,8 +123,8 @@ pub mod output {
     }
 
     impl FromDriveStrength for DriveStrength {
-        fn from(drive_strength: riot_rs_embassy_common::gpio::DriveStrength<Self>) -> Self {
-            use riot_rs_embassy_common::gpio::DriveStrength::*;
+        fn from(drive_strength: ariel_os_embassy_common::gpio::DriveStrength<Self>) -> Self {
+            use ariel_os_embassy_common::gpio::DriveStrength::*;
 
             // ESPs are able to output up to 40 mA, so we somewhat normalize this.
             match drive_strength {
@@ -167,8 +167,8 @@ pub mod output {
     }
 
     impl FromSpeed for Speed {
-        fn from(speed: riot_rs_embassy_common::gpio::Speed<Self>) -> Self {
-            use riot_rs_embassy_common::gpio::Speed::*;
+        fn from(speed: ariel_os_embassy_common::gpio::Speed<Self>) -> Self {
+            use ariel_os_embassy_common::gpio::Speed::*;
 
             match speed {
                 Hal(speed) => speed,

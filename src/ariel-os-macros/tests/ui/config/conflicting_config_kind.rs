@@ -3,10 +3,10 @@
 
 // This will not get used because the attribute macro is expected to fail
 #[allow(unused_imports)]
-use riot_rs::reexports::embassy_net;
+use ariel_os::reexports::embassy_net;
 
 // FAIL: network and usb cannot be used at the same time
-#[riot_rs::config(network, usb)]
+#[ariel_os::config(network, usb)]
 fn network_config() -> embassy_net::Config {
     use embassy_net::Ipv4Address;
 

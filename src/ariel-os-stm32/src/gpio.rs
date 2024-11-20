@@ -13,9 +13,9 @@ pub mod input {
 
     pub fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
-        pull: riot_rs_embassy_common::gpio::Pull,
+        pull: ariel_os_embassy_common::gpio::Pull,
         _schmitt_trigger: bool, // Not supported by this hardware
-    ) -> Result<Input<'static>, riot_rs_embassy_common::gpio::input::Error> {
+    ) -> Result<Input<'static>, ariel_os_embassy_common::gpio::input::Error> {
         let pull = from_pull(pull);
         Ok(Input::new(pin, pull))
     }
@@ -23,9 +23,9 @@ pub mod input {
     #[cfg(feature = "external-interrupts")]
     pub fn new_int_enabled<P: Peripheral<P = T> + 'static, T: InputPin>(
         pin: P,
-        pull: riot_rs_embassy_common::gpio::Pull,
+        pull: ariel_os_embassy_common::gpio::Pull,
         _schmitt_trigger: bool, // Not supported by this hardware
-    ) -> Result<IntEnabledInput<'static>, riot_rs_embassy_common::gpio::input::Error> {
+    ) -> Result<IntEnabledInput<'static>, ariel_os_embassy_common::gpio::input::Error> {
         let pull = from_pull(pull);
         let mut pin = pin.into_ref();
         let ch = crate::extint_registry::EXTINT_REGISTRY.get_interrupt_channel_for_pin(&mut pin)?;
@@ -33,8 +33,8 @@ pub mod input {
         Ok(IntEnabledInput::new(pin, ch, pull))
     }
 
-    riot_rs_embassy_common::define_from_pull!();
-    riot_rs_embassy_common::define_into_level!();
+    ariel_os_embassy_common::define_from_pull!();
+    ariel_os_embassy_common::define_into_level!();
 }
 
 pub mod output {
@@ -43,7 +43,7 @@ pub mod output {
         Peripheral,
     };
 
-    use riot_rs_embassy_common::gpio::{FromDriveStrength, FromSpeed};
+    use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
 
     pub use embassy_stm32::gpio::{Output, Pin as OutputPin};
 
@@ -52,13 +52,13 @@ pub mod output {
 
     pub fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
-        initial_level: riot_rs_embassy_common::gpio::Level,
+        initial_level: ariel_os_embassy_common::gpio::Level,
         _drive_strength: DriveStrength, // Not supported by hardware
         speed: Speed,
     ) -> Output<'static> {
         let initial_level = match initial_level {
-            riot_rs_embassy_common::gpio::Level::Low => Level::Low,
-            riot_rs_embassy_common::gpio::Level::High => Level::High,
+            ariel_os_embassy_common::gpio::Level::Low => Level::Low,
+            ariel_os_embassy_common::gpio::Level::High => Level::High,
         };
         Output::new(pin, initial_level, speed.into())
     }
@@ -75,8 +75,8 @@ pub mod output {
     }
 
     impl FromDriveStrength for DriveStrength {
-        fn from(drive_strength: riot_rs_embassy_common::gpio::DriveStrength<Self>) -> Self {
-            use riot_rs_embassy_common::gpio::DriveStrength::*;
+        fn from(drive_strength: ariel_os_embassy_common::gpio::DriveStrength<Self>) -> Self {
+            use ariel_os_embassy_common::gpio::DriveStrength::*;
 
             match drive_strength {
                 Hal(drive_strength) => drive_strength,
@@ -109,8 +109,8 @@ pub mod output {
     }
 
     impl FromSpeed for Speed {
-        fn from(speed: riot_rs_embassy_common::gpio::Speed<Self>) -> Self {
-            use riot_rs_embassy_common::gpio::Speed::*;
+        fn from(speed: ariel_os_embassy_common::gpio::Speed<Self>) -> Self {
+            use ariel_os_embassy_common::gpio::Speed::*;
 
             match speed {
                 Hal(speed) => speed,

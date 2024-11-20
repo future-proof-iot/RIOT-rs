@@ -2,7 +2,7 @@
 //!
 //! # Configuration
 //!
-//! To provide a custom USB configuration, use the [`riot_rs::config`](riot_rs_macros::config)
+//! To provide a custom USB configuration, use the [`ariel_os::config`](ariel_os_macros::config)
 //! attribute macro.
 
 #![deny(missing_docs)]
@@ -61,8 +61,8 @@ pub(crate) fn config() -> embassy_usb::Config<'static> {
     #[cfg(feature = "override-usb-config")]
     {
         extern "Rust" {
-            fn riot_rs_usb_config() -> embassy_usb::Config<'static>;
+            fn ariel_os_usb_config() -> embassy_usb::Config<'static>;
         }
-        unsafe { riot_rs_usb_config() }
+        unsafe { ariel_os_usb_config() }
     }
 }

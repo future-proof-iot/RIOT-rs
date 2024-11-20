@@ -1,5 +1,5 @@
 error: unsupported parameter (`autostart`, `peripherals`, `pool_size`, and hooks `usb_builder_hook` are supported)
   --> tests/ui/task/misspelled_hook_name.rs:10:28
    |
-10 | #[riot_rs::task(autostart, usb_builder_hooook)]
+10 | #[ariel_os::task(autostart, usb_builder_hooook)]
    |                            ^^^^^^^^^^^^^^^^^^

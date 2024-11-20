@@ -4,13 +4,13 @@
 
 cfg_if::cfg_if! {
     if #[cfg(context = "nrf")] {
-        pub use riot_rs_nrf::*;
+        pub use ariel_os_nrf::*;
     } else if #[cfg(context = "rp")] {
-        pub use riot_rs_rp::*;
+        pub use ariel_os_rp::*;
     } else if #[cfg(context = "esp")] {
-        pub use riot_rs_esp::*;
+        pub use ariel_os_esp::*;
     } else if #[cfg(context = "stm32")] {
-        pub use riot_rs_stm32::*;
+        pub use ariel_os_stm32::*;
     } else if #[cfg(context = "ariel-os")] {
         compile_error!("this MCU family is not supported");
     } else {

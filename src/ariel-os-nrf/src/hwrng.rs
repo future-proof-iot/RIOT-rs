@@ -16,7 +16,7 @@ pub fn construct_rng(peripherals: &mut crate::OptionalPeripherals) {
                 Irqs,
             );
 
-            riot_rs_random::construct_rng(rng);
+            ariel_os_random::construct_rng(rng);
         } else if #[cfg(context = "ariel-os")] {
             compile_error!("hardware RNG is not supported on this MCU family");
         }

@@ -3,10 +3,10 @@
 
 // As the macro will fail, this import will not get used
 #[allow(unused_imports)]
-use riot_rs::asynch::Spawner;
+use ariel_os::asynch::Spawner;
 
 // FAIL: the `peripherals` parameter is required in this case
-#[riot_rs::spawner(autostart)]
+#[ariel_os::spawner(autostart)]
 fn main(_spawner: Spawner, _peripherals: Peripherals) {}
 
 struct Peripherals;

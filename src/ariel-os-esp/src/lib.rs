@@ -16,7 +16,7 @@ pub mod hwrng {
 pub mod i2c;
 
 pub mod identity {
-    use riot_rs_embassy_common::identity;
+    use ariel_os_embassy_common::identity;
 
     pub type DeviceId = identity::NoDeviceId<identity::NotImplemented>;
 }
@@ -107,7 +107,7 @@ pub fn init() -> OptionalPeripherals {
     let rng = esp_hal::rng::Rng::new(peripherals.RNG.take().unwrap());
 
     #[cfg(feature = "hwrng")]
-    riot_rs_random::construct_rng(rng);
+    ariel_os_random::construct_rng(rng);
 
     #[cfg(feature = "wifi-esp")]
     {
@@ -118,7 +118,7 @@ pub fn init() -> OptionalPeripherals {
 
         use esp_wifi::{init, EspWifiInitFor};
 
-        riot_rs_debug::log::debug!("ariel-os-embassy::hal::esp::init(): wifi");
+        ariel_os_debug::log::debug!("ariel-os-embassy::hal::esp::init(): wifi");
 
         let timer = TimerGroup::new(peripherals.TIMG0.take().unwrap()).timer0;
 

@@ -6,7 +6,7 @@
 //! **Instead, you need to use [`yield_same()`] to explicitly yield to another thread with the same priority.**
 //! If no thread is ready, the core is prompted to enter deep sleep until a next thread is ready.
 //!
-//! Threads should be implemented using the `riot_rs_macros::thread` proc macro, which takes care
+//! Threads should be implemented using the `ariel_os_macros::thread` proc macro, which takes care
 //! of calling the necessary initialization methods and linking the thread function element it into the binary.
 //! A [`ThreadId`] between 0 and [`THREADS_NUMOF`] is assigned to each thread in the order in
 //! which the threads are declared.
@@ -52,11 +52,11 @@ pub mod macro_reexports {
 #[doc(hidden)]
 pub mod events {
     use crate::sync::Event;
-    // this is set in `riot_rs_embassy::init_task()`
+    // this is set in `ariel_os_embassy::init_task()`
     pub static THREAD_START_EVENT: Event = Event::new();
 }
 
-pub use riot_rs_runqueue::{RunqueueId, ThreadId};
+pub use ariel_os_runqueue::{RunqueueId, ThreadId};
 pub use thread_flags as flags;
 
 #[cfg(feature = "core-affinity")]
@@ -64,7 +64,7 @@ pub use smp::CoreAffinity;
 
 use arch::{schedule, Arch, Cpu, ThreadData};
 use ensure_once::EnsureOnce;
-use riot_rs_runqueue::RunQueue;
+use ariel_os_runqueue::RunQueue;
 use thread::{Thread, ThreadState};
 
 #[cfg(feature = "multi-core")]
@@ -493,7 +493,7 @@ impl From<CoreId> for usize {
 pub unsafe fn start_threading() {
     #[cfg(feature = "multi-core")]
     {
-        riot_rs_debug::log::debug!("ariel-os-threads: SMP mode with {} cores", CORES_NUMOF);
+        ariel_os_debug::log::debug!("ariel-os-threads: SMP mode with {} cores", CORES_NUMOF);
 
         // Idle thread that prompts the core to enter deep sleep.
         fn idle_thread() {

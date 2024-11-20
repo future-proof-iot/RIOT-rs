@@ -1,6 +1,6 @@
 //! Tools and traits for describing device identities.
 //!
-//! See `riot_rs::identity` for general documentation; that module also represents the public parts
+//! See `ariel_os::identity` for general documentation; that module also represents the public parts
 //! of this API.
 #![deny(missing_docs)]
 

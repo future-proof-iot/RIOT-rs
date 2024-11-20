@@ -2,5 +2,5 @@
 #![no_main]
 
 // FAIL: the `autostart` parameter is mandatory
-#[riot_rs::thread]
+#[ariel_os::thread]
 fn main() {}

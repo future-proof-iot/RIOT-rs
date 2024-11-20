@@ -1,6 +1,6 @@
 #![no_std]
 
-use riot_rs_debug::log::debug;
+use ariel_os_debug::log::debug;
 
 pub fn init() {
     debug!("nrf52::init()");

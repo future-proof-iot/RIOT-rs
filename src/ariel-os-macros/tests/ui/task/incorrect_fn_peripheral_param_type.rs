@@ -4,7 +4,7 @@
 
 // FAIL: the function is expected to take a type having a `take_peripherals()` method as first
 // parameter
-#[riot_rs::task(autostart, peripherals)]
+#[ariel_os::task(autostart, peripherals)]
 async fn main(_foo: Bar) {}
 
 struct Bar;

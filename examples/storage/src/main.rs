@@ -3,13 +3,13 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use riot_rs::debug::{
+use ariel_os::debug::{
     exit,
     log::{defmt, info},
 };
 
-// Imports for using [`riot_rs::storage`]
-use riot_rs::storage;
+// Imports for using [`ariel_os::storage`]
+use ariel_os::storage;
 use serde::{Deserialize, Serialize};
 
 // Some object. For storing it, derive the serde Serialize / Deserialize traits.
@@ -19,7 +19,7 @@ struct MyConfig {
     val_dos: u64,
 }
 
-#[riot_rs::task(autostart)]
+#[ariel_os::task(autostart)]
 async fn main() {
     info!("Hello from storage test!");
 

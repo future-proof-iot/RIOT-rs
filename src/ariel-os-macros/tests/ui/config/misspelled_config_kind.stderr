@@ -1,5 +1,5 @@
 error: unsupported parameter (`network`, `usb` are supported)
  --> tests/ui/config/misspelled_config_kind.rs:9:19
   |
-9 | #[riot_rs::config(networkk)]
+9 | #[ariel_os::config(networkk)]
   |                   ^^^^^^^^

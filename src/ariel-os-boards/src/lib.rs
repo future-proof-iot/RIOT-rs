@@ -49,7 +49,7 @@ cfg_if! {
 }
 
 #[cfg(not(feature = "no-boards"))]
-#[linkme::distributed_slice(riot_rs_rt::INIT_FUNCS)]
+#[linkme::distributed_slice(ariel_os_rt::INIT_FUNCS)]
 fn init() {
     board::init();
 }

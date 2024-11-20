@@ -1,4 +1,4 @@
 #![no_main]
 #![no_std]
 
-use riot_rs as _;
+use ariel_os as _;

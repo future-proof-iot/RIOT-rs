@@ -1,6 +1,6 @@
 pub struct DeviceId(&'static [u8; 12]);
 
-impl riot_rs_embassy_common::identity::DeviceId for DeviceId {
+impl ariel_os_embassy_common::identity::DeviceId for DeviceId {
     type Bytes = &'static [u8; 12];
 
     #[allow(

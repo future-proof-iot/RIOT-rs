@@ -36,7 +36,7 @@
 /// a faulty state might impede communication with an identity EEPROM) to erring unconditionally
 /// (where no device ID is present or implemented).
 pub fn device_id_bytes() -> Result<impl AsRef<[u8]>, impl core::error::Error> {
-    use riot_rs_embassy_common::identity::DeviceId;
+    use ariel_os_embassy_common::identity::DeviceId;
 
-    riot_rs_embassy::hal::identity::DeviceId::get().map(|d| d.bytes())
+    ariel_os_embassy::hal::identity::DeviceId::get().map(|d| d.bytes())
 }

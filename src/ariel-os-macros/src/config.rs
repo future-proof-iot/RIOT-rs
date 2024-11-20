@@ -17,16 +17,16 @@
 ///
 /// # Note
 ///
-/// The `riot_rs` crate provides re-exports for the relevant Embassy crates.
+/// The `ariel_os` crate provides re-exports for the relevant Embassy crates.
 ///
 /// # Examples
 ///
 /// The following function provides configuration for the network stack:
 ///
 /// ```ignore
-/// use riot_rs::reexports::embassy_net;
+/// use ariel_os::reexports::embassy_net;
 ///
-/// #[riot_rs::config(network)]
+/// #[ariel_os::config(network)]
 /// fn network_config() -> embassy_net::Config {
 ///     use embassy_net::Ipv4Address;
 ///
@@ -56,16 +56,16 @@ pub fn config(args: TokenStream, item: TokenStream) -> TokenStream {
     let config_function = syn::parse_macro_input!(item as syn::ItemFn);
     let config_function_name = &config_function.sig.ident;
 
-    let riot_rs_crate = utils::riot_rs_crate();
+    let ariel_os_crate = utils::ariel_os_crate();
 
     let (config_fn_name, return_type) = match attrs.kind {
         Some(ConfigKind::Network) => (
-            format_ident!("riot_rs_network_config"),
-            quote! {#riot_rs_crate::reexports::embassy_net::Config},
+            format_ident!("ariel_os_network_config"),
+            quote! {#ariel_os_crate::reexports::embassy_net::Config},
         ),
         Some(ConfigKind::Usb) => (
-            format_ident!("riot_rs_usb_config"),
-            quote! {#riot_rs_crate::reexports::embassy_usb::Config<'static>},
+            format_ident!("ariel_os_usb_config"),
+            quote! {#ariel_os_crate::reexports::embassy_usb::Config<'static>},
         ),
         None => {
             panic!("a configuration kind must be specified");

@@ -1,4 +1,4 @@
-use riot_rs_threads::{start_threading, THREAD_FNS};
+use ariel_os_threads::{start_threading, THREAD_FNS};
 
 /// # Safety
 ///
