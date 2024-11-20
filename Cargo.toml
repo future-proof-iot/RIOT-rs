@@ -45,7 +45,7 @@ version = "0.1.0"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 license = "MIT OR Apache-2.0"
 edition = "2021"
-repository = "https://github.com/future-proof-iot/riot-rs"
+repository = "https://github.com/ariel-os/riot-rs"
 
 [workspace.dependencies]
 cfg-if = { version = "1.0.0" }

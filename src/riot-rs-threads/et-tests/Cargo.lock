@@ -144,7 +144,7 @@ dependencies = [
 [[package]]
 name = "riot-rs-runqueue"
 version = "0.1.2"
-source = "git+https://github.com/future-proof-iot/riot-rs-runqueue?branch=main#f7e947be215c2e8bc2c1d6d8598393d20bf940d3"
+source = "git+https://github.com/ariel-os/riot-rs-runqueue?branch=main#f7e947be215c2e8bc2c1d6d8598393d20bf940d3"
 
 [[package]]
 name = "rustc_version"
