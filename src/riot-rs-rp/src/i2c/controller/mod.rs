@@ -1,3 +1,5 @@
+//! Provides support for the I2C communication bus in controller mode.
+
 use embassy_rp::{
     bind_interrupts,
     i2c::{InterruptHandler, SclPin, SdaPin},
@@ -13,6 +15,7 @@ const KHZ_TO_HZ: u32 = 1000;
 #[derive(Clone)]
 #[non_exhaustive]
 pub struct Config {
+    /// The frequency at which the bus should operate.
     pub frequency: Frequency,
 }
 
@@ -37,6 +40,7 @@ pub enum Frequency {
     UpTo400k(Kilohertz), // FIXME: use a ranged integer?
 }
 
+#[doc(hidden)]
 impl Frequency {
     pub const fn first() -> Self {
         Self::UpTo100k(Kilohertz::kHz(1))
@@ -106,6 +110,8 @@ macro_rules! define_i2c_drivers {
             }
 
             impl $peripheral {
+                /// Returns a driver implementing [`embedded_hal_async::i2c::I2c`] for this
+                /// I2C peripheral.
                 #[expect(clippy::new_ret_no_self)]
                 #[must_use]
                 pub fn new(
@@ -151,7 +157,10 @@ macro_rules! define_i2c_drivers {
 
         /// Peripheral-agnostic driver.
         pub enum I2c {
-            $( $peripheral($peripheral), )*
+            $(
+                #[doc = concat!(stringify!($peripheral), " peripheral.")]
+                $peripheral($peripheral),
+            )*
         }
 
         impl embedded_hal_async::i2c::ErrorType for I2c {

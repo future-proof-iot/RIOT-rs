@@ -1,4 +1,8 @@
+//! Provides GPIO access.
+
 pub mod input {
+    //! Input-specific types.
+
     use embassy_rp::{
         gpio::{Level, Pull},
         Peripheral,
@@ -7,14 +11,18 @@ pub mod input {
     #[cfg(feature = "external-interrupts")]
     use riot_rs_embassy_common::gpio::input::InterruptError;
 
+    #[doc(hidden)]
     pub use embassy_rp::gpio::{Input, Pin as InputPin};
 
     // Re-export `Input` as `IntEnabledInput` as they are interrupt-enabled.
     #[cfg(feature = "external-interrupts")]
+    #[doc(hidden)]
     pub use embassy_rp::gpio::Input as IntEnabledInput;
 
+    /// Whether inputs support configuring whether a Schmitt trigger is enabled.
     pub const SCHMITT_TRIGGER_CONFIGURABLE: bool = true;
 
+    #[doc(hidden)]
     pub fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: riot_rs_embassy_common::gpio::Pull,
@@ -29,6 +37,7 @@ pub mod input {
     }
 
     #[cfg(feature = "external-interrupts")]
+    #[doc(hidden)]
     pub fn new_int_enabled(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: riot_rs_embassy_common::gpio::Pull,
@@ -48,17 +57,23 @@ pub mod input {
 }
 
 pub mod output {
+    //! Output-specific types.
+
     use embassy_rp::{
         gpio::{Drive, Level, SlewRate},
         Peripheral,
     };
     use riot_rs_embassy_common::gpio::{FromDriveStrength, FromSpeed};
 
+    #[doc(hidden)]
     pub use embassy_rp::gpio::{Output, Pin as OutputPin};
 
+    /// Whether outputs support configuring their drive strength.
     pub const DRIVE_STRENGTH_CONFIGURABLE: bool = true;
+    /// Whether outputs support configuring their speed/slew rate.
     pub const SPEED_CONFIGURABLE: bool = true;
 
+    #[doc(hidden)]
     pub fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
         initial_level: riot_rs_embassy_common::gpio::Level,
@@ -75,12 +90,17 @@ pub mod output {
         output
     }
 
+    /// Available drive strength settings.
     // We provide our own type because the upstream type is not `Copy` and has no `Default` impl.
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum DriveStrength {
+        /// 2 mA.
         _2mA,
+        /// 4 mA.
         _4mA,
+        /// 8 mA.
         _8mA,
+        /// 12 mA.
         _12mA,
     }
 
@@ -118,12 +138,15 @@ pub mod output {
         }
     }
 
+    /// Available output speed/slew rate settings.
     // These values do not seem to be quantitatively defined on the RP2040.
     // We provide our own type because the `SlewRate` upstream type is not `Copy` and has no
     // `Default` impl.
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum Speed {
+        /// Low.
         Low,
+        /// High.
         High,
     }
 
