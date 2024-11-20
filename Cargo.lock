@@ -88,6 +88,351 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "4c95c10ba0b00a02636238b814946408b1322d5ac4760326e6fb8ec956d85775"
 
 [[package]]
+name = "ariel-os"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-bench",
+ "ariel-os-boards",
+ "ariel-os-coap",
+ "ariel-os-debug",
+ "ariel-os-embassy",
+ "ariel-os-identity",
+ "ariel-os-macros",
+ "ariel-os-random",
+ "ariel-os-rt",
+ "ariel-os-storage",
+ "ariel-os-threads",
+ "ariel-os-utils",
+ "document-features",
+ "linkme",
+ "static_cell",
+]
+
+[[package]]
+name = "ariel-os-bench"
+version = "0.1.0"
+dependencies = [
+ "cfg-if",
+ "cortex-m",
+ "defmt",
+ "esp-hal",
+]
+
+[[package]]
+name = "ariel-os-boards"
+version = "0.1.0"
+dependencies = [
+ "ai-c3",
+ "ariel-os-rt",
+ "cfg-if",
+ "dwm1001",
+ "espressif-esp32-c6-devkitc-1",
+ "espressif-esp32-s3-wroom-1",
+ "espressif-esp32-wroom-32",
+ "linkme",
+ "microbit",
+ "microbit-v2",
+ "nrf52840-mdk",
+ "nrf52840dk",
+ "nrf52dk",
+ "nrf5340dk",
+ "particle-xenon",
+ "rpi-pico",
+ "st-nucleo-f401re",
+ "st-nucleo-h755zi-q",
+ "st-nucleo-wb55",
+]
+
+[[package]]
+name = "ariel-os-chips"
+version = "0.1.0"
+dependencies = [
+ "stm32f4xx",
+]
+
+[[package]]
+name = "ariel-os-coap"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-debug",
+ "ariel-os-embassy",
+ "ariel-os-random",
+ "coap-handler",
+ "coap-handler-implementations",
+ "coapcore",
+ "critical-section",
+ "embassy-futures",
+ "embassy-net",
+ "embassy-sync 0.6.0",
+ "embedded-io-async",
+ "embedded-nal-async",
+ "embedded-nal-coap",
+ "hexlit",
+ "lakers",
+ "lakers-crypto-rustcrypto",
+ "static_cell",
+]
+
+[[package]]
+name = "ariel-os-debug"
+version = "0.1.0"
+dependencies = [
+ "defmt",
+ "esp-println",
+ "log 0.4.22",
+ "rtt-target",
+ "semihosting",
+]
+
+[[package]]
+name = "ariel-os-embassy"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-debug",
+ "ariel-os-embassy-common",
+ "ariel-os-hal",
+ "ariel-os-macros",
+ "ariel-os-random",
+ "ariel-os-rt",
+ "ariel-os-storage",
+ "ariel-os-threads",
+ "ariel-os-utils",
+ "cfg-if",
+ "const_panic",
+ "critical-section",
+ "embassy-embedded-hal",
+ "embassy-executor",
+ "embassy-hal-internal",
+ "embassy-net",
+ "embassy-sync 0.6.0",
+ "embassy-time",
+ "embassy-usb",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "heapless 0.8.0",
+ "linkme",
+ "once_cell",
+ "static_cell",
+ "usbd-hid",
+]
+
+[[package]]
+name = "ariel-os-embassy-common"
+version = "0.1.0"
+dependencies = [
+ "defmt",
+ "embassy-futures",
+ "embassy-time",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "fugit",
+]
+
+[[package]]
+name = "ariel-os-esp"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-debug",
+ "ariel-os-embassy-common",
+ "ariel-os-random",
+ "ariel-os-utils",
+ "cfg-if",
+ "defmt",
+ "embassy-embedded-hal",
+ "embassy-executor",
+ "embassy-time",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "esp-alloc",
+ "esp-hal",
+ "esp-hal-embassy",
+ "esp-wifi",
+ "fugit",
+ "once_cell",
+ "paste",
+ "static_cell",
+]
+
+[[package]]
+name = "ariel-os-hal"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-embassy-common",
+ "ariel-os-esp",
+ "ariel-os-nrf",
+ "ariel-os-rp",
+ "ariel-os-stm32",
+ "cfg-if",
+ "embassy-executor",
+ "embassy-hal-internal",
+ "embassy-usb",
+ "embedded-hal 1.0.0",
+ "embedded-hal-async",
+ "embedded-storage-async",
+]
+
+[[package]]
+name = "ariel-os-identity"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-embassy",
+ "ariel-os-embassy-common",
+]
+
+[[package]]
+name = "ariel-os-macros"
+version = "0.1.0"
+dependencies = [
+ "ariel-os",
+ "embassy-executor",
+ "enum-iterator",
+ "heapless 0.8.0",
+ "proc-macro-crate",
+ "proc-macro2",
+ "quote",
+ "syn 2.0.87",
+ "trybuild",
+]
+
+[[package]]
+name = "ariel-os-nrf"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-debug",
+ "ariel-os-embassy-common",
+ "ariel-os-random",
+ "cfg-if",
+ "defmt",
+ "embassy-embedded-hal",
+ "embassy-executor",
+ "embassy-nrf",
+ "embedded-hal-async",
+ "paste",
+ "portable-atomic",
+]
+
+[[package]]
+name = "ariel-os-random"
+version = "0.1.0"
+dependencies = [
+ "embassy-sync 0.6.0",
+ "rand_chacha",
+ "rand_core",
+ "rand_pcg",
+]
+
+[[package]]
+name = "ariel-os-rp"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-debug",
+ "ariel-os-embassy-common",
+ "ariel-os-random",
+ "ariel-os-utils",
+ "cfg-if",
+ "cyw43",
+ "cyw43-pio",
+ "defmt",
+ "embassy-embedded-hal",
+ "embassy-executor",
+ "embassy-net-driver-channel",
+ "embassy-rp",
+ "embedded-hal-async",
+ "paste",
+ "static_cell",
+]
+
+[[package]]
+name = "ariel-os-rt"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-boards",
+ "ariel-os-debug",
+ "ariel-os-threads",
+ "ariel-os-utils",
+ "cfg-if",
+ "cortex-m",
+ "cortex-m-rt",
+ "embassy-rp",
+ "esp-hal",
+ "linkme",
+ "portable-atomic",
+]
+
+[[package]]
+name = "ariel-os-runqueue"
+version = "0.1.2"
+dependencies = [
+ "defmt",
+ "hax-lib",
+]
+
+[[package]]
+name = "ariel-os-stm32"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-embassy-common",
+ "ariel-os-random",
+ "cfg-if",
+ "defmt",
+ "embassy-embedded-hal",
+ "embassy-executor",
+ "embassy-stm32",
+ "embedded-hal-async",
+ "paste",
+ "portable-atomic",
+ "static_cell",
+]
+
+[[package]]
+name = "ariel-os-storage"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-debug",
+ "ariel-os-hal",
+ "arrayvec",
+ "cfg-if",
+ "embassy-embedded-hal",
+ "embassy-sync 0.6.0",
+ "embassy-time",
+ "embedded-storage-async",
+ "once_cell",
+ "postcard",
+ "sequential-storage",
+ "serde",
+]
+
+[[package]]
+name = "ariel-os-threads"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-debug",
+ "ariel-os-runqueue",
+ "ariel-os-utils",
+ "cfg-if",
+ "cortex-m",
+ "cortex-m-rt",
+ "cortex-m-semihosting",
+ "critical-section",
+ "defmt",
+ "embassy-rp",
+ "esp-hal",
+ "linkme",
+ "panic-semihosting",
+ "paste",
+ "rp-pac 6.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "static_cell",
+]
+
+[[package]]
+name = "ariel-os-utils"
+version = "0.1.0"
+dependencies = [
+ "const_panic",
+ "konst",
+]
+
+[[package]]
 name = "arrayvec"
 version = "0.7.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -438,6 +783,9 @@ dependencies = [
 name = "coap"
 version = "0.1.0"
 dependencies = [
+ "ariel-os",
+ "ariel-os-boards",
+ "ariel-os-coap",
  "coap-handler",
  "coap-handler-implementations",
  "coap-message",
@@ -450,9 +798,6 @@ dependencies = [
  "embassy-sync 0.6.0",
  "embedded-nal-coap",
  "heapless 0.8.0",
- "ariel-os",
- "ariel-os-boards",
- "ariel-os-coap",
  "scroll-ring",
  "static-alloc",
 ]
@@ -986,11 +1331,11 @@ dependencies = [
 name = "dwm1001"
 version = "0.1.0"
 dependencies = [
+ "ariel-os-debug",
+ "ariel-os-rt",
  "cortex-m",
  "cortex-m-rt",
  "nrf52",
- "ariel-os-debug",
- "ariel-os-rt",
 ]
 
 [[package]]
@@ -1084,6 +1429,8 @@ dependencies = [
 name = "embassy-http-server"
 version = "0.1.0"
 dependencies = [
+ "ariel-os",
+ "ariel-os-boards",
  "embassy-net",
  "embassy-nrf",
  "embassy-sync 0.6.0",
@@ -1091,8 +1438,6 @@ dependencies = [
  "heapless 0.8.0",
  "httparse",
  "picoserve",
- "ariel-os",
- "ariel-os-boards",
  "serde",
  "static_cell",
 ]
@@ -1332,11 +1677,11 @@ dependencies = [
 name = "embassy-usb-keyboard"
 version = "0.1.0"
 dependencies = [
+ "ariel-os",
+ "ariel-os-boards",
  "embassy-nrf",
  "embassy-sync 0.6.0",
  "embassy-usb",
- "ariel-os",
- "ariel-os-boards",
  "static_cell",
  "usbd-hid",
 ]
@@ -1889,12 +2234,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "espressif-esp32-wroom-32"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-debug",
+ "ariel-os-rt",
+]
+
+[[package]]
 name = "example-random"
 version = "0.1.0"
 dependencies = [
- "rand",
  "ariel-os",
  "ariel-os-boards",
+ "rand",
 ]
 
 [[package]]
@@ -2088,9 +2441,9 @@ checksum = "d2fabcfbdc87f4758337ca535fb41a6d701b65693ce38287d856d1674551ec9b"
 name = "gpio"
 version = "0.1.0"
 dependencies = [
- "embassy-futures",
  "ariel-os",
  "ariel-os-boards",
+ "embassy-futures",
 ]
 
 [[package]]
@@ -2305,12 +2658,12 @@ checksum = "7d71d3574edd2771538b901e6549113b4006ece66150fb69c0fb6d9a2adae946"
 name = "i2c-controller"
 version = "0.1.0"
 dependencies = [
+ "ariel-os",
+ "ariel-os-boards",
  "embassy-sync 0.6.0",
  "embedded-hal 1.0.0",
  "embedded-hal-async",
  "once_cell",
- "ariel-os",
- "ariel-os-boards",
 ]
 
 [[package]]
@@ -2647,22 +3000,22 @@ dependencies = [
 name = "microbit"
 version = "0.1.0"
 dependencies = [
+ "ariel-os-debug",
+ "ariel-os-rt",
  "cortex-m",
  "cortex-m-rt",
  "nrf51",
- "ariel-os-debug",
- "ariel-os-rt",
 ]
 
 [[package]]
 name = "microbit-v2"
 version = "0.1.0"
 dependencies = [
+ "ariel-os-debug",
+ "ariel-os-rt",
  "cortex-m",
  "cortex-m-rt",
  "nrf52",
- "ariel-os-debug",
- "ariel-os-rt",
 ]
 
 [[package]]
@@ -2756,9 +3109,9 @@ dependencies = [
 name = "nrf51"
 version = "0.1.0"
 dependencies = [
- "nrf51-pac",
  "ariel-os-debug",
  "ariel-os-rt",
+ "nrf51-pac",
 ]
 
 [[package]]
@@ -2776,12 +3129,12 @@ dependencies = [
 name = "nrf52"
 version = "0.1.0"
 dependencies = [
+ "ariel-os-debug",
+ "ariel-os-rt",
  "ld-memory",
  "nrf52832-pac",
  "nrf52833-pac",
  "nrf52840-pac",
- "ariel-os-debug",
- "ariel-os-rt",
 ]
 
 [[package]]
@@ -2810,11 +3163,11 @@ dependencies = [
 name = "nrf52840-mdk"
 version = "0.1.0"
 dependencies = [
+ "ariel-os-debug",
+ "ariel-os-rt",
  "cortex-m",
  "cortex-m-rt",
  "nrf52",
- "ariel-os-debug",
- "ariel-os-rt",
 ]
 
 [[package]]
@@ -2832,40 +3185,40 @@ dependencies = [
 name = "nrf52840dk"
 version = "0.1.0"
 dependencies = [
+ "ariel-os-debug",
+ "ariel-os-rt",
  "cortex-m",
  "cortex-m-rt",
  "nrf52",
- "ariel-os-debug",
- "ariel-os-rt",
 ]
 
 [[package]]
 name = "nrf52dk"
 version = "0.1.0"
 dependencies = [
+ "ariel-os-debug",
+ "ariel-os-rt",
  "cortex-m",
  "cortex-m-rt",
  "nrf52",
- "ariel-os-debug",
- "ariel-os-rt",
 ]
 
 [[package]]
 name = "nrf5340"
 version = "0.1.0"
 dependencies = [
- "ld-memory",
  "ariel-os-debug",
+ "ld-memory",
 ]
 
 [[package]]
 name = "nrf5340dk"
 version = "0.1.0"
 dependencies = [
+ "ariel-os-debug",
  "cortex-m",
  "cortex-m-rt",
  "nrf5340",
- "ariel-os-debug",
 ]
 
 [[package]]
@@ -3005,11 +3358,11 @@ dependencies = [
 name = "particle-xenon"
 version = "0.1.0"
 dependencies = [
+ "ariel-os-debug",
+ "ariel-os-rt",
  "cortex-m",
  "cortex-m-rt",
  "nrf52",
- "ariel-os-debug",
- "ariel-os-rt",
 ]
 
 [[package]]
@@ -3433,348 +3786,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "ariel-os"
-version = "0.1.0"
-dependencies = [
- "document-features",
- "linkme",
- "ariel-os-bench",
- "ariel-os-boards",
- "ariel-os-coap",
- "ariel-os-debug",
- "ariel-os-embassy",
- "ariel-os-identity",
- "ariel-os-macros",
- "ariel-os-random",
- "ariel-os-rt",
- "ariel-os-storage",
- "ariel-os-threads",
- "ariel-os-utils",
- "static_cell",
-]
-
-[[package]]
-name = "ariel-os-bench"
-version = "0.1.0"
-dependencies = [
- "cfg-if",
- "cortex-m",
- "defmt",
- "esp-hal",
-]
-
-[[package]]
-name = "ariel-os-boards"
-version = "0.1.0"
-dependencies = [
- "ai-c3",
- "cfg-if",
- "dwm1001",
- "espressif-esp32-c6-devkitc-1",
- "espressif-esp32-s3-wroom-1",
- "linkme",
- "microbit",
- "microbit-v2",
- "nrf52840-mdk",
- "nrf52840dk",
- "nrf52dk",
- "nrf5340dk",
- "particle-xenon",
- "ariel-os-rt",
- "rpi-pico",
- "st-nucleo-f401re",
- "st-nucleo-h755zi-q",
- "st-nucleo-wb55",
-]
-
-[[package]]
-name = "ariel-os-chips"
-version = "0.1.0"
-dependencies = [
- "stm32f4xx",
-]
-
-[[package]]
-name = "ariel-os-coap"
-version = "0.1.0"
-dependencies = [
- "coap-handler",
- "coap-handler-implementations",
- "coapcore",
- "critical-section",
- "embassy-futures",
- "embassy-net",
- "embassy-sync 0.6.0",
- "embedded-io-async",
- "embedded-nal-async",
- "embedded-nal-coap",
- "hexlit",
- "lakers",
- "lakers-crypto-rustcrypto",
- "ariel-os-debug",
- "ariel-os-embassy",
- "ariel-os-random",
- "static_cell",
-]
-
-[[package]]
-name = "ariel-os-debug"
-version = "0.1.0"
-dependencies = [
- "defmt",
- "esp-println",
- "log 0.4.22",
- "rtt-target",
- "semihosting",
-]
-
-[[package]]
-name = "ariel-os-embassy"
-version = "0.1.0"
-dependencies = [
- "cfg-if",
- "const_panic",
- "critical-section",
- "embassy-embedded-hal",
- "embassy-executor",
- "embassy-hal-internal",
- "embassy-net",
- "embassy-sync 0.6.0",
- "embassy-time",
- "embassy-usb",
- "embedded-hal 1.0.0",
- "embedded-hal-async",
- "heapless 0.8.0",
- "linkme",
- "once_cell",
- "ariel-os-debug",
- "ariel-os-embassy-common",
- "ariel-os-hal",
- "ariel-os-macros",
- "ariel-os-random",
- "ariel-os-rt",
- "ariel-os-storage",
- "ariel-os-threads",
- "ariel-os-utils",
- "static_cell",
- "usbd-hid",
-]
-
-[[package]]
-name = "ariel-os-embassy-common"
-version = "0.1.0"
-dependencies = [
- "defmt",
- "embassy-futures",
- "embassy-time",
- "embedded-hal 1.0.0",
- "embedded-hal-async",
- "fugit",
-]
-
-[[package]]
-name = "ariel-os-esp"
-version = "0.1.0"
-dependencies = [
- "cfg-if",
- "defmt",
- "embassy-embedded-hal",
- "embassy-executor",
- "embassy-time",
- "embedded-hal 1.0.0",
- "embedded-hal-async",
- "esp-alloc",
- "esp-hal",
- "esp-hal-embassy",
- "esp-wifi",
- "fugit",
- "once_cell",
- "paste",
- "ariel-os-debug",
- "ariel-os-embassy-common",
- "ariel-os-utils",
-]
-
-[[package]]
-name = "ariel-os-hal"
-version = "0.1.0"
-dependencies = [
- "cfg-if",
- "embassy-executor",
- "embassy-hal-internal",
- "embassy-usb",
- "embedded-hal 1.0.0",
- "embedded-hal-async",
- "embedded-storage-async",
- "ariel-os-embassy-common",
- "ariel-os-esp",
- "ariel-os-nrf",
- "ariel-os-rp",
- "ariel-os-stm32",
-]
-
-[[package]]
-name = "ariel-os-identity"
-version = "0.1.0"
-dependencies = [
- "ariel-os-embassy",
- "ariel-os-embassy-common",
-]
-
-[[package]]
-name = "ariel-os-macros"
-version = "0.1.0"
-dependencies = [
- "embassy-executor",
- "enum-iterator",
- "heapless 0.8.0",
- "proc-macro-crate",
- "proc-macro2",
- "quote",
- "ariel-os",
- "syn 2.0.87",
- "trybuild",
-]
-
-[[package]]
-name = "ariel-os-nrf"
-version = "0.1.0"
-dependencies = [
- "cfg-if",
- "defmt",
- "embassy-embedded-hal",
- "embassy-executor",
- "embassy-nrf",
- "embedded-hal-async",
- "paste",
- "portable-atomic",
- "ariel-os-debug",
- "ariel-os-embassy-common",
- "ariel-os-random",
-]
-
-[[package]]
-name = "ariel-os-random"
-version = "0.1.0"
-dependencies = [
- "embassy-sync 0.6.0",
- "rand_chacha",
- "rand_core",
- "rand_pcg",
-]
-
-[[package]]
-name = "ariel-os-rp"
-version = "0.1.0"
-dependencies = [
- "cfg-if",
- "cyw43",
- "cyw43-pio",
- "defmt",
- "embassy-embedded-hal",
- "embassy-executor",
- "embassy-net-driver-channel",
- "embassy-rp",
- "embedded-hal-async",
- "paste",
- "ariel-os-debug",
- "ariel-os-embassy-common",
- "ariel-os-random",
- "ariel-os-utils",
- "static_cell",
-]
-
-[[package]]
-name = "ariel-os-rt"
-version = "0.1.0"
-dependencies = [
- "cfg-if",
- "cortex-m",
- "cortex-m-rt",
- "embassy-rp",
- "esp-hal",
- "linkme",
- "portable-atomic",
- "ariel-os-boards",
- "ariel-os-debug",
- "ariel-os-threads",
- "ariel-os-utils",
-]
-
-[[package]]
-name = "ariel-os-runqueue"
-version = "0.1.2"
-dependencies = [
- "defmt",
- "hax-lib",
-]
-
-[[package]]
-name = "ariel-os-stm32"
-version = "0.1.0"
-dependencies = [
- "cfg-if",
- "defmt",
- "embassy-embedded-hal",
- "embassy-executor",
- "embassy-stm32",
- "embedded-hal-async",
- "paste",
- "portable-atomic",
- "ariel-os-embassy-common",
- "ariel-os-random",
- "static_cell",
-]
-
-[[package]]
-name = "ariel-os-storage"
-version = "0.1.0"
-dependencies = [
- "arrayvec",
- "cfg-if",
- "embassy-embedded-hal",
- "embassy-sync 0.6.0",
- "embassy-time",
- "embedded-storage-async",
- "once_cell",
- "postcard",
- "ariel-os-debug",
- "ariel-os-hal",
- "sequential-storage",
- "serde",
-]
-
-[[package]]
-name = "ariel-os-threads"
-version = "0.1.0"
-dependencies = [
- "cfg-if",
- "cortex-m",
- "cortex-m-rt",
- "cortex-m-semihosting",
- "critical-section",
- "defmt",
- "embassy-rp",
- "esp-hal",
- "linkme",
- "panic-semihosting",
- "paste",
- "ariel-os-debug",
- "ariel-os-runqueue",
- "ariel-os-utils",
- "rp-pac 6.0.0 (registry+https://github.com/rust-lang/crates.io-index)",
- "static_cell",
-]
-
-[[package]]
-name = "ariel-os-utils"
-version = "0.1.0"
-dependencies = [
- "const_panic",
- "konst",
-]
-
-[[package]]
 name = "riscv"
 version = "0.11.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -4119,11 +4130,11 @@ dependencies = [
 name = "spi-loopback"
 version = "0.1.0"
 dependencies = [
+ "ariel-os",
+ "ariel-os-boards",
  "embassy-sync 0.6.0",
  "embedded-hal-async",
  "once_cell",
- "ariel-os",
- "ariel-os-boards",
  "static_cell",
 ]
 
@@ -4131,11 +4142,11 @@ dependencies = [
 name = "spi-main"
 version = "0.1.0"
 dependencies = [
+ "ariel-os",
+ "ariel-os-boards",
  "embassy-sync 0.6.0",
  "embedded-hal-async",
  "once_cell",
- "ariel-os",
- "ariel-os-boards",
  "static_cell",
 ]
 
@@ -4162,19 +4173,19 @@ dependencies = [
 name = "st-nucleo-f401re"
 version = "0.1.0"
 dependencies = [
- "embassy-stm32",
  "ariel-os-debug",
  "ariel-os-rt",
+ "embassy-stm32",
 ]
 
 [[package]]
 name = "st-nucleo-h755zi-q"
 version = "0.1.0"
 dependencies = [
- "embassy-stm32",
  "ariel-os-debug",
  "ariel-os-rt",
  "ariel-os-stm32",
+ "embassy-stm32",
  "stm32",
 ]
 
@@ -4182,10 +4193,10 @@ dependencies = [
 name = "st-nucleo-wb55"
 version = "0.1.0"
 dependencies = [
- "embassy-stm32",
  "ariel-os-debug",
  "ariel-os-rt",
  "ariel-os-stm32",
+ "embassy-stm32",
 ]
 
 [[package]]
@@ -4296,10 +4307,10 @@ dependencies = [
 name = "storage"
 version = "0.1.0"
 dependencies = [
- "arrayvec",
- "heapless 0.8.0",
  "ariel-os",
  "ariel-os-boards",
+ "arrayvec",
+ "heapless 0.8.0",
  "serde",
 ]
 
@@ -4382,10 +4393,10 @@ checksum = "42a4d50cdb458045afc8131fd91b64904da29548bcb63c7236e0844936c13078"
 name = "tcp-echo"
 version = "0.1.0"
 dependencies = [
- "embedded-io-async",
- "heapless 0.8.0",
  "ariel-os",
  "ariel-os-boards",
+ "embedded-io-async",
+ "heapless 0.8.0",
 ]
 
 [[package]]
@@ -4453,9 +4464,9 @@ dependencies = [
 name = "thread-async-interop"
 version = "0.1.0"
 dependencies = [
- "embassy-sync 0.6.0",
  "ariel-os",
  "ariel-os-boards",
+ "embassy-sync 0.6.0",
 ]
 
 [[package]]
@@ -4478,9 +4489,9 @@ dependencies = [
 name = "threading-dynamic-prios"
 version = "0.1.0"
 dependencies = [
- "portable-atomic",
  "ariel-os",
  "ariel-os-boards",
+ "portable-atomic",
 ]
 
 [[package]]
@@ -4495,9 +4506,9 @@ dependencies = [
 name = "threading-lock"
 version = "0.1.0"
 dependencies = [
- "portable-atomic",
  "ariel-os",
  "ariel-os-boards",
+ "portable-atomic",
 ]
 
 [[package]]
@@ -4626,9 +4637,9 @@ checksum = "e36a83ea2b3c704935a01b4642946aadd445cea40b10935e3f8bd8052b8193d6"
 name = "udp-echo"
 version = "0.1.0"
 dependencies = [
- "heapless 0.8.0",
  "ariel-os",
  "ariel-os-boards",
+ "heapless 0.8.0",
 ]
 
 [[package]]
