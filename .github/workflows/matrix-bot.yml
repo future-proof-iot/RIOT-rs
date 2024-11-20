@@ -5,7 +5,7 @@ on:
 
 jobs:
   new-pr:
-    if: github.event.action == 'opened' && github.repository == 'future-proof-iot/RIOT-rs'
+    if: github.event.action == 'opened' && github.repository == 'ariel-os/ariel-os'
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
@@ -19,7 +19,7 @@ jobs:
           message_type: "notice"
 
   ready-for-review-pr:
-    if: github.event.action == 'ready_for_review' && github.repository == 'future-proof-iot/RIOT-rs'
+    if: github.event.action == 'ready_for_review' && github.repository == 'ariel-os/ariel-os'
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
@@ -33,7 +33,7 @@ jobs:
           message_type: "notice"
 
   merged-pr:
-    if: github.event.action == 'closed' && github.event.pull_request.merged == true && github.repository == 'future-proof-iot/RIOT-rs'
+    if: github.event.action == 'closed' && github.event.pull_request.merged == true && github.repository == 'ariel-os/ariel-os'
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
@@ -47,7 +47,7 @@ jobs:
           message_type: "notice"
 
   abandoned-pr:
-    if: github.event.action == 'closed' && github.event.pull_request.merged == false && github.repository == 'future-proof-iot/RIOT-rs'
+    if: github.event.action == 'closed' && github.event.pull_request.merged == false && github.repository == 'ariel-os/ariel-os'
     runs-on: ubuntu-latest
     continue-on-error: true
     steps:
