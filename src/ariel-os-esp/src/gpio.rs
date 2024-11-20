@@ -106,8 +106,8 @@ pub mod input {
 }
 
 pub mod output {
-    use esp_hal::{gpio::Level, peripheral::Peripheral};
     use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
+    use esp_hal::{gpio::Level, peripheral::Peripheral};
 
     pub use esp_hal::gpio::{Output, OutputPin};
 

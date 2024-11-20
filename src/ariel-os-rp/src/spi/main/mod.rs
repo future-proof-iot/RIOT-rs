@@ -1,14 +1,14 @@
 //! Provides support for the SPI communication bus in main mode.
 
+use ariel_os_embassy_common::{
+    impl_async_spibus_for_driver_enum,
+    spi::{main::Kilohertz, Mode},
+};
 use embassy_embedded_hal::adapter::{BlockingAsync, YieldingAsync};
 use embassy_rp::{
     peripherals,
     spi::{Blocking, ClkPin, MisoPin, MosiPin, Spi as InnerSpi},
     Peripheral,
-};
-use ariel_os_embassy_common::{
-    impl_async_spibus_for_driver_enum,
-    spi::{main::Kilohertz, Mode},
 };
 
 // TODO: we could consider making this `pub`

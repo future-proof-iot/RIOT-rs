@@ -14,7 +14,10 @@ static TEMP_THREAD1_PRIO: RunqueueId = RunqueueId::new(5);
 #[ariel_os::thread(autostart, priority = 2)]
 fn thread0() {
     let pid = ariel_os::thread::current_pid().unwrap();
-    assert_eq!(ariel_os::thread::get_priority(pid), Some(RunqueueId::new(2)));
+    assert_eq!(
+        ariel_os::thread::get_priority(pid),
+        Some(RunqueueId::new(2))
+    );
 
     assert_eq!(RUN_ORDER.fetch_add(1, Ordering::AcqRel), 0);
 

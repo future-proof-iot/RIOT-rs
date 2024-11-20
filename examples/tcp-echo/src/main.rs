@@ -3,8 +3,8 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use embedded_io_async::Write;
 use ariel_os::{debug::log::*, network, reexports::embassy_net::tcp::TcpSocket, time::Duration};
+use embedded_io_async::Write;
 
 #[ariel_os::task(autostart)]
 async fn tcp_echo() {

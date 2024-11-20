@@ -115,8 +115,8 @@ pub mod input {
 }
 
 pub mod output {
-    use embedded_hal::digital::StatefulOutputPin;
     use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
+    use embedded_hal::digital::StatefulOutputPin;
 
     use crate::peripheral::Peripheral;
 

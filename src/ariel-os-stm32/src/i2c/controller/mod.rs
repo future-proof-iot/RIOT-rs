@@ -1,3 +1,4 @@
+use ariel_os_embassy_common::{i2c::controller::Kilohertz, impl_async_i2c_for_driver_enum};
 use embassy_embedded_hal::adapter::{BlockingAsync, YieldingAsync};
 use embassy_stm32::{
     bind_interrupts,
@@ -7,7 +8,6 @@ use embassy_stm32::{
     time::Hertz,
     Peripheral,
 };
-use ariel_os_embassy_common::{i2c::controller::Kilohertz, impl_async_i2c_for_driver_enum};
 
 /// I2C bus configuration.
 #[non_exhaustive]

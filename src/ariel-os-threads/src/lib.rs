@@ -63,8 +63,8 @@ pub use thread_flags as flags;
 pub use smp::CoreAffinity;
 
 use arch::{schedule, Arch, Cpu, ThreadData};
-use ensure_once::EnsureOnce;
 use ariel_os_runqueue::RunQueue;
+use ensure_once::EnsureOnce;
 use thread::{Thread, ThreadState};
 
 #[cfg(feature = "multi-core")]

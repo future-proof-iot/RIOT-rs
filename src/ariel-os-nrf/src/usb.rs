@@ -1,3 +1,4 @@
+use ariel_os_debug::log::debug;
 use embassy_nrf::{
     bind_interrupts, pac, peripherals,
     usb::{
@@ -6,7 +7,6 @@ use embassy_nrf::{
         Driver,
     },
 };
-use ariel_os_debug::log::debug;
 
 #[cfg(context = "nrf52")]
 bind_interrupts!(struct Irqs {

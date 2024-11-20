@@ -12,8 +12,6 @@
 
 mod pins;
 
-use embassy_sync::mutex::Mutex;
-use embedded_hal_async::spi::{Operation, SpiDevice as _};
 use ariel_os::{
     debug::{
         exit,
@@ -26,6 +24,8 @@ use ariel_os::{
         Mode,
     },
 };
+use embassy_sync::mutex::Mutex;
+use embedded_hal_async::spi::{Operation, SpiDevice as _};
 
 // WHO_AM_I register of the LIS3DH sensor
 const WHO_AM_I_REG_ADDR: u8 = 0x0f;

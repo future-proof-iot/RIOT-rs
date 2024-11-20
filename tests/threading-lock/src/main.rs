@@ -3,8 +3,8 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use portable_atomic::{AtomicUsize, Ordering};
 use ariel_os::thread::{sync::Lock, thread_flags, ThreadId};
+use portable_atomic::{AtomicUsize, Ordering};
 
 static LOCK: Lock = Lock::new();
 static RUN_ORDER: AtomicUsize = AtomicUsize::new(0);

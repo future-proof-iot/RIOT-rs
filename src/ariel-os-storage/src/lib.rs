@@ -14,14 +14,14 @@ mod storage;
 
 use core::ops::Range;
 
+use ariel_os_hal::{
+    storage::{init as flash_init, Flash, FlashError},
+    OptionalPeripherals,
+};
 use embassy_sync::{
     blocking_mutex::raw::CriticalSectionRawMutex,
     mutex::{Mutex, MutexGuard},
     once_lock::OnceLock,
-};
-use ariel_os_hal::{
-    storage::{init as flash_init, Flash, FlashError},
-    OptionalPeripherals,
 };
 
 pub use storage::*;

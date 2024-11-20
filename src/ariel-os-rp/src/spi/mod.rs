@@ -3,8 +3,8 @@
 #[doc(alias = "master")]
 pub mod main;
 
-use embassy_rp::spi::{Phase, Polarity};
 use ariel_os_embassy_common::spi::Mode;
+use embassy_rp::spi::{Phase, Polarity};
 
 fn from_mode(mode: Mode) -> (Polarity, Phase) {
     match mode {

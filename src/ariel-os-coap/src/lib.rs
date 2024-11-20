@@ -12,12 +12,12 @@
 // Moving work from https://github.com/embassy-rs/embassy/pull/2519 in here for the time being
 mod udp_nal;
 
+use ariel_os_debug::log::info;
+use ariel_os_embassy::sendcell::SendCell;
 use coap_handler_implementations::ReportingHandlerBuilder;
 use coapcore::seccontext;
 use embassy_net::udp::{PacketMetadata, UdpSocket};
 use embassy_sync::once_lock::OnceLock;
-use ariel_os_debug::log::info;
-use ariel_os_embassy::sendcell::SendCell;
 use static_cell::StaticCell;
 
 const CONCURRENT_REQUESTS: usize = 3;

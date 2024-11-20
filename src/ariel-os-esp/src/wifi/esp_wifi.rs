@@ -1,3 +1,4 @@
+use ariel_os_debug::log::{debug, info};
 use embassy_executor::Spawner;
 use embassy_time::{Duration, Timer};
 use esp_wifi::{
@@ -8,7 +9,6 @@ use esp_wifi::{
     EspWifiInitialization,
 };
 use once_cell::sync::OnceCell;
-use ariel_os_debug::log::{debug, info};
 
 pub type NetworkDevice = WifiDevice<'static, WifiStaDevice>;
 

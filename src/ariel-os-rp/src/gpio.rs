@@ -59,11 +59,11 @@ pub mod input {
 pub mod output {
     //! Output-specific types.
 
+    use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
     use embassy_rp::{
         gpio::{Drive, Level, SlewRate},
         Peripheral,
     };
-    use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
 
     #[doc(hidden)]
     pub use embassy_rp::gpio::{Output, Pin as OutputPin};

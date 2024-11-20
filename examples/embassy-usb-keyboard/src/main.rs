@@ -3,13 +3,13 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use embassy_usb::class::hid::{self, HidReaderWriter};
 use ariel_os::{
     debug::log::*,
     time::{Duration, Timer},
     usb::{UsbBuilderHook, UsbDriver},
     ConstStaticCell,
 };
+use embassy_usb::class::hid::{self, HidReaderWriter};
 
 use usbd_hid::descriptor::KeyboardReport;
 

@@ -1,11 +1,11 @@
 //! Provides support for the I2C communication bus in controller mode.
 
+use ariel_os_embassy_common::{i2c::controller::Kilohertz, impl_async_i2c_for_driver_enum};
 use embassy_rp::{
     bind_interrupts,
     i2c::{InterruptHandler, SclPin, SdaPin},
     peripherals, Peripheral,
 };
-use ariel_os_embassy_common::{i2c::controller::Kilohertz, impl_async_i2c_for_driver_enum};
 
 const KHZ_TO_HZ: u32 = 1000;
 

@@ -330,7 +330,9 @@ impl Output {
 
 pub mod output {
     //! Output-specific types.
-    use ariel_os_embassy_common::gpio::{DriveStrength, FromDriveStrength, FromSpeed, Level, Speed};
+    use ariel_os_embassy_common::gpio::{
+        DriveStrength, FromDriveStrength, FromSpeed, Level, Speed,
+    };
 
     use crate::hal::{self, gpio::output::OutputPin as HalOutputPin, peripheral::Peripheral};
 

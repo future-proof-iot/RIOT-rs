@@ -1,13 +1,13 @@
 #[cfg_attr(builder = "rpi-pico-w", path = "cyw43/rpi-pico-w.rs")]
 mod rpi_pico_w;
 
+use ariel_os_debug::log::info;
 use cyw43::{Control, JoinOptions, Runner};
 use embassy_executor::Spawner;
 use embassy_rp::{
     gpio::{Level, Output},
     pio::Pio,
 };
-use ariel_os_debug::log::info;
 use rpi_pico_w::{CywSpi, Irqs};
 use static_cell::StaticCell;
 

@@ -100,8 +100,8 @@ mod tests {
 
     #[test]
     fn test_valid_highest_freq_in() {
-        use hal::i2c::controller::Frequency;
         use ariel_os_embassy_common::i2c::controller::Kilohertz;
+        use hal::i2c::controller::Frequency;
 
         const FREQ_0: Frequency = highest_freq_in(Kilohertz::kHz(50)..=Kilohertz::kHz(150));
         const FREQ_1: Frequency = highest_freq_in(Kilohertz::kHz(100)..=Kilohertz::kHz(100));

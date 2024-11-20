@@ -1,13 +1,13 @@
+use ariel_os_embassy_common::{
+    impl_async_spibus_for_driver_enum,
+    spi::{main::Kilohertz, BitOrder, Mode},
+};
 use embassy_embedded_hal::adapter::{BlockingAsync, YieldingAsync};
 use esp_hal::{
     gpio::{self, InputPin, OutputPin},
     peripheral::Peripheral,
     peripherals,
     spi::{master::Spi as InnerSpi, FullDuplexMode},
-};
-use ariel_os_embassy_common::{
-    impl_async_spibus_for_driver_enum,
-    spi::{main::Kilohertz, BitOrder, Mode},
 };
 
 // TODO: we could consider making this `pub`

@@ -38,11 +38,11 @@ pub mod input {
 }
 
 pub mod output {
+    use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
     use embassy_nrf::{
         gpio::{Level, OutputDrive},
         Peripheral,
     };
-    use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
 
     pub use embassy_nrf::gpio::{Output, Pin as OutputPin};
 

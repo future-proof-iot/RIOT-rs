@@ -1,13 +1,13 @@
+use ariel_os_embassy_common::{
+    impl_async_spibus_for_driver_enum,
+    spi::{BitOrder, Mode},
+};
 use embassy_nrf::{
     bind_interrupts,
     gpio::Pin as GpioPin,
     peripherals,
     spim::{InterruptHandler, Spim},
     Peripheral,
-};
-use ariel_os_embassy_common::{
-    impl_async_spibus_for_driver_enum,
-    spi::{BitOrder, Mode},
 };
 
 #[derive(Clone)]

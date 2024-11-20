@@ -12,8 +12,6 @@
 
 mod pins;
 
-use embassy_sync::mutex::Mutex;
-use embedded_hal_async::i2c::I2c as _;
 use ariel_os::{
     debug::{
         exit,
@@ -23,6 +21,8 @@ use ariel_os::{
     hal,
     i2c::controller::{highest_freq_in, I2cDevice, Kilohertz},
 };
+use embassy_sync::mutex::Mutex;
+use embedded_hal_async::i2c::I2c as _;
 
 const TARGET_I2C_ADDR: u8 = 0x19;
 

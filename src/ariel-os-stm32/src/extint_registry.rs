@@ -1,10 +1,10 @@
+use ariel_os_embassy_common::gpio::input::InterruptError;
 use embassy_stm32::{
     exti::{AnyChannel, Channel},
     gpio::Pin,
     peripherals, OptionalPeripherals, Peripheral,
 };
 use portable_atomic::{AtomicBool, AtomicU16, Ordering};
-use ariel_os_embassy_common::gpio::input::InterruptError;
 
 pub static EXTINT_REGISTRY: ExtIntRegistry = ExtIntRegistry::new();
 
