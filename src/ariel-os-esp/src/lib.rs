@@ -1,7 +1,10 @@
+//! Items specific to the Espressif ESP MCUs.
+
 #![no_std]
 #![feature(doc_auto_cfg)]
 #![feature(impl_trait_in_assoc_type)]
 #![feature(type_alias_impl_trait)]
+#![deny(missing_docs)]
 
 pub mod gpio;
 
@@ -39,8 +42,9 @@ pub mod peripheral {
     pub use esp_hal::peripheral::Peripheral;
 }
 
-#[doc(hidden)]
 pub mod peripherals {
+    //! Types for the peripheral singletons.
+
     pub use esp_hal::peripherals::*;
 
     pub use esp_hal::gpio::GPIO_0;
