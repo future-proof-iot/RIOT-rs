@@ -103,7 +103,7 @@ chips:
     support:
       gpio: supported
       debug_output: supported
-      hwrng: not_currently_supported
+      hwrng: supported
       i2c_controller: supported
       spi_main: supported
       logging: supported

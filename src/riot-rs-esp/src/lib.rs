@@ -5,6 +5,13 @@
 
 pub mod gpio;
 
+#[cfg(feature = "hwrng")]
+pub mod hwrng {
+    pub fn construct_rng(_peripherals: &mut crate::OptionalPeripherals) {
+        // handled in `init()`
+    }
+}
+
 #[cfg(feature = "i2c")]
 pub mod i2c;
 
@@ -77,6 +84,12 @@ pub fn init() -> OptionalPeripherals {
 
     let mut peripherals = OptionalPeripherals::from(esp_hal::init(config));
 
+    #[cfg(any(feature = "hwrng", feature = "wifi-esp"))]
+    let rng = esp_hal::rng::Rng::new(peripherals.RNG.take().unwrap());
+
+    #[cfg(feature = "hwrng")]
+    riot_rs_random::construct_rng(rng);
+
     #[cfg(feature = "wifi-esp")]
     {
         use esp_hal::timer::timg::TimerGroup;
@@ -84,7 +97,6 @@ pub fn init() -> OptionalPeripherals {
         use esp_alloc as _;
         esp_alloc::heap_allocator!(72 * 1024);
 
-        use esp_hal::rng::Rng;
         use esp_wifi::{init, EspWifiInitFor};
 
         riot_rs_debug::log::debug!("riot-rs-embassy::hal::esp::init(): wifi");
@@ -94,7 +106,7 @@ pub fn init() -> OptionalPeripherals {
         let init = init(
             EspWifiInitFor::Wifi,
             timer,
-            Rng::new(peripherals.RNG.take().unwrap()),
+            rng,
             peripherals.RADIO_CLK.take().unwrap(),
         )
         .unwrap();
