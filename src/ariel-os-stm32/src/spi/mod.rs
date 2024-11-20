@@ -1,3 +1,5 @@
+//! Provides support for the SPI communication bus.
+
 #[doc(alias = "master")]
 pub mod main;
 
