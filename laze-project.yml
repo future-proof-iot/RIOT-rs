@@ -308,8 +308,8 @@ contexts:
         - --cfg context=\"esp\"
         # linkall first
         - -Clink-arg=-Tlinkall.x
-        # this might be needed for backtraces
-        # - -C force-frame-pointers
+        # this might be needed for backtraces. it is needed for probe-rs.
+        - -C force-frame-pointers
       CARGO_ARGS:
         - -Zbuild-std=core,alloc
 
@@ -843,6 +843,7 @@ modules:
       - sw/threading
       - rtt-target
       - probe-rs
+        #- single-core
     env:
       global:
         # this is used to filter `cargo-test` task availability
