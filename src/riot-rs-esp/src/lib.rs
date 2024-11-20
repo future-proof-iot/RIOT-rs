@@ -73,6 +73,22 @@ pub mod peripherals {
             pub use esp_hal::gpio::GPIO_29;
             pub use esp_hal::gpio::GPIO_30;
         }
+        else if #[cfg(context = "esp32")] {
+            pub use esp_hal::gpio::GPIO_22;
+            pub use esp_hal::gpio::GPIO_23;
+            pub use esp_hal::gpio::GPIO_24;
+            pub use esp_hal::gpio::GPIO_25;
+            pub use esp_hal::gpio::GPIO_26;
+            pub use esp_hal::gpio::GPIO_27;
+            pub use esp_hal::gpio::GPIO_32;
+            pub use esp_hal::gpio::GPIO_33;
+            pub use esp_hal::gpio::GPIO_34;
+            pub use esp_hal::gpio::GPIO_35;
+            pub use esp_hal::gpio::GPIO_36;
+            pub use esp_hal::gpio::GPIO_37;
+            pub use esp_hal::gpio::GPIO_38;
+            pub use esp_hal::gpio::GPIO_39;
+        }
     }
 }
 

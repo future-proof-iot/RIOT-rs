@@ -39,6 +39,15 @@ embassy-executor = { workspace = true, default-features = false, features = [
   "arch-cortex-m",
 ] }
 
+[target.'cfg(context = "esp32")'.dependencies]
+esp-hal = { workspace = true, features = ["esp32"] }
+esp-hal-embassy = { workspace = true, default-features = false, features = [
+  "esp32",
+] }
+esp-wifi = { workspace = true, default-features = false, features = [
+  "esp32",
+], optional = true }
+
 [target.'cfg(context = "esp32c3")'.dependencies]
 esp-hal = { workspace = true, features = ["esp32c3"] }
 esp-hal-embassy = { workspace = true, default-features = false, features = [

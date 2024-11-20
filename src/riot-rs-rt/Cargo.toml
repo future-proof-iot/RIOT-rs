@@ -46,6 +46,7 @@ multi-core = ["embassy-rp/critical-section-impl"]
 # internal
 # These features are used by `build.rs`, which doesn't "see" context
 # variables.
+_esp32 = []
 _esp32c3 = []
 _esp32c6 = []
 _esp32s3 = []

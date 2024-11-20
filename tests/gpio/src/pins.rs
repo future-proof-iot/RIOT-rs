@@ -24,7 +24,15 @@ riot_rs::define_peripherals!(Peripherals {
     pin_3: PIN_3,
 });
 
-#[cfg(context = "esp")]
+#[cfg(context = "esp32")]
+riot_rs::define_peripherals!(Peripherals {
+    pin_0: GPIO_16,
+    pin_1: GPIO_17,
+    pin_2: GPIO_18,
+    pin_3: GPIO_19,
+});
+
+#[cfg(all(context = "esp", not(context = "esp32")))]
 riot_rs::define_peripherals!(Peripherals {
     pin_0: GPIO_0,
     pin_1: GPIO_1,

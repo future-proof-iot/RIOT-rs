@@ -296,6 +296,17 @@ contexts:
       CARGO_ARGS:
         - -Zbuild-std=core,alloc
 
+  - name: esp32
+    parent: esp
+    selects:
+      - xtensa
+    env:
+      CARGO_TOOLCHAIN: +esp
+      RUSTFLAGS:
+        - --cfg context=\"esp32\"
+      RUSTC_TARGET: xtensa-esp32-none-elf
+      CARGO_TARGET_PREFIX: CARGO_TARGET_XTENSA_ESP32_NONE_ELF
+
   - name: esp32c3
     parent: esp
     selects:
@@ -694,12 +705,19 @@ modules:
 
   - name: sw/benchmark
     help: provided if a target supports `benchmark()`
-    # Currently there's only one implementation based on Systick, so Cortex-M only.
     context:
+      # The Cortex-M implementation is using Systick.
       - nrf
       - rp
       - stm32
-      - esp
+      # The esp32 implementation is using systimer.
+      - esp32c3
+      - esp32c6
+      - esp32s3
+      # These esp32 also have a systimer, uncomment when support is added.
+      # - esp32c2
+      # - esp32h2
+      # - esp32s2
 
   - name: wifi-esp
     context:
@@ -894,6 +912,9 @@ builders:
 
   - name: ai-c3
     parent: esp32c3
+
+  - name: espressif-esp32-wroom-32
+    parent: esp32
 
   - name: espressif-esp32-c6-devkitc-1
     parent: esp32c6

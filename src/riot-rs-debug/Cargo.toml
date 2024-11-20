@@ -26,6 +26,9 @@ semihosting = { version = "0.1.16", optional = true, features = [
 esp-println = { workspace = true, optional = true, features = ["log"] }
 log = { version = "0.4.20" }
 
+[target.'cfg(context = "esp32")'.dependencies]
+esp-println = { workspace = true, features = ["esp32"] }
+
 [target.'cfg(context = "esp32c3")'.dependencies]
 esp-println = { workspace = true, optional = true, features = ["esp32c3"] }
 
