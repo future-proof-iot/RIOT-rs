@@ -72,7 +72,10 @@ pub use esp_hal::peripherals::OptionalPeripherals;
 pub use esp_hal_embassy::Executor;
 
 pub fn init() -> OptionalPeripherals {
-    let mut peripherals = OptionalPeripherals::from(esp_hal::init(esp_hal::Config::default()));
+    let mut config = esp_hal::Config::default();
+    config.cpu_clock = esp_hal::clock::CpuClock::max();
+
+    let mut peripherals = OptionalPeripherals::from(esp_hal::init(config));
 
     #[cfg(feature = "wifi-esp")]
     {
