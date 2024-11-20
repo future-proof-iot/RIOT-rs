@@ -92,7 +92,6 @@ contexts:
         required_vars:
           - EMBEDDED_TEST
         cmd:
-          - cd ${relpath} && ${CARGO_ENV} cargo test --${PROFILE} --features=ariel-os-boards/${builder},ariel-os-rt/debug-console --manifest-path ${app}/Cargo.toml
           - ${CARGO_ENV} cargo ${CARGO_TOOLCHAIN} ${CARGO_ARGS} -Z unstable-options -C${appdir} test ${FEATURES},ariel-os/threading
         build: false
 
