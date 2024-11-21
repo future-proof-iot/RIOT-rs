@@ -6,12 +6,12 @@
 mod pins;
 
 #[allow(unused_imports)]
-use riot_rs::{
+use ariel_os::{
     debug::log::info,
     gpio::{DriveStrength, Input, Level, Output, Pull, Speed},
 };
 
-#[riot_rs::task(autostart, peripherals)]
+#[ariel_os::task(autostart, peripherals)]
 async fn main(peripherals: pins::Peripherals) {
     // Simples constructors
     let _btn_0 = Input::new(peripherals.pin_0, Pull::Up);

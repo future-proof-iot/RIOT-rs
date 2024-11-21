@@ -10,8 +10,8 @@ publish = false
 workspace = true
 
 [dependencies]
-riot-rs = { path = "../../src/riot-rs", features = [
+ariel-os = { path = "../../src/ariel-os", features = [
   "usb",
   "override-usb-config",
 ] }
-riot-rs-boards = { path = "../../src/riot-rs-boards" }
+ariel-os-boards = { path = "../../src/ariel-os-boards" }

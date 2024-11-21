@@ -1,9 +1,0 @@
-[package]
-name = "espressif-esp32-c6-devkitc-1"
-version = "0.1.0"
-license.workspace = true
-edition = "2021"
-
-[dependencies]
-riot-rs-rt = { workspace = true, features = ["_esp32c6"] }
-riot-rs-debug.workspace = true

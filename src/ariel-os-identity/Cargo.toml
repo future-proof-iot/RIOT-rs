@@ -1,0 +1,14 @@
+[package]
+name = "ariel-os-identity"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+ariel-os-embassy = { workspace = true }
+ariel-os-embassy-common = { workspace = true }

@@ -3,9 +3,9 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use riot_rs::debug::{exit, log::*};
+use ariel_os::debug::{exit, log::*};
 
-#[riot_rs::task(autostart)]
+#[ariel_os::task(autostart)]
 async fn main() {
     info!("Hello World!");
 

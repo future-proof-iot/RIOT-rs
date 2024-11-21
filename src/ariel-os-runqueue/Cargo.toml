@@ -1,0 +1,19 @@
+[package]
+name = "ariel-os-runqueue"
+version = "0.1.2"
+authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
+license.workspace = true
+edition = "2018"
+description = "Ariel OS runqueue implementation"
+
+[lints]
+workspace = true
+
+[dependencies]
+defmt = { workspace = true, optional = true }
+
+# This is required so that F* can find the required F* model of the Rust core
+# lib, as documented in the hax documentation:
+# https://hacspec.org/book/quick_start/intro.html#setup-the-crate-you-want-to-verify
+[target.'cfg(hax)'.dependencies]
+hax-lib = { git = "https://github.com/hacspec/hax", rev = "cc29a3f8c0eee80a1682be78cb3b0447a0257d5b" }

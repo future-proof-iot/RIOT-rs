@@ -1,0 +1,30 @@
+[package]
+name = "ariel-os-embassy-common"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+defmt = { workspace = true, optional = true }
+fugit = { workspace = true, optional = true }
+embassy-futures = { workspace = true }
+embassy-time = { workspace = true }
+embedded-hal = { workspace = true }
+embedded-hal-async = { workspace = true }
+
+[features]
+## Enables GPIO interrupt support.
+external-interrupts = []
+
+## Enables I2C support.
+i2c = ["dep:fugit"]
+
+## Enables SPI support.
+spi = ["dep:fugit"]
+
+defmt = ["dep:defmt", "fugit?/defmt"]

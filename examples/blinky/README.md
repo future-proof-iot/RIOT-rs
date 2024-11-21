@@ -2,7 +2,7 @@
 
 ## About
 
-This application is demonstrating basic GPIO output usage with RIOT-rs.
+This application is demonstrating basic GPIO output usage with Ariel OS.
 
 ## How to run
 

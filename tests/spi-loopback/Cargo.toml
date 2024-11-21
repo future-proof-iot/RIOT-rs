@@ -13,6 +13,6 @@ workspace = true
 embassy-sync = { workspace = true }
 embedded-hal-async = { workspace = true }
 once_cell = { workspace = true }
-riot-rs = { path = "../../src/riot-rs", features = ["spi"] }
-riot-rs-boards = { path = "../../src/riot-rs-boards" }
+ariel-os = { path = "../../src/ariel-os", features = ["spi"] }
+ariel-os-boards = { path = "../../src/ariel-os-boards" }
 static_cell = { workspace = true }

@@ -3,19 +3,19 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use riot_rs::{
+use ariel_os::{
     debug::log::*,
     thread::{current_pid, sync::Channel, thread_flags, ThreadId},
 };
 
 static ID_EXCHANGE: Channel<ThreadId> = Channel::new();
 
-#[riot_rs::thread(autostart)]
+#[ariel_os::thread(autostart)]
 fn thread0() {
     let target_pid = ID_EXCHANGE.recv();
     ID_EXCHANGE.send(&current_pid().unwrap());
 
-    match riot_rs::bench::benchmark(1000, || {
+    match ariel_os::bench::benchmark(1000, || {
         thread_flags::set(target_pid, 1);
         thread_flags::wait_any(1);
     }) {
@@ -24,7 +24,7 @@ fn thread0() {
     }
 }
 
-#[riot_rs::thread(autostart)]
+#[ariel_os::thread(autostart)]
 fn thread1() {
     ID_EXCHANGE.send(&current_pid().unwrap());
     let target_pid = ID_EXCHANGE.recv();

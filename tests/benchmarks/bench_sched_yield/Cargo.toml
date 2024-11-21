@@ -10,8 +10,8 @@ publish = false
 workspace = true
 
 [dependencies]
-riot-rs = { workspace = true, default-features = true, features = [
+ariel-os = { workspace = true, default-features = true, features = [
   "bench",
   "threading",
 ] }
-riot-rs-boards = { workspace = true }
+ariel-os-boards = { workspace = true }

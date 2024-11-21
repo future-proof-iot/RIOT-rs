@@ -43,5 +43,5 @@ In this folder, run
     INFO  main(): now=900ms threadtest() counter=9
     INFO  main(): all good, exiting.
 
-[`signal`]: https://future-proof-iot.github.io/RIOT-rs/dev/docs/api/embassy_sync/signal/struct.Signal.html
-[`block_on`]: https://future-proof-iot.github.io/RIOT-rs/dev/docs/api/riot_rs/blocker/fn.block_on.html
+[`signal`]: https://ariel-os.github.io/ariel-os/dev/docs/api/embassy_sync/signal/struct.Signal.html
+[`block_on`]: https://ariel-os.github.io/ariel-os/dev/docs/api/ariel_os/blocker/fn.block_on.html

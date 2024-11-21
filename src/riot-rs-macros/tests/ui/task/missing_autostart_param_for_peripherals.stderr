@@ -1,7 +1,0 @@
-error: custom attribute panicked
- --> tests/ui/task/missing_autostart_param_for_peripherals.rs:6:1
-  |
-6 | #[riot_rs::task(peripherals)]
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = help: message: the task must be `autostart` to receive peripherals

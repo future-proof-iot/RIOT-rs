@@ -1,0 +1,43 @@
+[package]
+name = "ariel-os-debug"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[lints]
+workspace = true
+
+[dependencies]
+defmt = { workspace = true, optional = true }
+rtt-target = { workspace = true, optional = true }
+
+semihosting = { version = "0.1.16", optional = true }
+
+[target.'cfg(context = "xtensa")'.dependencies]
+semihosting = { version = "0.1.16", optional = true, features = [
+  "openocd-semihosting",
+] }
+
+[target.'cfg(context = "esp")'.dependencies]
+esp-println = { workspace = true, optional = true, features = ["log"] }
+log = { version = "0.4.20" }
+
+[target.'cfg(context = "esp32")'.dependencies]
+esp-println = { workspace = true, features = ["esp32"] }
+
+[target.'cfg(context = "esp32c3")'.dependencies]
+esp-println = { workspace = true, optional = true, features = ["esp32c3"] }
+
+[target.'cfg(context = "esp32c6")'.dependencies]
+esp-println = { workspace = true, optional = true, features = ["esp32c6"] }
+
+[target.'cfg(context = "esp32s3")'.dependencies]
+esp-println = { workspace = true, optional = true, features = ["esp32s3"] }
+
+[features]
+debug-console = []
+defmt = ["dep:defmt", "esp-println?/defmt-espflash", "rtt-target?/defmt"]

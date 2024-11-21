@@ -5,7 +5,7 @@
 
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal};
 
-use riot_rs::{
+use ariel_os::{
     asynch::{blocker, spawner},
     debug::{exit, log::*},
     time::{Duration, Instant, Timer},
@@ -15,7 +15,7 @@ static SIGNAL: Signal<CriticalSectionRawMutex, u32> = Signal::new();
 
 // This is a regular task.
 // For this example, we don't autostart it, but let the thread spawn it.
-#[riot_rs::task()]
+#[ariel_os::task()]
 async fn async_task() {
     info!("async_task(): starting");
 
@@ -28,7 +28,7 @@ async fn async_task() {
     }
 }
 
-#[riot_rs::thread(autostart)]
+#[ariel_os::thread(autostart)]
 fn main() {
     info!("main(): starting");
 

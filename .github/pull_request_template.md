@@ -23,6 +23,6 @@ We don't enforce a strict convention for commit messages, but please make sure t
 the commit history is clear and informative.
 -->
 - [ ] I have cleaned up my commit history and squashed fixup commits.
-- [ ] I have followed the [Coding Conventions](https://future-proof-iot.github.io/RIOT-rs/dev/docs/book/coding-conventions.html).
+- [ ] I have followed the [Coding Conventions](https://ariel-os.github.io/ariel-os/dev/docs/book/coding-conventions.html).
 - [ ] I have performed a self-review of my own code.
 - [ ] I have made corresponding changes to the documentation.

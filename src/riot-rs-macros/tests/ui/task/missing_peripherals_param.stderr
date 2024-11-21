@@ -1,7 +1,0 @@
-error: custom attribute panicked
- --> tests/ui/task/missing_peripherals_param.rs:6:1
-  |
-6 | #[riot_rs::task(autostart)]
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = help: message: to provide this function with peripherals, use the `peripherals` macro parameter

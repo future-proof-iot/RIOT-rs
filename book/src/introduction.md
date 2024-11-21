@@ -1,17 +1,17 @@
 # Introduction
 
-**RIOT-rs** RIOT-rs is a project aiming to provide a general-purpose 
+**Ariel OS** Ariel OS is a project aiming to provide a general-purpose 
 operating system adequate for low-power Internet of Things (IoT).
 
-RIOT-rs is based on Rust from the ground up, and formal verification for critical modules. 
+Ariel OS is based on Rust from the ground up, and formal verification for critical modules. 
 It combines the awesome Rust embedded ecosystem with RIOT OS.
 
-RIOT-rs builds on top of the hardware abstraction layer 
+Ariel OS builds on top of the hardware abstraction layer 
 and async programming framework provided by
 [embassy](https://github.com/embassy-rs/embassy) and 
 drivers via embedded-HAL.
 
-Aiming to cover versatile use cases, RIOT-rs integrates and combines 
+Aiming to cover versatile use cases, Ariel OS integrates and combines 
 the above HAL with a preemptive scheduler, 
 a set of efficient operating system facilities, a bootloader, 
 and a curated ecosystem of libraries (available via crates.io)
@@ -23,8 +23,8 @@ nevertheless stay the same across all supported hardware.
 The intent is three-fold: decrease application development time,
 increase code portability, and decrease core system vulnerabilities.
 
-RIOT-rs can also be used to host legacy C application and libraries.
-However, the essence and ultimate goal of the RIOT-rs is to
+Ariel OS can also be used to host legacy C application and libraries.
+However, the essence and ultimate goal of the Ariel OS is to
 provide everything one might need in Rust.
 
-![Architecture](figures/RIOT-rs-arch-diagram1.svg)
+![Architecture](figures/ariel-os-arch-diagram1.svg)

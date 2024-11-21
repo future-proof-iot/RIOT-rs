@@ -3,7 +3,7 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use riot_rs::{
+use ariel_os::{
     debug::log::info,
     reexports::embassy_usb,
     usb::{UsbBuilderHook, UsbDriver},
@@ -15,10 +15,10 @@ use embassy_usb::{
     driver::EndpointError,
 };
 
-#[riot_rs::config(usb)]
+#[ariel_os::config(usb)]
 fn usb_config() -> embassy_usb::Config<'static> {
     let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
-    config.manufacturer = Some("RIOT-rs");
+    config.manufacturer = Some("Ariel OS");
     config.product = Some("USB serial example");
     config.serial_number = Some("12345678");
     config.max_power = 100;
@@ -32,7 +32,7 @@ fn usb_config() -> embassy_usb::Config<'static> {
     config
 }
 
-#[riot_rs::task(autostart, usb_builder_hook)]
+#[ariel_os::task(autostart, usb_builder_hook)]
 async fn main() {
     info!("Hello World!");
 

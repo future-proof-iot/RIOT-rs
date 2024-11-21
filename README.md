@@ -1,4 +1,4 @@
-# RIOT-rs
+# Ariel OS
 [![Build Status][build-badge]][build-info]
 [![Book][book-badge]][documentation-mdbook]
 [![Documentation][rustdoc-badge]][documentation-dev-rustdoc]
@@ -6,29 +6,29 @@
 
 > Rust & RIOT combined for ergonomic embedded development
 
-RIOT-rs is an operating system for secure, memory-safe, low-power Internet of Things (IoT).
-RIOT-rs is based on Rust from the ground up, and uses formal verification
+Ariel OS is an operating system for secure, memory-safe, low-power Internet of Things (IoT).
+Ariel OS is based on Rust from the ground up, and uses formal verification
 for critical modules. To learn more about our motivations, see this
-[manifesto](https://future-proof-iot.github.io/RIOT-rs/dev/docs/book/manifesto.html).
+[manifesto](https://ariel-os.github.io/ariel-os/dev/docs/book/manifesto.html).
 
 Hardware targets include varieties of IoT hardware based on 
 32-bit microcontroller architectures (such as Cortex-M, RISC-V).
 
-In practice, RIOT-rs builds on top of [Embassy](https://github.com/embassy-rs/embassy).
+In practice, Ariel OS builds on top of [Embassy](https://github.com/embassy-rs/embassy).
 Compared to what [Embassy](https://github.com/embassy-rs/embassy) already provides,
-RIOT-rs brings additional value in terms of 
+Ariel OS brings additional value in terms of 
 abstraction, operating system functionalities, 
 and integration for a (curated) set of software modules, tools and libraries, as well as 
 a stronger focus on cybersecurity and formal verification.
  
-In particular, RIOT-rs aims to combine:
+In particular, Ariel OS aims to combine:
 
 - **application code portability** across all supported hardware, via consistent memory/energy efficient APIs;
 - **async programming** paradigms, based on [Embassy](https://github.com/embassy-rs/embassy);
 - **preemptive scheduler** programming paradigms, based on formally verified modules using [hax](https://hacspec.org/blog/posts/hax-v0-1/);
 - **booting & update security**, via measured boot and secure software updates, using formally verified modules.
 
-Overall, RIOT-rs gives you a 'batteries-included' experience, on par
+Overall, Ariel OS gives you a 'batteries-included' experience, on par
 with [RIOT](https://github.com/RIOT-OS/RIOT). 
 
 ## Supported hardware
@@ -57,11 +57,11 @@ or instead, run your module in a [riot-wrappers](https://github.com/RIOT-OS/rust
 
 The following assumes you have a Nordic nrf52840dk connected to your PC.
 (For other supported boards, you can find your board's name in
-[./src/riot-rs-boards/Cargo.toml](https://github.com/future-proof-iot/RIOT-rs/blob/main/src/riot-rs-boards/Cargo.toml)
+[./src/ariel-os-boards/Cargo.toml](https://github.com/ariel-os/ariel-os/blob/main/src/ariel-os-boards/Cargo.toml)
 and use it instead of 'nrf52840dk' in the below guidelines.)
 
 The following instructions will enable you to flash and run the [`hello-world`
-example](https://github.com/future-proof-iot/RIOT-rs/tree/main/examples/hello-world):
+example](https://github.com/ariel-os/ariel-os/tree/main/examples/hello-world):
 
 ### Prerequisites
 
@@ -110,25 +110,25 @@ information.
 
 ## Minimum Supported Rust Version (MSRV)
 
-RIOT-rs makes heavy use of Rust unstable features. For the time being, it is
+Ariel OS makes heavy use of Rust unstable features. For the time being, it is
 recommended to use a current nightly.
 
 ## Coding Conventions
 
 Please see the chapter on
-[coding conventions](https://future-proof-iot.github.io/RIOT-rs/dev/docs/book/coding-conventions.html)
+[coding conventions](https://ariel-os.github.io/ariel-os/dev/docs/book/coding-conventions.html)
 in the documentation.
 
 ## Copyright & License
 
-RIOT-rs is licensed under either of
+Ariel OS is licensed under either of
 
 - Apache License, Version 2.0 (LICENSE-APACHE or http://www.apache.org/licenses/LICENSE-2.0)
 - MIT license (LICENSE-MIT or http://opensource.org/licenses/MIT)
 
 at your option.
 
-~~RIOT-rs links with many components of [RIOT OS](https://github.com/RIOT-OS/RIOT),
+~~Ariel OS links with many components of [RIOT OS](https://github.com/RIOT-OS/RIOT),
 which is licenced under the terms of LGPLv2.1.~~
 
 Copyright (C) 2020-2023 Freie Universität Berlin, Inria, Kaspar Schleiser
@@ -139,11 +139,11 @@ Unless you explicitly state otherwise, any contribution intentionally submitted
 for inclusion in the work by you, as defined in the Apache-2.0 license, shall
 be dual licensed as above, without any additional terms or conditions.
 
-[build-badge]: https://github.com/future-proof-iot/RIOT-rs/actions/workflows/main.yml/badge.svg
-[build-info]: https://github.com/future-proof-iot/RIOT-rs/actions/workflows/main.yml
+[build-badge]: https://github.com/ariel-os/ariel-os/actions/workflows/main.yml/badge.svg
+[build-info]: https://github.com/ariel-os/ariel-os/actions/workflows/main.yml
 [matrix-badge]: https://img.shields.io/badge/chat-Matrix-brightgreen.svg
-[matrix-link]: https://matrix.to/#/#RIOT-rs:matrix.org
+[matrix-link]: https://matrix.to/#/#ariel-os:matrix.org
 [book-badge]: https://img.shields.io/badge/Book-%F0%9F%93%94-blue
 [rustdoc-badge]: https://img.shields.io/badge/Documentation-%F0%9F%93%94-blue
-[documentation-mdbook]: https://future-proof-iot.github.io/RIOT-rs/dev/docs/book/
-[documentation-dev-rustdoc]: https://future-proof-iot.github.io/RIOT-rs/dev/docs/api/
+[documentation-mdbook]: https://ariel-os.github.io/ariel-os/dev/docs/book/
+[documentation-dev-rustdoc]: https://ariel-os.github.io/ariel-os/dev/docs/api/

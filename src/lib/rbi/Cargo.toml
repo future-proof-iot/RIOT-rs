@@ -6,7 +6,7 @@ license.workspace = true
 edition = "2021"
 
 keywords = ["api", "no_std"]
-homepage = "https://github.com/future-proof-iot/RIOT-rs"
+homepage = "https://github.com/ariel-os/ariel-os"
 
 description = "A FIFO index queue that can be used for implementing a ring buffer."
 

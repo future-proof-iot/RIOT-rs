@@ -1,10 +1,10 @@
 # defmt
 
-RIOT-rs supports [defmt] on all platforms. It is enabled by default.
+Ariel OS supports [defmt] on all platforms. It is enabled by default.
 
 See the [defmt documentation] for general info on `defmt`.
 
-In RIOT-rs, the log level defaults to `info`. It can be configured using the
+In Ariel OS, the log level defaults to `info`. It can be configured using the
 laze variable `LOG`.
 
 Example:
@@ -13,13 +13,13 @@ Example:
 # laze build -C examples/log --builders nrf52840dk -DLOG=warn run
 ```
 
-Then within Rust code, import `riot_rs::debug::log` items, then use `defmt` log
+Then within Rust code, import `ariel_os::debug::log` items, then use `defmt` log
 macros [as usual][defmt-macros]:
 
 ```rust
-use riot_rs::debug::log::*;
+use ariel_os::debug::log::*;
 
-#[riot_rs::task(autostart)]
+#[ariel_os::task(autostart)]
 async fn main() {
     info!("Hello!");
 }
@@ -27,7 +27,7 @@ async fn main() {
 
 If the `defmt` laze module is not selected, all log statements become no-ops.
 
-Note: On Cortex-M devices, the order of `riot_rs::debug::println!()` output and
+Note: On Cortex-M devices, the order of `ariel_os::debug::println!()` output and
       `defmt` log output is not deterministic.
 
 [defmt]: https://github.com/knurling-rs/defmt

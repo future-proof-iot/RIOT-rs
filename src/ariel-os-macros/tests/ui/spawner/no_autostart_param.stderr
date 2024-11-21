@@ -1,0 +1,7 @@
+error: custom attribute panicked
+ --> tests/ui/spawner/no_autostart_param.rs:9:1
+  |
+9 | #[ariel_os::spawner]
+  | ^^^^^^^^^^^^^^^^^^^^
+  |
+  = help: message: the `autostart` parameter must be provided

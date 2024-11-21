@@ -1,0 +1,7 @@
+error: custom attribute panicked
+  --> tests/ui/task/missing_autostart_param_for_hook.rs:10:1
+   |
+10 | #[ariel_os::task(usb_builder_hook)]
+   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+   |
+   = help: message: the task must be `autostart` to instantiate hooks

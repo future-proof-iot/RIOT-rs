@@ -1,0 +1,7 @@
+error: custom attribute panicked
+ --> tests/ui/thread/missing_autostart_param.rs:5:1
+  |
+5 | #[ariel_os::thread]
+  | ^^^^^^^^^^^^^^^^^^^
+  |
+  = help: message: the `autostart` parameter must be provided

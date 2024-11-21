@@ -2,9 +2,9 @@
 #![no_std]
 #![feature(used_with_arg)]
 
-use riot_rs::debug::{exit, log::*};
+use ariel_os::debug::{exit, log::*};
 
-#[riot_rs::thread(autostart)]
+#[ariel_os::thread(autostart)]
 fn main() {
     info!("Hello World!");
 

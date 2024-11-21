@@ -1,0 +1,80 @@
+[package]
+name = "ariel-os-rp"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+cfg-if = { workspace = true }
+defmt = { workspace = true, optional = true }
+embassy-embedded-hal = { workspace = true }
+embassy-net-driver-channel = { workspace = true, optional = true }
+embassy-rp = { workspace = true, default-features = false, features = [
+  "rt",
+  "time-driver",
+  "unstable-pac",
+  # "unstable-traits",
+] }
+embedded-hal-async = { workspace = true }
+paste = { workspace = true }
+ariel-os-debug = { workspace = true }
+ariel-os-embassy-common = { workspace = true }
+ariel-os-random = { workspace = true, optional = true }
+ariel-os-utils = { workspace = true }
+static_cell = { workspace = true, optional = true }
+
+# rpi-pico-w cyw43
+cyw43 = { version = "0.2.0", features = ["firmware-logs"], optional = true }
+cyw43-pio = { version = "0.2.0", features = ["overclock"], optional = true }
+
+[target.'cfg(context = "cortex-m")'.dependencies]
+embassy-executor = { workspace = true, default-features = false, features = [
+  "arch-cortex-m",
+] }
+
+[target.'cfg(context = "rp2040")'.dependencies]
+embassy-rp = { workspace = true, default-features = false, features = [
+  "rp2040",
+] }
+
+[features]
+## Enables GPIO interrupt support.
+external-interrupts = ["ariel-os-embassy-common/external-interrupts"]
+
+## Enables seeding the random number generator from hardware.
+hwrng = ["dep:ariel-os-random"]
+
+## Enables I2C support.
+i2c = ["ariel-os-embassy-common/i2c", "embassy-executor/integrated-timers"]
+
+## Enables SPI support.
+spi = ["ariel-os-embassy-common/spi", "embassy-executor/integrated-timers"]
+
+## Enables storage support.
+storage = []
+
+## Enables USB support.
+usb = []
+
+## Enables defmt support.
+defmt = ["dep:defmt", "embassy-rp/defmt"]
+
+## Enables Wi-Fi support.
+wifi = []
+
+## Enables support for the CYW43 Wi-Fi chip.
+wifi-cyw43 = [
+  "dep:cyw43",
+  "dep:cyw43-pio",
+  "dep:embassy-net-driver-channel",
+  "dep:static_cell",
+  "wifi",
+]
+
+## Enables the interrupt executor.
+executor-interrupt = ["embassy-executor/executor-interrupt"]

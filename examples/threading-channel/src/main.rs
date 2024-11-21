@@ -2,21 +2,21 @@
 #![no_std]
 #![feature(used_with_arg)]
 
-use riot_rs::debug::log::*;
-use riot_rs::thread::sync::Channel;
+use ariel_os::debug::log::*;
+use ariel_os::thread::sync::Channel;
 
 static CHANNEL: Channel<u8> = Channel::new();
 
-#[riot_rs::thread(autostart)]
+#[ariel_os::thread(autostart)]
 fn thread0() {
-    let my_id = riot_rs::thread::current_pid().unwrap();
+    let my_id = ariel_os::thread::current_pid().unwrap();
     info!("[Thread {:?}] Sending a message...", my_id);
     CHANNEL.send(&42);
 }
 
-#[riot_rs::thread(autostart, stacksize = 4096, priority = 2)]
+#[ariel_os::thread(autostart, stacksize = 4096, priority = 2)]
 fn thread1() {
-    let my_id = riot_rs::thread::current_pid().unwrap();
+    let my_id = ariel_os::thread::current_pid().unwrap();
     info!("[Thread {:?}] Waiting to receive a message...", my_id);
     let recv = CHANNEL.recv();
     info!(

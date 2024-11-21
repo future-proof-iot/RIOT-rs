@@ -7,7 +7,7 @@
 mod pins;
 mod routes;
 
-use riot_rs::{
+use ariel_os::{
     asynch::Spawner, debug::log::*, network, time::Duration, ConstStaticCell, StaticCell,
 };
 
@@ -69,7 +69,7 @@ use approuter::*;
 
 const WEB_TASK_POOL_SIZE: usize = 2;
 
-#[riot_rs::task(pool_size = WEB_TASK_POOL_SIZE)]
+#[ariel_os::task(pool_size = WEB_TASK_POOL_SIZE)]
 async fn web_task(
     id: usize,
     app: &'static picoserve::Router<AppRouter, AppState>,
@@ -106,7 +106,7 @@ async fn web_task(
     }
 }
 
-#[riot_rs::spawner(autostart, peripherals)]
+#[ariel_os::spawner(autostart, peripherals)]
 fn main(spawner: Spawner, peripherals: pins::Peripherals) {
     #[cfg(not(feature = "button-readings"))]
     let _ = peripherals;
@@ -148,7 +148,7 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
     }
 }
 
-#[riot_rs::config(network)]
+#[ariel_os::config(network)]
 fn network_config() -> embassy_net::Config {
     use embassy_net::Ipv4Address;
 
@@ -160,9 +160,9 @@ fn network_config() -> embassy_net::Config {
 }
 
 #[cfg(capability = "hw/usb-device-port")]
-#[riot_rs::config(usb)]
-fn usb_config() -> riot_rs::reexports::embassy_usb::Config<'static> {
-    let mut config = riot_rs::reexports::embassy_usb::Config::new(0xc0de, 0xcafe);
+#[ariel_os::config(usb)]
+fn usb_config() -> ariel_os::reexports::embassy_usb::Config<'static> {
+    let mut config = ariel_os::reexports::embassy_usb::Config::new(0xc0de, 0xcafe);
     config.manufacturer = Some("Embassy");
     config.product = Some("HTTP-over-USB-Ethernet example");
     config.serial_number = Some("12345678");

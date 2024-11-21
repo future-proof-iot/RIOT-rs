@@ -1,0 +1,15 @@
+[package]
+name = "particle-xenon"
+version = "0.1.0"
+authors = ["Christian Amsüss <chrysn@fsfe.org>"]
+license.workspace = true
+edition = "2021"
+
+[dependencies]
+cortex-m-rt.workspace = true
+cortex-m.workspace = true
+
+ariel-os-debug.workspace = true
+ariel-os-rt.workspace = true
+
+nrf52 = { path = "../nrf52", features = ["nrf52840"] }

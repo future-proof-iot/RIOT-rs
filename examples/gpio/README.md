@@ -2,7 +2,7 @@
 
 ## About
 
-This application is testing GPIO usage with RIOT-rs.
+This application is testing GPIO usage with Ariel OS.
 
 ## How to run
 

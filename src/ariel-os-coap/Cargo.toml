@@ -1,0 +1,50 @@
+[package]
+name = "ariel-os-coap"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[dependencies]
+coapcore.path = "../lib/coapcore"
+coap-handler = "0.2.0"
+coap-handler-implementations = "0.5.0"
+critical-section.workspace = true
+embassy-futures = "0.1.1"
+# These features should be more selective and not enabled here, but as things
+# stand, this modules also contains the embedded-nal implementation for
+# embassy-net, and that needs its features in sync; enabling them all ensures a
+# working state until that NAL wrapper moves into embassy-net, where features
+# will be in sync all the time.
+embassy-net = { workspace = true, features = [
+  "udp",
+  "proto-ipv4",
+  "proto-ipv6",
+] }
+embassy-sync.workspace = true
+embedded-nal-async = "0.8"
+embedded-nal-coap = { workspace = true }
+lakers-crypto-rustcrypto = "0.6.0"
+lakers = { version = "0.6.0", default-features = false }
+ariel-os-debug.workspace = true
+ariel-os-embassy = { workspace = true, features = ["net"] }
+ariel-os-random = { workspace = true, features = ["csprng"] }
+static_cell = "2.1.0"
+
+# FIXME: Should go out eventually
+hexlit = "0.5.5"
+
+# For the udp_nal
+embedded-io-async = "0.6.1"
+
+[lints]
+workspace = true
+
+[features]
+## Enables an arbitrary set of features in dependencies where dependencies fail
+## if no features are configured at all.
+doc = ["embassy-net/proto-ipv6", "embassy-net/medium-ip"]
+
+## Enables defmt logging of coapcore
+defmt = ["coapcore/defmt"]

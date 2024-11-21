@@ -1,7 +1,0 @@
-error: custom attribute panicked
- --> tests/ui/config/no_parameters.rs:9:1
-  |
-9 | #[riot_rs::config]
-  | ^^^^^^^^^^^^^^^^^^
-  |
-  = help: message: a configuration kind must be specified

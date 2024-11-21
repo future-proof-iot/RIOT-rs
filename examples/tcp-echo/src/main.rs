@@ -3,10 +3,10 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
+use ariel_os::{debug::log::*, network, reexports::embassy_net::tcp::TcpSocket, time::Duration};
 use embedded_io_async::Write;
-use riot_rs::{debug::log::*, network, reexports::embassy_net::tcp::TcpSocket, time::Duration};
 
-#[riot_rs::task(autostart)]
+#[ariel_os::task(autostart)]
 async fn tcp_echo() {
     let stack = network::network_stack().await.unwrap();
 
@@ -50,9 +50,9 @@ async fn tcp_echo() {
     }
 }
 
-#[riot_rs::config(network)]
-fn network_config() -> riot_rs::reexports::embassy_net::Config {
-    use riot_rs::reexports::embassy_net::{self, Ipv4Address};
+#[ariel_os::config(network)]
+fn network_config() -> ariel_os::reexports::embassy_net::Config {
+    use ariel_os::reexports::embassy_net::{self, Ipv4Address};
 
     embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
         address: embassy_net::Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),

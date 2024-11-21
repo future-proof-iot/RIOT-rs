@@ -2,7 +2,7 @@
 
 ## About
 
-This application is testing raw I2C bus usage in RIOT-rs.
+This application is testing raw I2C bus usage in Ariel OS.
 
 ## How to run
 

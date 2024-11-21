@@ -1,0 +1,113 @@
+[package]
+name = "ariel-os-embassy"
+version = "0.1.0"
+license.workspace = true
+edition = "2021"
+
+[lints]
+workspace = true
+
+[dependencies]
+const_panic.workspace = true
+critical-section.workspace = true
+linkme.workspace = true
+static_cell.workspace = true
+cfg-if.workspace = true
+
+embassy-embedded-hal = { workspace = true, optional = true }
+embassy-executor = { workspace = true, features = ["nightly"] }
+embassy-hal-internal = { workspace = true }
+embassy-net = { workspace = true, optional = true, features = [
+  "dhcpv4",
+  "medium-ethernet",
+] }
+embassy-sync = { workspace = true }
+embassy-time = { workspace = true, optional = true }
+embassy-usb = { workspace = true, optional = true }
+
+embedded-hal = { workspace = true }
+embedded-hal-async = { workspace = true }
+
+ariel-os-embassy-common = { workspace = true }
+ariel-os-hal = { path = "../ariel-os-hal" }
+ariel-os-threads = { path = "../ariel-os-threads", optional = true }
+ariel-os-debug = { workspace = true }
+ariel-os-macros = { path = "../ariel-os-macros" }
+ariel-os-rt = { path = "../ariel-os-rt" }
+ariel-os-random = { path = "../ariel-os-random", optional = true }
+ariel-os-storage = { workspace = true, optional = true }
+ariel-os-utils = { workspace = true }
+
+heapless = "0.8.0"
+once_cell = { workspace = true }
+usbd-hid = { version = "0.8.2", optional = true }
+
+# ISA-specific
+[target.'cfg(context = "cortex-m")'.dependencies]
+embassy-executor = { workspace = true, default-features = false, features = [
+  "arch-cortex-m",
+] }
+
+[features]
+## Enables GPIO interrupt support.
+external-interrupts = [
+  "ariel-os-embassy-common/external-interrupts",
+  "ariel-os-hal/external-interrupts",
+]
+time = ["dep:embassy-time", "embassy-executor/integrated-timers"]
+
+## Enables I2C support.
+i2c = [
+  "dep:embassy-embedded-hal",
+  "ariel-os-embassy-common/i2c",
+  "ariel-os-hal/i2c",
+]
+## Enables SPI support.
+spi = [
+  "dep:embassy-embedded-hal",
+  "ariel-os-embassy-common/spi",
+  "ariel-os-hal/spi",
+]
+
+## Enables USB support.
+usb = ["dep:embassy-usb", "ariel-os-hal/usb"]
+usb-hid = ["dep:usbd-hid", "embassy-usb?/usbd-hid", "usb"]
+
+# embassy-net requires embassy-time and support for timeouts in the executor
+net = ["dep:embassy-net", "time"]
+usb-ethernet = ["usb", "net"]
+## Use a hardware RNG to seed into the ariel-os-random system-wide RNG
+hwrng = ["ariel-os-hal/hwrng"]
+
+## Enables support for TCP.
+tcp = ["embassy-net?/tcp"]
+## Enables support for UDP.
+udp = ["embassy-net?/udp"]
+
+## Enable storage support [`ariel-os::storage`].
+storage = ["dep:ariel-os-storage", "ariel-os-hal/storage", "time"]
+
+wifi = []
+wifi-cyw43 = ["ariel-os-hal/wifi-cyw43", "net", "wifi"]
+wifi-esp = ["ariel-os-hal/wifi-esp", "net", "wifi"]
+
+threading = ["dep:ariel-os-threads"]
+override-network-config = []
+override-usb-config = []
+
+executor-single-thread = [
+  "ariel-os-hal/executor-single-thread",
+  "ariel-os-rt/executor-single-thread",
+]
+executor-interrupt = ["ariel-os-hal/executor-interrupt"]
+executor-thread = ["threading"]
+executor-none = []
+
+defmt = [
+  "embassy-net?/defmt",
+  "embassy-time?/defmt",
+  "embassy-usb?/defmt",
+  "ariel-os-hal/defmt",
+  "ariel-os-embassy-common/defmt",
+  "usbd-hid?/defmt",
+]

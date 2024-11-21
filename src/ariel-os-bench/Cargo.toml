@@ -1,0 +1,20 @@
+[package]
+name = "ariel-os-bench"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+cfg-if = { workspace = true }
+defmt = { workspace = true, optional = true }
+
+[target.'cfg(context = "cortex-m")'.dependencies]
+cortex-m = { workspace = true }
+
+[target.'cfg(context = "esp")'.dependencies]
+esp-hal = { workspace = true }

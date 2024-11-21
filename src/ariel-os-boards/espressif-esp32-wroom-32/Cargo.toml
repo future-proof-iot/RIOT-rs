@@ -1,0 +1,9 @@
+[package]
+name = "espressif-esp32-wroom-32"
+version = "0.1.0"
+license.workspace = true
+edition = "2021"
+
+[dependencies]
+ariel-os-rt = { workspace = true, features = ["_esp32"] }
+ariel-os-debug = { workspace = true }

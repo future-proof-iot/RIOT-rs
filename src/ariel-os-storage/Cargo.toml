@@ -1,0 +1,26 @@
+[package]
+name = "ariel-os-storage"
+version = "0.1.0"
+authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
+license.workspace = true
+edition = "2021"
+description = "Ariel OS storage API"
+
+[lints]
+workspace = true
+
+[dependencies]
+cfg-if = { workspace = true }
+embassy-embedded-hal = { workspace = true }
+embassy-sync = { workspace = true }
+once_cell = { workspace = true }
+ariel-os-debug = { workspace = true }
+ariel-os-hal = { workspace = true, features = ["storage"] }
+arrayvec = { version = "0.7.4", default-features = false }
+embedded-storage-async = { workspace = true }
+postcard = { version = "1.0.8", features = ["postcard-derive"] }
+sequential-storage = { version = "3.0.1", features = ["arrayvec"] }
+serde = { workspace = true, default-features = false }
+
+[target.'cfg(context = "rp")'.dependencies]
+embassy-time = { workspace = true, default-features = false }

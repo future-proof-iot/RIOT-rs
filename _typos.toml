@@ -8,4 +8,4 @@ synopsys = "synopsys" # Manufacturer name
 celcius = "celcius" # Until embedded-aht20 is fixed
 
 [files]
-extend-exclude = ["doc/*.svg", "src/riot-rs-rp/src/cyw43/firmware/README.md"]
+extend-exclude = ["doc/*.svg", "src/ariel-os-rp/src/cyw43/firmware/README.md"]

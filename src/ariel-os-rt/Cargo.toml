@@ -1,0 +1,55 @@
+[package]
+name = "ariel-os-rt"
+version = "0.1.0"
+authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
+license.workspace = true
+edition = "2021"
+
+[lints]
+workspace = true
+
+[dependencies]
+cfg-if.workspace = true
+linkme.workspace = true
+ariel-os-debug.workspace = true
+ariel-os-threads = { path = "../ariel-os-threads", optional = true }
+ariel-os-utils = { workspace = true }
+
+[target.'cfg(context = "cortex-m")'.dependencies]
+cortex-m = { workspace = true }
+cortex-m-rt = { workspace = true }
+
+[target.'cfg(context = "rp2040")'.dependencies]
+embassy-rp = { workspace = true, optional = true }
+portable-atomic = { workspace = true, features = ["critical-section"] }
+
+[target.'cfg(context = "esp")'.dependencies]
+esp-hal = { workspace = true, default-features = false }
+portable-atomic = { workspace = true }
+
+[target.'cfg(context = "nrf")'.dependencies]
+cortex-m = { workspace = true, features = ["critical-section-single-core"] }
+
+[target.'cfg(context = "stm32")'.dependencies]
+cortex-m = { workspace = true, features = ["critical-section-single-core"] }
+
+[features]
+threading = ["dep:ariel-os-threads"]
+
+debug-console = ["ariel-os-debug/debug-console"]
+executor-single-thread = []
+silent-panic = []
+_panic-handler = []
+single-core = ["cortex-m/critical-section-single-core"]
+multi-core = ["embassy-rp/critical-section-impl"]
+
+# internal
+# These features are used by `build.rs`, which doesn't "see" context
+# variables.
+_esp32 = []
+_esp32c3 = []
+_esp32c6 = []
+_esp32s3 = []
+
+[dev-dependencies]
+ariel-os-boards = { path = "../ariel-os-boards" }

@@ -3,19 +3,19 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use embassy_usb::class::hid::{self, HidReaderWriter};
-use riot_rs::{
+use ariel_os::{
     debug::log::*,
     time::{Duration, Timer},
     usb::{UsbBuilderHook, UsbDriver},
     ConstStaticCell,
 };
+use embassy_usb::class::hid::{self, HidReaderWriter};
 
 use usbd_hid::descriptor::KeyboardReport;
 
 mod pins;
 
-#[riot_rs::task(autostart, peripherals, usb_builder_hook)]
+#[ariel_os::task(autostart, peripherals, usb_builder_hook)]
 async fn usb_keyboard(button_peripherals: pins::Buttons) {
     let mut buttons = Buttons::new(button_peripherals);
 
@@ -120,9 +120,9 @@ mod buttons {
     }
 }
 
-#[riot_rs::config(usb)]
-fn usb_config() -> riot_rs::reexports::embassy_usb::Config<'static> {
-    let mut config = riot_rs::reexports::embassy_usb::Config::new(0xc0de, 0xcafe);
+#[ariel_os::config(usb)]
+fn usb_config() -> ariel_os::reexports::embassy_usb::Config<'static> {
+    let mut config = ariel_os::reexports::embassy_usb::Config::new(0xc0de, 0xcafe);
     config.manufacturer = Some("Embassy");
     config.product = Some("HID keyboard example");
     config.serial_number = Some("12345678");

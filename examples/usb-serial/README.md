@@ -3,7 +3,7 @@
 ## About
 
 This application is showing basic
-[Embassy](https://github.com/embassy-rs/embassy) _USB serial_ usage with RIOT-rs.
+[Embassy](https://github.com/embassy-rs/embassy) _USB serial_ usage with Ariel OS.
 
 ## How to run
 

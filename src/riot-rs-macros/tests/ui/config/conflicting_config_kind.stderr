@@ -1,7 +1,0 @@
-error: custom attribute panicked
- --> tests/ui/config/conflicting_config_kind.rs:9:1
-  |
-9 | #[riot_rs::config(network, usb)]
-  | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
-  |
-  = help: message: only one configuration is supported at a time, use a separate function for `usb` configuration

@@ -1,0 +1,19 @@
+[package]
+name = "st-nucleo-h755zi-q"
+version = "0.1.0"
+license.workspace = true
+edition = "2021"
+
+[dependencies]
+embassy-stm32 = { workspace = true, features = [
+  "stm32h755zi-cm7",
+  "memory-x",
+  "rt",
+] }
+ariel-os-debug = { workspace = true, features = ["rtt-target"] }
+ariel-os-rt.workspace = true
+ariel-os-stm32 = { workspace = true, features = [
+  "stm32-hash-rng",
+  "stm32-usb-synopsis",
+] }
+stm32 = { path = "../../ariel-os-chips/stm32" }

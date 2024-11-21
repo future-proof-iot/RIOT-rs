@@ -10,7 +10,7 @@ use static_alloc::Bump;
 #[global_allocator]
 static A: Bump<[u8; 1 << 16]> = Bump::uninit();
 
-#[riot_rs::task(autostart)]
+#[ariel_os::task(autostart)]
 async fn coap_run() {
     use coap_handler_implementations::HandlerBuilder;
 
@@ -34,10 +34,10 @@ async fn coap_run() {
         coap_scroll_ring_server::BufferHandler::new(&buffer),
     );
 
-    // going with an embassy_futures join instead of RIOT-rs's spawn to avoid the need for making
+    // going with an embassy_futures join instead of Ariel OS's spawn to avoid the need for making
     // stdout static.
     embassy_futures::join::join(
-        riot_rs::coap::coap_run(handler),
+        ariel_os::coap::coap_run(handler),
         run_client_operations(stdout),
     )
     .await;
@@ -48,7 +48,7 @@ async fn coap_run() {
 /// This doubles as an experimentation ground for the client side of embedded_nal_coap and
 /// coap-request in general.
 async fn run_client_operations(mut stdout: impl core::fmt::Write) {
-    let client = riot_rs::coap::coap_client().await;
+    let client = ariel_os::coap::coap_client().await;
 
     // shame
     let addr = "10.42.0.1:1234";
@@ -93,7 +93,7 @@ async fn run_client_operations(mut stdout: impl core::fmt::Write) {
 }
 
 // FIXME: So far, this is necessary boiler plate; see ../README.md#networking for details
-#[riot_rs::config(network)]
+#[ariel_os::config(network)]
 fn network_config() -> embassy_net::Config {
     use embassy_net::Ipv4Address;
 

@@ -1,7 +1,7 @@
-# RIOT-rs adding hardware support
+# Ariel OS adding hardware support
 
 This document serves as a guide as to what's currently needed for adding support
-for a board/device to RIOT-rs.
+for a board/device to Ariel OS.
 
 Feel free to report anything that's unclear!
 
@@ -10,7 +10,7 @@ Feel free to report anything that's unclear!
 The more similar a board is to one that is already supported, the easier.
 It is usually best to copy & adapt an existing one.
 
-- ensure that the architecture [is supported in `riot-rs-embassy`](#adding-an-embassy-architecture)
+- ensure that the architecture [is supported in `ariel-os-embassy`](#adding-an-embassy-architecture)
 - in `laze-project.yml`:
   - add `context` for the MCU (if it doesn't exist, yet)
     - parent: the closest Embassy arch
@@ -36,7 +36,7 @@ contexts:
 - name: stm32f401retx
   parent: stm32
   selects:
-    - thumbv7em-none-eabi # actually eabihf, but riot-rs doesn't support hard float yet
+    - thumbv7em-none-eabi # actually eabihf, but ariel-os doesn't support hard float yet
   env:
   PROBE_RS_CHIP: STM32F401RETx
   PROBE_RS_PROTOCOL: swd
@@ -52,9 +52,9 @@ builders:
 
 ```
 
-- `src/riot-rs-boards/$BOARD`: add crate that matches board name
+- `src/ariel-os-boards/$BOARD`: add crate that matches board name
   - this crate should inject the board-specific dependencies to the arch crates.
-- `src/riot-rs-boards`:
+- `src/ariel-os-boards`:
   - `Cargo.toml`: add feature that matches board name
   - `src/lib.rs`: add board to dispatch
 
@@ -83,16 +83,16 @@ modules:
 The variables `RUSTC_TARGET` and `CARGO_TARGET_PREFIX` need to be adjusted.
 Add `--cfg $arch` as needed.
 
-Chances are that if you need to add this, you'll also have to add support for the architecture to `riot-rs-threads`.
+Chances are that if you need to add this, you'll also have to add support for the architecture to `ariel-os-threads`.
 
 ## Adding an Embassy architecture
 
-As of this writing, RIOT-rs supports most architectures that Embassy supports,
+As of this writing, Ariel OS supports most architectures that Embassy supports,
 including `nrf`, `stm32`, `rp` and `esp-rs`, but excluding `std` and `wasm`.
 
 The steps to add support for another Embassy supported architecture are:
 
-- `src/riot-rs-embassy`:
+- `src/ariel-os-embassy`:
   - `Cargo.toml`: add Embassy arch dependency
   - `src/lib.rs`: add arch dispatch
   - `src/arch/$ARCH.rs`:

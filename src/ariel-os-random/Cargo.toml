@@ -1,0 +1,23 @@
+[package]
+name = "ariel-os-random"
+version.workspace = true
+authors.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+rand_core = "0.6.4"
+
+embassy-sync.workspace = true
+
+rand_pcg = "0.3.1"
+rand_chacha = { version = "0.3.1", default-features = false, optional = true }
+
+[features]
+## If set, the one global RNG is also a cryptographically secure pseudo
+## random number generator (CSPRNG), and thus, a `CryptoRng` can be produced.
+csprng = ["dep:rand_chacha"]

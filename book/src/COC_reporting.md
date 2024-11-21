@@ -1,5 +1,5 @@
 If you believe someone is violating the code of conduct we ask that you
-report it to us by emailing <conduct@riot-rs.org>.
+report it to us by emailing <conduct@ariel-os.org>.
 
 **All reports will be kept confidential.** In some cases we may determine that a
 public statement will need to be made. If that's the case, the identities of all
@@ -58,7 +58,7 @@ decision as to how to response. Responses may include:
 -   A public reprimand.
 -   An imposed vacation (i.e. asking someone to "take a week off" from a mailing
     list or Matrix).
--   A permanent or temporary ban from some or all RIOT-rs spaces (mailing lists,
+-   A permanent or temporary ban from some or all Ariel OS spaces (mailing lists,
     Matrix, etc.)
 -   A request for a public or private apology.
 

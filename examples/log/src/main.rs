@@ -3,9 +3,9 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use riot_rs::debug::log::*;
+use ariel_os::debug::log::*;
 
-#[riot_rs::task(autostart)]
+#[ariel_os::task(autostart)]
 async fn main() {
     trace!("-- trace log level enabled");
     debug!("-- debug log level enabled");

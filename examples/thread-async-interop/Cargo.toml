@@ -11,5 +11,5 @@ workspace = true
 
 [dependencies]
 embassy-sync = { workspace = true, default-features = false }
-riot-rs = { path = "../../src/riot-rs", features = ["time"] }
-riot-rs-boards = { path = "../../src/riot-rs-boards" }
+ariel-os = { path = "../../src/ariel-os", features = ["time"] }
+ariel-os-boards = { path = "../../src/ariel-os-boards" }
