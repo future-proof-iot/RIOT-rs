@@ -6,8 +6,9 @@ defaults:
 subdirs:
   - benchmark
   - blinky
-  - core-sizes
+  - coap-client
   - coap-server
+  - core-sizes
   - device-metadata
   - embassy-http-server
   - gpio
