@@ -82,11 +82,11 @@ embedded-storage = { version = "0.3.1" }
 embedded-storage-async = { version = "0.4.1" }
 
 esp-alloc = { version = "0.5.0", default-features = false }
-esp-hal = { version = "0.21.1", default-features = false }
-esp-hal-embassy = { version = "0.4.0", default-features = false }
+esp-hal = { version = "0.22.0", default-features = false }
+esp-hal-embassy = { version = "0.5.0", default-features = false }
 esp-println = { version = "0.12.0" }
-esp-wifi = { version = "0.10.1", default-features = false }
-esp-storage = { version = "0.3.1" }
+esp-wifi = { version = "0.11.0", default-features = false }
+esp-storage = { version = "0.4.0" }
 
 linkme = { version = "0.3.21", features = ["used_linker"] }
 
