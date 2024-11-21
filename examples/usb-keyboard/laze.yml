@@ -1,5 +1,5 @@
 apps:
-  - name: embassy-usb-keyboard
+  - name: usb-keyboard
     context:
       - nrf52840dk
       - nrf5340dk

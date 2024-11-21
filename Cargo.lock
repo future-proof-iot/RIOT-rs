@@ -1674,19 +1674,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "embassy-usb-keyboard"
-version = "0.1.0"
-dependencies = [
- "ariel-os",
- "ariel-os-boards",
- "embassy-nrf",
- "embassy-sync 0.6.0",
- "embassy-usb",
- "static_cell",
- "usbd-hid",
-]
-
-[[package]]
 name = "embassy-usb-synopsys-otg"
 version = "0.1.0"
 source = "git+https://github.com/kaspar030/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
@@ -4685,6 +4672,16 @@ dependencies = [
  "defmt",
  "heapless 0.8.0",
  "portable-atomic",
+]
+
+[[package]]
+name = "usb-keyboard"
+version = "0.1.0"
+dependencies = [
+ "ariel-os",
+ "ariel-os-boards",
+ "embassy-sync 0.6.0",
+ "static_cell",
 ]
 
 [[package]]

@@ -6,7 +6,6 @@ This directory contains example applications that showcase how to use Ariel OS.
 
 - [benchmark/](./benchmark): how to use `benchmark()`
 - [embassy-http-server/](./embassy-http-server): HTTP server example
-- [embassy-usb-keyboard/](./embassy-usb-keyboard): USB HID example
 - [hello-world/](./hello-world): a classic, async version
 - [hello-world-threading/](./hello-world-threading): a classic, using a thread
 - [log](./log): Example demonstrating different log levels for printing feedback messages.
@@ -16,6 +15,7 @@ This directory contains example applications that showcase how to use Ariel OS.
 - [threading/](./threading): how to start and use preemptively scheduled threads
 - [threading-event/](./threading-event): how to use `ariel_os::thread::sync::Event`
 - [udp-echo/](./udp-echo): UDP echo example
+- [usb-keyboard/](./usb-keyboard): USB HID example
 
 ## Networking
 
