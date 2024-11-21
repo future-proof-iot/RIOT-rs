@@ -7,7 +7,6 @@ subdirs:
   - benchmark
   - blinky
   - core-sizes
-  - coap
   - coap-server
   - device-metadata
   - embassy-http-server

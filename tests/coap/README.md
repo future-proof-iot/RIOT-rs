@@ -1,4 +1,4 @@
-# coap demo
+# coap tests
 
 ## About
 
@@ -21,7 +21,7 @@ This application is a work in progress demo of running CoAP with OSCORE/EDHOC se
 
 ## Roadmap
 
-Eventually, this should be a 20 line demo.
+Eventually, all of this should be covered by 20-line examples.
 
 Until the CoAP roadmap is complete,
 this serves as a work bench, test bed, demo zone and playground at the same time.
