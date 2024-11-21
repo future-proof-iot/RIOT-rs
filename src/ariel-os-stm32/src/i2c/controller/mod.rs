@@ -1,3 +1,5 @@
+//! Provides support for the I2C communication bus in controller mode.
+
 use ariel_os_embassy_common::{i2c::controller::Kilohertz, impl_async_i2c_for_driver_enum};
 use embassy_embedded_hal::adapter::{BlockingAsync, YieldingAsync};
 use embassy_stm32::{
@@ -13,8 +15,11 @@ use embassy_stm32::{
 #[non_exhaustive]
 #[derive(Clone)]
 pub struct Config {
+    /// The frequency at which the bus should operate.
     pub frequency: Frequency,
+    /// Whether to enable the internal pull-up resistor on the SDA pin.
     pub sda_pullup: bool,
+    /// Whether to enable the internal pull-up resistor on the SCL pin.
     pub scl_pullup: bool,
 }
 
@@ -41,6 +46,7 @@ pub enum Frequency {
     UpTo400k(Kilohertz), // FIXME: use a ranged integer?
 }
 
+#[doc(hidden)]
 impl Frequency {
     pub const fn first() -> Self {
         Self::UpTo100k(Kilohertz::kHz(1))
@@ -121,6 +127,8 @@ macro_rules! define_i2c_drivers {
             }
 
             impl $peripheral {
+                /// Returns a driver implementing [`embedded_hal_async::i2c::I2c`] for this
+                /// I2C peripheral.
                 #[expect(clippy::new_ret_no_self)]
                 #[must_use]
                 pub fn new(
@@ -168,7 +176,10 @@ macro_rules! define_i2c_drivers {
 
         /// Peripheral-agnostic driver.
         pub enum I2c {
-            $( $peripheral($peripheral), )*
+            $(
+                #[doc = concat!(stringify!($peripheral), " peripheral.")]
+                $peripheral($peripheral),
+            )*
         }
 
         impl embedded_hal_async::i2c::ErrorType for I2c {

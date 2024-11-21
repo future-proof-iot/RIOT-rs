@@ -1,6 +1,9 @@
+//! Provides support for the I2C communication bus.
+
 #[doc(alias = "master")]
 pub mod controller;
 
+#[doc(hidden)]
 pub fn init(peripherals: &mut crate::OptionalPeripherals) {
     // This macro has to be defined in this function so that the `peripherals` variables exists.
     macro_rules! take_all_i2c_peripherals {

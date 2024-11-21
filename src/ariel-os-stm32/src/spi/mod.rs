@@ -1,3 +1,5 @@
+//! Provides support for the SPI communication bus.
+
 #[doc(alias = "master")]
 pub mod main;
 
@@ -19,6 +21,7 @@ fn from_bit_order(bit_order: BitOrder) -> embassy_stm32::spi::BitOrder {
     }
 }
 
+#[doc(hidden)]
 pub fn init(peripherals: &mut crate::OptionalPeripherals) {
     // This macro has to be defined in this function so that the `peripherals` variables exists.
     macro_rules! take_all_spi_peripherals {
