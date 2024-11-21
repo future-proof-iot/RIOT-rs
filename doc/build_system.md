@@ -52,10 +52,9 @@ This is an non-exhaustive list of modules that can be used.
 E.g., to start a debug session with all semihosting and panic output enabled,
 run
 
-    laze build -b <board> --disable release flash
-    laze build -b <board> --disable release debug
+    laze build -b <board> flash
+    laze build -b <board> debug
 
-- `release`: used by default. Selects `no-semihosting` and `silent-panic`
 - `no-semihosting`: turn off Ariel OS debug output
   Note: semihosting output only gets printed in a debug session.
   Furthermore, it freezes the board on first output when not run in a
