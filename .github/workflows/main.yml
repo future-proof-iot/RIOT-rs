@@ -12,6 +12,10 @@ on:
     # run every morning at 3:17am
     - cron: '17 3 * * *'
 
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}
+  cancel-in-progress: true
+
 jobs:
   build:
     runs-on: ubuntu-24.04
