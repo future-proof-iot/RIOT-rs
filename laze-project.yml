@@ -11,6 +11,7 @@ contexts:
       - executor-default
       - ?critical-section
       - ?defmt
+      - ?lto
       - ?semihosting
     env:
       RUSTFLAGS:
