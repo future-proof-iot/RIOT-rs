@@ -1,5 +1,4 @@
 apps:
   - name: tcp-echo
     selects:
-      - ?release
       - network

@@ -1,7 +1,6 @@
 apps:
   - name: device-metadata
     selects:
-      - ?release
       - sw/threading
     depends:
       - debug-console

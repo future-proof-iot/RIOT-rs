@@ -1,6 +1,5 @@
 apps:
   - name: threading-multicore
     selects:
-      - ?release
       - sw/threading
       - multi-core

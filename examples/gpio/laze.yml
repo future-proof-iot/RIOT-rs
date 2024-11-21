@@ -10,5 +10,3 @@ apps:
       - st-nucleo-f401re
       - st-nucleo-h755zi-q
       - st-nucleo-wb55
-    selects:
-      - ?release

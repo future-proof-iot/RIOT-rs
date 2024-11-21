@@ -1,6 +1,5 @@
 apps:
   - name: example-random
     selects:
-      - ?release
       - random
       - sw/threading

@@ -1,5 +1,4 @@
 apps:
   - name: storage
     selects:
-      - ?release
       - sw/storage

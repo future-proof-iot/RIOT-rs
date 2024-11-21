@@ -11,6 +11,7 @@ contexts:
       - executor-default
       - ?critical-section
       - ?defmt
+      - ?lto
       - ?semihosting
     env:
       RUSTFLAGS:
@@ -476,10 +477,6 @@ modules:
       global:
         RUSTFLAGS:
           - "-Clink-arg=-Tlink-rp.x"
-
-  - name: release
-    selects:
-      - ?lto
 
   - name: debug-console
     context: ariel-os

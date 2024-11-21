@@ -3,5 +3,3 @@ apps:
     context:
       - nrf52840dk
       - nrf5340dk
-    selects:
-      - ?release

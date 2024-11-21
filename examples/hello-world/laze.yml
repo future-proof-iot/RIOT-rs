@@ -1,4 +1,2 @@
 apps:
   - name: hello-world
-    selects:
-      - ?release
