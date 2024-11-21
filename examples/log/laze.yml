@@ -1,5 +1,4 @@
 apps:
   - name: log
     selects:
-      - ?release
       - defmt

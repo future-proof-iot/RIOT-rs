@@ -1,6 +1,5 @@
 apps:
   - name: threading-lock
     selects:
-      - ?release
       - executor-thread
       - sw/threading

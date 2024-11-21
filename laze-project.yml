@@ -478,10 +478,6 @@ modules:
         RUSTFLAGS:
           - "-Clink-arg=-Tlink-rp.x"
 
-  - name: release
-    selects:
-      - ?lto
-
   - name: debug-console
     context: ariel-os
     env:

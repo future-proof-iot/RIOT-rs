@@ -1,5 +1,4 @@
 apps:
   - name: threading
     selects:
-      - ?release
       - sw/threading

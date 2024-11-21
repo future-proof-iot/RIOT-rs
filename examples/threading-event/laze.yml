@@ -1,5 +1,4 @@
 apps:
   - name: threading-event
     selects:
-      - ?release
       - sw/threading

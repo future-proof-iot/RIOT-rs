@@ -3,4 +3,3 @@ apps:
     selects:
       - sw/benchmark
       - sw/threading
-      - ?release

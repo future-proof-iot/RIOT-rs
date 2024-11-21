@@ -1,5 +1,4 @@
 apps:
   - name: hello-world-threading
     selects:
-      - ?release
       - sw/threading

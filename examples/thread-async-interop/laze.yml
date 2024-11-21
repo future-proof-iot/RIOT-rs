@@ -4,5 +4,4 @@ apps:
       - nrf
       - rp
     selects:
-      - ?release
       - sw/threading

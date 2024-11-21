@@ -11,5 +11,3 @@ apps:
       - rp2040
       - st-nucleo-h755zi-q
       - st-nucleo-wb55
-    selects:
-      - ?release
