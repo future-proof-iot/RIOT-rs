@@ -1,11 +1,15 @@
+//! Items specific to the Espressif ESP MCUs.
+
 #![no_std]
 #![feature(doc_auto_cfg)]
 #![feature(impl_trait_in_assoc_type)]
 #![feature(type_alias_impl_trait)]
+#![deny(missing_docs)]
 
 pub mod gpio;
 
 #[cfg(feature = "hwrng")]
+#[doc(hidden)]
 pub mod hwrng {
     pub fn construct_rng(_peripherals: &mut crate::OptionalPeripherals) {
         // handled in `init()`
@@ -15,6 +19,7 @@ pub mod hwrng {
 #[cfg(feature = "i2c")]
 pub mod i2c;
 
+#[doc(hidden)]
 pub mod identity {
     use ariel_os_embassy_common::identity;
 
@@ -25,16 +30,21 @@ pub mod identity {
 pub mod spi;
 
 #[cfg(feature = "usb")]
+#[doc(hidden)]
 pub mod usb;
 
 #[cfg(feature = "wifi")]
+#[doc(hidden)]
 pub mod wifi;
 
+#[doc(hidden)]
 pub mod peripheral {
     pub use esp_hal::peripheral::Peripheral;
 }
 
 pub mod peripherals {
+    //! Types for the peripheral singletons.
+
     pub use esp_hal::peripherals::*;
 
     pub use esp_hal::gpio::GPIO_0;
@@ -92,11 +102,14 @@ pub mod peripherals {
     }
 }
 
+#[doc(hidden)]
 pub use esp_hal::peripherals::OptionalPeripherals;
 
 #[cfg(feature = "executor-single-thread")]
+#[doc(hidden)]
 pub use esp_hal_embassy::Executor;
 
+#[doc(hidden)]
 pub fn init() -> OptionalPeripherals {
     let mut config = esp_hal::Config::default();
     config.cpu_clock = esp_hal::clock::CpuClock::max();

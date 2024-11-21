@@ -1,3 +1,5 @@
+//! Provides support for the SPI communication bus in main mode.
+
 use ariel_os_embassy_common::{
     impl_async_spibus_for_driver_enum,
     spi::{main::Kilohertz, BitOrder, Mode},
@@ -15,11 +17,15 @@ use esp_hal::{
 #[cfg(any(context = "esp32c3", context = "esp32c6"))]
 const MAX_FREQUENCY: Kilohertz = Kilohertz::MHz(80);
 
+/// SPI bus configuration.
 #[derive(Clone)]
 #[non_exhaustive]
 pub struct Config {
+    /// The frequency at which the bus should operate.
     pub frequency: Frequency,
+    /// The SPI mode to use.
     pub mode: Mode,
+    #[doc(hidden)]
     pub bit_order: BitOrder,
 }
 
@@ -33,11 +39,13 @@ impl Default for Config {
     }
 }
 
+/// SPI bus frequency.
 // Possible values are copied from embassy-nrf
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[repr(u32)]
 pub enum Frequency {
+    /// Arbitrary frequency.
     F(Kilohertz),
 }
 
@@ -61,6 +69,8 @@ macro_rules! define_spi_drivers {
             }
 
             impl $peripheral {
+                /// Returns a driver implementing [`embedded_hal_async::spi::SpiBus`] for this SPI
+                /// peripheral.
                 #[expect(clippy::new_ret_no_self)]
                 #[must_use]
                 pub fn new(
@@ -107,7 +117,10 @@ macro_rules! define_spi_drivers {
 
         /// Peripheral-agnostic driver.
         pub enum Spi {
-            $( $peripheral($peripheral) ),*
+            $(
+                #[doc = concat!(stringify!($peripheral), " peripheral.")]
+                $peripheral($peripheral)
+            ),*
         }
 
         impl embedded_hal_async::spi::ErrorType for Spi {
