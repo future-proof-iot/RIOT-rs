@@ -60,4 +60,4 @@ allow-git = [
 
 [sources.allow-org]
 # github.com organizations to allow git sources for
-github = ["embassy-rs", "esp-rs", "kaspar030"]
+github = ["ariel-os", "embassy-rs", "esp-rs"]
