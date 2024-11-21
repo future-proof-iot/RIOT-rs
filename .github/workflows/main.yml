@@ -223,6 +223,10 @@ jobs:
       - name: Check out repository code
         uses: actions/checkout@v4
 
+      # "Obfuscate" the search query with concatenation so it does not self-trigger.
+      - name: Check for leftover occurrences of the old project name
+        run: set +e; grep -ri "riot"".rs" --line-number --exclude-dir=.git; test $? -eq 1
+
       - id: get_toolchain
         run: echo "toolchain=$(scripts/rust-toolchain.sh)" >> $GITHUB_OUTPUT
 
