@@ -1,17 +1,25 @@
+//! Provides GPIO access.
+
 pub mod input {
+    //! Input-specific types.
+
     use embassy_nrf::{
         gpio::{Level, Pull},
         Peripheral,
     };
 
+    #[doc(hidden)]
     pub use embassy_nrf::gpio::{Input, Pin as InputPin};
 
     // Re-export `Input` as `IntEnabledInput` as they are interrupt-enabled.
     #[cfg(feature = "external-interrupts")]
+    #[doc(hidden)]
     pub use embassy_nrf::gpio::Input as IntEnabledInput;
 
+    /// Whether inputs support configuring whether a Schmitt trigger is enabled.
     pub const SCHMITT_TRIGGER_CONFIGURABLE: bool = false;
 
+    #[doc(hidden)]
     pub fn new(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: ariel_os_embassy_common::gpio::Pull,
@@ -22,6 +30,7 @@ pub mod input {
     }
 
     #[cfg(feature = "external-interrupts")]
+    #[doc(hidden)]
     pub fn new_int_enabled(
         pin: impl Peripheral<P: InputPin> + 'static,
         pull: ariel_os_embassy_common::gpio::Pull,
@@ -38,17 +47,23 @@ pub mod input {
 }
 
 pub mod output {
+    //! Output-specific types.
+
     use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
     use embassy_nrf::{
         gpio::{Level, OutputDrive},
         Peripheral,
     };
 
+    #[doc(hidden)]
     pub use embassy_nrf::gpio::{Output, Pin as OutputPin};
 
+    /// Whether outputs support configuring their drive strength.
     pub const DRIVE_STRENGTH_CONFIGURABLE: bool = true;
+    /// Whether outputs support configuring their speed/slew rate.
     pub const SPEED_CONFIGURABLE: bool = false;
 
+    #[doc(hidden)]
     pub fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
         initial_level: ariel_os_embassy_common::gpio::Level,
@@ -66,9 +81,12 @@ pub mod output {
         Output::new(pin, initial_level, output_drive)
     }
 
+    /// Available drive strength settings.
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum DriveStrength {
+        /// Standard.
         Standard,
+        /// High.
         High, // Around 10 mA
     }
 
@@ -94,8 +112,10 @@ pub mod output {
         }
     }
 
+    /// Available output speed/slew rate settings.
     #[derive(Copy, Clone, PartialEq, Eq)]
     pub enum Speed {
+        /// Configuring the speed of outputs is not supported.
         UnsupportedByHardware,
     }
 

@@ -1,3 +1,5 @@
+//! Provides support for the SPI communication bus.
+
 #[doc(alias = "master")]
 pub mod main;
 
@@ -19,6 +21,7 @@ fn from_bit_order(bit_order: BitOrder) -> embassy_nrf::spim::BitOrder {
     }
 }
 
+#[doc(hidden)]
 pub fn init(peripherals: &mut crate::OptionalPeripherals) {
     // Take all SPI peripherals and do nothing with them.
     cfg_if::cfg_if! {

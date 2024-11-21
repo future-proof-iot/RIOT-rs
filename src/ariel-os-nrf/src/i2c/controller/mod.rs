@@ -1,4 +1,7 @@
+//! Provides support for the I2C communication bus in controller mode.
+
 use ariel_os_embassy_common::impl_async_i2c_for_driver_enum;
+
 use embassy_nrf::{
     bind_interrupts,
     gpio::Pin as GpioPin,
@@ -11,10 +14,17 @@ use embassy_nrf::{
 #[non_exhaustive]
 #[derive(Clone)]
 pub struct Config {
+    /// The frequency at which the bus should operate.
     pub frequency: Frequency,
+    /// Whether to enable the internal pull-up resistor on the SDA pin.
     pub sda_pullup: bool,
+    /// Whether to enable the internal pull-up resistor on the SCL pin.
     pub scl_pullup: bool,
+    /// Whether to set the SDA pin's drive strength to
+    /// [`DriveStrength::High`](crate::gpio::output::DriveStrength::High).
     pub sda_high_drive: bool,
+    /// Whether to set the SCL pin's drive strength to
+    /// [`DriveStrength::High`](crate::gpio::output::DriveStrength::High).
     pub scl_high_drive: bool,
 }
 
@@ -38,6 +48,7 @@ impl Default for Config {
 pub enum Frequency {
     /// Standard mode.
     _100k,
+    /// 250 kHz.
     #[cfg(any(context = "nrf52833", context = "nrf5340"))]
     _250k,
     /// Fast mode.
@@ -47,6 +58,7 @@ pub enum Frequency {
     // _1M,
 }
 
+#[doc(hidden)]
 impl Frequency {
     pub const fn first() -> Self {
         Self::_100k
@@ -112,6 +124,8 @@ macro_rules! define_i2c_drivers {
             }
 
             impl $peripheral {
+                /// Returns a driver implementing [`embedded_hal_async::i2c::I2c`] for this
+                /// I2C peripheral.
                 #[expect(clippy::new_ret_no_self)]
                 #[must_use]
                 pub fn new(
@@ -155,7 +169,10 @@ macro_rules! define_i2c_drivers {
 
         /// Peripheral-agnostic driver.
         pub enum I2c {
-            $( $peripheral($peripheral), )*
+            $(
+                #[doc = concat!(stringify!($peripheral), " peripheral.")]
+                $peripheral($peripheral),
+            )*
         }
 
         impl embedded_hal_async::i2c::ErrorType for I2c {
