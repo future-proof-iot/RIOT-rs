@@ -3841,7 +3841,8 @@ dependencies = [
 [[package]]
 name = "rtt-target"
 version = "0.6.0"
-source = "git+https://github.com/probe-rs/rtt-target?rev=5b7603b6114bb08385f71674b9d962471c221681#5b7603b6114bb08385f71674b9d962471c221681"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "322755a23eef4451b18c666f8c38ed685e6adb3556b00b377d33f4b7b4ce4f99"
 dependencies = [
  "critical-section",
  "defmt",
