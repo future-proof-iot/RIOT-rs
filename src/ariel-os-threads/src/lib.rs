@@ -719,17 +719,3 @@ pub fn get_priority(thread_id: ThreadId) -> Option<RunqueueId> {
 pub fn set_priority(thread_id: ThreadId, prio: RunqueueId) {
     SCHEDULER.with_mut(|mut scheduler| scheduler.set_priority(thread_id, prio))
 }
-
-/// Returns the size of the internal structure that holds the
-/// a thread's data.
-pub fn thread_struct_size() -> usize {
-    core::mem::size_of::<Thread>()
-}
-
-#[cfg(test)]
-mod tests {
-    #[test]
-    fn test_basic() {
-        assert_eq!(1, 1);
-    }
-}

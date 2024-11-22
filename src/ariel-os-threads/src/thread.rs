@@ -65,3 +65,19 @@ impl Thread {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn check_type_sizes() {
+        // `ThreadData` is arch-specific, and is replaced with a dummy value is tests; its size is
+        // non-zero otherwise.
+        assert_eq!(size_of::<ThreadData>(), 0);
+        assert_eq!(
+            size_of::<Thread>(),
+            size_of::<usize>() + size_of::<ThreadData>() + 24
+        );
+    }
+}
