@@ -160,7 +160,7 @@ jobs:
       # TODO: we'll eventually want to enable relevant features
       - name: Run crate tests
         run: |
-            cargo test \
+            RUSTFLAGS='-D warnings' cargo test \
                 --no-default-features \
                 --features "
                     external-interrupts,
@@ -185,7 +185,7 @@ jobs:
       # is used for doc tests.
       - name: cargo test for RP
         run: |
-            RUSTDOCFLAGS='--cfg context="rp2040"' RUSTFLAGS='--cfg context="rp2040"' cargo test \
+            RUSTDOCFLAGS='--cfg context="rp2040"' RUSTFLAGS='-D warnings --cfg context="rp2040"' cargo test \
                 --features "
                     embassy-rp/rp2040,
                     external-interrupts,
@@ -196,7 +196,7 @@ jobs:
 
       - name: cargo test for nRF
         run: |
-            RUSTDOCFLAGS='--cfg context="nrf52840"' RUSTFLAGS='--cfg context="nrf52840"' cargo test \
+            RUSTDOCFLAGS='--cfg context="nrf52840"' RUSTFLAGS='-D warnings --cfg context="nrf52840"' cargo test \
                 --features "
                     embassy-nrf/nrf52840,
                     external-interrupts,
@@ -207,7 +207,7 @@ jobs:
 
       - name: cargo test for STM32
         run: |
-            RUSTDOCFLAGS='--cfg context="stm32wb55rgvx"' RUSTFLAGS='--cfg context="stm32wb55rgvx"' cargo test \
+            RUSTDOCFLAGS='--cfg context="stm32wb55rgvx"' RUSTFLAGS='-D warnings --cfg context="stm32wb55rgvx"' cargo test \
                 --features "
                     embassy-stm32/stm32wb55rg,
                     external-interrupts,
