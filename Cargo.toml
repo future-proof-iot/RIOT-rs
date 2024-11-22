@@ -119,7 +119,7 @@ once_cell = { version = "=1.19.0", default-features = false, features = [
   "critical-section",
 ] }
 paste = { version = "1.0" }
-rtt-target = { git = "https://github.com/probe-rs/rtt-target", rev = "5b7603b6114bb08385f71674b9d962471c221681" }
+rtt-target = { version = "0.6.0" }
 
 rp-pac = { version = "6.0", default-features = false }
 serde = { version = "1.0.197", default-features = false }
