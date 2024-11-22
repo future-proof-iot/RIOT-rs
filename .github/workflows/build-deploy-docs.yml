@@ -46,6 +46,9 @@ jobs:
         with:
           toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
 
+      # Docs of HAL crates must be generated after that of the main crate,
+      # otherwise this would result in broken links, as they use `--no-deps` for
+      # faster generation.
       - name: Build rustdoc docs
         run: |
           cargo doc \
@@ -68,8 +71,48 @@ jobs:
                   usb,
                   usb-hid,
                   "
+          RUSTDOCFLAGS='-D warnings --cfg context="esp32c6"' cargo doc \
+              --target=riscv32imac-unknown-none-elf \
+              --no-deps \
+              --features "
+                  esp-hal-embassy/esp32c6,
+                  esp-hal/esp32c6,
+                  external-interrupts,
+                  i2c,
+                  spi,
+                  " \
+              -p ariel-os-esp
+          RUSTDOCFLAGS='-D warnings --cfg context="rp2040"' cargo doc \
+              --no-deps \
+              --features "
+                  embassy-rp/rp2040,
+                  external-interrupts,
+                  i2c,
+                  spi,
+                  " \
+              -p ariel-os-rp
+          RUSTDOCFLAGS='-D warnings --cfg context="nrf52840"' cargo doc \
+              --no-deps \
+              --features "
+                  embassy-nrf/nrf52840,
+                  external-interrupts,
+                  i2c,
+                  spi,
+                  " \
+              -p ariel-os-nrf
+          RUSTDOCFLAGS='-D warnings --cfg context="stm32wb55rgvx"' cargo doc \
+              --no-deps \
+              --features "
+                  embassy-stm32/stm32wb55rg,
+                  external-interrupts,
+                  i2c,
+                  spi,
+                  " \
+              -p ariel-os-stm32
           echo "<meta http-equiv=\"refresh\" content=\"0; url=ariel_os\">" > target/doc/index.html
-          mkdir -p ./_site/dev/docs/api && mv target/doc/* ./_site/dev/docs/api
+          mkdir -p ./_site/dev/docs/api
+          mv target/riscv32imac-unknown-none-elf/doc/ariel_os_esp/ ./_site/dev/docs/api
+          mv target/doc/* ./_site/dev/docs/api
 
       - name: Install mdbook
         run: |

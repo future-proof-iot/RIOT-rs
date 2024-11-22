@@ -1,5 +1,6 @@
 use embassy_executor::SpawnToken;
 
+#[doc(hidden)]
 pub struct Executor;
 
 impl Executor {
@@ -19,6 +20,7 @@ impl Executor {
     }
 }
 
+#[doc(hidden)]
 pub struct Spawner;
 
 impl Spawner {
