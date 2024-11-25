@@ -713,21 +713,37 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                     return Err(Own(CoAPError::bad_request()));
                 };
 
-                let mut allocated_message = coap_message_implementations::heap::HeapMessage::new();
-                // This works from +WithSortedOptions into MinimalWritableMessage, but not from
-                // ReadableMessage to MutableWritableMessage + allows-random-access:
-                // allocated_message.set_from_message(request);
-                //
-                // The whole workaround is messy; not trying to enhance it b/c the whole alloc mess
-                // is temporary.
-                allocated_message.set_code(request.code().into());
+                // Until liboscore can work on an arbitrary message, in particular a
+                // `StrippingTheEdhocOptionAndPayloadPart<M>`, we have to create a copy.
+                // (Conveniently, that also sidesteps the need to `downcast_from` to a type
+                // libOSCORE knows, but that's not why we do it, that's what downcasting would be
+                // for.)
+
+                // embedded-nal-coap uses this max size, and our messages are same size or smaller,
+                // so it's a guaranteed fit.
+                const MAX_SIZE: usize = 1152;
+                let mut read_copy = [0u8; MAX_SIZE];
+                let mut code_copy = 0;
+                let mut copied_message = coap_message_implementations::inmemory_write::Message::new(
+                    &mut code_copy,
+                    &mut read_copy[..],
+                );
+                // We could also do
+                //     copied_message.set_from_message(request);
+                // if we specified a "hiding EDHOC" message view.
+                copied_message.set_code(request.code().into());
+                // Pulling out the OSCORE option while we're at it
                 let mut oscore_option = None;
+                // This may panic in theory on options being added in the wrong sequence; as we
+                // don't downcast, we don't get the information on whether the underlying
+                // implementation produces the options in the right sequence. Practically
+                // (typically, and concretely in Ariel OS), it is given. (And it's not like we have
+                // a fallback: inmemory_write has no more expensive option for reshuffling).
                 for opt in request.options() {
                     if opt.number() == coap_numbers::option::EDHOC {
                         continue;
                     }
-                    // it's infallible, but we don't have irrefutable patterns yet
-                    allocated_message
+                    copied_message
                         .add_option(opt.number(), opt.value())
                         .unwrap();
 
@@ -743,12 +759,12 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                 let oscore_option = liboscore::OscoreOption::parse(&oscore_option)
                     .map_err(|_| CoAPError::bad_option(coap_numbers::option::OSCORE))?;
                 #[allow(clippy::indexing_slicing, reason = "slice fits by construction")]
-                allocated_message
+                copied_message
                     .set_payload(&payload[front_trim_payload..])
                     .unwrap();
 
                 let decrypted = liboscore::unprotect_request(
-                    allocated_message,
+                    &mut copied_message,
                     oscore_option,
                     &mut oscore_context,
                     |request| {

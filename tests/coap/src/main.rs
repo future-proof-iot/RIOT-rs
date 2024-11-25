@@ -3,13 +3,6 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-// because coapcore depends on it temporarily
-extern crate alloc;
-use static_alloc::Bump;
-
-#[global_allocator]
-static A: Bump<[u8; 1 << 16]> = Bump::uninit();
-
 #[ariel_os::task(autostart)]
 async fn coap_run() {
     use coap_handler_implementations::HandlerBuilder;

@@ -3,15 +3,6 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-/// Due to mismatches between CoAP components, coapcore currently needs an allocator. This example
-/// provides the one that can be made most easily.
-mod alloc {
-    extern crate alloc;
-
-    #[global_allocator]
-    static A: static_alloc::Bump<[u8; 1 << 16]> = static_alloc::Bump::uninit();
-}
-
 #[ariel_os::task(autostart)]
 async fn coap_run() {
     use coap_handler_implementations::{
