@@ -145,15 +145,8 @@ enum SecContextStage<Crypto: lakers::Crypto> {
     // :-)
 
     // actionable in response building
-    //
-    // FIXME: The 'static here means that our identity key needs to be 'static -- if identity
-    // roll-over is a topic, that'd be a no-go. An alternative is to both store the message and the
-    // ResponderWaitM3 state -- but that'll make our SecContextPool slots larger; best evaluate
-    // that once the states are ready and we see which ones are the big ones. Possible outcomes are
-    // to just do it, to store the message in the handler's `RequestData`, or to have one or a few
-    // slots in parallel to this in the [`SecContextPool`].
     EdhocResponderProcessedM1 {
-        responder: lakers::EdhocResponderProcessedM1<'static, Crypto>,
+        responder: lakers::EdhocResponderProcessedM1<Crypto>,
         // May be removed if lakers keeps access to those around if they are set at this point at
         // all
         c_r: COwn,
@@ -266,9 +259,7 @@ pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler, Crypto: lakers::Cryp
     // locks for such sharing could still be acquired in a factory (at which point it may make
     // sense to make this a &mut).
     pool: SecContextPool<Crypto>,
-    // FIXME: That 'static is going to bite us -- but EdhocResponderProcessedM1 holds a reference
-    // to it -- see SecContextStage::EdhocResponderProcessedM1
-    own_identity: (&'a lakers::CredentialRPK, &'static [u8]),
+    own_identity: (&'a lakers::Credential, &'a lakers::BytesP256ElemLen),
 
     // FIXME: This currently bakes in the assumption that there is a single tree both for
     // unencrypted and encrypted resources. We may later generalize this by making this a factory,
@@ -288,7 +279,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> OscoreEdhocHandler<'a
     // FIXME: Apart from an own identity, this will also need a function to convert ID_CRED_I into
     // a (CRED_I, AifStaticRest) pair.
     pub fn new(
-        own_identity: (&'a lakers::CredentialRPK, &'static [u8]),
+        own_identity: (&'a lakers::Credential, &'a lakers::BytesP256ElemLen),
         inner: H,
         crypto_factory: fn() -> Crypto,
     ) -> Self {
@@ -496,7 +487,8 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
 
                     let (responder, c_i, ead_1) = lakers::EdhocResponder::new(
                         (self.crypto_factory)(),
-                        self.own_identity.1,
+                        lakers::EDHOCMethod::StatStat,
+                        *self.own_identity.1,
                         *self.own_identity.0,
                     )
                     .process_message_1(message_1)
@@ -600,14 +592,14 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                         let authorization;
 
                         if id_cred_i.reference_only() {
-                            match id_cred_i.kid {
-                                43 => {
+                            match id_cred_i.as_encoded_value() {
+                                &[43] => {
                                     info!("Peer indicates use of the one preconfigured key");
 
                                     use hexlit::hex;
                                     const CRED_I: &[u8] = &hex!("A2027734322D35302D33312D46462D45462D33372D33322D333908A101A5010202412B2001215820AC75E9ECE3E50BFC8ED60399889522405C47BF16DF96660A41298CB4307F7EB62258206E5DE611388A4B8A8211334AC7D37ECB52A387D257E6DB3C2A93DF21FF3AFFC8");
 
-                                    cred_i = lakers::CredentialRPK::new(
+                                    cred_i = lakers::Credential::parse_ccs(
                                         CRED_I.try_into().expect("Static credential is too large"),
                                     )
                                     .expect("Static credential is not processable");
@@ -623,12 +615,15 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                                 }
                             }
                         } else {
+                            let ccs = id_cred_i
+                                .get_ccs()
+                                .expect("Lakers only knows IdCred as reference or as credential");
                             info!(
-                                "Got credential by value: {:?}..",
-                                &id_cred_i.value.get_slice(0, 5)
+                                "Got credential CCS by value: {:?}..",
+                                &ccs.bytes.get_slice(0, 5)
                             );
 
-                            cred_i = lakers::CredentialRPK::new(id_cred_i.value)
+                            cred_i = lakers::Credential::parse_ccs(ccs.bytes.as_slice())
                                 // FIXME What kind of error do we send here?
                                 .map_err(|_| Own(CoAPError::bad_request()))?;
 
