@@ -2857,8 +2857,8 @@ checksum = "8355be11b20d696c8f18f6cc018c4e372165b1fa8126cef092399c9951984ffa"
 
 [[package]]
 name = "liboscore"
-version = "0.2.0"
-source = "git+https://gitlab.com/oscore/liboscore/?rev=55d0f71075d97a5a66ee4166487c09938d5ee7c5#55d0f71075d97a5a66ee4166487c09938d5ee7c5"
+version = "0.2.1"
+source = "git+https://gitlab.com/oscore/liboscore/?rev=5a39b7dbafa6aa6c6adb8e187b850f382858c401#5a39b7dbafa6aa6c6adb8e187b850f382858c401"
 dependencies = [
  "bindgen",
  "cbindgen",
@@ -2873,8 +2873,8 @@ dependencies = [
 
 [[package]]
 name = "liboscore-cryptobackend"
-version = "0.2.0"
-source = "git+https://gitlab.com/oscore/liboscore/?rev=55d0f71075d97a5a66ee4166487c09938d5ee7c5#55d0f71075d97a5a66ee4166487c09938d5ee7c5"
+version = "0.2.1"
+source = "git+https://gitlab.com/oscore/liboscore/?rev=5a39b7dbafa6aa6c6adb8e187b850f382858c401#5a39b7dbafa6aa6c6adb8e187b850f382858c401"
 dependencies = [
  "aead",
  "aes",
@@ -2891,8 +2891,8 @@ dependencies = [
 
 [[package]]
 name = "liboscore-msgbackend"
-version = "0.2.0"
-source = "git+https://gitlab.com/oscore/liboscore/?rev=55d0f71075d97a5a66ee4166487c09938d5ee7c5#55d0f71075d97a5a66ee4166487c09938d5ee7c5"
+version = "0.2.1"
+source = "git+https://gitlab.com/oscore/liboscore/?rev=5a39b7dbafa6aa6c6adb8e187b850f382858c401#5a39b7dbafa6aa6c6adb8e187b850f382858c401"
 dependencies = [
  "coap-message",
  "coap-message-implementations",
