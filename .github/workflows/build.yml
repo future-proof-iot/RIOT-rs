@@ -1,13 +1,22 @@
 name: Build
 
+common-paths-ignore: &common-paths-ignore
+  - 'book/**'
+  - 'doc/**'
+  - _typos.toml
+  - '*.md'
+
 on:
   push:
     branches:
       - main
+    paths-ignore: *common-paths-ignore
   pull_request:
     branches:
       - main
+    paths-ignore: *common-paths-ignore
   merge_group:
+    paths-ignore: *common-paths-ignore
   schedule:
     # run every morning at 3:17am
     - cron: '17 3 * * *'
