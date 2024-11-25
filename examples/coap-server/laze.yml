@@ -1,0 +1,15 @@
+apps:
+  - name: coap-server
+    env:
+      global:
+        CARGO_ENV:
+          - CONFIG_ISR_STACKSIZE=16384
+    selects:
+      - network
+      - random
+    conflicts:
+      # see https://github.com/ariel-os/ariel-os/issues/418
+      - thumbv6m-none-eabi
+      # no xtensa / riscv gcc on CI
+      - xtensa
+      - riscv

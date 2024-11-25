@@ -803,6 +803,20 @@ dependencies = [
 ]
 
 [[package]]
+name = "coap-client"
+version = "0.1.0"
+dependencies = [
+ "ariel-os",
+ "ariel-os-boards",
+ "coap-handler-implementations",
+ "coap-request",
+ "coap-request-implementations",
+ "embedded-nal-coap",
+ "heapless 0.8.0",
+ "static-alloc",
+]
+
+[[package]]
 name = "coap-handler"
 version = "0.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -922,6 +936,21 @@ dependencies = [
  "coap-message-utils",
  "coap-numbers",
  "scroll-ring",
+]
+
+[[package]]
+name = "coap-server"
+version = "0.1.0"
+dependencies = [
+ "ariel-os",
+ "ariel-os-boards",
+ "coap-handler",
+ "coap-handler-implementations",
+ "coap-message",
+ "coap-message-demos",
+ "embassy-sync 0.6.0",
+ "heapless 0.8.0",
+ "static-alloc",
 ]
 
 [[package]]

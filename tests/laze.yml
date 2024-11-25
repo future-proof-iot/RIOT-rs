@@ -1,5 +1,6 @@
 subdirs:
   - benchmarks
+  - coap
   - gpio
   - gpio-interrupt-nrf
   - gpio-interrupt-stm32

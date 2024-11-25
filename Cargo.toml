@@ -25,6 +25,7 @@ members = [
   "src/ariel-os-storage",
   "tests/benchmarks/bench_sched_flags",
   "tests/benchmarks/bench_sched_yield",
+  "tests/coap",
   "tests/gpio",
   "tests/gpio-interrupt-nrf",
   "tests/gpio-interrupt-stm32",

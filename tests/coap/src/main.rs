@@ -92,7 +92,7 @@ async fn run_client_operations(mut stdout: impl core::fmt::Write) {
     .unwrap();
 }
 
-// FIXME: So far, this is necessary boiler plate; see ../README.md#networking for details
+// FIXME: So far, this is necessary boilerplate; see ../README.md#networking for details
 #[ariel_os::config(network)]
 fn network_config() -> embassy_net::Config {
     use embassy_net::Ipv4Address;

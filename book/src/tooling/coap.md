@@ -25,7 +25,7 @@ we use encrypted CoAP traffic by default as explained below.
 
 ## Usage: Server side
 
-An example of a CoAP server is [provided as `examples/coap`], see [its `run()` function] for the practical steps.
+An example of a CoAP server is [provided as `examples/coap-server`], see [its `coap_run()` function] for the practical steps.
 
 A CoAP server is created by assembling several **resource handlers on dedicated paths**:
 There might be a path `/s/0` representing a particular sensor,
@@ -37,13 +37,13 @@ The handler needs to concern itself with security aspects of the request content
 (eg. file format parsers should treat incoming data as possibly malformed),
 but the decision whether or not a request is allowed is delegated to an [access policy](#server-access-policy).
 
-[provided as `examples/coap`]: https://github.com/ariel-os/ariel-os/tree/main/examples/coap
+[provided as `examples/coap-server`]: https://github.com/ariel-os/ariel-os/tree/main/examples/coap-server
 [its `run()` function]: https://github.com/ariel-os/ariel-os/blob/2b76e560394884d3c8f7eaae51beefd59a316d7b/examples/coap/src/main.rs#L70
 
 
 ## Usage: Client side
 
-The example [provided as `examples/coap`] also contains client steps.
+The example [provided as `examples/coap-client`], which sends a single POST request.
 
 A program that triggers a CoAP request provides[^whatsinarequest] some components to the CoAP stack before phrasing the actual request:
 
@@ -69,6 +69,8 @@ A program that triggers a CoAP request provides[^whatsinarequest] some component
     Implementations may implicitly make decisions on those,
     but the decisions are still made.
     At the time of writing, there [is an open issue](https://github.com/core-wg/corrclar/issues/41) to clarify this in the specifications.
+
+[provided as `examples/coap-client`]: https://github.com/ariel-os/ariel-os/tree/main/examples/coap-client
 
 ## Security
 
