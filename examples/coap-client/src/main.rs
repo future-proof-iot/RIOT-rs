@@ -5,15 +5,6 @@
 
 use ariel_os::debug::log::info;
 
-/// Due to mismatches between CoAP components, coapcore currently needs an allocator. This example
-/// provides the one that can be made most easily.
-mod alloc {
-    extern crate alloc;
-
-    #[global_allocator]
-    static A: static_alloc::Bump<[u8; 1 << 16]> = static_alloc::Bump::uninit();
-}
-
 /// Run a CoAP stack without serving any actual resources.
 #[ariel_os::task(autostart)]
 async fn coap_run() {

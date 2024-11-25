@@ -76,12 +76,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "alloc-traits"
-version = "0.1.1"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "6b2d54853319fd101b8dd81de382bcbf3e03410a64d8928bbee85a3e7dcde483"
-
-[[package]]
 name = "anyhow"
 version = "1.0.93"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -799,7 +793,6 @@ dependencies = [
  "embedded-nal-coap",
  "heapless 0.8.0",
  "scroll-ring",
- "static-alloc",
 ]
 
 [[package]]
@@ -813,7 +806,6 @@ dependencies = [
  "coap-request-implementations",
  "embedded-nal-coap",
  "heapless 0.8.0",
- "static-alloc",
 ]
 
 [[package]]
@@ -950,7 +942,6 @@ dependencies = [
  "coap-message-demos",
  "embassy-sync 0.6.0",
  "heapless 0.8.0",
- "static-alloc",
 ]
 
 [[package]]
@@ -4220,16 +4211,6 @@ name = "stable_deref_trait"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a8f112729512f8e442d81f95a8a7ddf2b7c6b8a1a6f509a95864142b30cab2d3"
-
-[[package]]
-name = "static-alloc"
-version = "0.2.5"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8b2975e035ce16539eecee08d7c6e5626ca26f299c6e90af343b302c6dd2e61e"
-dependencies = [
- "alloc-traits",
- "atomic-polyfill",
-]
 
 [[package]]
 name = "static_assertions"
