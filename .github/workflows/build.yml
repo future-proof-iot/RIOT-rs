@@ -1,0 +1,165 @@
+name: Build
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  merge_group:
+  schedule:
+    # run every morning at 3:17am
+    - cron: '17 3 * * *'
+
+concurrency:
+  group: ${{ github.head_ref || github.run_id }}-build
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+
+    env:
+      SCCACHE_GHA_ENABLED: "true"
+      RUSTC_WRAPPER: "sccache"
+      GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      # clang-sys and thus bindgen is sensitive to multiple installed versions
+      # around, see eg. https://github.com/rust-lang/rust-bindgen/issues/2682
+      #
+      # CLANG_PATH should be set to the most recent clang installed, no matter
+      # what /usr/bin/clang is, for some parts of the code will go for the
+      # newest standard library. It may also need to be aligned with the clang
+      # version which Xtensa provides.
+      CLANG_PATH: /usr/bin/clang-18
+
+    strategy:
+      fail-fast: false
+      matrix:
+        partition: ["1/20", "2/20", "3/20", "4/20", "5/20", "6/20", "7/20", "8/20", "9/20", "10/20", "11/20", "12/20", "13/20", "14/20", "15/20", "16/20", "17/20", "18/20", "19/20", "20/20"]
+
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+
+      - name: Get git tree hash
+        id: get-tree-hash
+        run: |
+            git rev-parse HEAD^{tree} > .tree-hash
+            echo "hash=$(cat .tree-hash)" >> $GITHUB_OUTPUT
+
+      - uses: actions/cache@v4
+        id: result-cache
+        with:
+          path: .tree-hash
+          key: success-${{ steps.get-tree-hash.outputs.hash }}-${{ matrix.partition }}-${{ github.event_name == 'schedule' && 'full' || 'limited' }}
+
+      - name: Run sccache-cache
+        if: steps.result-cache.outputs.cache-hit != 'true'
+        uses: mozilla-actions/sccache-action@v0.0.4
+
+      - id: get_toolchain
+        run: echo "toolchain=$(scripts/rust-toolchain.sh)" >> $GITHUB_OUTPUT
+
+      - name: Install toolchain
+        if: steps.result-cache.outputs.cache-hit != 'true'
+        uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: ${{ steps.get_toolchain.outputs.toolchain }}
+          targets: riscv32imc-unknown-none-elf,riscv32imac-unknown-none-elf,thumbv6m-none-eabi,thumbv7m-none-eabi,thumbv7em-none-eabi,thumbv8m.main-none-eabi
+          # rust-src: Used for -Zbuild-std.
+          # rustfmt: Used by bindgen for liboscore
+          components: rust-src, rustfmt
+
+      - name: Install Rust for Xtensa
+        uses: esp-rs/xtensa-toolchain@v1.5
+        with:
+          buildtargets: esp32s3
+
+      - name: Keep general build environment clean of Xtensa peculiarities
+        # The Xtensa setup unconditionally sets LIBCLANG_PATH in GITHUB_ENV --
+        # we can't undo that. (It also sets it in ~/exports, but that is just
+        # what it uses internally to get that data around into the action
+        # script)
+        #
+        # As the shell apparently does not source any files, and until
+        # https://github.com/actions/runner/issues/1126 is fixed by GitHub, the
+        # best remedy is to stow the workaround and source it wherever we can.
+        run: |
+          set -x
+          echo 'unset LIBCLANG_PATH' >> ~/source-this-first.sh
+
+      - name: rust cache
+        if: steps.result-cache.outputs.cache-hit != 'true'
+        uses: Swatinem/rust-cache@v2
+        with:
+          key: "${{ matrix.partition }}"
+
+      - uses: taiki-e/install-action@v2
+        if: steps.result-cache.outputs.cache-hit != 'true'
+        with:
+          tool: cargo-binstall
+
+      - name: "installing prerequisites"
+        if: steps.result-cache.outputs.cache-hit != 'true'
+        run: |
+          source ~/source-this-first.sh
+          git config --global init.defaultBranch main
+          git config --global user.email "ci@riot-labs.de"
+          git config --global user.name "CI"
+          cargo binstall --no-confirm --no-symlinks --force --no-discover-github-token laze
+          echo "$HOME/.cargo/bin" >> $GITHUB_PATH
+          sudo apt-get install ninja-build gcc-arm-none-eabi
+
+      - name: "Show installed versions"
+        run: |
+          set -x
+          set +e
+          env
+          llvm-config --libs
+          cargo version
+          laze --version
+          arm-none-eabi-gcc --version
+          clang --version
+          set +x
+          # Check which alternative versions are installed
+          IFS=":"; for p in $PATH; do ls $p/llvm-config-* $p/clang-* 2>/dev/null; done
+          sha256sum /usr/lib/llvm-*/lib/clang/*/include/stdint.h
+          true
+
+      - name: "limit build unless nightly build"
+        if: github.event_name != 'schedule'
+        run: |
+          source ~/source-this-first.sh
+          echo "LAZE_BUILDERS=ai-c3,espressif-esp32-c6-devkitc-1,espressif-esp32-s3-wroom-1,microbit-v2,nrf52840dk,nrf5340dk,rpi-pico,rpi-pico-w,st-nucleo-h755zi-q,st-nucleo-wb55" >> "$GITHUB_ENV"
+
+      - name: "ariel-os compilation test"
+        if: steps.result-cache.outputs.cache-hit != 'true'
+        run: |
+          source ~/source-this-first.sh
+          sccache --start-server || true # work around https://github.com/ninja-build/ninja/issues/2052
+
+          CONFIG_WIFI_NETWORK='test' CONFIG_WIFI_PASSWORD='password' laze build --global --partition hash:${{ matrix.partition }}
+
+  build-success:
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    name: Final Results
+    needs: [build]
+    steps:
+      - run: |
+          result="${{ needs.build.result }}"
+          if [[ $result == "success" || $result == "skipped" ]]; then
+            exit 0
+          else
+            exit 1
+          fi
+
+      - name: Report nightly failure
+        if: failure() && github.event_name == 'schedule' && github.repository == 'ariel-os/ariel-os'
+        uses: s3krit/matrix-message-action@v0.0.3
+        with:
+          room_id: ${{ secrets.MATRIX_ROOM_ID }}
+          access_token: ${{ secrets.MATRIX_ACCESS_TOKEN }}
+          message: "The nightly build [failed](https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }})."
+          server: "matrix.org"
