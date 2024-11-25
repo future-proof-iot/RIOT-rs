@@ -35,7 +35,7 @@ static CLIENT: OnceLock<
 /// This can only be run once, as it sets up a system wide CoAP handler.
 pub async fn coap_run(handler: impl coap_handler::Handler + coap_handler::Reporting) -> ! {
     use hexlit::hex;
-    const R: &[u8] = &hex!("72cc4761dbd4c78f758931aa589d348d1ef874a7e303ede2f140dcf3e6aa4aac");
+    const R: [u8; 32] = hex!("72cc4761dbd4c78f758931aa589d348d1ef874a7e303ede2f140dcf3e6aa4aac");
 
     static COAP: StaticCell<embedded_nal_coap::CoAPShared<CONCURRENT_REQUESTS>> = StaticCell::new();
 
@@ -65,8 +65,8 @@ pub async fn coap_run(handler: impl coap_handler::Handler + coap_handler::Report
         .unwrap();
 
     let own_identity = (
-        &lakers::CredentialRPK::new(lakers::EdhocMessageBuffer::new_from_slice(&hex!("A2026008A101A5010202410A2001215820BBC34960526EA4D32E940CAD2A234148DDC21791A12AFBCBAC93622046DD44F02258204519E257236B2A0CE2023F0931F1F386CA7AFDA64FCDE0108C224C51EABF6072")).expect("Credential should be small enough")).expect("Credential should be processable"),
-        R,
+        &lakers::Credential::parse_ccs(&hex!("A2026008A101A5010202410A2001215820BBC34960526EA4D32E940CAD2A234148DDC21791A12AFBCBAC93622046DD44F02258204519E257236B2A0CE2023F0931F1F386CA7AFDA64FCDE0108C224C51EABF6072")).expect("Credential should be processable"),
+        &R,
         );
 
     // FIXME: Should we allow users to override that? After all, this is just convenience and may

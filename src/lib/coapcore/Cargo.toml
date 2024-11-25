@@ -17,7 +17,7 @@ workspace = true
 # public
 coap-handler = "0.2.0"
 coap-message = "0.3.2"
-lakers = { version = "0.6.0", default-features = false }
+lakers = { version = "0.7.2", default-features = false }
 
 # private
 arrayvec = { version = "0.7.4", default-features = false }
@@ -25,7 +25,7 @@ coap-message-implementations = { version = "0.1.2", features = ["downcast"] }
 coap-message-utils = "0.3.3"
 coap-numbers = "0.2.3"
 hexlit = "0.5.5"
-lakers-crypto-rustcrypto = "0.6.0"
+lakers-crypto-rustcrypto = "0.7.2"
 liboscore = "0.2.1"
 liboscore-msgbackend = "0.2.1"
 

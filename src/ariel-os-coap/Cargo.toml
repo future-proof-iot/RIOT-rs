@@ -25,8 +25,8 @@ embassy-net = { workspace = true, features = [
 embassy-sync.workspace = true
 embedded-nal-async = "0.8"
 embedded-nal-coap = { workspace = true }
-lakers-crypto-rustcrypto = "0.6.0"
-lakers = { version = "0.6.0", default-features = false }
+lakers-crypto-rustcrypto = "0.7.2"
+lakers = { version = "0.7.2", default-features = false }
 ariel-os-debug.workspace = true
 ariel-os-embassy = { workspace = true, features = ["net"] }
 ariel-os-random = { workspace = true, features = ["csprng"] }
