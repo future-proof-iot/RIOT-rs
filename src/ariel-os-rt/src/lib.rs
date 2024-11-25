@@ -16,7 +16,7 @@ compile_error!(
     "feature \"single-core\" and feature \"multi-core\" cannot be enabled at the same time"
 );
 
-use ariel_os_debug::{log::debug, println};
+use ariel_os_debug::log::debug;
 
 cfg_if::cfg_if! {
     if #[cfg(context = "cortex-m")] {
@@ -51,7 +51,7 @@ static ISR_STACK: [u8; ISR_STACKSIZE] = [0u8; ISR_STACKSIZE];
 fn panic(_info: &core::panic::PanicInfo) -> ! {
     #[cfg(not(feature = "silent-panic"))]
     {
-        println!("panic: {}\n", _info);
+        ariel_os_debug::println!("panic: {}\n", _info);
         ariel_os_debug::exit(ariel_os_debug::EXIT_FAILURE);
     }
     #[allow(clippy::empty_loop)]
