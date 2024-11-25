@@ -63,3 +63,14 @@ impl ThreadList {
         self.head.is_none()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn check_type_sizes() {
+        assert_eq!(size_of::<ThreadId>(), 1);
+        assert_eq!(size_of::<ThreadList>(), 2);
+    }
+}

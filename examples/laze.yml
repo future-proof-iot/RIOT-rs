@@ -8,7 +8,6 @@ subdirs:
   - blinky
   - coap-client
   - coap-server
-  - core-sizes
   - device-metadata
   - embassy-http-server
   - gpio

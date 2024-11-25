@@ -107,3 +107,14 @@ impl Default for Lock {
         Self::new()
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn check_type_sizes() {
+        assert_eq!(size_of::<LockState>(), 2);
+        assert_eq!(size_of::<Lock>(), 2);
+    }
+}
