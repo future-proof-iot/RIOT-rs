@@ -13,3 +13,14 @@ jobs:
       - uses: actions/checkout@v4
       - name: Block Fixup Commit Merge
         uses: 13rac1/block-fixup-merge-action@v2.0.0
+
+  conventional-commits:
+    name: Lint Commits
+    if: github.event_name != 'merge_group'
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: crate-ci/committed@master
