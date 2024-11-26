@@ -110,8 +110,8 @@ information.
 
 ## Minimum Supported Rust Version (MSRV)
 
-Ariel OS makes heavy use of Rust unstable features. For the time being, it is
-recommended to use a current nightly.
+Ariel OS makes use of selected Rust unstable features. For the time being, it is
+recommended to use the nightly version pinned by [`rust-toolchain.toml`](rust-toolchain.toml).
 
 ## Coding Conventions
 
