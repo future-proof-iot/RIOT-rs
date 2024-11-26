@@ -547,7 +547,9 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                 let payload = request.payload();
 
                 // This whole loop-and-tree could become a single take_responder_wait3 method?
-                let kid = COwn::from_kid(&[kid]).unwrap();
+                let kid = COwn::from_kid(&[kid])
+                    // same as if it's not found in the pool
+                    .ok_or_else(CoAPError::bad_request)?;
                 // If we don't make progress, we're dropping it altogether. Unless we use the
                 // responder we might legally continue (because we didn't send data to EDHOC), but
                 // once we've received something that (as we now know) looks like a message 3 and
