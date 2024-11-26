@@ -17,7 +17,9 @@ Ariel OS and its leadership embrace the following values:
 
 ## Digital commons
 
-Ariel OS is a digital public good, or digital common, supported by public funding. The project's outcome is [open source](https://github.com/ariel-os/ariel-os/blob/main/LICENSE) and freely available for everyone.
+Ariel OS is a digital public good, or digital common, supported by public funding.
+The project's outcome is open source (dual [MIT](./LICENSE-MIT) and
+[Apache-2.0](./LICENSE-APACHE) license) and freely available for everyone.
 
 
 ## Decision making
