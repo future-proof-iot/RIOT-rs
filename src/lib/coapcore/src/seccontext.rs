@@ -20,6 +20,9 @@ pub type SecContextPool<Crypto> =
 ///
 /// This type represents any of the 48 efficient identifiers that use CBOR one-byte integer
 /// encodings (see RFC9528 Section 3.3.2), or equivalently the 1-byte long OSCORE identifiers
+///
+/// Lakers supports a much larger value space for C_x, and coapcore processes larger values
+/// selected by the peer -- but on its own, will select only those that fit in this type.
 // FIXME Could even limit to positive values if MAX_CONTEXTS < 24
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -73,7 +76,8 @@ impl COwn {
 
 impl From<COwn> for lakers::ConnId {
     fn from(cown: COwn) -> Self {
-        lakers::ConnId::from_int_raw(cown.0)
+        lakers::ConnId::from_slice(&[cown.0])
+            .expect("ConnId is always big enough for at least COwn")
     }
 }
 
@@ -506,7 +510,8 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                             .iter()
                             .filter_map(|entry| entry.corresponding_cown())
                             // C_R does not only need to be unique, it also must not be identical
-                            // to C_I
+                            // to C_I. If it is not expressible as a COwn (as_slice gives []),
+                            // that's fine and we don't have to consider it.
                             .chain(COwn::from_kid(c_i.as_slice()).as_slice().iter().cloned()),
                     );
 
@@ -599,10 +604,8 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                                     use hexlit::hex;
                                     const CRED_I: &[u8] = &hex!("A2027734322D35302D33312D46462D45462D33372D33322D333908A101A5010202412B2001215820AC75E9ECE3E50BFC8ED60399889522405C47BF16DF96660A41298CB4307F7EB62258206E5DE611388A4B8A8211334AC7D37ECB52A387D257E6DB3C2A93DF21FF3AFFC8");
 
-                                    cred_i = lakers::Credential::parse_ccs(
-                                        CRED_I.try_into().expect("Static credential is too large"),
-                                    )
-                                    .expect("Static credential is not processable");
+                                    cred_i = lakers::Credential::parse_ccs(CRED_I)
+                                        .expect("Static credential is not processable");
 
                                     // FIXME: learn from CRED_I
                                     authorization = AifStaticRest {
