@@ -18,6 +18,7 @@ This directory contains example applications that showcase how to use Ariel OS.
 - [threading-event/](./threading-event): how to use `ariel_os::thread::sync::Event`
 - [udp-echo/](./udp-echo): UDP echo example
 - [usb-keyboard/](./usb-keyboard): USB HID example
+- [usb-serial/](./usb-serial): USB serial example
 
 ## Networking
 
