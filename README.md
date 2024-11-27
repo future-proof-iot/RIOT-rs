@@ -128,9 +128,6 @@ Ariel OS is licensed under either of
 
 at your option.
 
-~~Ariel OS links with many components of [RIOT OS](https://github.com/RIOT-OS/RIOT),
-which is licenced under the terms of LGPLv2.1.~~
-
 Copyright (C) 2020-2023 Freie Universität Berlin, Inria, Kaspar Schleiser
 
 ## Contribution
