@@ -2,7 +2,7 @@
 name = "st-nucleo-h755zi-q"
 version = "0.1.0"
 license.workspace = true
-edition = "2021"
+edition.workspace = true
 
 [dependencies]
 embassy-stm32 = { workspace = true, features = [

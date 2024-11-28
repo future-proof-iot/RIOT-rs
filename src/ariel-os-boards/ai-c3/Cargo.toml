@@ -2,7 +2,7 @@
 name = "ai-c3"
 version = "0.1.0"
 license.workspace = true
-edition = "2021"
+edition.workspace = true
 
 [dependencies]
 ariel-os-rt = { workspace = true, features = ["_esp32c3"] }

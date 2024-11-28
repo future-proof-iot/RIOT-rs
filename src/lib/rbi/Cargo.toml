@@ -3,7 +3,7 @@ name = "rbi"
 version = "0.1.1"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 license.workspace = true
-edition = "2021"
+edition.workspace = true
 
 keywords = ["api", "no_std"]
 homepage = "https://github.com/ariel-os/ariel-os"
