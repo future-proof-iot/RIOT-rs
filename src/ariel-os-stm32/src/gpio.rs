@@ -49,12 +49,13 @@ pub mod input {
 pub mod output {
     //! Output-specific types.
 
+    use ariel_os_embassy_common::gpio::FromSpeed;
     use embassy_stm32::{
         gpio::{Level, Speed as StmSpeed},
         Peripheral,
     };
 
-    use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
+    pub use ariel_os_embassy_common::gpio::UnsupportedDriveStrength as DriveStrength;
 
     #[doc(hidden)]
     pub use embassy_stm32::gpio::{Output, Pin as OutputPin};
@@ -76,34 +77,6 @@ pub mod output {
             ariel_os_embassy_common::gpio::Level::High => Level::High,
         };
         Output::new(pin, initial_level, speed.into())
-    }
-
-    /// Available drive strength settings.
-    #[derive(Copy, Clone, PartialEq, Eq)]
-    pub enum DriveStrength {
-        /// Configuring the speed of outputs is not supported.
-        UnsupportedByHardware,
-    }
-
-    impl Default for DriveStrength {
-        fn default() -> Self {
-            Self::UnsupportedByHardware
-        }
-    }
-
-    impl FromDriveStrength for DriveStrength {
-        fn from(drive_strength: ariel_os_embassy_common::gpio::DriveStrength<Self>) -> Self {
-            use ariel_os_embassy_common::gpio::DriveStrength::*;
-
-            match drive_strength {
-                Hal(drive_strength) => drive_strength,
-                Lowest => DriveStrength::UnsupportedByHardware,
-                Standard => DriveStrength::default(),
-                Medium => DriveStrength::UnsupportedByHardware,
-                High => DriveStrength::UnsupportedByHardware,
-                Highest => DriveStrength::UnsupportedByHardware,
-            }
-        }
     }
 
     /// Available output speed/slew rate settings.
