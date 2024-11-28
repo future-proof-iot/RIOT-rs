@@ -9,7 +9,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d122413f284cf2d62fb1b7db97e02edb8cda96d769b16e443a4f6195e35662b0"
 dependencies = [
  "crypto-common",
- "generic-array",
+ "generic-array 0.14.7",
 ]
 
 [[package]]
@@ -72,7 +72,7 @@ version = "0.4.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "377e4c0ba83e4431b10df45c1d4666f178ea9c552cac93e60c3a88bf32785923"
 dependencies = [
- "as-slice",
+ "as-slice 0.2.1",
 ]
 
 [[package]]
@@ -156,10 +156,10 @@ dependencies = [
  "coapcore",
  "critical-section",
  "embassy-futures",
- "embassy-net",
- "embassy-sync 0.6.0",
+ "embassy-net 0.5.0",
+ "embassy-sync 0.6.1",
  "embedded-io-async",
- "embedded-nal-async",
+ "embedded-nal-async 0.8.0",
  "embedded-nal-coap",
  "hexlit",
  "lakers",
@@ -197,8 +197,8 @@ dependencies = [
  "embassy-embedded-hal",
  "embassy-executor",
  "embassy-hal-internal",
- "embassy-net",
- "embassy-sync 0.6.0",
+ "embassy-net 0.5.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embassy-usb",
  "embedded-hal 1.0.0",
@@ -309,7 +309,7 @@ dependencies = [
 name = "ariel-os-random"
 version = "0.1.0"
 dependencies = [
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "rand_chacha",
  "rand_core",
  "rand_pcg",
@@ -387,7 +387,7 @@ dependencies = [
  "arrayvec",
  "cfg-if",
  "embassy-embedded-hal",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embedded-storage-async",
  "once_cell",
@@ -437,6 +437,18 @@ dependencies = [
 
 [[package]]
 name = "as-slice"
+version = "0.1.5"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "45403b49e3954a4b8428a0ac21a4b7afadccf92bfd96273f1a58cd4812496ae0"
+dependencies = [
+ "generic-array 0.12.4",
+ "generic-array 0.13.3",
+ "generic-array 0.14.7",
+ "stable_deref_trait",
+]
+
+[[package]]
+name = "as-slice"
 version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "516b6b4f0e40d50dcda9365d53964ec74560ad4284da2e7fc97122cd83174516"
@@ -460,6 +472,18 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8cf2bce30dfe09ef0bfaef228b9d414faaf7e563035494d7fe092dba54b300f4"
 dependencies = [
  "critical-section",
+]
+
+[[package]]
+name = "atomic-pool"
+version = "1.0.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "58c5fc22e05ec2884db458bf307dc7b278c9428888d2b6e6fad9c0ae7804f5f6"
+dependencies = [
+ "as-slice 0.1.5",
+ "as-slice 0.2.1",
+ "atomic-polyfill",
+ "stable_deref_trait",
 ]
 
 [[package]]
@@ -613,7 +637,7 @@ version = "0.10.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "3078c7629b62d3f0439517fa394996acacc5cbc91c5a20d8c658e77abd503a71"
 dependencies = [
- "generic-array",
+ "generic-array 0.14.7",
 ]
 
 [[package]]
@@ -632,7 +656,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57a6508c63d7d137e8188833d9ed3ca97e40d676cf5217874c8c1c24851b012d"
 dependencies = [
  "defmt",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embedded-io 0.6.1",
  "embedded-io-async",
  "futures-intrusive",
@@ -788,8 +812,8 @@ dependencies = [
  "coap-request-implementations",
  "coap-scroll-ring-server",
  "embassy-futures",
- "embassy-net",
- "embassy-sync 0.6.0",
+ "embassy-net 0.5.0",
+ "embassy-sync 0.6.1",
  "embedded-nal-coap",
  "heapless 0.8.0",
  "scroll-ring",
@@ -940,7 +964,7 @@ dependencies = [
  "coap-handler-implementations",
  "coap-message",
  "coap-message-demos",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "heapless 0.8.0",
 ]
 
@@ -1099,7 +1123,7 @@ version = "0.5.5"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0dc92fb57ca44df6db8059111ab3af99a63d5d0f8375d9972e319a379c6bab76"
 dependencies = [
- "generic-array",
+ "generic-array 0.14.7",
  "rand_core",
  "subtle",
  "zeroize",
@@ -1111,7 +1135,7 @@ version = "0.1.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1bfb12502f3fc46cca1bb51ac28df9d618d813cdc3d2f25b9fe775a34af26bb3"
 dependencies = [
- "generic-array",
+ "generic-array 0.14.7",
  "typenum",
 ]
 
@@ -1127,13 +1151,13 @@ dependencies = [
 [[package]]
 name = "cyw43"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
  "embassy-futures",
  "embassy-net-driver-channel",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embedded-hal 1.0.0",
  "futures",
@@ -1144,7 +1168,7 @@ dependencies = [
 [[package]]
 name = "cyw43-pio"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "cyw43",
  "embassy-rp",
@@ -1366,7 +1390,7 @@ dependencies = [
  "crypto-bigint",
  "digest",
  "ff",
- "generic-array",
+ "generic-array 0.14.7",
  "group",
  "hkdf",
  "rand_core",
@@ -1383,7 +1407,7 @@ checksum = "5794414bc20e0d750f145bc0e82366b19dd078e9e075e8331fb8dd069a1cb6a2"
 dependencies = [
  "defmt",
  "embassy-futures",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embedded-hal 0.2.7",
  "embedded-hal 1.0.0",
@@ -1395,8 +1419,8 @@ dependencies = [
 
 [[package]]
 name = "embassy-executor"
-version = "0.6.1"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+version = "0.6.3"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -1408,8 +1432,8 @@ dependencies = [
 
 [[package]]
 name = "embassy-executor-macros"
-version = "0.6.1"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+version = "0.6.2"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -1429,7 +1453,7 @@ dependencies = [
 [[package]]
 name = "embassy-hal-internal"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -1443,9 +1467,9 @@ version = "0.1.0"
 dependencies = [
  "ariel-os",
  "ariel-os-boards",
- "embassy-net",
+ "embassy-net 0.5.0",
  "embassy-nrf",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embedded-io-async",
  "heapless 0.8.0",
  "httparse",
@@ -1457,24 +1481,46 @@ dependencies = [
 [[package]]
 name = "embassy-net"
 version = "0.4.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "55cf91dd36dfd623de32242af711fd294d41159f02130052fc93c5c5ba93febe"
+dependencies = [
+ "as-slice 0.2.1",
+ "atomic-pool",
+ "document-features",
+ "embassy-net-driver",
+ "embassy-sync 0.5.0",
+ "embassy-time",
+ "embedded-io-async",
+ "embedded-nal-async 0.7.1",
+ "futures",
+ "generic-array 0.14.7",
+ "heapless 0.8.0",
+ "managed",
+ "smoltcp 0.11.0",
+ "stable_deref_trait",
+]
+
+[[package]]
+name = "embassy-net"
+version = "0.5.0"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "defmt",
  "document-features",
  "embassy-net-driver",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embedded-io-async",
- "embedded-nal-async",
+ "embedded-nal-async 0.8.0",
  "heapless 0.8.0",
  "managed",
- "smoltcp 0.11.0 (git+https://github.com/smoltcp-rs/smoltcp?rev=fe0b4d102253465850cd1cf39cd33d4721a4a8d5)",
+ "smoltcp 0.12.0",
 ]
 
 [[package]]
 name = "embassy-net-driver"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "defmt",
 ]
@@ -1482,17 +1528,17 @@ dependencies = [
 [[package]]
 name = "embassy-net-driver-channel"
 version = "0.3.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "embassy-futures",
  "embassy-net-driver",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
 ]
 
 [[package]]
 name = "embassy-nrf"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "bitflags 2.6.0",
  "cfg-if",
@@ -1503,7 +1549,7 @@ dependencies = [
  "document-features",
  "embassy-embedded-hal",
  "embassy-hal-internal",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embassy-time-driver",
  "embassy-usb-driver",
@@ -1522,7 +1568,7 @@ dependencies = [
 [[package]]
 name = "embassy-rp"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "atomic-polyfill",
  "cfg-if",
@@ -1534,7 +1580,7 @@ dependencies = [
  "embassy-embedded-hal",
  "embassy-futures",
  "embassy-hal-internal",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embassy-time-driver",
  "embassy-usb-driver",
@@ -1560,7 +1606,7 @@ dependencies = [
 [[package]]
 name = "embassy-stm32"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "aligned",
  "bit_field",
@@ -1576,7 +1622,7 @@ dependencies = [
  "embassy-futures",
  "embassy-hal-internal",
  "embassy-net-driver",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embassy-time-driver",
  "embassy-usb-driver",
@@ -1617,8 +1663,21 @@ dependencies = [
 
 [[package]]
 name = "embassy-sync"
-version = "0.6.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+version = "0.5.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dd938f25c0798db4280fcd8026bf4c2f48789aebf8f77b6e5cf8a7693ba114ec"
+dependencies = [
+ "cfg-if",
+ "critical-section",
+ "embedded-io-async",
+ "futures-util",
+ "heapless 0.8.0",
+]
+
+[[package]]
+name = "embassy-sync"
+version = "0.6.1"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -1651,7 +1710,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-driver"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "document-features",
 ]
@@ -1659,7 +1718,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-queue-driver"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 
 [[package]]
 name = "embassy-usb"
@@ -1670,7 +1729,7 @@ dependencies = [
  "defmt",
  "embassy-futures",
  "embassy-net-driver-channel",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-usb-driver",
  "heapless 0.8.0",
  "ssmarshal",
@@ -1680,7 +1739,7 @@ dependencies = [
 [[package]]
 name = "embassy-usb-driver"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "defmt",
 ]
@@ -1688,10 +1747,11 @@ dependencies = [
 [[package]]
 name = "embassy-usb-synopsys-otg"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "critical-section",
- "embassy-sync 0.6.0",
+ "defmt",
+ "embassy-sync 0.6.1",
  "embassy-usb-driver",
 ]
 
@@ -1778,6 +1838,16 @@ dependencies = [
 
 [[package]]
 name = "embedded-nal"
+version = "0.8.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "b8a943fad5ed3d3f8a00f1e80f6bba371f1e7f0df28ec38477535eb318dc19cc"
+dependencies = [
+ "nb 1.1.0",
+ "no-std-net",
+]
+
+[[package]]
+name = "embedded-nal"
 version = "0.9.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "c56a28be191a992f28f178ec338a0bf02f63d7803244add736d026a471e6ed77"
@@ -1787,12 +1857,23 @@ dependencies = [
 
 [[package]]
 name = "embedded-nal-async"
+version = "0.7.1"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "72229137a4fc12d239b0b7f50f04b30790678da6d782a0f3f1909bf57ec4b759"
+dependencies = [
+ "embedded-io-async",
+ "embedded-nal 0.8.0",
+ "no-std-net",
+]
+
+[[package]]
+name = "embedded-nal-async"
 version = "0.8.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "76959917cd2b86f40a98c28dd5624eddd1fa69d746241c8257eac428d83cb211"
 dependencies = [
  "embedded-io-async",
- "embedded-nal",
+ "embedded-nal 0.9.0",
 ]
 
 [[package]]
@@ -1808,7 +1889,7 @@ dependencies = [
  "coap-request",
  "embassy-futures",
  "embassy-sync 0.3.0",
- "embedded-nal-async",
+ "embedded-nal-async 0.8.0",
  "heapless 0.7.17",
  "rand_core",
 ]
@@ -1976,7 +2057,7 @@ dependencies = [
  "delegate",
  "document-features",
  "embassy-futures",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-usb-driver",
  "embassy-usb-synopsys-otg",
  "embedded-can",
@@ -2105,7 +2186,7 @@ dependencies = [
  "defmt",
  "document-features",
  "embassy-net-driver",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embedded-io 0.6.1",
  "embedded-io-async",
  "enumset",
@@ -2122,7 +2203,7 @@ dependencies = [
  "num-traits",
  "portable-atomic",
  "portable_atomic_enum",
- "smoltcp 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "smoltcp 0.11.0",
  "xtensa-lx-rt",
 ]
 
@@ -2400,6 +2481,24 @@ checksum = "1d758ba1b47b00caf47f24925c0074ecb20d6dfcffe7f6d53395c0465674841a"
 
 [[package]]
 name = "generic-array"
+version = "0.12.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "ffdf9f34f1447443d37393cc6c2b8313aebddcd96906caf34e54c68d8e57d7bd"
+dependencies = [
+ "typenum",
+]
+
+[[package]]
+name = "generic-array"
+version = "0.13.3"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f797e67af32588215eaaab8327027ee8e71b9dd0b2b26996aedf20c030fce309"
+dependencies = [
+ "typenum",
+]
+
+[[package]]
+name = "generic-array"
 version = "0.14.7"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "85649ca51fd72272d7821adaf274ad91c288277713d9c18820d8499a7ff69e9a"
@@ -2659,7 +2758,7 @@ version = "0.1.0"
 dependencies = [
  "ariel-os",
  "ariel-os-boards",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embedded-hal 1.0.0",
  "embedded-hal-async",
  "once_cell",
@@ -2697,7 +2796,7 @@ version = "0.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a0c10553d664a4d0bcff9f4215d0aac67a639cc68ef660840afe309b807bc9f5"
 dependencies = [
- "generic-array",
+ "generic-array 0.14.7",
 ]
 
 [[package]]
@@ -3086,6 +3185,12 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "650eef8c711430f1a879fdd01d4745a7deea475becfb90269c06775983bbf086"
 
 [[package]]
+name = "no-std-net"
+version = "0.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "43794a0ace135be66a25d3ae77d41b91615fb68ae937f904090203e81f755b65"
+
+[[package]]
 name = "nom"
 version = "7.1.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -3098,7 +3203,7 @@ dependencies = [
 [[package]]
 name = "nrf-pac"
 version = "0.1.0"
-source = "git+https://github.com/embassy-rs/nrf-pac?rev=875a29629cc1c87aae00cfea647a956b3807d8be#875a29629cc1c87aae00cfea647a956b3807d8be"
+source = "git+https://github.com/embassy-rs/nrf-pac?rev=52e3a757f06035c94291bfc42b0c03f71e4d677e#52e3a757f06035c94291bfc42b0c03f71e4d677e"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
@@ -3396,7 +3501,7 @@ source = "git+https://github.com/ariel-os/picoserve?branch=update_embassy_stack_
 dependencies = [
  "const-sha1",
  "data-encoding",
- "embassy-net",
+ "embassy-net 0.4.0",
  "embassy-time",
  "embedded-io-async",
  "futures-util",
@@ -3942,7 +4047,7 @@ checksum = "d3e97a565f76233a6003f9f5c54be1d9c5bdfa3eccfb189469f11ec4901c47dc"
 dependencies = [
  "base16ct",
  "der",
- "generic-array",
+ "generic-array 0.14.7",
  "subtle",
  "zeroize",
 ]
@@ -4115,8 +4220,9 @@ dependencies = [
 
 [[package]]
 name = "smoltcp"
-version = "0.11.0"
-source = "git+https://github.com/smoltcp-rs/smoltcp?rev=fe0b4d102253465850cd1cf39cd33d4721a4a8d5#fe0b4d102253465850cd1cf39cd33d4721a4a8d5"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dad095989c1533c1c266d9b1e8d70a1329dd3723c3edac6d03bbd67e7bf6f4bb"
 dependencies = [
  "bitflags 1.3.2",
  "byteorder",
@@ -4132,7 +4238,7 @@ version = "0.1.0"
 dependencies = [
  "ariel-os",
  "ariel-os-boards",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embedded-hal-async",
  "once_cell",
  "static_cell",
@@ -4144,7 +4250,7 @@ version = "0.1.0"
 dependencies = [
  "ariel-os",
  "ariel-os-boards",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embedded-hal-async",
  "once_cell",
  "static_cell",
@@ -4240,7 +4346,7 @@ dependencies = [
 [[package]]
 name = "stm32-metapac"
 version = "15.0.0"
-source = "git+https://github.com/embassy-rs/stm32-data-generated?tag=stm32-data-9b7414490b10ffbd5beb1b0dcf14adb018cbe37f#dc782d51865ba6a0a8dd79a4d6972864b33b6f00"
+source = "git+https://github.com/embassy-rs/stm32-data-generated?tag=stm32-data-04833817666290047257c65c6547d28e1bd10dc9#f3cb9f3c385bcbfa1e6ee525b2a7cb84967c7996"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
@@ -4456,7 +4562,7 @@ version = "0.1.0"
 dependencies = [
  "ariel-os",
  "ariel-os-boards",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
 ]
 
 [[package]]
@@ -4683,7 +4789,7 @@ version = "0.1.0"
 dependencies = [
  "ariel-os",
  "ariel-os-boards",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "static_cell",
 ]
 
