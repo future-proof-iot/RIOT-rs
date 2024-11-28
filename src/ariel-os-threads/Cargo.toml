@@ -1,7 +1,7 @@
 [package]
 name = "ariel-os-threads"
 version = "0.1.0"
-edition = "2021"
+edition.workspace = true
 authors = [
   "Kaspar Schleiser <kaspar@schleiser.de>",
   "Elena Frank <elena.frank@proton.me>",

@@ -3,7 +3,7 @@ name = "clist"
 version = "0.1.1"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 license.workspace = true
-edition = "2021"
+edition.workspace = true
 homepage = "https://github.com/ariel-os/ariel-os"
 description = "A hairy circular linked list for no_std environments."
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html

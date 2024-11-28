@@ -3,7 +3,7 @@ name = "espressif-esp32-s3-wroom-1"
 version = "0.1.0"
 authors = ["Elena Frank <elena.frank@proton.me>"]
 license.workspace = true
-edition = "2021"
+edition.workspace = true
 
 [dependencies]
 ariel-os-rt = { workspace = true, features = ["_esp32s3"] }

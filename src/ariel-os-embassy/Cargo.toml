@@ -2,7 +2,7 @@
 name = "ariel-os-embassy"
 version = "0.1.0"
 license.workspace = true
-edition = "2021"
+edition.workspace = true
 
 [lints]
 workspace = true
