@@ -91,7 +91,7 @@ impl Arch for Cpu {
 
 #[cfg(any(armv7m, armv8m))]
 #[naked]
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 unsafe extern "C" fn PendSV() {
     unsafe {
@@ -130,7 +130,7 @@ unsafe extern "C" fn PendSV() {
 
 #[cfg(any(armv6m))]
 #[naked]
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 unsafe extern "C" fn PendSV() {
     unsafe {

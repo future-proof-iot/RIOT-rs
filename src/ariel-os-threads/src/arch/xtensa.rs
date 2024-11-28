@@ -65,7 +65,7 @@ const fn default_trap_frame() -> TrapFrame {
 
 /// Handler for software interrupt 0, which we use for context switching on core 0.
 #[allow(non_snake_case)]
-#[no_mangle]
+#[unsafe(no_mangle)]
 extern "C" fn FROM_CPU_INTR0(trap_frame: &mut TrapFrame) {
     unsafe {
         // clear FROM_CPU_INTR0
@@ -80,7 +80,7 @@ extern "C" fn FROM_CPU_INTR0(trap_frame: &mut TrapFrame) {
 #[cfg(feature = "multi-core")]
 /// Handler for software interrupt 1, which we use for context switching on core 1.
 #[allow(non_snake_case)]
-#[no_mangle]
+#[unsafe(no_mangle)]
 extern "C" fn FROM_CPU_INTR1(trap_frame: &mut TrapFrame) {
     unsafe {
         // clear FROM_CPU_INTR0
