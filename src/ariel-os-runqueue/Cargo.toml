@@ -3,7 +3,7 @@ name = "ariel-os-runqueue"
 version = "0.1.2"
 authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 license.workspace = true
-edition = "2018"
+edition.workspace = true
 description = "Ariel OS runqueue implementation"
 
 [lints]
