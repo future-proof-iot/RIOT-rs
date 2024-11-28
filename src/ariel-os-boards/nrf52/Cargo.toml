@@ -6,22 +6,13 @@ license.workspace = true
 edition = "2021"
 
 [dependencies]
-nrf52832-pac = { version = "0.12.2", default-features = false, features = [
-  "rt",
-], optional = true }
-nrf52833-pac = { version = "0.12.2", default-features = false, features = [
-  "rt",
-], optional = true }
-nrf52840-pac = { version = "0.12.2", default-features = false, features = [
-  "rt",
-], optional = true }
 ariel-os-debug = { workspace = true, features = ["rtt-target"] }
 ariel-os-rt = { path = "../../ariel-os-rt" }
 
 [features]
-nrf52832 = ["dep:nrf52832-pac"]
-nrf52833 = ["dep:nrf52833-pac"]
-nrf52840 = ["dep:nrf52840-pac"]
+nrf52832 = []
+nrf52833 = []
+nrf52840 = []
 
 [build-dependencies]
 ld-memory = { workspace = true, features = ["build-rs"] }

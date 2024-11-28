@@ -3236,31 +3236,6 @@ dependencies = [
  "ariel-os-debug",
  "ariel-os-rt",
  "ld-memory",
- "nrf52832-pac",
- "nrf52833-pac",
- "nrf52840-pac",
-]
-
-[[package]]
-name = "nrf52832-pac"
-version = "0.12.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0242b685c9c15648fb803e155628f42ace457478b2cb930868f40cae2db925e0"
-dependencies = [
- "cortex-m",
- "cortex-m-rt",
- "vcell",
-]
-
-[[package]]
-name = "nrf52833-pac"
-version = "0.12.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10e1358255b360cdc816dd7b6ef81be8c8499c0998277e5249bed222bd0f5241"
-dependencies = [
- "cortex-m",
- "cortex-m-rt",
- "vcell",
 ]
 
 [[package]]
@@ -3272,17 +3247,6 @@ dependencies = [
  "cortex-m",
  "cortex-m-rt",
  "nrf52",
-]
-
-[[package]]
-name = "nrf52840-pac"
-version = "0.12.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30713f36f1be02e5bc9abefa30eae4a1f943d810f199d4923d3ad062d1be1b3d"
-dependencies = [
- "cortex-m",
- "cortex-m-rt",
- "vcell",
 ]
 
 [[package]]
