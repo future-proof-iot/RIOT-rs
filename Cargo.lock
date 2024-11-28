@@ -2016,7 +2016,7 @@ dependencies = [
 [[package]]
 name = "esp-alloc"
 version = "0.5.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "critical-section",
  "enumset",
@@ -2026,7 +2026,7 @@ dependencies = [
 [[package]]
 name = "esp-build"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "quote",
  "syn 2.0.87",
@@ -2036,7 +2036,7 @@ dependencies = [
 [[package]]
 name = "esp-config"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "document-features",
 ]
@@ -2044,7 +2044,7 @@ dependencies = [
 [[package]]
 name = "esp-hal"
 version = "0.21.1"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "basic-toml",
  "bitfield 0.16.1",
@@ -2099,7 +2099,7 @@ dependencies = [
 [[package]]
 name = "esp-hal-embassy"
 version = "0.4.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "critical-section",
  "document-features",
@@ -2116,7 +2116,7 @@ dependencies = [
 [[package]]
 name = "esp-hal-procmacros"
 version = "0.14.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "darling",
  "document-features",
@@ -2132,7 +2132,7 @@ dependencies = [
 [[package]]
 name = "esp-metadata"
 version = "0.4.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "anyhow",
  "basic-toml",
@@ -2143,7 +2143,7 @@ dependencies = [
 [[package]]
 name = "esp-println"
 version = "0.12.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "critical-section",
  "defmt",
@@ -2155,7 +2155,7 @@ dependencies = [
 [[package]]
 name = "esp-riscv-rt"
 version = "0.9.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "document-features",
  "riscv",
@@ -2178,7 +2178,7 @@ dependencies = [
 [[package]]
 name = "esp-wifi"
 version = "0.10.1"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "bt-hci",
  "cfg-if",
@@ -5033,7 +5033,7 @@ dependencies = [
 [[package]]
 name = "xtensa-lx-rt"
 version = "0.17.1"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "anyhow",
  "bare-metal 1.0.0",
@@ -5051,7 +5051,7 @@ dependencies = [
 [[package]]
 name = "xtensa-lx-rt-proc-macros"
 version = "0.2.2"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -5089,4 +5089,4 @@ checksum = "ced3678a2879b30306d323f4542626697a464a97c0a07c9aebf7ebca65cd4dde"
 [[patch.unused]]
 name = "esp-storage"
 version = "0.3.1"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
