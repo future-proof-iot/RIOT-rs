@@ -15,6 +15,7 @@ on:
     branches:
       - main
     paths-ignore:
+      - '.github/**' # FIXME: obviously a bad idea, this is only a test
       - 'book/**'
       - 'doc/**'
       - _typos.toml
