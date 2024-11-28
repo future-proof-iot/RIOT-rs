@@ -35,7 +35,8 @@ making the former configurable and the latter dynamic is work in progress.
   Hello from Ariel OS
   ```
 
-  The argument `--credentials client.diag` tells the client to establish a secure connection.
+  The argument `--credentials client.diag` tells the client to establish a secure connection;
+  that file describes the server's public key, and that the client can use a random key.
   Without the argument, the requests come through just as well,
   but the client has no assurance on the server's identity.
 
