@@ -186,7 +186,6 @@ dependencies = [
  "ariel-os-embassy-common",
  "ariel-os-hal",
  "ariel-os-macros",
- "ariel-os-random",
  "ariel-os-rt",
  "ariel-os-storage",
  "ariel-os-threads",

@@ -33,5 +33,21 @@ st-nucleo-h755zi-q = { optional = true, path = "st-nucleo-h755zi-q" }
 [features]
 # Allows to have no boards selected, useful to run platform-independent tooling
 no-boards = []
-# both "rpi-pico" and "rpi-pico-w" are valid, so no "dep:rpi-pico"
-rpi-pico-w = ["rpi-pico/rpi-pico-w"]
+
+ai-c3 = ["dep:ai-c3"]
+dwm1001 = ["dep:dwm1001"]
+espressif-esp32-c6-devkitc-1 = ["dep:espressif-esp32-c6-devkitc-1"]
+espressif-esp32-s3-wroom-1 = ["dep:espressif-esp32-s3-wroom-1"]
+espressif-esp32-wroom-32 = ["dep:espressif-esp32-wroom-32"]
+microbit = ["dep:microbit"]
+microbit-v2 = ["dep:microbit-v2"]
+nrf52840-mdk = ["dep:nrf52840-mdk"]
+nrf52840dk = ["dep:nrf52840dk"]
+nrf52dk = ["dep:nrf52dk"]
+nrf5340dk = ["dep:nrf5340dk"]
+particle-xenon = ["dep:particle-xenon"]
+rpi-pico = ["dep:rpi-pico"]
+rpi-pico-w = ["dep:rpi-pico", "rpi-pico?/rpi-pico-w"]
+st-nucleo-f401re = ["dep:st-nucleo-f401re"]
+st-nucleo-h755zi-q = ["dep:st-nucleo-h755zi-q"]
+st-nucleo-wb55 = ["dep:st-nucleo-wb55"]

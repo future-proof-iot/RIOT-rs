@@ -41,9 +41,9 @@ threading = [
 ## Enables the internal executor's timer queue, required for timer support.
 time = ["ariel-os-embassy/time"]
 ## Enables the [`random`] module.
-random = ["ariel-os-random"]
+random = ["dep:ariel-os-random"]
 ## Enables a cryptographically secure random number generator in the [`random`] module.
-csprng = ["ariel-os-random/csprng"]
+csprng = ["dep:ariel-os-random", "ariel-os-random?/csprng"]
 ## Enables seeding the random number generator from hardware.
 hwrng = ["ariel-os-embassy/hwrng"]
 

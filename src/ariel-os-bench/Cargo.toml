@@ -17,3 +17,6 @@ cortex-m = { workspace = true }
 
 [target.'cfg(context = "esp")'.dependencies]
 esp-hal = { workspace = true }
+
+[features]
+defmt = ["dep:defmt"]
