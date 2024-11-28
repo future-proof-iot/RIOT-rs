@@ -10,7 +10,7 @@ Welcome and thanks for your interest in contributing to Ariel OS! We appreciate 
     - Please indicate a ready-for-review PR with the button in GitHub
     - We use [Conventional Commits](https://www.conventionalcommits.org/en)
 - Please check our [Coding Conventions](https://ariel-os.github.io/ariel-os/dev/docs/book/coding-conventions.html)
-- Ariel OS is dual [licensed](https://github.com/ariel-os/ariel-os/blob/main/LICENSE) under the Apache-2.0 and MIT licenses
+- Ariel OS is dual licensed under the [Apache-2.0](./LICENSE-APACHE) and [MIT](./LICENSE-MIT) licenses
 
 
 ## Roadmap
