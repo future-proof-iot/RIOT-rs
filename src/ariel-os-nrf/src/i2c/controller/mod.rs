@@ -207,8 +207,8 @@ fn from_error(err: embassy_nrf::twim::Error) -> ariel_os_embassy_common::i2c::co
 // Define a driver per peripheral
 #[cfg(any(context = "nrf52833", context = "nrf52840"))]
 define_i2c_drivers!(
-    SPIM0_SPIS0_TWIM0_TWIS0_SPI0_TWI0 => TWISPI0,
-    SPIM1_SPIS1_TWIM1_TWIS1_SPI1_TWI1 => TWISPI1,
+    TWISPI0 => TWISPI0,
+    TWISPI1 => TWISPI1,
 );
 #[cfg(context = "nrf5340")]
 define_i2c_drivers!(
