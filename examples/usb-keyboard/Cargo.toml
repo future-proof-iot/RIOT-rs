@@ -1,3 +1,5 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "usb-keyboard"
 version = "0.1.0"
