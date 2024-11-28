@@ -11,7 +11,7 @@ use embassy_nrf::{
 #[cfg(context = "nrf52")]
 bind_interrupts!(struct Irqs {
     USBD => usb::InterruptHandler<peripherals::USBD>;
-    POWER_CLOCK => vbus_detect::InterruptHandler;
+    CLOCK_POWER => vbus_detect::InterruptHandler;
 });
 
 #[cfg(context = "nrf5340")]

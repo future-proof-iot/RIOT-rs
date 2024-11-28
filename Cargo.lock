@@ -157,7 +157,7 @@ dependencies = [
  "critical-section",
  "embassy-futures",
  "embassy-net",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embedded-io-async",
  "embedded-nal-async",
  "embedded-nal-coap",
@@ -198,7 +198,7 @@ dependencies = [
  "embassy-executor",
  "embassy-hal-internal",
  "embassy-net",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embassy-usb",
  "embedded-hal 1.0.0",
@@ -309,7 +309,7 @@ dependencies = [
 name = "ariel-os-random"
 version = "0.1.0"
 dependencies = [
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "rand_chacha",
  "rand_core",
  "rand_pcg",
@@ -387,7 +387,7 @@ dependencies = [
  "arrayvec",
  "cfg-if",
  "embassy-embedded-hal",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embedded-storage-async",
  "once_cell",
@@ -632,7 +632,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "57a6508c63d7d137e8188833d9ed3ca97e40d676cf5217874c8c1c24851b012d"
 dependencies = [
  "defmt",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embedded-io 0.6.1",
  "embedded-io-async",
  "futures-intrusive",
@@ -789,7 +789,7 @@ dependencies = [
  "coap-scroll-ring-server",
  "embassy-futures",
  "embassy-net",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embedded-nal-coap",
  "heapless 0.8.0",
  "scroll-ring",
@@ -940,7 +940,7 @@ dependencies = [
  "coap-handler-implementations",
  "coap-message",
  "coap-message-demos",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "heapless 0.8.0",
 ]
 
@@ -1127,13 +1127,13 @@ dependencies = [
 [[package]]
 name = "cyw43"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
  "embassy-futures",
  "embassy-net-driver-channel",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embedded-hal 1.0.0",
  "futures",
@@ -1144,7 +1144,7 @@ dependencies = [
 [[package]]
 name = "cyw43-pio"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "cyw43",
  "embassy-rp",
@@ -1383,7 +1383,7 @@ checksum = "5794414bc20e0d750f145bc0e82366b19dd078e9e075e8331fb8dd069a1cb6a2"
 dependencies = [
  "defmt",
  "embassy-futures",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embedded-hal 0.2.7",
  "embedded-hal 1.0.0",
@@ -1395,8 +1395,8 @@ dependencies = [
 
 [[package]]
 name = "embassy-executor"
-version = "0.6.1"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+version = "0.6.3"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -1408,8 +1408,8 @@ dependencies = [
 
 [[package]]
 name = "embassy-executor-macros"
-version = "0.6.1"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+version = "0.6.2"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -1429,7 +1429,7 @@ dependencies = [
 [[package]]
 name = "embassy-hal-internal"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -1445,7 +1445,7 @@ dependencies = [
  "ariel-os-boards",
  "embassy-net",
  "embassy-nrf",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embedded-io-async",
  "heapless 0.8.0",
  "httparse",
@@ -1456,25 +1456,25 @@ dependencies = [
 
 [[package]]
 name = "embassy-net"
-version = "0.4.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+version = "0.5.0"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "defmt",
  "document-features",
  "embassy-net-driver",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embedded-io-async",
  "embedded-nal-async",
  "heapless 0.8.0",
  "managed",
- "smoltcp 0.11.0 (git+https://github.com/smoltcp-rs/smoltcp?rev=fe0b4d102253465850cd1cf39cd33d4721a4a8d5)",
+ "smoltcp 0.12.0",
 ]
 
 [[package]]
 name = "embassy-net-driver"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "defmt",
 ]
@@ -1482,17 +1482,17 @@ dependencies = [
 [[package]]
 name = "embassy-net-driver-channel"
 version = "0.3.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "embassy-futures",
  "embassy-net-driver",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
 ]
 
 [[package]]
 name = "embassy-nrf"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "bitflags 2.6.0",
  "cfg-if",
@@ -1503,7 +1503,7 @@ dependencies = [
  "document-features",
  "embassy-embedded-hal",
  "embassy-hal-internal",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embassy-time-driver",
  "embassy-usb-driver",
@@ -1522,7 +1522,7 @@ dependencies = [
 [[package]]
 name = "embassy-rp"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "atomic-polyfill",
  "cfg-if",
@@ -1534,7 +1534,7 @@ dependencies = [
  "embassy-embedded-hal",
  "embassy-futures",
  "embassy-hal-internal",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embassy-time-driver",
  "embassy-usb-driver",
@@ -1560,7 +1560,7 @@ dependencies = [
 [[package]]
 name = "embassy-stm32"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "aligned",
  "bit_field",
@@ -1576,7 +1576,7 @@ dependencies = [
  "embassy-futures",
  "embassy-hal-internal",
  "embassy-net-driver",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-time",
  "embassy-time-driver",
  "embassy-usb-driver",
@@ -1617,8 +1617,8 @@ dependencies = [
 
 [[package]]
 name = "embassy-sync"
-version = "0.6.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+version = "0.6.1"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -1651,7 +1651,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-driver"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "document-features",
 ]
@@ -1659,7 +1659,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-queue-driver"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 
 [[package]]
 name = "embassy-usb"
@@ -1670,7 +1670,7 @@ dependencies = [
  "defmt",
  "embassy-futures",
  "embassy-net-driver-channel",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-usb-driver",
  "heapless 0.8.0",
  "ssmarshal",
@@ -1680,7 +1680,7 @@ dependencies = [
 [[package]]
 name = "embassy-usb-driver"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "defmt",
 ]
@@ -1688,10 +1688,11 @@ dependencies = [
 [[package]]
 name = "embassy-usb-synopsys-otg"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-06#af2533fffdd50d35a1fdee682a1e7ed5ccc5e3d8"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
 dependencies = [
  "critical-section",
- "embassy-sync 0.6.0",
+ "defmt",
+ "embassy-sync 0.6.1",
  "embassy-usb-driver",
 ]
 
@@ -1935,7 +1936,7 @@ dependencies = [
 [[package]]
 name = "esp-alloc"
 version = "0.5.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "critical-section",
  "enumset",
@@ -1945,7 +1946,7 @@ dependencies = [
 [[package]]
 name = "esp-build"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "quote",
  "syn 2.0.87",
@@ -1955,7 +1956,7 @@ dependencies = [
 [[package]]
 name = "esp-config"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "document-features",
 ]
@@ -1963,7 +1964,7 @@ dependencies = [
 [[package]]
 name = "esp-hal"
 version = "0.21.1"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "basic-toml",
  "bitfield 0.16.1",
@@ -1976,7 +1977,7 @@ dependencies = [
  "delegate",
  "document-features",
  "embassy-futures",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embassy-usb-driver",
  "embassy-usb-synopsys-otg",
  "embedded-can",
@@ -2018,7 +2019,7 @@ dependencies = [
 [[package]]
 name = "esp-hal-embassy"
 version = "0.4.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "critical-section",
  "document-features",
@@ -2035,7 +2036,7 @@ dependencies = [
 [[package]]
 name = "esp-hal-procmacros"
 version = "0.14.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "darling",
  "document-features",
@@ -2051,7 +2052,7 @@ dependencies = [
 [[package]]
 name = "esp-metadata"
 version = "0.4.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "anyhow",
  "basic-toml",
@@ -2062,7 +2063,7 @@ dependencies = [
 [[package]]
 name = "esp-println"
 version = "0.12.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "critical-section",
  "defmt",
@@ -2074,7 +2075,7 @@ dependencies = [
 [[package]]
 name = "esp-riscv-rt"
 version = "0.9.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "document-features",
  "riscv",
@@ -2097,7 +2098,7 @@ dependencies = [
 [[package]]
 name = "esp-wifi"
 version = "0.10.1"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "bt-hci",
  "cfg-if",
@@ -2105,7 +2106,7 @@ dependencies = [
  "defmt",
  "document-features",
  "embassy-net-driver",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embedded-io 0.6.1",
  "embedded-io-async",
  "enumset",
@@ -2122,7 +2123,7 @@ dependencies = [
  "num-traits",
  "portable-atomic",
  "portable_atomic_enum",
- "smoltcp 0.11.0 (registry+https://github.com/rust-lang/crates.io-index)",
+ "smoltcp 0.11.0",
  "xtensa-lx-rt",
 ]
 
@@ -2659,7 +2660,7 @@ version = "0.1.0"
 dependencies = [
  "ariel-os",
  "ariel-os-boards",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embedded-hal 1.0.0",
  "embedded-hal-async",
  "once_cell",
@@ -3098,7 +3099,7 @@ dependencies = [
 [[package]]
 name = "nrf-pac"
 version = "0.1.0"
-source = "git+https://github.com/embassy-rs/nrf-pac?rev=875a29629cc1c87aae00cfea647a956b3807d8be#875a29629cc1c87aae00cfea647a956b3807d8be"
+source = "git+https://github.com/embassy-rs/nrf-pac?rev=52e3a757f06035c94291bfc42b0c03f71e4d677e#52e3a757f06035c94291bfc42b0c03f71e4d677e"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
@@ -3131,31 +3132,6 @@ dependencies = [
  "ariel-os-debug",
  "ariel-os-rt",
  "ld-memory",
- "nrf52832-pac",
- "nrf52833-pac",
- "nrf52840-pac",
-]
-
-[[package]]
-name = "nrf52832-pac"
-version = "0.12.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0242b685c9c15648fb803e155628f42ace457478b2cb930868f40cae2db925e0"
-dependencies = [
- "cortex-m",
- "cortex-m-rt",
- "vcell",
-]
-
-[[package]]
-name = "nrf52833-pac"
-version = "0.12.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "10e1358255b360cdc816dd7b6ef81be8c8499c0998277e5249bed222bd0f5241"
-dependencies = [
- "cortex-m",
- "cortex-m-rt",
- "vcell",
 ]
 
 [[package]]
@@ -3167,17 +3143,6 @@ dependencies = [
  "cortex-m",
  "cortex-m-rt",
  "nrf52",
-]
-
-[[package]]
-name = "nrf52840-pac"
-version = "0.12.2"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "30713f36f1be02e5bc9abefa30eae4a1f943d810f199d4923d3ad062d1be1b3d"
-dependencies = [
- "cortex-m",
- "cortex-m-rt",
- "vcell",
 ]
 
 [[package]]
@@ -3391,8 +3356,8 @@ dependencies = [
 
 [[package]]
 name = "picoserve"
-version = "0.12.2"
-source = "git+https://github.com/ariel-os/picoserve?branch=update_embassy_stack_api#aaae1d90152fc0c235e200cbb00368821cf3c08a"
+version = "0.12.3"
+source = "git+https://github.com/ariel-os/picoserve?branch=bump-embassy-net-0.5.0#9640b6648f06605a3cb53af87d81ccc822efac8b"
 dependencies = [
  "const-sha1",
  "data-encoding",
@@ -4115,8 +4080,9 @@ dependencies = [
 
 [[package]]
 name = "smoltcp"
-version = "0.11.0"
-source = "git+https://github.com/smoltcp-rs/smoltcp?rev=fe0b4d102253465850cd1cf39cd33d4721a4a8d5#fe0b4d102253465850cd1cf39cd33d4721a4a8d5"
+version = "0.12.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "dad095989c1533c1c266d9b1e8d70a1329dd3723c3edac6d03bbd67e7bf6f4bb"
 dependencies = [
  "bitflags 1.3.2",
  "byteorder",
@@ -4132,7 +4098,7 @@ version = "0.1.0"
 dependencies = [
  "ariel-os",
  "ariel-os-boards",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embedded-hal-async",
  "once_cell",
  "static_cell",
@@ -4144,7 +4110,7 @@ version = "0.1.0"
 dependencies = [
  "ariel-os",
  "ariel-os-boards",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "embedded-hal-async",
  "once_cell",
  "static_cell",
@@ -4240,7 +4206,7 @@ dependencies = [
 [[package]]
 name = "stm32-metapac"
 version = "15.0.0"
-source = "git+https://github.com/embassy-rs/stm32-data-generated?tag=stm32-data-9b7414490b10ffbd5beb1b0dcf14adb018cbe37f#dc782d51865ba6a0a8dd79a4d6972864b33b6f00"
+source = "git+https://github.com/embassy-rs/stm32-data-generated?tag=stm32-data-04833817666290047257c65c6547d28e1bd10dc9#f3cb9f3c385bcbfa1e6ee525b2a7cb84967c7996"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
@@ -4456,7 +4422,7 @@ version = "0.1.0"
 dependencies = [
  "ariel-os",
  "ariel-os-boards",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
 ]
 
 [[package]]
@@ -4683,7 +4649,7 @@ version = "0.1.0"
 dependencies = [
  "ariel-os",
  "ariel-os-boards",
- "embassy-sync 0.6.0",
+ "embassy-sync 0.6.1",
  "static_cell",
 ]
 
@@ -4927,7 +4893,7 @@ dependencies = [
 [[package]]
 name = "xtensa-lx-rt"
 version = "0.17.1"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "anyhow",
  "bare-metal 1.0.0",
@@ -4945,7 +4911,7 @@ dependencies = [
 [[package]]
 name = "xtensa-lx-rt-proc-macros"
 version = "0.2.2"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -4983,4 +4949,4 @@ checksum = "ced3678a2879b30306d323f4542626697a464a97c0a07c9aebf7ebca65cd4dde"
 [[patch.unused]]
 name = "esp-storage"
 version = "0.3.1"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377#3d8715519a702ce2bca49073bcf52a93fe5e443a"
+source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"

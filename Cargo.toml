@@ -63,17 +63,17 @@ portable-atomic = { version = "1.8.0", default-features = false, features = [
 ] }
 
 embassy-embedded-hal = { version = "0.2.0", default-features = false }
-embassy-executor = { version = "0.6.0", default-features = false }
+embassy-executor = { version = "0.6.3", default-features = false }
 embassy-futures = { version = "0.1.1", default-features = false }
 embassy-hal-internal = { version = "0.2.0", default-features = false }
-embassy-net = { version = "0.4", default-features = false }
+embassy-net = { version = "0.5", default-features = false }
 embassy-net-driver-channel = { version = "0.3.0", default-features = false }
 embassy-nrf = { version = "0.2", default-features = false }
 embassy-rp = { version = "0.2", default-features = false }
 embassy-stm32 = { version = "0.1", default-features = false }
-embassy-sync = { version = "0.6", default-features = false }
-embassy-time = { version = "0.3", default-features = false }
-embassy-usb = { version = "0.3", default-features = false }
+embassy-sync = { version = "0.6.1", default-features = false }
+embassy-time = { version = "0.3.2", default-features = false }
+embassy-usb = { version = "0.3.0", default-features = false }
 
 embedded-hal = { version = "1.0.0", default-features = false }
 embedded-hal-async = { version = "1.0.0", default-features = false }
@@ -145,30 +145,30 @@ opt-level = 3
 
 [patch.crates-io]
 # ariel-os embassy fork
-embassy-executor = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-embassy-executor-macros = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-embassy-hal-internal = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-embassy-nrf = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-embassy-net = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-embassy-rp = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-embassy-net-driver = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-embassy-net-driver-channel = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-embassy-stm32 = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-embassy-sync = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-embassy-time-driver = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-embassy-time-queue-driver = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-embassy-usb-driver = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-embassy-usb-synopsys-otg = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-cyw43 = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
-cyw43-pio = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-06" }
+embassy-executor = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+embassy-executor-macros = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+embassy-hal-internal = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+embassy-nrf = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+embassy-net = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+embassy-rp = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+embassy-net-driver = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+embassy-net-driver-channel = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+embassy-stm32 = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+embassy-sync = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+embassy-time-driver = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+embassy-time-queue-driver = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+embassy-usb-driver = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+embassy-usb-synopsys-otg = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+cyw43 = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
+cyw43-pio = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
 
 # ariel-os esp-hal fork
-esp-alloc = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377" }
-esp-hal = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377" }
-esp-hal-embassy = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377" }
-esp-println = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377" }
-esp-wifi = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377" }
-esp-storage = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377" }
+esp-alloc = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
+esp-hal = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
+esp-hal-embassy = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
+esp-println = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
+esp-wifi = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
+esp-storage = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
 
 # patched to use portable-atomics <https://github.com/seanmonstar/try-lock/pull/11>
 try-lock = { git = "https://github.com/seanmonstar/try-lock", rev = "a1aadfac9840fe23672159c12af7272e44bc684c" }
