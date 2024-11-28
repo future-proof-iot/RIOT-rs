@@ -2,10 +2,10 @@
 # /// script
 # requires-python = ">= 3.10"
 # dependencies = [
-#   "lakers-python == 0.3.1",
-#   "aiocoap[oscore] == 0.4.8",
+#   "lakers-python == 0.4.1",
+#   "aiocoap[oscore] == 0.4.12",
 #   "cbor2",
-#   "coap_console == 0.0.1",
+#   "coap_console == 0.0.3",
 # ]
 # ///
 """
@@ -67,7 +67,7 @@ eligible_responders_ccs = {
 eligible_responders = {}  # mapping ID_CRED_R to CRED_R
 # when ID_CRED_R is the KID. 8/1/2 is cnf/COSE_Key/kid, IIUC those should be present in suitable CCSs
 eligible_responders |= {
-    parsed[8][1][2]: ccs
+    cbor2.dumps({4: bytes.fromhex('0a')}): ccs
     for (parsed, ccs) in ((cbor2.loads(ccs), ccs) for ccs in eligible_responders_ccs)
 }
 # when ID_CRED_R is CRED_R
