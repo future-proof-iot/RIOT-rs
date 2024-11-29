@@ -89,7 +89,11 @@ i2c = [
 ]
 
 ## Enables SPI support.
-spi = ["dep:fugit", "ariel-os-embassy-common/spi"]
+spi = [
+  "dep:fugit",
+  "ariel-os-embassy-common/spi",
+  "embassy-executor/integrated-timers",
+]
 
 ## Enables defmt support.
 defmt = ["dep:defmt", "esp-hal/defmt", "esp-wifi?/defmt", "fugit?/defmt"]
