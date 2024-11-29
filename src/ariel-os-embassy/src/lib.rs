@@ -127,7 +127,7 @@ pub(crate) fn init() {
 }
 
 #[cfg(feature = "executor-single-thread")]
-#[export_name = "ariel_os_embassy_init"]
+#[export_name = "__ariel_os_embassy_init"]
 fn init() -> ! {
     debug!("ariel-os-embassy::init(): using single thread executor");
     let p = hal::init();
