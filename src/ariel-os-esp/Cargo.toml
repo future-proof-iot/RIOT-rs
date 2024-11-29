@@ -22,7 +22,6 @@ esp-hal = { workspace = true, default-features = false }
 esp-hal-embassy = { workspace = true, default-features = false }
 esp-wifi = { workspace = true, default-features = false, features = [
   "esp-alloc",
-  "embassy-net",
   "wifi",
 ], optional = true }
 fugit = { workspace = true, optional = true }
