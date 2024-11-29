@@ -42,9 +42,9 @@ pub(crate) fn config() -> embassy_net::Config {
     #[cfg(feature = "override-network-config")]
     {
         extern "Rust" {
-            fn ariel_os_network_config() -> embassy_net::Config;
+            fn __ariel_os_network_config() -> embassy_net::Config;
         }
-        unsafe { ariel_os_network_config() }
+        unsafe { __ariel_os_network_config() }
     }
 }
 
