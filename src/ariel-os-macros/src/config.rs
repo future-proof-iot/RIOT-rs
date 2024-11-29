@@ -60,11 +60,11 @@ pub fn config(args: TokenStream, item: TokenStream) -> TokenStream {
 
     let (config_fn_name, return_type) = match attrs.kind {
         Some(ConfigKind::Network) => (
-            format_ident!("ariel_os_network_config"),
+            format_ident!("__ariel_os_network_config"),
             quote! {#ariel_os_crate::reexports::embassy_net::Config},
         ),
         Some(ConfigKind::Usb) => (
-            format_ident!("ariel_os_usb_config"),
+            format_ident!("__ariel_os_usb_config"),
             quote! {#ariel_os_crate::reexports::embassy_usb::Config<'static>},
         ),
         None => {

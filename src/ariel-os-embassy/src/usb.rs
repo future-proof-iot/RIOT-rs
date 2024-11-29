@@ -61,8 +61,8 @@ pub(crate) fn config() -> embassy_usb::Config<'static> {
     #[cfg(feature = "override-usb-config")]
     {
         extern "Rust" {
-            fn ariel_os_usb_config() -> embassy_usb::Config<'static>;
+            fn __ariel_os_usb_config() -> embassy_usb::Config<'static>;
         }
-        unsafe { ariel_os_usb_config() }
+        unsafe { __ariel_os_usb_config() }
     }
 }
