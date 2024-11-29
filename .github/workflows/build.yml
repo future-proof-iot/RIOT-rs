@@ -1,13 +1,31 @@
 name: Build
 
+# TODO: factor this out when GA support YAML Anchors
+# https://github.com/actions/runner/issues/1182#issuecomment-2317953582
 on:
   push:
     branches:
       - main
+    paths-ignore:
+      - 'book/**'
+      - 'doc/**'
+      - _typos.toml
+      - '*.md'
   pull_request:
     branches:
       - main
+    paths-ignore:
+      - '.github/**' # FIXME: obviously a bad idea, this is only a test
+      - 'book/**'
+      - 'doc/**'
+      - _typos.toml
+      - '*.md'
   merge_group:
+    paths-ignore:
+      - 'book/**'
+      - 'doc/**'
+      - _typos.toml
+      - '*.md'
   schedule:
     # run every morning at 3:17am
     - cron: '17 3 * * *'
