@@ -27,8 +27,8 @@ ariel_os::define_peripherals!(Peripherals {
 
 #[cfg(context = "esp")]
 ariel_os::define_peripherals!(Peripherals {
-    led1: GPIO_0,
-    btn1: GPIO_1
+    led1: GPIO0,
+    btn1: GPIO1
 });
 
 #[cfg(context = "st-nucleo-f401re")]

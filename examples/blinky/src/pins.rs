@@ -16,7 +16,7 @@ ariel_os::define_peripherals!(LedPeripherals { led: P0_28 });
 ariel_os::define_peripherals!(LedPeripherals { led: PIN_1 });
 
 #[cfg(context = "esp")]
-ariel_os::define_peripherals!(LedPeripherals { led: GPIO_0 });
+ariel_os::define_peripherals!(LedPeripherals { led: GPIO0 });
 
 #[cfg(context = "st-nucleo-f401re")]
 ariel_os::define_peripherals!(LedPeripherals { led: PA5 });
