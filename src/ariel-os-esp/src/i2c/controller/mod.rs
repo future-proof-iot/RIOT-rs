@@ -3,7 +3,7 @@
 use ariel_os_embassy_common::impl_async_i2c_for_driver_enum;
 use esp_hal::{
     gpio::{InputPin, OutputPin},
-    i2c::I2c as EspI2c,
+    i2c::master::I2c as EspI2c,
     peripheral::Peripheral,
     peripherals, Async,
 };
@@ -83,7 +83,7 @@ macro_rules! define_i2c_drivers {
         $(
             /// Peripheral-specific I2C driver.
             pub struct $peripheral {
-                twim: EspI2c<'static, peripherals::$peripheral, Async>,
+                twim: EspI2c<'static, Async>,
             }
 
             impl $peripheral {
@@ -96,7 +96,10 @@ macro_rules! define_i2c_drivers {
                     scl_pin: impl Peripheral<P = SCL> + 'static,
                     config: Config,
                 ) -> I2c {
-                    let frequency = config.frequency.into();
+                    let mut twim_config = esp_hal::i2c::master::Config::default();
+                    twim_config.frequency = config.frequency.into();
+                    // Disable timeout as we implement it at a higher level.
+                    twim_config.timeout = None;
 
                     // Make this struct a compile-time-enforced singleton: having multiple statics
                     // defined with the same name would result in a compile-time error.
@@ -110,17 +113,13 @@ macro_rules! define_i2c_drivers {
                     // peripheral multiple times.
                     let i2c_peripheral = unsafe { peripherals::$peripheral::steal() };
 
-                    // NOTE(hal): even though we handle bus timeout at a higher level as well, it
-                    // does not seem possible to disable the timeout feature on ESP; so we keep the
-                    // default timeout instead (encoded as `None`).
-                    let timeout = None;
-                    let twim = EspI2c::new_with_timeout_async(
+                    let twim = EspI2c::new(
                         i2c_peripheral,
-                        sda_pin,
-                        scl_pin,
-                        frequency,
-                        timeout,
-                    );
+                        twim_config,
+                    )
+                        .into_async()
+                        .with_sda(sda_pin)
+                        .with_scl(scl_pin);
 
                     I2c::$peripheral(Self { twim })
                 }
@@ -144,8 +143,8 @@ macro_rules! define_i2c_drivers {
 }
 
 // We cannot impl From because both types are external to this crate.
-fn from_error(err: esp_hal::i2c::Error) -> ariel_os_embassy_common::i2c::controller::Error {
-    use esp_hal::i2c::Error::*;
+fn from_error(err: esp_hal::i2c::master::Error) -> ariel_os_embassy_common::i2c::controller::Error {
+    use esp_hal::i2c::master::Error::*;
 
     use ariel_os_embassy_common::i2c::controller::{Error, NoAcknowledgeSource};
 
