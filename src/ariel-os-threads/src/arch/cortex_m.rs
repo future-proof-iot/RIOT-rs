@@ -125,7 +125,7 @@ unsafe extern "C" fn PendSV() {
     unsafe {
         asm!(
             "
-            bl sched
+            bl {sched}
             cmp r0, #0
             beq 99f
 
@@ -171,6 +171,7 @@ unsafe extern "C" fn PendSV() {
             999:
             .word 0xFFFFFFFD
             ",
+            sched = sym sched,
             options(noreturn)
         )
     };
@@ -190,8 +191,6 @@ unsafe extern "C" fn PendSV() {
 ///   - `r0`: stack-pointer for new thread
 ///
 /// This function is called in PendSV.
-// TODO: make arch independent, or move to arch
-#[no_mangle]
 unsafe fn sched() -> u128 {
     loop {
         if let Some(res) = critical_section::with(|cs| {
