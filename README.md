@@ -28,8 +28,9 @@ In particular, Ariel OS aims to combine:
 - **preemptive scheduler** programming paradigms, based on formally verified modules using [hax](https://hacspec.org/blog/posts/hax-v0-1/);
 - **booting & update security**, via measured boot and secure software updates, using formally verified modules.
 
-Overall, Ariel OS gives you a 'batteries-included' experience, on par
-with [RIOT](https://github.com/RIOT-OS/RIOT). 
+Ariel OS is an offspring of [RIOT OS](https://github.com/RIOT-OS/RIOT).
+It shares many of its goals and [visions](https://doc.riot-os.org/vision.html),
+such as portability and providing a 'batteries-included' experience.
 
 ## Supported hardware
 
