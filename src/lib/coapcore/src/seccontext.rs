@@ -258,7 +258,12 @@ impl<Crypto: lakers::Crypto> SecContextState<Crypto> {
 /// While the EDHOC part could be implemented as a handler that is to be added into the tree, the
 /// OSCORE part needs to wrap the inner handler anyway, and EDHOC and OSCORE are intertwined rather
 /// strongly in processing the EDHOC option.
-pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> {
+pub struct OscoreEdhocHandler<
+    'a,
+    H: coap_handler::Handler,
+    Crypto: lakers::Crypto,
+    CryptoFactory: Fn() -> Crypto,
+> {
     // It'd be tempted to have sharing among multiple handlers for multiple CoAP stacks, but
     // locks for such sharing could still be acquired in a factory (at which point it may make
     // sense to make this a &mut).
@@ -276,16 +281,18 @@ pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler, Crypto: lakers::Cryp
     // called, or an AuthorizationChecked::Allowed is around.
     inner: H,
 
-    crypto_factory: fn() -> Crypto,
+    crypto_factory: CryptoFactory,
 }
 
-impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> OscoreEdhocHandler<'a, H, Crypto> {
+impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -> Crypto>
+    OscoreEdhocHandler<'a, H, Crypto, CryptoFactory>
+{
     // FIXME: Apart from an own identity, this will also need a function to convert ID_CRED_I into
     // a (CRED_I, AifStaticRest) pair.
     pub fn new(
         own_identity: (&'a lakers::Credential, &'a lakers::BytesP256ElemLen),
         inner: H,
-        crypto_factory: fn() -> Crypto,
+        crypto_factory: CryptoFactory,
     ) -> Self {
         Self {
             pool: Default::default(),
@@ -384,8 +391,8 @@ impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrI
     }
 }
 
-impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
-    for OscoreEdhocHandler<'a, H, Crypto>
+impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -> Crypto>
+    coap_handler::Handler for OscoreEdhocHandler<'a, H, Crypto, CryptoFactory>
 {
     type RequestData = OrInner<
         EdhocResponse<Result<H::RequestData, H::ExtractRequestError>>,
