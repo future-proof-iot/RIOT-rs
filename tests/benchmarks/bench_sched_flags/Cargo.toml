@@ -1,7 +1,6 @@
 [package]
 name = "bench_sched_flags"
 version = "0.1.0"
-authors = ["Elena Frank <elena.frank@proton.me>"]
 license.workspace = true
 edition.workspace = true
 publish = false

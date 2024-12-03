@@ -1,7 +1,6 @@
 [package]
 name = "threading-lock"
 version = "0.1.0"
-authors = ["Elena Frank <elena.frank@proton.me>"]
 edition.workspace = true
 license.workspace = true
 publish = false

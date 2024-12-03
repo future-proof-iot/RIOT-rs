@@ -1,7 +1,6 @@
 [package]
 name = "stm32f4xx"
 version = "0.1.0"
-authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 license.workspace = true
 edition.workspace = true
 
