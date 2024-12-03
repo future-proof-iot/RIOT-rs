@@ -337,6 +337,7 @@ pub enum OwnRequestData<I> {
         correlation: liboscore::raw::oscore_requestid_t,
         extracted: AuthorizationChecked<I>,
     },
+    ProcessedToken,
 }
 
 // FIXME: It'd be tempting to implement Drop for Response to set the slot back to Empty -- but
@@ -421,6 +422,9 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
             WellKnown,
             /// Seen path ".well-known" and "edhoc"
             WellKnownEdhoc,
+            /// Seen path "authz-info"
+            // FIXME: Should we allow arbitrary paths here?
+            AuthzInfo,
             /// Seen anything else (where the request handler, or more likely the ACL filter, will
             /// trip over the critical options)
             Unencrypted,
@@ -439,11 +443,14 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
                     // extraction)
                     (Start, option::OSCORE, [.., kid]) => (Oscore { kid: *kid }, false),
                     (Start, option::URI_PATH, b".well-known") => (WellKnown, false),
+                    (Start, option::URI_PATH, b"authz-info") => (AuthzInfo, false),
                     (Start, option::URI_PATH, _) => (Unencrypted, true /* doesn't matter */),
                     (Oscore { kid }, option::EDHOC, b"") => {
                         (Edhoc { kid }, true /* doesn't matter */)
                     }
                     (WellKnown, option::URI_PATH, b"edhoc") => (WellKnownEdhoc, false),
+                    (AuthzInfo, option::CONTENT_FORMAT, &[19]) => (AuthzInfo, false),
+                    (AuthzInfo, option::ACCEPT, &[19]) => (AuthzInfo, false),
                     (any, _, _) => (any, true),
                 }
             }
@@ -463,7 +470,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
             // FIXME: This aborts early on critical options, even when the result is later ignored
             .ignore_elective_others();
 
-        if let (Err(error), WellKnownEdhoc) = (extra_options, state) {
+        if let (Err(error), WellKnownEdhoc | AuthzInfo) = (extra_options, state) {
             // Critical options in all other cases are handled by the Unencrypted or Oscore
             // handlers
             return Err(Own(error));
@@ -550,6 +557,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
                     Err(Own(CoAPError::bad_request()))
                 }
             }
+            AuthzInfo => Ok(Own(OwnRequestData::ProcessedToken)),
             Edhoc { kid } | Oscore { kid } => {
                 let payload = request.payload();
 
@@ -884,6 +892,9 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
                 response
                     .set_payload(message_2.as_slice())
                     .map_err(|x| Own(x.into()))?;
+            }
+            Own(OwnRequestData::ProcessedToken) => {
+                response.set_code(M::Code::new(coap_numbers::code::INTERNAL_SERVER_ERROR).unwrap());
             }
             Own(OwnRequestData::EdhocOscoreRequest {
                 kid,
