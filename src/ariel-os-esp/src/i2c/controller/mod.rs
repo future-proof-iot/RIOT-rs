@@ -2,9 +2,7 @@
 
 use ariel_os_embassy_common::impl_async_i2c_for_driver_enum;
 use esp_hal::{
-    gpio::{InputPin, OutputPin},
-    i2c::master::I2c as EspI2c,
-    peripheral::Peripheral,
+    gpio::interconnect::PeripheralOutput, i2c::master::I2c as EspI2c, peripheral::Peripheral,
     peripherals, Async,
 };
 
@@ -91,7 +89,7 @@ macro_rules! define_i2c_drivers {
                 /// I2C peripheral.
                 #[expect(clippy::new_ret_no_self)]
                 #[must_use]
-                pub fn new<SDA: OutputPin + InputPin, SCL: OutputPin + InputPin>(
+                pub fn new<SDA: PeripheralOutput, SCL: PeripheralOutput>(
                     sda_pin: impl Peripheral<P = SDA> + 'static,
                     scl_pin: impl Peripheral<P = SCL> + 'static,
                     config: Config,
