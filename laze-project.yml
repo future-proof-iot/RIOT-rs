@@ -723,8 +723,6 @@ modules:
       - network_device
     env:
       global:
-        RUSTFLAGS:
-          - -Clink-arg=-Trom_functions.x
         FEATURES:
           - ariel-os/wifi-esp
 

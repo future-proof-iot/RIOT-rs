@@ -131,19 +131,11 @@ pub fn init() -> OptionalPeripherals {
         use esp_alloc as _;
         esp_alloc::heap_allocator!(72 * 1024);
 
-        use esp_wifi::{init, EspWifiInitFor};
-
         ariel_os_debug::log::debug!("ariel-os-embassy::hal::esp::init(): wifi");
 
         let timer = TimerGroup::new(peripherals.TIMG0.take().unwrap()).timer0;
 
-        let init = init(
-            EspWifiInitFor::Wifi,
-            timer,
-            rng,
-            peripherals.RADIO_CLK.take().unwrap(),
-        )
-        .unwrap();
+        let init = esp_wifi::init(timer, rng, peripherals.RADIO_CLK.take().unwrap()).unwrap();
 
         wifi::esp_wifi::WIFI_INIT.set(init).unwrap();
     }
