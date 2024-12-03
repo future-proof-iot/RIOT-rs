@@ -325,13 +325,13 @@ pub enum AuthorizationChecked<I> {
     NotAllowed,
 }
 
-pub enum EdhocResponse<I> {
+pub enum OwnRequestData<I> {
     // Taking a small state here: We already have a slot in the pool, storing the big data there
     #[expect(private_interfaces, reason = "should be addressed eventually")]
-    OkSend2(COwn),
+    EdhocOkSend2(COwn),
     // Could have a state Message3Processed -- but do we really want to implement that? (like, just
     // use the EDHOC option)
-    OscoreRequest {
+    EdhocOscoreRequest {
         #[expect(private_interfaces, reason = "should be addressed eventually")]
         kid: COwn,
         correlation: liboscore::raw::oscore_requestid_t,
@@ -395,7 +395,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
     coap_handler::Handler for OscoreEdhocHandler<'a, H, Crypto, CryptoFactory>
 {
     type RequestData = OrInner<
-        EdhocResponse<Result<H::RequestData, H::ExtractRequestError>>,
+        OwnRequestData<Result<H::RequestData, H::ExtractRequestError>>,
         AuthorizationChecked<H::RequestData>,
     >;
 
@@ -544,7 +544,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
                         debug!("To insert new EDHOC, evicted none");
                     }
 
-                    Ok(Own(EdhocResponse::OkSend2(c_r)))
+                    Ok(Own(OwnRequestData::EdhocOkSend2(c_r)))
                 } else {
                     // for the time being we'll only take the EDHOC option
                     Err(Own(CoAPError::bad_request()))
@@ -799,7 +799,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
                     return Err(Own(CoAPError::unauthorized()));
                 };
 
-                Ok(Own(EdhocResponse::OscoreRequest {
+                Ok(Own(OwnRequestData::EdhocOscoreRequest {
                     kid,
                     correlation,
                     extracted,
@@ -822,7 +822,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
         use OrInner::{Inner, Own};
 
         match req {
-            Own(EdhocResponse::OkSend2(c_r)) => {
+            Own(OwnRequestData::EdhocOkSend2(c_r)) => {
                 // FIXME: Why does the From<O> not do the map_err?
                 response.set_code(
                     M::Code::new(coap_numbers::code::CHANGED).map_err(|x| Own(x.into()))?,
@@ -885,7 +885,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
                     .set_payload(message_2.as_slice())
                     .map_err(|x| Own(x.into()))?;
             }
-            Own(EdhocResponse::OscoreRequest {
+            Own(OwnRequestData::EdhocOscoreRequest {
                 kid,
                 mut correlation,
                 extracted,
