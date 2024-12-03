@@ -1,7 +1,6 @@
 [package]
 name = "coap-client"
 version = "0.1.0"
-authors = ["Christian Amsüss <chrysn@fsfe.org>"]
 license.workspace = true
 edition.workspace = true
 publish = false
