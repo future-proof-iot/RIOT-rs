@@ -120,13 +120,26 @@ impl AifStaticRest {
     }
 }
 
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Debug)]
 struct SecContextState<Crypto: lakers::Crypto> {
     // FIXME: Should also include timeout. How do? Store expiry, do raytime in not-even-RTC mode,
     // and whenever there is a new time stamp from AS, remove old ones?
     authorization: AifStaticRest,
     protocol_stage: SecContextStage<Crypto>,
+}
+
+// Not sure why this is needed compared to a plain derive; seems that the derive is not happy with
+// Crypto not being Format, even though no instance of Crypto shows up.
+#[cfg(feature = "defmt")]
+impl<Crypto: lakers::Crypto> defmt::Format for SecContextState<Crypto> {
+    fn format(&self, f: defmt::Formatter) {
+        defmt::write!(
+            f,
+            "SecContextState {{ authorization: {}, protocol_stage: {} }}",
+            self.authorization,
+            self.protocol_stage
+        );
+    }
 }
 
 impl<Crypto: lakers::Crypto> Default for SecContextState<Crypto> {

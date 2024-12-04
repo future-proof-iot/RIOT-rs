@@ -36,5 +36,5 @@ defmt = { workspace = true, optional = true }
 log = { version = "0.4", optional = true }
 
 [features]
-defmt = ["defmt-or-log/defmt", "dep:defmt"]
+defmt = ["defmt-or-log/defmt", "dep:defmt", "lakers/defmt"]
 log = ["defmt-or-log/log", "dep:log"]
