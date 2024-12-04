@@ -35,6 +35,24 @@ defmt-or-log = { version = "0.2.1", default-features = false }
 defmt = { workspace = true, optional = true }
 log = { version = "0.4", optional = true }
 
+document-features = "0.2.10"
+
 [features]
+#! Cargo features
+
+## Sends the output of the crate's log statements to the `defmt` ecosystem.
+# `defmt` is not a link because we can't build docs with --all-features, see also
+# https://github.com/t-moe/defmt-or-log/issues/4
 defmt = ["defmt-or-log/defmt", "dep:defmt", "lakers/defmt"]
+
+## Sends the output of the crate's log statements to the `log` ecosystem.
+# `log` is not a link because we can't build docs with --all-features, see also
+# https://github.com/t-moe/defmt-or-log/issues/4
 log = ["defmt-or-log/log", "dep:log"]
+
+# Private feature that enables doc_auto_cfg
+_nightly_docs = []
+
+[package.metadata.docs.rs]
+# all non-conflicting features
+features = ["_nightly_docs"]

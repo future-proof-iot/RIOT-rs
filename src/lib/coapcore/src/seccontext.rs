@@ -409,6 +409,74 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
         }
     }
 
+    fn build_edhoc_message_2<M: MutableWritableMessage>(
+        &mut self,
+        response: &mut M,
+        c_r: COwn,
+    ) -> Result<(), Result<CoAPError, M::UnionError>> {
+        // FIXME: Why does the From<O> not do the map_err?
+        response.set_code(M::Code::new(coap_numbers::code::CHANGED).map_err(|x| Err(x.into()))?);
+
+        let message_2 = self.pool.lookup(
+            |c| c.corresponding_cown() == Some(c_r),
+            |matched| {
+                // temporary default will not live long (and may be only constructed if
+                // prepare_message_2 fails)
+                let taken = core::mem::take(matched);
+                let SecContextState {
+                    protocol_stage:
+                        SecContextStage::EdhocResponderProcessedM1 {
+                            c_r: matched_c_r,
+                            c_i,
+                            responder: taken,
+                        },
+                    authorization,
+                } = taken
+                else {
+                    todo!();
+                };
+                debug_assert_eq!(
+                    matched_c_r, c_r,
+                    "The first lookup function ensured this property"
+                );
+                let (responder, message_2) = taken
+                    // We're sending our ID by reference: we have a CCS and don't expect anyone to
+                    // run EDHOC with us who can not verify who we are (and from the CCS there is
+                    // no better way). Also, conveniently, this covers our privacy well.
+                    // (Sending ByValue would still work)
+                    .prepare_message_2(
+                        lakers::CredentialTransfer::ByReference,
+                        Some(c_r.into()),
+                        &None,
+                    )
+                    // FIXME error handling
+                    .unwrap();
+                *matched = SecContextState {
+                    protocol_stage: SecContextStage::EdhocResponderSentM2 {
+                        responder,
+                        c_i,
+                        c_r,
+                    },
+                    authorization,
+                };
+                message_2
+            },
+        );
+
+        let Some(message_2) = message_2 else {
+            // FIXME render late error (it'd help if CoAPError also offered a type that unions it
+            // with an arbitrary other error). As it is, depending on the CoAP stack, there may be
+            // DoS if a peer can send many requests before the server starts rendering responses.
+            panic!("State vanished before response was built.");
+        };
+
+        response
+            .set_payload(message_2.as_slice())
+            .map_err(|x| Err(x.into()))?;
+
+        Ok(())
+    }
+
     /// Process a CoAP request containing an OSCORE option and possibly an EDHOC option.
     fn extract_oscore_edhoc<M: ReadableMessage>(
         &mut self,
@@ -672,6 +740,104 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
 
         Ok((sec_context_state, cutoff))
     }
+
+    fn build_oscore_response<M: MutableWritableMessage>(
+        &mut self,
+        response: &mut M,
+        kid: COwn,
+        mut correlation: liboscore::raw::oscore_requestid_t,
+        extracted: AuthorizationChecked<Result<H::RequestData, H::ExtractRequestError>>,
+    ) -> Result<(), Result<CoAPError, M::UnionError>> {
+        response.set_code(M::Code::new(coap_numbers::code::CHANGED).map_err(|x| Err(x.into()))?);
+
+        self.pool
+                    .lookup(|c| c.corresponding_cown() == Some(kid), |matched| {
+                        // Not checking authorization any more: we don't even have access to the
+                        // request any more, that check was done.
+                        let SecContextState { protocol_stage: SecContextStage::Oscore(ref mut oscore_context), .. } = matched else {
+                            // State vanished before response was built.
+                            //
+                            // As it is, depending on the CoAP stack, there may be DoS if a peer
+                            // can send many requests before the server starts rendering responses.
+                            return Err(CoAPError::internal_server_error());
+                        };
+
+                        let response = coap_message_implementations::inmemory_write::Message::downcast_from(response)
+                            .expect("OSCORE handler currently requires a response message implementation that is of fixed type");
+
+                        response.set_code(coap_numbers::code::CHANGED);
+
+                        if liboscore::protect_response(
+                            response,
+                            // SECURITY BIG FIXME: How do we make sure that our correlation is really for
+                            // what we find in the pool and not for what wound up there by the time we send
+                            // the response? (Can't happen with the current stack, but conceptually there
+                            // should be a tie; carry the OSCORE context in an owned way?).
+                            oscore_context,
+                            &mut correlation,
+                            |response| match extracted {
+                                AuthorizationChecked::Allowed(Ok(extracted)) => match self.inner.build_response(response, extracted) {
+                                    Ok(()) => {
+                                        // All fine, response was built
+                                    },
+                                    // One attempt to render rendering errors
+                                    // FIXME rewind message
+                                    Err(e) => {
+                                        error!("Rendering successful extraction failed with {:?}", Debug2Format(&e));
+                                        match e.render(response) {
+                                            Ok(()) => {
+                                                error!("Error rendered.");
+                                            },
+                                            Err(e2) => {
+                                                error!("Error could not be rendered: {:?}.", Debug2Format(&e2));
+                                                // FIXME rewind message
+                                                response.set_code(coap_numbers::code::INTERNAL_SERVER_ERROR);
+                                            }
+                                        };
+                                    },
+                                },
+                                AuthorizationChecked::Allowed(Err(inner_request_error)) => {
+                                    error!("Extraction failed with {:?}.", Debug2Format(&inner_request_error));
+                                    match inner_request_error.render(response) {
+                                        Ok(()) => {
+                                            error!("Original error rendered successfully.");
+                                        },
+                                        Err(e) => {
+                                            error!("Original error could not be rendered due to {:?}:", Debug2Format(&e));
+                                            // Two attempts to render extraction errors
+                                            // FIXME rewind message
+                                            match e.render(response) {
+                                                Ok(()) => {
+                                                    error!("Error was rendered fine.");
+                                                },
+                                                Err(e2) => {
+                                                    error!("Rendering error caused {:?}.", Debug2Format(&e2));
+                                                    // FIXME rewind message
+                                                    response.set_code(
+                                                        coap_numbers::code::INTERNAL_SERVER_ERROR,
+                                                    );
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                                AuthorizationChecked::NotAllowed => {
+                                    response.set_code(
+                                        coap_numbers::code::UNAUTHORIZED,
+                                    );
+                                }
+                            },
+                        )
+                        .is_err()
+                        {
+                            error!("Oups, responding with weird state");
+                            // todo!("Thanks to the protect API we've lost access to our response");
+                        }
+                        Ok(())
+                    })
+                .transpose().map_err(|e| Ok(e))?;
+        Ok(())
+    }
 }
 
 /// Wrapper around for a handler's inner RequestData
@@ -759,7 +925,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
 
     type ExtractRequestError = OrInner<CoAPError, H::ExtractRequestError>;
     type BuildResponseError<M: MinimalWritableMessage> =
-        OrInner<M::UnionError, H::BuildResponseError<M>>;
+        OrInner<Result<CoAPError, M::UnionError>, H::BuildResponseError<M>>;
 
     fn extract_request_data<M: ReadableMessage>(
         &mut self,
@@ -875,170 +1041,26 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
 
         match req {
             Own(OwnRequestData::EdhocOkSend2(c_r)) => {
-                // FIXME: Why does the From<O> not do the map_err?
-                response.set_code(
-                    M::Code::new(coap_numbers::code::CHANGED).map_err(|x| Own(x.into()))?,
-                );
-
-                let message_2 = self.pool.lookup(
-                    |c| c.corresponding_cown() == Some(c_r),
-                    |matched| {
-                        // temporary default will not live long (and may be only constructed if
-                        // prepare_message_2 fails)
-                        let taken = core::mem::take(matched);
-                        let SecContextState {
-                            protocol_stage:
-                                SecContextStage::EdhocResponderProcessedM1 {
-                                    c_r: matched_c_r,
-                                    c_i,
-                                    responder: taken,
-                                },
-                            authorization,
-                        } = taken
-                        else {
-                            todo!();
-                        };
-                        debug_assert_eq!(
-                            matched_c_r, c_r,
-                            "The first lookup function ensured this property"
-                        );
-                        let (responder, message_2) = taken
-                            // We're sending our ID by reference: we have a CCS and don't expect anyone to
-                            // run EDHOC with us who can not verify who we are (and from the CCS there is
-                            // no better way). Also, conveniently, this covers our privacy well.
-                            // (Sending ByValue would still work)
-                            .prepare_message_2(
-                                lakers::CredentialTransfer::ByReference,
-                                Some(c_r.into()),
-                                &None,
-                            )
-                            // FIXME error handling
-                            .unwrap();
-                        *matched = SecContextState {
-                            protocol_stage: SecContextStage::EdhocResponderSentM2 {
-                                responder,
-                                c_i,
-                                c_r,
-                            },
-                            authorization,
-                        };
-                        message_2
-                    },
-                );
-
-                let Some(message_2) = message_2 else {
-                    // FIXME render late error (it'd help if CoAPError also offered a type that unions it
-                    // with an arbitrary other error). As it is, depending on the CoAP stack, there may be
-                    // DoS if a peer can send many requests before the server starts rendering responses.
-                    panic!("State vanished before response was built.");
-                };
-
-                response
-                    .set_payload(message_2.as_slice())
-                    .map_err(|x| Own(x.into()))?;
+                self.build_edhoc_message_2(response, c_r).map_err(Own)?
             }
             Own(OwnRequestData::ProcessedToken) => {
                 response.set_code(M::Code::new(coap_numbers::code::INTERNAL_SERVER_ERROR).unwrap());
             }
             Own(OwnRequestData::EdhocOscoreRequest {
                 kid,
-                mut correlation,
+                correlation,
                 extracted,
             }) => {
-                response.set_code(
-                    M::Code::new(coap_numbers::code::CHANGED).map_err(|x| Own(x.into()))?,
-                );
-
-                self.pool
-                    .lookup(|c| c.corresponding_cown() == Some(kid), |matched| {
-                        // Not checking authorization any more: we don't even have access to the
-                        // request any more, that check was done.
-                        let SecContextState { protocol_stage: SecContextStage::Oscore(ref mut oscore_context), .. } = matched else {
-                            // FIXME render late error (it'd help if CoAPError also offered a type that unions it
-                            // with an arbitrary other error). As it is, depending on the CoAP stack, there may be
-                            // DoS if a peer can send many requests before the server starts rendering responses.
-                            panic!("State vanished before response was built.");
-                        };
-
-                        let response = coap_message_implementations::inmemory_write::Message::downcast_from(response)
-                            .expect("OSCORE handler currently requires a response message implementation that is of fixed type");
-
-                        response.set_code(coap_numbers::code::CHANGED);
-
-                        if liboscore::protect_response(
-                            response,
-                            // SECURITY BIG FIXME: How do we make sure that our correlation is really for
-                            // what we find in the pool and not for what wound up there by the time we send
-                            // the response? (Can't happen with the current stack, but conceptually there
-                            // should be a tie; carry the OSCORE context in an owned way?).
-                            oscore_context,
-                            &mut correlation,
-                            |response| match extracted {
-                                AuthorizationChecked::Allowed(Ok(extracted)) => match self.inner.build_response(response, extracted) {
-                                    Ok(()) => {
-                                        // All fine, response was built
-                                    },
-                                    // One attempt to render rendering errors
-                                    // FIXME rewind message
-                                    Err(e) => {
-                                        error!("Rendering successful extraction failed with {:?}", Debug2Format(&e));
-                                        match e.render(response) {
-                                            Ok(()) => {
-                                                error!("Error rendered.");
-                                            },
-                                            Err(e2) => {
-                                                error!("Error could not be rendered: {:?}.", Debug2Format(&e2));
-                                                // FIXME rewind message
-                                                response.set_code(coap_numbers::code::INTERNAL_SERVER_ERROR);
-                                            }
-                                        };
-                                    },
-                                },
-                                AuthorizationChecked::Allowed(Err(inner_request_error)) => {
-                                    error!("Extraction failed with {:?}.", Debug2Format(&inner_request_error));
-                                    match inner_request_error.render(response) {
-                                        Ok(()) => {
-                                            error!("Original error rendered successfully.");
-                                        },
-                                        Err(e) => {
-                                            error!("Original error could not be rendered due to {:?}:", Debug2Format(&e));
-                                            // Two attempts to render extraction errors
-                                            // FIXME rewind message
-                                            match e.render(response) {
-                                                Ok(()) => {
-                                                    error!("Error was rendered fine.");
-                                                },
-                                                Err(e2) => {
-                                                    error!("Rendering error caused {:?}.", Debug2Format(&e2));
-                                                    // FIXME rewind message
-                                                    response.set_code(
-                                                        coap_numbers::code::INTERNAL_SERVER_ERROR,
-                                                    );
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                                AuthorizationChecked::NotAllowed => {
-                                    response.set_code(
-                                        coap_numbers::code::UNAUTHORIZED,
-                                    );
-                                }
-                            },
-                        )
-                        .is_err()
-                        {
-                            error!("Oups, responding with weird state");
-                            // todo!("Thanks to the protect API we've lost access to our response");
-                        }
-                    });
+                self.build_oscore_response(response, kid, correlation, extracted)
+                    .map_err(Own)?;
             }
             Inner(AuthorizationChecked::Allowed(i)) => {
                 self.inner.build_response(response, i).map_err(Inner)?
             }
             Inner(AuthorizationChecked::NotAllowed) => {
                 response.set_code(
-                    M::Code::new(coap_numbers::code::UNAUTHORIZED).map_err(|x| Own(x.into()))?,
+                    M::Code::new(coap_numbers::code::UNAUTHORIZED)
+                        .map_err(|x| Own(Err(x.into())))?,
                 );
             }
         };
