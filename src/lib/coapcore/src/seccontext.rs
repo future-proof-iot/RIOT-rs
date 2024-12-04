@@ -335,6 +335,10 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
     /// Process a CoAP request containing a message sent to /.well-known/edhoc.
     ///
     /// The caller has already checked Uri-Path and all other critical options.
+    #[allow(
+        clippy::type_complexity,
+        reason = "Type is subset of RequestData that has no alias in the type"
+    )]
     fn extract_edhoc<M: ReadableMessage>(
         &mut self,
         request: &M,
@@ -478,6 +482,10 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
     }
 
     /// Process a CoAP request containing an OSCORE option and possibly an EDHOC option.
+    #[allow(
+        clippy::type_complexity,
+        reason = "Type is subset of RequestData that has no alias in the type"
+    )]
     fn extract_oscore_edhoc<M: ReadableMessage>(
         &mut self,
         request: &M,
@@ -626,7 +634,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
         {
             #[allow(clippy::indexing_slicing, reason = "slice fits by construction")]
             let msg_3 = lakers::EdhocMessageBuffer::new_from_slice(&payload[..cutoff])
-                .map_err(|e| too_small(e))?;
+                .map_err(too_small)?;
 
             let (responder, id_cred_i, ead_3) =
                 responder.parse_message_3(&msg_3).map_err(render_error)?;
@@ -835,7 +843,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
                         }
                         Ok(())
                     })
-                .transpose().map_err(|e| Ok(e))?;
+                .transpose().map_err(Ok)?;
         Ok(())
     }
 }
@@ -916,8 +924,8 @@ impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrI
     }
 }
 
-impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -> Crypto>
-    coap_handler::Handler for OscoreEdhocHandler<'a, H, Crypto, CryptoFactory>
+impl<H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -> Crypto>
+    coap_handler::Handler for OscoreEdhocHandler<'_, H, Crypto, CryptoFactory>
 {
     type RequestData = OrInner<
         OwnRequestData<Result<H::RequestData, H::ExtractRequestError>>,
