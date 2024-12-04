@@ -129,6 +129,9 @@ extern "C" fn FROM_CPU_INTR0(trap_frame: &mut TrapFrame) {
 unsafe fn sched(trap_frame: &mut TrapFrame) {
     loop {
         if SCHEDULER.with_mut(|mut scheduler| {
+            #[cfg(feature = "multi-core")]
+            scheduler.add_current_thread_to_rq();
+
             let next_pid = match scheduler.get_next_pid() {
                 Some(pid) => pid,
                 None => {
