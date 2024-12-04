@@ -81,6 +81,9 @@ impl From<COwn> for lakers::ConnId {
     }
 }
 
+/// Copy of the OSCORE option
+type OscoreOption = heapless::Vec<u8, 16>;
+
 /// A representation of an RFC9237 using the REST-specific model in a CRI variation (Toid =
 /// [*path], Tperm = u32).
 ///
@@ -397,15 +400,22 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
     fn extract_oscore_edhoc<M: ReadableMessage>(
         &mut self,
         request: &M,
-        kid: u8,
+        oscore_option: OscoreOption,
         with_edhoc: bool,
     ) -> Result<OwnRequestData<Result<H::RequestData, H::ExtractRequestError>>, CoAPError> {
         let payload = request.payload();
 
-        // This whole loop-and-tree could become a single take_responder_wait3 method?
-        let kid = COwn::from_kid(&[kid])
-            // same as if it's not found in the pool
-            .ok_or_else(CoAPError::bad_request)?;
+        // We know this to not fail b/c we only got here due to its presence
+        let oscore_option = liboscore::OscoreOption::parse(&oscore_option)
+            .map_err(|_| CoAPError::bad_option(coap_numbers::option::OSCORE))?;
+
+        let kid = COwn::from_kid(
+            oscore_option
+                .kid()
+                .ok_or(CoAPError::bad_option(coap_numbers::option::OSCORE))?,
+        )
+        // same as if it's not found in the pool
+        .ok_or_else(CoAPError::bad_request)?;
         // If we don't make progress, we're dropping it altogether. Unless we use the
         // responder we might legally continue (because we didn't send data to EDHOC), but
         // once we've received something that (as we now know) looks like a message 3 and
@@ -587,8 +597,6 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
         //     copied_message.set_from_message(request);
         // if we specified a "hiding EDHOC" message view.
         copied_message.set_code(request.code().into());
-        // Pulling out the OSCORE option while we're at it
-        let mut oscore_option = None;
         // This may panic in theory on options being added in the wrong sequence; as we
         // don't downcast, we don't get the information on whether the underlying
         // implementation produces the options in the right sequence. Practically
@@ -601,18 +609,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
             copied_message
                 .add_option(opt.number(), opt.value())
                 .unwrap();
-
-            if opt.number() == coap_numbers::option::OSCORE {
-                oscore_option = Some(
-                    heapless::Vec::<_, 16>::try_from(opt.value())
-                        .map_err(|_| CoAPError::bad_option(opt.number()))?,
-                );
-            }
         }
-        // We know this to not fail b/c we only got here due to its presence
-        let oscore_option = oscore_option.unwrap();
-        let oscore_option = liboscore::OscoreOption::parse(&oscore_option)
-            .map_err(|_| CoAPError::bad_option(coap_numbers::option::OSCORE))?;
         #[allow(clippy::indexing_slicing, reason = "slice fits by construction")]
         copied_message
             .set_payload(&payload[front_trim_payload..])
@@ -748,14 +745,14 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
     ) -> Result<Self::RequestData, Self::ExtractRequestError> {
         use OrInner::{Inner, Own};
 
-        #[derive(Default, Copy, Clone, Debug)]
+        #[derive(Default, Clone, Debug)]
         enum Recognition {
             #[default]
             Start,
             /// Seen an OSCORE option
-            Oscore { kid: u8 },
+            Oscore { oscore: OscoreOption },
             /// Seen an OSCORE option and an EDHOC option
-            Edhoc { kid: u8 },
+            Edhoc { oscore: OscoreOption },
             /// Seen path ".well-known" (after not having seen an OSCORE option)
             WellKnown,
             /// Seen path ".well-known" and "edhoc"
@@ -779,12 +776,15 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
                 match (self, o.number(), o.value()) {
                     // FIXME: Store full value (but a single one is sufficient while we do EDHOC
                     // extraction)
-                    (Start, option::OSCORE, [.., kid]) => (Oscore { kid: *kid }, false),
+                    (Start, option::OSCORE, optval) => match optval.try_into() {
+                        Ok(oscore) => (Oscore { oscore }, false),
+                        _ => (Start, true),
+                    },
                     (Start, option::URI_PATH, b".well-known") => (WellKnown, false),
                     (Start, option::URI_PATH, b"authz-info") => (AuthzInfo, false),
                     (Start, option::URI_PATH, _) => (Unencrypted, true /* doesn't matter */),
-                    (Oscore { kid }, option::EDHOC, b"") => {
-                        (Edhoc { kid }, true /* doesn't matter */)
+                    (Oscore { oscore }, option::EDHOC, b"") => {
+                        (Edhoc { oscore }, true /* doesn't matter */)
                     }
                     (WellKnown, option::URI_PATH, b"edhoc") => (WellKnownEdhoc, false),
                     (AuthzInfo, option::CONTENT_FORMAT, &[19]) => (AuthzInfo, false),
@@ -801,14 +801,14 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
         let extra_options = request
             .options()
             .filter(|o| {
-                let (new_state, filter) = state.update(o);
+                let (new_state, filter) = state.clone().update(o);
                 state = new_state;
                 filter
             })
             // FIXME: This aborts early on critical options, even when the result is later ignored
             .ignore_elective_others();
 
-        if let (Err(error), WellKnownEdhoc | AuthzInfo) = (extra_options, state) {
+        if let (Err(error), WellKnownEdhoc | AuthzInfo) = (extra_options, &state) {
             // Critical options in all other cases are handled by the Unencrypted or Oscore
             // handlers
             return Err(Own(error));
@@ -827,12 +827,12 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
             }
             WellKnownEdhoc => self.extract_edhoc(&request).map(Own).map_err(Own),
             AuthzInfo => Ok(Own(OwnRequestData::ProcessedToken)),
-            Edhoc { kid } => self
-                .extract_oscore_edhoc(&request, kid, true)
+            Edhoc { oscore } => self
+                .extract_oscore_edhoc(&request, oscore, true)
                 .map(Own)
                 .map_err(Own),
-            Oscore { kid } => self
-                .extract_oscore_edhoc(&request, kid, false)
+            Oscore { oscore } => self
+                .extract_oscore_edhoc(&request, oscore, false)
                 .map(Own)
                 .map_err(Own),
         }
