@@ -315,6 +315,344 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
             may_use_stdout: false,
         }
     }
+
+    /// Process a CoAP request containing a message sent to /.well-known/edhoc.
+    ///
+    /// The caller has already checked Uri-Path and all other critical options.
+    fn extract_edhoc<M: ReadableMessage>(
+        &mut self,
+        request: &M,
+    ) -> Result<OwnRequestData<Result<H::RequestData, H::ExtractRequestError>>, CoAPError> {
+        if request.code().into() != coap_numbers::code::POST {
+            return Err(CoAPError::method_not_allowed());
+        }
+
+        let (first_byte, edhoc_m1) = request
+            .payload()
+            .split_first()
+            .ok_or_else(CoAPError::bad_request)?;
+        let starts_with_true = first_byte == &0xf5;
+
+        if starts_with_true {
+            info!("Processing incoming EDHOC message 1");
+            let message_1 =
+                &lakers::EdhocMessageBuffer::new_from_slice(edhoc_m1).map_err(too_small)?;
+
+            let (responder, c_i, ead_1) = lakers::EdhocResponder::new(
+                (self.crypto_factory)(),
+                lakers::EDHOCMethod::StatStat,
+                *self.own_identity.1,
+                *self.own_identity.0,
+            )
+            .process_message_1(message_1)
+            .map_err(render_error)?;
+
+            if ead_1.is_some_and(|e| e.is_critical) {
+                // FIXME: send error message
+                return Err(CoAPError::bad_request());
+            }
+
+            // Let's pick one now already: this allows us to use the identifier in our
+            // request data.
+            let c_r = COwn::not_in_iter(
+                self.pool
+                    .iter()
+                    .filter_map(|entry| entry.corresponding_cown())
+                    // C_R does not only need to be unique, it also must not be identical
+                    // to C_I. If it is not expressible as a COwn (as_slice gives []),
+                    // that's fine and we don't have to consider it.
+                    .chain(COwn::from_kid(c_i.as_slice()).as_slice().iter().cloned()),
+            );
+
+            debug!("Entries in pool:");
+            for (i, e) in self.pool.entries.iter().enumerate() {
+                debug!("{}. {}", i, e);
+            }
+            debug!("Sequence:");
+            for index in self.pool.sorted.iter() {
+                debug!("* {}", index);
+            }
+            let evicted = self.pool.force_insert(SecContextState {
+                protocol_stage: SecContextStage::EdhocResponderProcessedM1 {
+                    c_r,
+                    c_i,
+                    responder,
+                },
+                authorization: self.unauthenticated_edhoc_user_authorization(),
+            });
+            if let Some(evicted) = evicted {
+                warn!("To insert new EDHOC, evicted {}", evicted);
+            } else {
+                debug!("To insert new EDHOC, evicted none");
+            }
+
+            Ok(OwnRequestData::EdhocOkSend2(c_r))
+        } else {
+            // for the time being we'll only take the EDHOC option
+            Err(CoAPError::bad_request())
+        }
+    }
+
+    /// Process a CoAP request containing an OSCORE option and possibly an EDHOC option.
+    fn extract_oscore_edhoc<M: ReadableMessage>(
+        &mut self,
+        request: &M,
+        kid: u8,
+        with_edhoc: bool,
+    ) -> Result<OwnRequestData<Result<H::RequestData, H::ExtractRequestError>>, CoAPError> {
+        let payload = request.payload();
+
+        // This whole loop-and-tree could become a single take_responder_wait3 method?
+        let kid = COwn::from_kid(&[kid])
+            // same as if it's not found in the pool
+            .ok_or_else(CoAPError::bad_request)?;
+        // If we don't make progress, we're dropping it altogether. Unless we use the
+        // responder we might legally continue (because we didn't send data to EDHOC), but
+        // once we've received something that (as we now know) looks like a message 3 and
+        // isn't processable, it's unlikely that another one would come up and be.
+        let mut taken = self
+            .pool
+            .lookup(|c| c.corresponding_cown() == Some(kid), core::mem::take)
+            // following RFC8613 Section 8.2 item 2.2
+            // FIXME unauthorized (unreleased in coap-message-utils)
+            .ok_or_else(CoAPError::bad_request)?;
+
+        let front_trim_payload = if with_edhoc {
+            // We're not supporting block-wise here -- but could later, to the extent we support
+            // outer block-wise.
+
+            // Workaround for https://github.com/openwsn-berkeley/lakers/issues/255
+            let mut decoder = minicbor::decode::Decoder::new(payload);
+            let _ = decoder
+                .decode::<&minicbor::bytes::ByteSlice>()
+                .map_err(|_| CoAPError::bad_request())?;
+            let cutoff = decoder.position();
+
+            if let SecContextState {
+                protocol_stage:
+                    SecContextStage::EdhocResponderSentM2 {
+                        responder,
+                        c_r,
+                        c_i,
+                    },
+                authorization: original_authorization, // So far, this is self.unauthenticated_edhoc_user_authorization()
+            } = taken
+            {
+                debug_assert_eq!(c_r, kid, "State was looked up by KID");
+                #[allow(clippy::indexing_slicing, reason = "slice fits by construction")]
+                let msg_3 = lakers::EdhocMessageBuffer::new_from_slice(&payload[..cutoff])
+                    .map_err(|e| too_small(e))?;
+
+                let (responder, id_cred_i, ead_3) =
+                    responder.parse_message_3(&msg_3).map_err(render_error)?;
+
+                if ead_3.is_some_and(|e| e.is_critical) {
+                    // FIXME: send error message
+                    return Err(CoAPError::bad_request());
+                }
+
+                let cred_i;
+                let authorization;
+
+                if id_cred_i.reference_only() {
+                    match id_cred_i.as_encoded_value() {
+                        &[43] => {
+                            info!("Peer indicates use of the one preconfigured key");
+
+                            use hexlit::hex;
+                            const CRED_I: &[u8] = &hex!("A2027734322D35302D33312D46462D45462D33372D33322D333908A101A5010202412B2001215820AC75E9ECE3E50BFC8ED60399889522405C47BF16DF96660A41298CB4307F7EB62258206E5DE611388A4B8A8211334AC7D37ECB52A387D257E6DB3C2A93DF21FF3AFFC8");
+
+                            cred_i = lakers::Credential::parse_ccs(CRED_I)
+                                .expect("Static credential is not processable");
+
+                            // FIXME: learn from CRED_I
+                            authorization = AifStaticRest {
+                                may_use_stdout: true,
+                            };
+                        }
+                        _ => {
+                            // FIXME: send better message
+                            return Err(CoAPError::bad_request());
+                        }
+                    }
+                } else {
+                    let ccs = id_cred_i
+                        .get_ccs()
+                        .expect("Lakers only knows IdCred as reference or as credential");
+                    info!(
+                        "Got credential CCS by value: {:?}..",
+                        &ccs.bytes.get_slice(0, 5)
+                    );
+
+                    cred_i = lakers::Credential::parse_ccs(ccs.bytes.as_slice())
+                        // FIXME What kind of error do we send here?
+                        .map_err(|_| CoAPError::bad_request())?;
+
+                    // FIXME: Do we want to continue at all? At least we don't allow
+                    // stdout, but let's otherwise continue with the privileges of an
+                    // unencrypted peer (allowing opportunistic encryption b/c we have
+                    // enough slots to spare for some low-priority connections)
+                    //
+                    // The original_authorization may even have a hint (like, we might
+                    // continue if it is not completely empty)
+                    authorization = original_authorization;
+                }
+
+                let (mut responder, _prk_out) =
+                    responder.verify_message_3(cred_i).map_err(render_error)?;
+
+                let oscore_secret = responder.edhoc_exporter(0u8, &[], 16); // label is 0
+                let oscore_salt = responder.edhoc_exporter(1u8, &[], 8); // label is 1
+                let oscore_secret = &oscore_secret[..16];
+                let oscore_salt = &oscore_salt[..8];
+                #[allow(
+                    clippy::indexing_slicing,
+                    reason = "secret necessarily contains more than 40 bits"
+                )]
+                {
+                    debug!("OSCORE secret: {:?}...", &oscore_secret[..5]);
+                }
+                debug!("OSCORE salt: {:?}", &oscore_salt);
+
+                let sender_id = c_i.as_slice();
+                let recipient_id = kid.0;
+
+                // FIXME probe cipher suite
+                let hkdf = liboscore::HkdfAlg::from_number(5).unwrap();
+                let aead = liboscore::AeadAlg::from_number(10).unwrap();
+
+                let immutables = liboscore::PrimitiveImmutables::derive(
+                    hkdf,
+                    oscore_secret,
+                    oscore_salt,
+                    None,
+                    aead,
+                    sender_id,
+                    // FIXME need KID form (but for all that's supported that works still)
+                    &[recipient_id],
+                )
+                // FIXME convert error
+                .unwrap();
+
+                let context = liboscore::PrimitiveContext::new_from_fresh_material(immutables);
+
+                taken = SecContextState {
+                    protocol_stage: SecContextStage::Oscore(context),
+                    authorization,
+                };
+            } else {
+                // Return the state. Best bet is that it was already advanced to an OSCORE
+                // state, and the peer sent message 3 with multiple concurrent in-flight
+                // messages. We're ignoring the EDHOC value and continue with OSCORE
+                // processing.
+            }
+
+            info!(
+                "Processed {} bytes at start of message into new EDHOC context",
+                cutoff
+            );
+
+            cutoff
+        } else {
+            0
+        };
+
+        let SecContextState {
+            protocol_stage: SecContextStage::Oscore(mut oscore_context),
+            authorization,
+        } = taken
+        else {
+            // FIXME: How'd we even get there?
+            //
+            // ... and return taken
+            return Err(CoAPError::bad_request());
+        };
+
+        // Until liboscore can work on an arbitrary message, in particular a
+        // `StrippingTheEdhocOptionAndPayloadPart<M>`, we have to create a copy.
+        // (Conveniently, that also sidesteps the need to `downcast_from` to a type
+        // libOSCORE knows, but that's not why we do it, that's what downcasting would be
+        // for.)
+
+        // embedded-nal-coap uses this max size, and our messages are same size or smaller,
+        // so it's a guaranteed fit.
+        const MAX_SIZE: usize = 1152;
+        let mut read_copy = [0u8; MAX_SIZE];
+        let mut code_copy = 0;
+        let mut copied_message = coap_message_implementations::inmemory_write::Message::new(
+            &mut code_copy,
+            &mut read_copy[..],
+        );
+        // We could also do
+        //     copied_message.set_from_message(request);
+        // if we specified a "hiding EDHOC" message view.
+        copied_message.set_code(request.code().into());
+        // Pulling out the OSCORE option while we're at it
+        let mut oscore_option = None;
+        // This may panic in theory on options being added in the wrong sequence; as we
+        // don't downcast, we don't get the information on whether the underlying
+        // implementation produces the options in the right sequence. Practically
+        // (typically, and concretely in Ariel OS), it is given. (And it's not like we have
+        // a fallback: inmemory_write has no more expensive option for reshuffling).
+        for opt in request.options() {
+            if opt.number() == coap_numbers::option::EDHOC {
+                continue;
+            }
+            copied_message
+                .add_option(opt.number(), opt.value())
+                .unwrap();
+
+            if opt.number() == coap_numbers::option::OSCORE {
+                oscore_option = Some(
+                    heapless::Vec::<_, 16>::try_from(opt.value())
+                        .map_err(|_| CoAPError::bad_option(opt.number()))?,
+                );
+            }
+        }
+        // We know this to not fail b/c we only got here due to its presence
+        let oscore_option = oscore_option.unwrap();
+        let oscore_option = liboscore::OscoreOption::parse(&oscore_option)
+            .map_err(|_| CoAPError::bad_option(coap_numbers::option::OSCORE))?;
+        #[allow(clippy::indexing_slicing, reason = "slice fits by construction")]
+        copied_message
+            .set_payload(&payload[front_trim_payload..])
+            .unwrap();
+
+        let decrypted = liboscore::unprotect_request(
+            &mut copied_message,
+            oscore_option,
+            &mut oscore_context,
+            |request| {
+                if authorization.request_is_allowed(request) {
+                    AuthorizationChecked::Allowed(self.inner.extract_request_data(request))
+                } else {
+                    AuthorizationChecked::NotAllowed
+                }
+            },
+        );
+
+        // With any luck, this never moves out.
+        //
+        // Storing it even on decryption failure to avoid DoS from the first message (but
+        // FIXME, should we increment an error count and lower priority?)
+        let evicted = self.pool.force_insert(SecContextState {
+            protocol_stage: SecContextStage::Oscore(oscore_context),
+            authorization,
+        });
+        debug_assert!(matches!(evicted, Some(SecContextState { protocol_stage: SecContextStage::Empty, .. }) | None), "A Default (Empty) was placed when an item was taken, which should have the lowest priority");
+
+        let Ok((correlation, extracted)) = decrypted else {
+            // FIXME is that the right code?
+            error!("Decryption failure");
+            return Err(CoAPError::unauthorized());
+        };
+
+        Ok(OwnRequestData::EdhocOscoreRequest {
+            kid,
+            correlation,
+            extracted,
+        })
+    }
 }
 
 /// Wrapper around for a handler's inner RequestData
@@ -487,332 +825,16 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
                     Ok(Inner(AuthorizationChecked::NotAllowed))
                 }
             }
-            WellKnownEdhoc => {
-                if request.code().into() != coap_numbers::code::POST {
-                    return Err(Own(CoAPError::method_not_allowed()));
-                }
-
-                let (first_byte, edhoc_m1) = request
-                    .payload()
-                    .split_first()
-                    .ok_or_else(CoAPError::bad_request)?;
-                let starts_with_true = first_byte == &0xf5;
-
-                if starts_with_true {
-                    info!("Processing incoming EDHOC message 1");
-                    let message_1 =
-                        &lakers::EdhocMessageBuffer::new_from_slice(edhoc_m1).map_err(too_small)?;
-
-                    let (responder, c_i, ead_1) = lakers::EdhocResponder::new(
-                        (self.crypto_factory)(),
-                        lakers::EDHOCMethod::StatStat,
-                        *self.own_identity.1,
-                        *self.own_identity.0,
-                    )
-                    .process_message_1(message_1)
-                    .map_err(render_error)?;
-
-                    if ead_1.is_some_and(|e| e.is_critical) {
-                        // FIXME: send error message
-                        return Err(Own(CoAPError::bad_request()));
-                    }
-
-                    // Let's pick one now already: this allows us to use the identifier in our
-                    // request data.
-                    let c_r = COwn::not_in_iter(
-                        self.pool
-                            .iter()
-                            .filter_map(|entry| entry.corresponding_cown())
-                            // C_R does not only need to be unique, it also must not be identical
-                            // to C_I. If it is not expressible as a COwn (as_slice gives []),
-                            // that's fine and we don't have to consider it.
-                            .chain(COwn::from_kid(c_i.as_slice()).as_slice().iter().cloned()),
-                    );
-
-                    debug!("Entries in pool:");
-                    for (i, e) in self.pool.entries.iter().enumerate() {
-                        debug!("{}. {}", i, e);
-                    }
-                    debug!("Sequence:");
-                    for index in self.pool.sorted.iter() {
-                        debug!("* {}", index);
-                    }
-                    let evicted = self.pool.force_insert(SecContextState {
-                        protocol_stage: SecContextStage::EdhocResponderProcessedM1 {
-                            c_r,
-                            c_i,
-                            responder,
-                        },
-                        authorization: self.unauthenticated_edhoc_user_authorization(),
-                    });
-                    if let Some(evicted) = evicted {
-                        warn!("To insert new EDHOC, evicted {}", evicted);
-                    } else {
-                        debug!("To insert new EDHOC, evicted none");
-                    }
-
-                    Ok(Own(OwnRequestData::EdhocOkSend2(c_r)))
-                } else {
-                    // for the time being we'll only take the EDHOC option
-                    Err(Own(CoAPError::bad_request()))
-                }
-            }
+            WellKnownEdhoc => self.extract_edhoc(&request).map(Own).map_err(Own),
             AuthzInfo => Ok(Own(OwnRequestData::ProcessedToken)),
-            Edhoc { kid } | Oscore { kid } => {
-                let payload = request.payload();
-
-                // This whole loop-and-tree could become a single take_responder_wait3 method?
-                let kid = COwn::from_kid(&[kid])
-                    // same as if it's not found in the pool
-                    .ok_or_else(CoAPError::bad_request)?;
-                // If we don't make progress, we're dropping it altogether. Unless we use the
-                // responder we might legally continue (because we didn't send data to EDHOC), but
-                // once we've received something that (as we now know) looks like a message 3 and
-                // isn't processable, it's unlikely that another one would come up and be.
-                let mut taken = self
-                    .pool
-                    .lookup(|c| c.corresponding_cown() == Some(kid), core::mem::take)
-                    // following RFC8613 Section 8.2 item 2.2
-                    // FIXME unauthorized (unreleased in coap-message-utils)
-                    .ok_or_else(CoAPError::bad_request)?;
-
-                let front_trim_payload = if matches!(state, Edhoc { .. }) {
-                    // We're not supporting block-wise here -- but could later, to the extent we support
-                    // outer block-wise.
-
-                    // Workaround for https://github.com/openwsn-berkeley/lakers/issues/255
-                    let mut decoder = minicbor::decode::Decoder::new(payload);
-                    let _ = decoder
-                        .decode::<&minicbor::bytes::ByteSlice>()
-                        .map_err(|_| Own(CoAPError::bad_request()))?;
-                    let cutoff = decoder.position();
-
-                    if let SecContextState {
-                        protocol_stage:
-                            SecContextStage::EdhocResponderSentM2 {
-                                responder,
-                                c_r,
-                                c_i,
-                            },
-                        authorization: original_authorization, // So far, this is self.unauthenticated_edhoc_user_authorization()
-                    } = taken
-                    {
-                        debug_assert_eq!(c_r, kid, "State was looked up by KID");
-                        #[allow(clippy::indexing_slicing, reason = "slice fits by construction")]
-                        let msg_3 = lakers::EdhocMessageBuffer::new_from_slice(&payload[..cutoff])
-                            .map_err(|e| Own(too_small(e)))?;
-
-                        let (responder, id_cred_i, ead_3) =
-                            responder.parse_message_3(&msg_3).map_err(render_error)?;
-
-                        if ead_3.is_some_and(|e| e.is_critical) {
-                            // FIXME: send error message
-                            return Err(Own(CoAPError::bad_request()));
-                        }
-
-                        let cred_i;
-                        let authorization;
-
-                        if id_cred_i.reference_only() {
-                            match id_cred_i.as_encoded_value() {
-                                &[43] => {
-                                    info!("Peer indicates use of the one preconfigured key");
-
-                                    use hexlit::hex;
-                                    const CRED_I: &[u8] = &hex!("A2027734322D35302D33312D46462D45462D33372D33322D333908A101A5010202412B2001215820AC75E9ECE3E50BFC8ED60399889522405C47BF16DF96660A41298CB4307F7EB62258206E5DE611388A4B8A8211334AC7D37ECB52A387D257E6DB3C2A93DF21FF3AFFC8");
-
-                                    cred_i = lakers::Credential::parse_ccs(CRED_I)
-                                        .expect("Static credential is not processable");
-
-                                    // FIXME: learn from CRED_I
-                                    authorization = AifStaticRest {
-                                        may_use_stdout: true,
-                                    };
-                                }
-                                _ => {
-                                    // FIXME: send better message
-                                    return Err(Own(CoAPError::bad_request()));
-                                }
-                            }
-                        } else {
-                            let ccs = id_cred_i
-                                .get_ccs()
-                                .expect("Lakers only knows IdCred as reference or as credential");
-                            info!(
-                                "Got credential CCS by value: {:?}..",
-                                &ccs.bytes.get_slice(0, 5)
-                            );
-
-                            cred_i = lakers::Credential::parse_ccs(ccs.bytes.as_slice())
-                                // FIXME What kind of error do we send here?
-                                .map_err(|_| Own(CoAPError::bad_request()))?;
-
-                            // FIXME: Do we want to continue at all? At least we don't allow
-                            // stdout, but let's otherwise continue with the privileges of an
-                            // unencrypted peer (allowing opportunistic encryption b/c we have
-                            // enough slots to spare for some low-priority connections)
-                            //
-                            // The original_authorization may even have a hint (like, we might
-                            // continue if it is not completely empty)
-                            authorization = original_authorization;
-                        }
-
-                        let (mut responder, _prk_out) =
-                            responder.verify_message_3(cred_i).map_err(render_error)?;
-
-                        let oscore_secret = responder.edhoc_exporter(0u8, &[], 16); // label is 0
-                        let oscore_salt = responder.edhoc_exporter(1u8, &[], 8); // label is 1
-                        let oscore_secret = &oscore_secret[..16];
-                        let oscore_salt = &oscore_salt[..8];
-                        #[allow(
-                            clippy::indexing_slicing,
-                            reason = "secret necessarily contains more than 40 bits"
-                        )]
-                        {
-                            debug!("OSCORE secret: {:?}...", &oscore_secret[..5]);
-                        }
-                        debug!("OSCORE salt: {:?}", &oscore_salt);
-
-                        let sender_id = c_i.as_slice();
-                        let recipient_id = kid.0;
-
-                        // FIXME probe cipher suite
-                        let hkdf = liboscore::HkdfAlg::from_number(5).unwrap();
-                        let aead = liboscore::AeadAlg::from_number(10).unwrap();
-
-                        let immutables = liboscore::PrimitiveImmutables::derive(
-                            hkdf,
-                            oscore_secret,
-                            oscore_salt,
-                            None,
-                            aead,
-                            sender_id,
-                            // FIXME need KID form (but for all that's supported that works still)
-                            &[recipient_id],
-                        )
-                        // FIXME convert error
-                        .unwrap();
-
-                        let context =
-                            liboscore::PrimitiveContext::new_from_fresh_material(immutables);
-
-                        taken = SecContextState {
-                            protocol_stage: SecContextStage::Oscore(context),
-                            authorization,
-                        };
-                    } else {
-                        // Return the state. Best bet is that it was already advanced to an OSCORE
-                        // state, and the peer sent message 3 with multiple concurrent in-flight
-                        // messages. We're ignoring the EDHOC value and continue with OSCORE
-                        // processing.
-                    }
-
-                    info!(
-                        "Processed {} bytes at start of message into new EDHOC context",
-                        cutoff
-                    );
-
-                    cutoff
-                } else {
-                    0
-                };
-
-                let SecContextState {
-                    protocol_stage: SecContextStage::Oscore(mut oscore_context),
-                    authorization,
-                } = taken
-                else {
-                    // FIXME: How'd we even get there?
-                    //
-                    // ... and return taken
-                    return Err(Own(CoAPError::bad_request()));
-                };
-
-                // Until liboscore can work on an arbitrary message, in particular a
-                // `StrippingTheEdhocOptionAndPayloadPart<M>`, we have to create a copy.
-                // (Conveniently, that also sidesteps the need to `downcast_from` to a type
-                // libOSCORE knows, but that's not why we do it, that's what downcasting would be
-                // for.)
-
-                // embedded-nal-coap uses this max size, and our messages are same size or smaller,
-                // so it's a guaranteed fit.
-                const MAX_SIZE: usize = 1152;
-                let mut read_copy = [0u8; MAX_SIZE];
-                let mut code_copy = 0;
-                let mut copied_message = coap_message_implementations::inmemory_write::Message::new(
-                    &mut code_copy,
-                    &mut read_copy[..],
-                );
-                // We could also do
-                //     copied_message.set_from_message(request);
-                // if we specified a "hiding EDHOC" message view.
-                copied_message.set_code(request.code().into());
-                // Pulling out the OSCORE option while we're at it
-                let mut oscore_option = None;
-                // This may panic in theory on options being added in the wrong sequence; as we
-                // don't downcast, we don't get the information on whether the underlying
-                // implementation produces the options in the right sequence. Practically
-                // (typically, and concretely in Ariel OS), it is given. (And it's not like we have
-                // a fallback: inmemory_write has no more expensive option for reshuffling).
-                for opt in request.options() {
-                    if opt.number() == coap_numbers::option::EDHOC {
-                        continue;
-                    }
-                    copied_message
-                        .add_option(opt.number(), opt.value())
-                        .unwrap();
-
-                    if opt.number() == coap_numbers::option::OSCORE {
-                        oscore_option = Some(
-                            heapless::Vec::<_, 16>::try_from(opt.value())
-                                .map_err(|_| CoAPError::bad_option(opt.number()))?,
-                        );
-                    }
-                }
-                // We know this to not fail b/c we only got here due to its presence
-                let oscore_option = oscore_option.unwrap();
-                let oscore_option = liboscore::OscoreOption::parse(&oscore_option)
-                    .map_err(|_| CoAPError::bad_option(coap_numbers::option::OSCORE))?;
-                #[allow(clippy::indexing_slicing, reason = "slice fits by construction")]
-                copied_message
-                    .set_payload(&payload[front_trim_payload..])
-                    .unwrap();
-
-                let decrypted = liboscore::unprotect_request(
-                    &mut copied_message,
-                    oscore_option,
-                    &mut oscore_context,
-                    |request| {
-                        if authorization.request_is_allowed(request) {
-                            AuthorizationChecked::Allowed(self.inner.extract_request_data(request))
-                        } else {
-                            AuthorizationChecked::NotAllowed
-                        }
-                    },
-                );
-
-                // With any luck, this never moves out.
-                //
-                // Storing it even on decryption failure to avoid DoS from the first message (but
-                // FIXME, should we increment an error count and lower priority?)
-                let evicted = self.pool.force_insert(SecContextState {
-                    protocol_stage: SecContextStage::Oscore(oscore_context),
-                    authorization,
-                });
-                debug_assert!(matches!(evicted, Some(SecContextState { protocol_stage: SecContextStage::Empty, .. }) | None), "A Default (Empty) was placed when an item was taken, which should have the lowest priority");
-
-                let Ok((correlation, extracted)) = decrypted else {
-                    // FIXME is that the right code?
-                    error!("Decryption failure");
-                    return Err(Own(CoAPError::unauthorized()));
-                };
-
-                Ok(Own(OwnRequestData::EdhocOscoreRequest {
-                    kid,
-                    correlation,
-                    extracted,
-                }))
-            }
+            Edhoc { kid } => self
+                .extract_oscore_edhoc(&request, kid, true)
+                .map(Own)
+                .map_err(Own),
+            Oscore { kid } => self
+                .extract_oscore_edhoc(&request, kid, false)
+                .map(Own)
+                .map_err(Own),
         }
     }
     fn estimate_length(&mut self, req: &Self::RequestData) -> usize {
