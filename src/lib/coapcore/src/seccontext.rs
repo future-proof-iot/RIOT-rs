@@ -433,151 +433,17 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
         // responder we might legally continue (because we didn't send data to EDHOC), but
         // once we've received something that (as we now know) looks like a message 3 and
         // isn't processable, it's unlikely that another one would come up and be.
-        let mut taken = self
+        let taken = self
             .pool
             .lookup(|c| c.corresponding_cown() == Some(kid), core::mem::take)
             // following RFC8613 Section 8.2 item 2.2
             // FIXME unauthorized (unreleased in coap-message-utils)
             .ok_or_else(CoAPError::bad_request)?;
 
-        let front_trim_payload = if with_edhoc {
-            // We're not supporting block-wise here -- but could later, to the extent we support
-            // outer block-wise.
-
-            // Workaround for https://github.com/openwsn-berkeley/lakers/issues/255
-            let mut decoder = minicbor::decode::Decoder::new(payload);
-            let _ = decoder
-                .decode::<&minicbor::bytes::ByteSlice>()
-                .map_err(|_| CoAPError::bad_request())?;
-            let cutoff = decoder.position();
-
-            if let SecContextState {
-                protocol_stage:
-                    SecContextStage::EdhocResponderSentM2 {
-                        responder,
-                        c_r,
-                        c_i,
-                    },
-                authorization: original_authorization, // So far, this is self.unauthenticated_edhoc_user_authorization()
-            } = taken
-            {
-                debug_assert_eq!(c_r, kid, "State was looked up by KID");
-                #[allow(clippy::indexing_slicing, reason = "slice fits by construction")]
-                let msg_3 = lakers::EdhocMessageBuffer::new_from_slice(&payload[..cutoff])
-                    .map_err(|e| too_small(e))?;
-
-                let (responder, id_cred_i, ead_3) =
-                    responder.parse_message_3(&msg_3).map_err(render_error)?;
-
-                if ead_3.is_some_and(|e| e.is_critical) {
-                    // FIXME: send error message
-                    return Err(CoAPError::bad_request());
-                }
-
-                let cred_i;
-                let authorization;
-
-                if id_cred_i.reference_only() {
-                    match id_cred_i.as_encoded_value() {
-                        &[43] => {
-                            info!("Peer indicates use of the one preconfigured key");
-
-                            use hexlit::hex;
-                            const CRED_I: &[u8] = &hex!("A2027734322D35302D33312D46462D45462D33372D33322D333908A101A5010202412B2001215820AC75E9ECE3E50BFC8ED60399889522405C47BF16DF96660A41298CB4307F7EB62258206E5DE611388A4B8A8211334AC7D37ECB52A387D257E6DB3C2A93DF21FF3AFFC8");
-
-                            cred_i = lakers::Credential::parse_ccs(CRED_I)
-                                .expect("Static credential is not processable");
-
-                            // FIXME: learn from CRED_I
-                            authorization = AifStaticRest {
-                                may_use_stdout: true,
-                            };
-                        }
-                        _ => {
-                            // FIXME: send better message
-                            return Err(CoAPError::bad_request());
-                        }
-                    }
-                } else {
-                    let ccs = id_cred_i
-                        .get_ccs()
-                        .expect("Lakers only knows IdCred as reference or as credential");
-                    info!(
-                        "Got credential CCS by value: {:?}..",
-                        &ccs.bytes.get_slice(0, 5)
-                    );
-
-                    cred_i = lakers::Credential::parse_ccs(ccs.bytes.as_slice())
-                        // FIXME What kind of error do we send here?
-                        .map_err(|_| CoAPError::bad_request())?;
-
-                    // FIXME: Do we want to continue at all? At least we don't allow
-                    // stdout, but let's otherwise continue with the privileges of an
-                    // unencrypted peer (allowing opportunistic encryption b/c we have
-                    // enough slots to spare for some low-priority connections)
-                    //
-                    // The original_authorization may even have a hint (like, we might
-                    // continue if it is not completely empty)
-                    authorization = original_authorization;
-                }
-
-                let (mut responder, _prk_out) =
-                    responder.verify_message_3(cred_i).map_err(render_error)?;
-
-                let oscore_secret = responder.edhoc_exporter(0u8, &[], 16); // label is 0
-                let oscore_salt = responder.edhoc_exporter(1u8, &[], 8); // label is 1
-                let oscore_secret = &oscore_secret[..16];
-                let oscore_salt = &oscore_salt[..8];
-                #[allow(
-                    clippy::indexing_slicing,
-                    reason = "secret necessarily contains more than 40 bits"
-                )]
-                {
-                    debug!("OSCORE secret: {:?}...", &oscore_secret[..5]);
-                }
-                debug!("OSCORE salt: {:?}", &oscore_salt);
-
-                let sender_id = c_i.as_slice();
-                let recipient_id = kid.0;
-
-                // FIXME probe cipher suite
-                let hkdf = liboscore::HkdfAlg::from_number(5).unwrap();
-                let aead = liboscore::AeadAlg::from_number(10).unwrap();
-
-                let immutables = liboscore::PrimitiveImmutables::derive(
-                    hkdf,
-                    oscore_secret,
-                    oscore_salt,
-                    None,
-                    aead,
-                    sender_id,
-                    // FIXME need KID form (but for all that's supported that works still)
-                    &[recipient_id],
-                )
-                // FIXME convert error
-                .unwrap();
-
-                let context = liboscore::PrimitiveContext::new_from_fresh_material(immutables);
-
-                taken = SecContextState {
-                    protocol_stage: SecContextStage::Oscore(context),
-                    authorization,
-                };
-            } else {
-                // Return the state. Best bet is that it was already advanced to an OSCORE
-                // state, and the peer sent message 3 with multiple concurrent in-flight
-                // messages. We're ignoring the EDHOC value and continue with OSCORE
-                // processing.
-            }
-
-            info!(
-                "Processed {} bytes at start of message into new EDHOC context",
-                cutoff
-            );
-
-            cutoff
+        let (taken, front_trim_payload) = if with_edhoc {
+            Self::process_edhoc_in_payload(payload, taken)?
         } else {
-            0
+            (taken, 0)
         };
 
         let SecContextState {
@@ -662,6 +528,149 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
             correlation,
             extracted,
         })
+    }
+
+    /// Processes an EDHOC message 3 at the beginning of a payload, and returns the number of bytes
+    /// that were in the message.
+    fn process_edhoc_in_payload(
+        payload: &[u8],
+        sec_context_state: SecContextState<Crypto>,
+    ) -> Result<(SecContextState<Crypto>, usize), CoAPError> {
+        // We're not supporting block-wise here -- but could later, to the extent we support
+        // outer block-wise.
+
+        // Workaround for https://github.com/openwsn-berkeley/lakers/issues/255
+        let mut decoder = minicbor::decode::Decoder::new(payload);
+        let _ = decoder
+            .decode::<&minicbor::bytes::ByteSlice>()
+            .map_err(|_| CoAPError::bad_request())?;
+        let cutoff = decoder.position();
+
+        let sec_context_state = if let SecContextState {
+            protocol_stage:
+                SecContextStage::EdhocResponderSentM2 {
+                    responder,
+                    c_r,
+                    c_i,
+                },
+            authorization: original_authorization, // So far, this is self.unauthenticated_edhoc_user_authorization()
+        } = sec_context_state
+        {
+            #[allow(clippy::indexing_slicing, reason = "slice fits by construction")]
+            let msg_3 = lakers::EdhocMessageBuffer::new_from_slice(&payload[..cutoff])
+                .map_err(|e| too_small(e))?;
+
+            let (responder, id_cred_i, ead_3) =
+                responder.parse_message_3(&msg_3).map_err(render_error)?;
+
+            if ead_3.is_some_and(|e| e.is_critical) {
+                // FIXME: send error message
+                return Err(CoAPError::bad_request());
+            }
+
+            let cred_i;
+            let authorization;
+
+            if id_cred_i.reference_only() {
+                match id_cred_i.as_encoded_value() {
+                    &[43] => {
+                        info!("Peer indicates use of the one preconfigured key");
+
+                        use hexlit::hex;
+                        const CRED_I: &[u8] = &hex!("A2027734322D35302D33312D46462D45462D33372D33322D333908A101A5010202412B2001215820AC75E9ECE3E50BFC8ED60399889522405C47BF16DF96660A41298CB4307F7EB62258206E5DE611388A4B8A8211334AC7D37ECB52A387D257E6DB3C2A93DF21FF3AFFC8");
+
+                        cred_i = lakers::Credential::parse_ccs(CRED_I)
+                            .expect("Static credential is not processable");
+
+                        // FIXME: learn from CRED_I
+                        authorization = AifStaticRest {
+                            may_use_stdout: true,
+                        };
+                    }
+                    _ => {
+                        // FIXME: send better message
+                        return Err(CoAPError::bad_request());
+                    }
+                }
+            } else {
+                let ccs = id_cred_i
+                    .get_ccs()
+                    .expect("Lakers only knows IdCred as reference or as credential");
+                info!(
+                    "Got credential CCS by value: {:?}..",
+                    &ccs.bytes.get_slice(0, 5)
+                );
+
+                cred_i = lakers::Credential::parse_ccs(ccs.bytes.as_slice())
+                    // FIXME What kind of error do we send here?
+                    .map_err(|_| CoAPError::bad_request())?;
+
+                // FIXME: Do we want to continue at all? At least we don't allow
+                // stdout, but let's otherwise continue with the privileges of an
+                // unencrypted peer (allowing opportunistic encryption b/c we have
+                // enough slots to spare for some low-priority connections)
+                //
+                // The original_authorization may even have a hint (like, we might
+                // continue if it is not completely empty)
+                authorization = original_authorization;
+            }
+
+            let (mut responder, _prk_out) =
+                responder.verify_message_3(cred_i).map_err(render_error)?;
+
+            let oscore_secret = responder.edhoc_exporter(0u8, &[], 16); // label is 0
+            let oscore_salt = responder.edhoc_exporter(1u8, &[], 8); // label is 1
+            let oscore_secret = &oscore_secret[..16];
+            let oscore_salt = &oscore_salt[..8];
+            #[allow(
+                clippy::indexing_slicing,
+                reason = "secret necessarily contains more than 40 bits"
+            )]
+            {
+                debug!("OSCORE secret: {:?}...", &oscore_secret[..5]);
+            }
+            debug!("OSCORE salt: {:?}", &oscore_salt);
+
+            let sender_id = c_i.as_slice();
+            let recipient_id = c_r.0;
+
+            // FIXME probe cipher suite
+            let hkdf = liboscore::HkdfAlg::from_number(5).unwrap();
+            let aead = liboscore::AeadAlg::from_number(10).unwrap();
+
+            let immutables = liboscore::PrimitiveImmutables::derive(
+                hkdf,
+                oscore_secret,
+                oscore_salt,
+                None,
+                aead,
+                sender_id,
+                // FIXME need KID form (but for all that's supported that works still)
+                &[recipient_id],
+            )
+            // FIXME convert error
+            .unwrap();
+
+            let context = liboscore::PrimitiveContext::new_from_fresh_material(immutables);
+
+            SecContextState {
+                protocol_stage: SecContextStage::Oscore(context),
+                authorization,
+            }
+        } else {
+            // Return the state. Best bet is that it was already advanced to an OSCORE
+            // state, and the peer sent message 3 with multiple concurrent in-flight
+            // messages. We're ignoring the EDHOC value and continue with OSCORE
+            // processing.
+            sec_context_state
+        };
+
+        info!(
+            "Processed {} bytes at start of message into new EDHOC context",
+            cutoff
+        );
+
+        Ok((sec_context_state, cutoff))
     }
 }
 
