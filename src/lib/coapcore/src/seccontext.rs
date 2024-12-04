@@ -860,6 +860,7 @@ pub enum OwnRequestData<I> {
         correlation: liboscore::raw::oscore_requestid_t,
         extracted: AuthorizationChecked<I>,
     },
+    #[cfg(feature = "acetoken")]
     ProcessedToken,
 }
 
@@ -947,6 +948,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
             WellKnownEdhoc,
             /// Seen path "authz-info"
             // FIXME: Should we allow arbitrary paths here?
+            #[cfg(feature = "acetoken")]
             AuthzInfo,
             /// Seen anything else (where the request handler, or more likely the ACL filter, will
             /// trip over the critical options)
@@ -969,15 +971,31 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
                         _ => (Start, true),
                     },
                     (Start, option::URI_PATH, b".well-known") => (WellKnown, false),
+                    #[cfg(feature = "acetoken")]
                     (Start, option::URI_PATH, b"authz-info") => (AuthzInfo, false),
                     (Start, option::URI_PATH, _) => (Unencrypted, true /* doesn't matter */),
                     (Oscore { oscore }, option::EDHOC, b"") => {
                         (Edhoc { oscore }, true /* doesn't matter */)
                     }
                     (WellKnown, option::URI_PATH, b"edhoc") => (WellKnownEdhoc, false),
+                    #[cfg(feature = "acetoken")]
                     (AuthzInfo, option::CONTENT_FORMAT, &[19]) => (AuthzInfo, false),
+                    #[cfg(feature = "acetoken")]
                     (AuthzInfo, option::ACCEPT, &[19]) => (AuthzInfo, false),
                     (any, _, _) => (any, true),
+                }
+            }
+
+            /// Return true if the options in a request are only handled by this handler
+            ///
+            /// In all other cases, critical options are allowed to be passed on; the next-stage
+            /// processor check on its own.
+            fn errors_handled_here(&self) -> bool {
+                match self {
+                    WellKnownEdhoc => true,
+                    #[cfg(feature = "acetoken")]
+                    AuthzInfo => true,
+                    _ => false,
                 }
             }
         }
@@ -996,10 +1014,12 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
             // FIXME: This aborts early on critical options, even when the result is later ignored
             .ignore_elective_others();
 
-        if let (Err(error), WellKnownEdhoc | AuthzInfo) = (extra_options, &state) {
-            // Critical options in all other cases are handled by the Unencrypted or Oscore
-            // handlers
-            return Err(Own(error));
+        if state.errors_handled_here() {
+            if let Err(error) = extra_options {
+                // Critical options in all other cases are handled by the Unencrypted or Oscore
+                // handlers
+                return Err(Own(error));
+            }
         }
 
         match state {
@@ -1014,6 +1034,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
                 }
             }
             WellKnownEdhoc => self.extract_edhoc(&request).map(Own).map_err(Own),
+            #[cfg(feature = "acetoken")]
             AuthzInfo => Ok(Own(OwnRequestData::ProcessedToken)),
             Edhoc { oscore } => self
                 .extract_oscore_edhoc(&request, oscore, true)
@@ -1043,6 +1064,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
             Own(OwnRequestData::EdhocOkSend2(c_r)) => {
                 self.build_edhoc_message_2(response, c_r).map_err(Own)?
             }
+            #[cfg(feature = "acetoken")]
             Own(OwnRequestData::ProcessedToken) => {
                 response.set_code(M::Code::new(coap_numbers::code::INTERNAL_SERVER_ERROR).unwrap());
             }

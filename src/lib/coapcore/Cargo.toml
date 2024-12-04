@@ -35,6 +35,8 @@ defmt-or-log = { version = "0.2.1", default-features = false }
 defmt = { workspace = true, optional = true }
 log = { version = "0.4", optional = true }
 
+dcaf = { version = "0.4", optional = true, default-features = false }
+
 document-features = "0.2.10"
 
 [features]
@@ -50,9 +52,14 @@ defmt = ["defmt-or-log/defmt", "dep:defmt", "lakers/defmt"]
 # https://github.com/t-moe/defmt-or-log/issues/4
 log = ["defmt-or-log/log", "dep:log"]
 
+## Support [ACE (RFC9200)](https://datatracker.ietf.org/doc/html/rfc9200) tokens
+##
+## This is feature-gated because it depends on [`dcaf`] and thus allocation.
+acetoken = ["dep:dcaf"]
+
 # Private feature that enables doc_auto_cfg
 _nightly_docs = []
 
 [package.metadata.docs.rs]
 # all non-conflicting features
-features = ["_nightly_docs"]
+features = ["_nightly_docs", "acetoken"]
