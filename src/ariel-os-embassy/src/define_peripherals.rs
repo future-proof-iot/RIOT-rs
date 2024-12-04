@@ -1,16 +1,14 @@
-/// This macro allows to extract the specified peripherals from `OptionalPeripherals` for use in an
-/// application.
-///
-/// The generated struct can be obtained by calling the `take_peripherals()` method on
-/// `&mut OptionalPeripherals`.
-///
-/// The `define_peripherals!` macro expects a `peripherals` module to be in scope, where the
-/// peripheral types should come from.
+/// This macro allows to obtain peripherals from the one listed in the `peripherals` module of the
+/// target's HAL crate (selected by [`ariel_os::hal`](ariel_os_hal)).
 ///
 /// It makes sense to use this macro multiple times, coupled with conditional compilation (using
 /// the [`cfg`
 /// attribute](https://doc.rust-lang.org/reference/conditional-compilation.html#the-cfg-attribute)),
 /// to define different setups for different boards.
+///
+/// # Note
+///
+/// The `define_peripherals!` macro expects the `ariel_os::hal::peripherals` module to be in scope.
 ///
 // Inspired by https://github.com/adamgreig/assign-resources/tree/94ad10e2729afdf0fd5a77cd12e68409a982f58a
 // under MIT license
@@ -53,8 +51,8 @@ macro_rules! define_peripherals {
     }
 }
 
-/// This macros allows to group peripheral structs defined with `define_peripherals!` into a single
-/// struct that also implements `take_peripherals()`.
+/// This macro allows to group peripheral structs defined with `define_peripherals!` into a single
+/// peripheral struct.
 #[macro_export]
 macro_rules! group_peripherals {
     (
