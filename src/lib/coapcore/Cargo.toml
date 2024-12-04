@@ -29,7 +29,7 @@ lakers-crypto-rustcrypto = "0.7.2"
 liboscore = "0.2.2"
 liboscore-msgbackend = "0.2.2"
 
-minicbor = "0.23.0"
+minicbor = "0.25.1"
 heapless = "0.8.0"
 defmt-or-log = { version = "0.2.1", default-features = false }
 defmt = { workspace = true, optional = true }
