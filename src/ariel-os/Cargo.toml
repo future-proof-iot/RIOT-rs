@@ -52,6 +52,10 @@ hwrng = ["ariel-os-embassy/hwrng"]
 tcp = ["ariel-os-embassy/tcp"]
 ## Enables support for UDP.
 udp = ["ariel-os-embassy/udp"]
+## Enables support for DNS.
+dns = ["ariel-os-embassy/dns"]
+## Enables support for mDNS.
+mdns = ["ariel-os-embassy/mdns"]
 ## Enables support for [CoAP](https://ariel-os.github.io/ariel-os/dev/docs/book/tooling/coap.html).
 coap = ["dep:ariel-os-coap", "random"]
 
