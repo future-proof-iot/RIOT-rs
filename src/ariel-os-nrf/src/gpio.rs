@@ -49,11 +49,13 @@ pub mod input {
 pub mod output {
     //! Output-specific types.
 
-    use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
+    use ariel_os_embassy_common::gpio::FromDriveStrength;
     use embassy_nrf::{
         gpio::{Level, OutputDrive},
         Peripheral,
     };
+
+    pub use ariel_os_embassy_common::gpio::UnsupportedSpeed as Speed;
 
     #[doc(hidden)]
     pub use embassy_nrf::gpio::{Output, Pin as OutputPin};
@@ -109,19 +111,6 @@ pub mod output {
                 High => DriveStrength::High,
                 Highest => DriveStrength::High,
             }
-        }
-    }
-
-    /// Available output speed/slew rate settings.
-    #[derive(Copy, Clone, PartialEq, Eq)]
-    pub enum Speed {
-        /// Configuring the speed of outputs is not supported.
-        UnsupportedByHardware,
-    }
-
-    impl FromSpeed for Speed {
-        fn from(_speed: ariel_os_embassy_common::gpio::Speed<Self>) -> Self {
-            Self::UnsupportedByHardware
         }
     }
 }
