@@ -10,7 +10,7 @@ workspace = true
 
 [dependencies]
 ariel-os = { path = "../../src/ariel-os", features = [
-  "usb",
   "override-usb-config",
+  "usb",
 ] }
 ariel-os-boards = { path = "../../src/ariel-os-boards" }

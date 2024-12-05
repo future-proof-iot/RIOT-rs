@@ -12,5 +12,5 @@ In this folder, run
     laze build -b nrf52840dk run
 
 With the device USB cable connected, a USB ACM serial port should show up on
-your laptop / workstation.
+your computer.
 It will simply echo every sent character.
