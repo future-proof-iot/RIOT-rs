@@ -26,6 +26,7 @@ members = [
   "tests/benchmarks/bench_sched_flags",
   "tests/benchmarks/bench_sched_yield",
   "tests/coap",
+  "tests/coap-blinky",
   "tests/gpio",
   "tests/gpio-interrupt-nrf",
   "tests/gpio-interrupt-stm32",
