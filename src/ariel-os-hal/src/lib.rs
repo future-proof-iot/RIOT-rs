@@ -16,6 +16,7 @@
 //! crate](https://github.com/ariel-os/ariel-os/blob/main/.github/workflows/build-deploy-docs.yml).
 
 #![no_std]
+#![deny(clippy::pedantic)]
 
 cfg_if::cfg_if! {
     if #[cfg(context = "nrf")] {

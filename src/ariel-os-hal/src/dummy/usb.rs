@@ -41,6 +41,7 @@ impl Peripherals {
     }
 }
 
+#[must_use]
 pub fn driver(_peripherals: Peripherals) -> UsbDriver {
     unimplemented!();
 }
