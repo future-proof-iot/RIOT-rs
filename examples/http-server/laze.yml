@@ -1,18 +1,20 @@
 apps:
-  - name: embassy-http-server
+  - name: http-server
     env:
       global:
         CARGO_ENV:
           - CONFIG_ISR_STACKSIZE=16384
     selects:
       - network
-      - ?button-readings
+      - ?button-reading
 
 modules:
-  - name: button-readings
+  - name: button-reading
     context:
       - nrf52840dk
+      - nrf5340dk
+      - st-nucleo-wb55
     env:
       global:
         FEATURES:
-          - button-readings
+          - button-reading

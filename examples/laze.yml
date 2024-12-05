@@ -9,10 +9,10 @@ subdirs:
   - coap-client
   - coap-server
   - device-metadata
-  - embassy-http-server
   - gpio
   - hello-world
   - hello-world-threading
+  - http-server
   - log
   - minimal
   - random

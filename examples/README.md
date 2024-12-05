@@ -6,9 +6,9 @@ This directory contains example applications that showcase how to use Ariel OS.
 
 - [benchmark/](./benchmark): how to use `benchmark()`
 - [coap-server](./coap-server) and [coap-client](./coap-client): Application level networking examples
-- [embassy-http-server/](./embassy-http-server): HTTP server example
 - [hello-world/](./hello-world): a classic, async version
 - [hello-world-threading/](./hello-world-threading): a classic, using a thread
+- [http-server/](./http-server): HTTP server example
 - [log](./log): Example demonstrating different log levels for printing feedback messages.
 - [minimal/](./minimal): minimized to the max Ariel OS config
 - [random/](./random): demonstrate obtaining random values
