@@ -14,6 +14,13 @@
 //! To render the docs locally for the MCU of your choice, adapt [the `cargo doc` command used to
 //! generate documentation for the relevant
 //! crate](https://github.com/ariel-os/ariel-os/blob/main/.github/workflows/build-deploy-docs.yml).
+//!
+//! # Portability
+//!
+//! To ensure portability of your application, it is recommended to use the generic,
+//! MCU-family-agnostic items provided in other modules.
+//! Items from this module should only be used when MCU-specific settings are *necessary* for your
+//! application.
 
 #![no_std]
 #![deny(clippy::pedantic)]
