@@ -23,7 +23,7 @@ allow = [
   "ISC",
   "MIT",
   "MPL-2.0",
-  "Unicode-DFS-2016",
+  "Unicode-3.0",
   "Zlib",
   # We may allow other licenses as necessary.
 ]
@@ -51,12 +51,10 @@ unknown-git = "deny"
 # List of URLs for allowed Git repositories
 allow-git = [
   "https://github.com/hacspec/hax",
-  "https://github.com/smoltcp-rs/smoltcp",
-  "https://github.com/twitchyliquid64/usbd-hid",
   "https://gitlab.com/oscore/liboscore",
   "https://github.com/seanmonstar/try-lock",
 ]
 
 [sources.allow-org]
 # github.com organizations to allow git sources for
-github = ["ariel-os", "embassy-rs", "esp-rs"]
+github = ["ariel-os", "embassy-rs"]
