@@ -1818,7 +1818,7 @@ dependencies = [
 [[package]]
 name = "embedded-test"
 version = "0.5.0"
-source = "git+https://github.com/kaspar030/embedded-test?branch=for-ariel-os-2024-10-21#58ed8dc6a29f491da062cbe10772cd2d99ca109b"
+source = "git+https://github.com/ariel-os/embedded-test?branch=for-ariel-os-2024-10-21#58ed8dc6a29f491da062cbe10772cd2d99ca109b"
 dependencies = [
  "embassy-executor",
  "embedded-test-macros",
@@ -1831,12 +1831,12 @@ dependencies = [
 [[package]]
 name = "embedded-test-macros"
 version = "0.5.0"
-source = "git+https://github.com/kaspar030/embedded-test?branch=for-ariel-os-2024-10-21#58ed8dc6a29f491da062cbe10772cd2d99ca109b"
+source = "git+https://github.com/ariel-os/embedded-test?branch=for-ariel-os-2024-10-21#58ed8dc6a29f491da062cbe10772cd2d99ca109b"
 dependencies = [
  "darling",
  "proc-macro2",
  "quote",
- "syn 2.0.87",
+ "syn 2.0.90",
 ]
 
 [[package]]
