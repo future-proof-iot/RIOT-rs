@@ -26,9 +26,8 @@ coap-message-utils = "0.3.3"
 coap-numbers = "0.2.3"
 hexlit = "0.5.5"
 lakers-crypto-rustcrypto = "0.7.2"
-# This is exactly 0.2.1, but apparently there are files in the git clone that are not in the crate as they should be.
-liboscore = { git = "https://gitlab.com/oscore/liboscore/", rev = "5a39b7dbafa6aa6c6adb8e187b850f382858c401" }
-liboscore-msgbackend = { git = "https://gitlab.com/oscore/liboscore/", rev = "5a39b7dbafa6aa6c6adb8e187b850f382858c401" }
+liboscore = "0.2.2"
+liboscore-msgbackend = "0.2.2"
 
 minicbor = "0.23.0"
 heapless = "0.8.0"
