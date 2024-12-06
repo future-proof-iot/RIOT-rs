@@ -332,6 +332,22 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
         }
     }
 
+    /// Produce a COwn (as a recipient identifier) that is both available and not equal to the
+    /// peer's recipient identifier.
+    fn cown_but_not(&self, c_peer: &[u8]) -> COwn {
+        // Let's pick one now already: this allows us to use the identifier in our
+        // request data.
+        COwn::not_in_iter(
+            self.pool
+                .iter()
+                .filter_map(|entry| entry.corresponding_cown())
+                // C_R does not only need to be unique, it also must not be identical
+                // to C_I. If it is not expressible as a COwn (as_slice gives []),
+                // that's fine and we don't have to consider it.
+                .chain(COwn::from_kid(c_peer).as_slice().iter().cloned()),
+        )
+    }
+
     /// Process a CoAP request containing a message sent to /.well-known/edhoc.
     ///
     /// The caller has already checked Uri-Path and all other critical options.
@@ -372,17 +388,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
                 return Err(CoAPError::bad_request());
             }
 
-            // Let's pick one now already: this allows us to use the identifier in our
-            // request data.
-            let c_r = COwn::not_in_iter(
-                self.pool
-                    .iter()
-                    .filter_map(|entry| entry.corresponding_cown())
-                    // C_R does not only need to be unique, it also must not be identical
-                    // to C_I. If it is not expressible as a COwn (as_slice gives []),
-                    // that's fine and we don't have to consider it.
-                    .chain(COwn::from_kid(c_i.as_slice()).as_slice().iter().cloned()),
-            );
+            let c_r = self.cown_but_not(c_i.as_slice());
 
             debug!("Entries in pool:");
             for (i, e) in self.pool.entries.iter().enumerate() {
