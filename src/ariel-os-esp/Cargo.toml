@@ -21,7 +21,6 @@ esp-hal = { workspace = true, default-features = false }
 esp-hal-embassy = { workspace = true, default-features = false }
 esp-wifi = { workspace = true, default-features = false, features = [
   "esp-alloc",
-  "embassy-net",
   "wifi",
 ], optional = true }
 fugit = { workspace = true, optional = true }
@@ -89,7 +88,11 @@ i2c = [
 ]
 
 ## Enables SPI support.
-spi = ["dep:fugit", "ariel-os-embassy-common/spi"]
+spi = [
+  "dep:fugit",
+  "ariel-os-embassy-common/spi",
+  "embassy-executor/integrated-timers",
+]
 
 ## Enables defmt support.
 defmt = ["dep:defmt", "esp-hal/defmt", "esp-wifi?/defmt", "fugit?/defmt"]

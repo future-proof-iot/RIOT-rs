@@ -6,10 +6,10 @@ use ariel_os_embassy_common::{
 };
 use embassy_embedded_hal::adapter::{BlockingAsync, YieldingAsync};
 use esp_hal::{
-    gpio::{self, InputPin, OutputPin},
+    gpio::{self, interconnect::PeripheralOutput},
     peripheral::Peripheral,
     peripherals,
-    spi::{master::Spi as InnerSpi, FullDuplexMode},
+    spi::master::Spi as InnerSpi,
 };
 
 // TODO: we could consider making this `pub`
@@ -65,7 +65,7 @@ macro_rules! define_spi_drivers {
         $(
             /// Peripheral-specific SPI driver.
             pub struct $peripheral {
-                spim: YieldingAsync<BlockingAsync<InnerSpi<'static, peripherals::$peripheral, FullDuplexMode>>>,
+                spim: YieldingAsync<BlockingAsync<InnerSpi<'static, esp_hal::Blocking>>>,
             }
 
             impl $peripheral {
@@ -74,12 +74,16 @@ macro_rules! define_spi_drivers {
                 #[expect(clippy::new_ret_no_self)]
                 #[must_use]
                 pub fn new(
-                    sck_pin: impl Peripheral<P: OutputPin> + 'static,
-                    miso_pin: impl Peripheral<P: InputPin> + 'static,
-                    mosi_pin: impl Peripheral<P: OutputPin> + 'static,
+                    sck_pin: impl Peripheral<P: PeripheralOutput> + 'static,
+                    miso_pin: impl Peripheral<P: PeripheralOutput> + 'static,
+                    mosi_pin: impl Peripheral<P: PeripheralOutput> + 'static,
                     config: Config,
                 ) -> Spi {
-                    let frequency = config.frequency.into();
+                    let mut spi_config = esp_hal::spi::master::Config::default();
+                    spi_config.frequency = config.frequency.into();
+                    spi_config.mode = crate::spi::from_mode(config.mode);
+                    spi_config.read_bit_order = crate::spi::from_bit_order(config.bit_order);
+                    spi_config.write_bit_order = crate::spi::from_bit_order(config.bit_order);
 
                     // Make this struct a compile-time-enforced singleton: having multiple statics
                     // defined with the same name would result in a compile-time error.
@@ -93,22 +97,14 @@ macro_rules! define_spi_drivers {
                     // peripheral multiple times.
                     let spi_peripheral = unsafe { peripherals::$peripheral::steal() };
 
-                    let spi = esp_hal::spi::master::Spi::new(
+                    let spi = esp_hal::spi::master::Spi::new_with_config(
                         spi_peripheral,
-                        frequency,
-                        crate::spi::from_mode(config.mode),
-                    );
-                    let spi = spi.with_bit_order(
-                        crate::spi::from_bit_order(config.bit_order), // Read order
-                        crate::spi::from_bit_order(config.bit_order), // Write order
-                    );
-                    // The order of MOSI/MISO pins is inverted.
-                    let spi = spi.with_pins(
-                        sck_pin,
-                        mosi_pin,
-                        miso_pin,
-                        gpio::NoPin, // The CS pin is managed separately
-                    );
+                        spi_config,
+                    )
+                        .with_sck(sck_pin)
+                        .with_mosi(mosi_pin)
+                        .with_miso(miso_pin)
+                        .with_cs(gpio::NoPin); // The CS pin is managed separately
 
                     Spi::$peripheral(Self { spim: YieldingAsync::new(BlockingAsync::new(spi)) })
                 }

@@ -4,8 +4,8 @@ use ariel_os::hal::{i2c, peripherals};
 pub type SensorI2c = i2c::controller::I2C0;
 #[cfg(context = "esp")]
 ariel_os::define_peripherals!(Peripherals {
-    i2c_sda: GPIO_2,
-    i2c_scl: GPIO_0,
+    i2c_sda: GPIO2,
+    i2c_scl: GPIO0,
 });
 
 #[cfg(any(context = "nrf52833", context = "nrf52840"))]

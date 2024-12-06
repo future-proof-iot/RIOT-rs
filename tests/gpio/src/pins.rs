@@ -26,18 +26,18 @@ ariel_os::define_peripherals!(Peripherals {
 
 #[cfg(context = "esp32")]
 ariel_os::define_peripherals!(Peripherals {
-    pin_0: GPIO_16,
-    pin_1: GPIO_17,
-    pin_2: GPIO_18,
-    pin_3: GPIO_19,
+    pin_0: GPIO16,
+    pin_1: GPIO17,
+    pin_2: GPIO18,
+    pin_3: GPIO19,
 });
 
 #[cfg(all(context = "esp", not(context = "esp32")))]
 ariel_os::define_peripherals!(Peripherals {
-    pin_0: GPIO_0,
-    pin_1: GPIO_1,
-    pin_2: GPIO_2,
-    pin_3: GPIO_3,
+    pin_0: GPIO0,
+    pin_1: GPIO1,
+    pin_2: GPIO2,
+    pin_3: GPIO3,
 });
 
 #[cfg(context = "stm32")]

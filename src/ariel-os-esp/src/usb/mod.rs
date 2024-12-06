@@ -7,8 +7,8 @@ pub type UsbDriver = Driver<'static>;
 
 pub struct Peripherals {
     usb: peripherals::USB0,
-    usbdp: peripherals::GPIO_20,
-    usbdm: peripherals::GPIO_19,
+    usbdp: peripherals::GPIO20,
+    usbdm: peripherals::GPIO19,
 }
 
 impl Peripherals {
@@ -16,8 +16,8 @@ impl Peripherals {
     pub fn new(peripherals: &mut crate::OptionalPeripherals) -> Self {
         Self {
             usb: peripherals.USB0.take().unwrap(),
-            usbdp: peripherals.GPIO_20.take().unwrap(),
-            usbdm: peripherals.GPIO_19.take().unwrap(),
+            usbdp: peripherals.GPIO20.take().unwrap(),
+            usbdm: peripherals.GPIO19.take().unwrap(),
         }
     }
 }

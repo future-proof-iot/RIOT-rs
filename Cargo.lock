@@ -583,9 +583,9 @@ checksum = "2d7e60934ceec538daadb9d8432424ed043a904d8e0243f3c6446bce549a46ac"
 
 [[package]]
 name = "bitfield"
-version = "0.16.1"
+version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "d5acf59e2452f0c4b968b15ce4b9468f57b45f7733b919d68b19fcc39264bfb8"
+checksum = "f798d2d157e547aa99aab0967df39edd0b70307312b6f8bd2848e6abe40896e0"
 
 [[package]]
 name = "bitflags"
@@ -1256,9 +1256,9 @@ dependencies = [
 
 [[package]]
 name = "delegate"
-version = "0.12.0"
+version = "0.13.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "4e018fccbeeb50ff26562ece792ed06659b9c2dae79ece77c4456bb10d9bf79b"
+checksum = "bc2323e10c92e1cf4d86e11538512e6dc03ceb586842970b6332af3d4046a046"
 dependencies = [
  "proc-macro2",
  "quote",
@@ -1919,7 +1919,6 @@ dependencies = [
 [[package]]
 name = "esp-alloc"
 version = "0.5.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "critical-section",
  "enumset",
@@ -1929,7 +1928,6 @@ dependencies = [
 [[package]]
 name = "esp-build"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "quote",
  "syn 2.0.90",
@@ -1938,19 +1936,17 @@ dependencies = [
 
 [[package]]
 name = "esp-config"
-version = "0.1.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
+version = "0.2.0"
 dependencies = [
  "document-features",
 ]
 
 [[package]]
 name = "esp-hal"
-version = "0.21.1"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
+version = "0.22.0"
 dependencies = [
  "basic-toml",
- "bitfield 0.16.1",
+ "bitfield 0.17.0",
  "bitflags 2.6.0",
  "bytemuck",
  "cfg-if",
@@ -1959,6 +1955,7 @@ dependencies = [
  "defmt",
  "delegate",
  "document-features",
+ "embassy-embedded-hal",
  "embassy-futures",
  "embassy-sync 0.6.1",
  "embassy-usb-driver",
@@ -2001,14 +1998,14 @@ dependencies = [
 
 [[package]]
 name = "esp-hal-embassy"
-version = "0.4.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
+version = "0.5.0"
 dependencies = [
  "critical-section",
  "document-features",
  "embassy-executor",
  "embassy-time-driver",
  "esp-build",
+ "esp-config",
  "esp-hal",
  "esp-hal-procmacros",
  "esp-metadata",
@@ -2018,8 +2015,7 @@ dependencies = [
 
 [[package]]
 name = "esp-hal-procmacros"
-version = "0.14.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
+version = "0.15.0"
 dependencies = [
  "darling",
  "document-features",
@@ -2035,7 +2031,6 @@ dependencies = [
 [[package]]
 name = "esp-metadata"
 version = "0.4.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "anyhow",
  "basic-toml",
@@ -2046,7 +2041,6 @@ dependencies = [
 [[package]]
 name = "esp-println"
 version = "0.12.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "critical-section",
  "defmt",
@@ -2057,8 +2051,7 @@ dependencies = [
 
 [[package]]
 name = "esp-riscv-rt"
-version = "0.9.0"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
+version = "0.9.1"
 dependencies = [
  "document-features",
  "riscv",
@@ -2080,8 +2073,7 @@ dependencies = [
 
 [[package]]
 name = "esp-wifi"
-version = "0.10.1"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
+version = "0.11.0"
 dependencies = [
  "bt-hci",
  "cfg-if",
@@ -2106,15 +2098,16 @@ dependencies = [
  "num-traits",
  "portable-atomic",
  "portable_atomic_enum",
+ "rand_core",
  "smoltcp 0.11.0",
  "xtensa-lx-rt",
 ]
 
 [[package]]
 name = "esp-wifi-sys"
-version = "0.6.0"
+version = "0.7.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f339ddb1664812e79992a8231a3f8603456c80b769066313150831f2b0bf66e7"
+checksum = "7730d6093853119088bbb793e3383801965ebe8fcf91e0817781d94628aaf718"
 dependencies = [
  "anyhow",
  "defmt",
@@ -2122,21 +2115,20 @@ dependencies = [
 
 [[package]]
 name = "esp32"
-version = "0.33.0"
+version = "0.34.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "85287b57fae3e318b62fd860787b1ac85a5e7bf91ad43eb66837c5e567218009"
+checksum = "af7d3208ef4ffd96c3105b3fb6fd19e8512bc128b24cb866dc26a734b09f454c"
 dependencies = [
  "critical-section",
  "defmt",
  "vcell",
- "xtensa-lx",
 ]
 
 [[package]]
 name = "esp32c2"
-version = "0.22.0"
+version = "0.23.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "8f9216c7ca4aefe4723d38a765e27801c4e92dec792870403466fc9adb438056"
+checksum = "e74f8ceff5249a39f6ffeaea7a9c048b36fd1ba67d365330e0970927c57759ab"
 dependencies = [
  "critical-section",
  "defmt",
@@ -2145,9 +2137,9 @@ dependencies = [
 
 [[package]]
 name = "esp32c3"
-version = "0.25.0"
+version = "0.26.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3922cd13da83d070892c47e66f005856c62510952198c3008bc4f3b79f3e9623"
+checksum = "5d1750382dc49fa333ee6b1ba96f8c540038b9666f5a233dc1221c98e3236118"
 dependencies = [
  "critical-section",
  "defmt",
@@ -2156,9 +2148,9 @@ dependencies = [
 
 [[package]]
 name = "esp32c6"
-version = "0.16.0"
+version = "0.17.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "f0c05e230022cf5a8d10e9bcdc4878c0886a3a5701a96d6763cb42562e42ecd7"
+checksum = "8b98fcf7ae90ee4d55f06170dfeaaebbf2a1619bb38b4e14b9009b4d636b87e7"
 dependencies = [
  "critical-section",
  "defmt",
@@ -2167,9 +2159,9 @@ dependencies = [
 
 [[package]]
 name = "esp32h2"
-version = "0.12.0"
+version = "0.13.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1b05edd3bb766f66180b49c53b3503cf41b72936912a9552462a6a233ccdcac4"
+checksum = "b1530274ade78283655a6810dd5d1840404945f4a5bf3d74729c35946beb8304"
 dependencies = [
  "critical-section",
  "defmt",
@@ -2178,26 +2170,24 @@ dependencies = [
 
 [[package]]
 name = "esp32s2"
-version = "0.24.0"
+version = "0.25.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9cc0ce1947afdcc4cb74dc8955e1575fcfa38931e0282ed171811dde0afc0fc6"
+checksum = "2f77ec7a694eb60741f53236e625456abf672ba5b0b73c4a2d708a343c6f3495"
 dependencies = [
  "critical-section",
  "defmt",
  "vcell",
- "xtensa-lx",
 ]
 
 [[package]]
 name = "esp32s3"
-version = "0.28.0"
+version = "0.29.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "eae51703c44196b924910bd8ea7285e5a234d1a5aebcd0b60a997cd5081eb002"
+checksum = "fe69dca8db0ed37d222555f12dfaf99232592e84f54e56dd81e450a4769718bf"
 dependencies = [
  "critical-section",
  "defmt",
  "vcell",
- "xtensa-lx",
 ]
 
 [[package]]
@@ -3740,13 +3730,33 @@ dependencies = [
 
 [[package]]
 name = "riscv"
-version = "0.11.1"
+version = "0.12.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2f5c1b8bf41ea746266cdee443d1d1e9125c86ce1447e1a2615abd34330d33a9"
+checksum = "5ea8ff73d3720bdd0a97925f0bf79ad2744b6da8ff36be3840c48ac81191d7a7"
 dependencies = [
  "critical-section",
  "embedded-hal 1.0.0",
+ "paste",
+ "riscv-macros",
+ "riscv-pac",
 ]
+
+[[package]]
+name = "riscv-macros"
+version = "0.1.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "f265be5d634272320a7de94cea15c22a3bfdd4eb42eb43edc528415f066a1f25"
+dependencies = [
+ "proc-macro2",
+ "quote",
+ "syn 2.0.87",
+]
+
+[[package]]
+name = "riscv-pac"
+version = "0.2.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "8188909339ccc0c68cfb5a04648313f09621e8b87dc03095454f1a11f6c5d436"
 
 [[package]]
 name = "riscv-rt-macros"
@@ -4901,8 +4911,7 @@ dependencies = [
 
 [[package]]
 name = "xtensa-lx-rt"
-version = "0.17.1"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
+version = "0.17.2"
 dependencies = [
  "anyhow",
  "bare-metal 1.0.0",
@@ -4920,7 +4929,6 @@ dependencies = [
 [[package]]
 name = "xtensa-lx-rt-proc-macros"
 version = "0.2.2"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -4957,5 +4965,4 @@ checksum = "ced3678a2879b30306d323f4542626697a464a97c0a07c9aebf7ebca65cd4dde"
 
 [[patch.unused]]
 name = "esp-storage"
-version = "0.3.1"
-source = "git+https://github.com/ariel-os/esp-hal?branch=for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk#57f8ab94988f98416e28905e181524fa5c33bada"
+version = "0.4.0"

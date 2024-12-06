@@ -4,10 +4,10 @@ use ariel_os::hal::{peripherals, spi};
 pub type SensorSpi = spi::main::SPI2;
 #[cfg(context = "esp")]
 ariel_os::define_peripherals!(Peripherals {
-    spi_sck: GPIO_0,
-    spi_miso: GPIO_1,
-    spi_mosi: GPIO_2,
-    spi_cs: GPIO_3,
+    spi_sck: GPIO0,
+    spi_miso: GPIO1,
+    spi_mosi: GPIO2,
+    spi_cs: GPIO3,
 });
 
 // Side SPI of Arduino v3 connector

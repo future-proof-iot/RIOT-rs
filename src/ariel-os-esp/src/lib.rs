@@ -45,59 +45,61 @@ pub mod peripheral {
 pub mod peripherals {
     //! Types for the peripheral singletons.
 
+    #![expect(missing_docs)]
+
     pub use esp_hal::peripherals::*;
 
-    pub use esp_hal::gpio::GPIO_0;
-    pub use esp_hal::gpio::GPIO_1;
-    pub use esp_hal::gpio::GPIO_2;
-    pub use esp_hal::gpio::GPIO_3;
-    pub use esp_hal::gpio::GPIO_4;
-    pub use esp_hal::gpio::GPIO_5;
-    pub use esp_hal::gpio::GPIO_6;
-    pub use esp_hal::gpio::GPIO_7;
-    pub use esp_hal::gpio::GPIO_8;
-    pub use esp_hal::gpio::GPIO_9;
+    pub type GPIO0 = esp_hal::gpio::GpioPin<0>;
+    pub type GPIO1 = esp_hal::gpio::GpioPin<1>;
+    pub type GPIO2 = esp_hal::gpio::GpioPin<2>;
+    pub type GPIO3 = esp_hal::gpio::GpioPin<3>;
+    pub type GPIO4 = esp_hal::gpio::GpioPin<4>;
+    pub type GPIO5 = esp_hal::gpio::GpioPin<5>;
+    pub type GPIO6 = esp_hal::gpio::GpioPin<6>;
+    pub type GPIO7 = esp_hal::gpio::GpioPin<7>;
+    pub type GPIO8 = esp_hal::gpio::GpioPin<8>;
+    pub type GPIO9 = esp_hal::gpio::GpioPin<9>;
 
-    pub use esp_hal::gpio::GPIO_10;
-    pub use esp_hal::gpio::GPIO_11;
-    pub use esp_hal::gpio::GPIO_12;
-    pub use esp_hal::gpio::GPIO_13;
-    pub use esp_hal::gpio::GPIO_14;
-    pub use esp_hal::gpio::GPIO_15;
-    pub use esp_hal::gpio::GPIO_16;
-    pub use esp_hal::gpio::GPIO_17;
-    pub use esp_hal::gpio::GPIO_18;
-    pub use esp_hal::gpio::GPIO_19;
-    pub use esp_hal::gpio::GPIO_20;
-    pub use esp_hal::gpio::GPIO_21;
+    pub type GPIO10 = esp_hal::gpio::GpioPin<10>;
+    pub type GPIO11 = esp_hal::gpio::GpioPin<11>;
+    pub type GPIO12 = esp_hal::gpio::GpioPin<12>;
+    pub type GPIO13 = esp_hal::gpio::GpioPin<13>;
+    pub type GPIO14 = esp_hal::gpio::GpioPin<14>;
+    pub type GPIO15 = esp_hal::gpio::GpioPin<15>;
+    pub type GPIO16 = esp_hal::gpio::GpioPin<16>;
+    pub type GPIO17 = esp_hal::gpio::GpioPin<17>;
+    pub type GPIO18 = esp_hal::gpio::GpioPin<18>;
+    pub type GPIO19 = esp_hal::gpio::GpioPin<19>;
+    pub type GPIO20 = esp_hal::gpio::GpioPin<20>;
+    pub type GPIO21 = esp_hal::gpio::GpioPin<21>;
 
     cfg_if::cfg_if! {
         if #[cfg(context = "esp32c6")] {
-            pub use esp_hal::gpio::GPIO_22;
-            pub use esp_hal::gpio::GPIO_23;
-            pub use esp_hal::gpio::GPIO_24;
-            pub use esp_hal::gpio::GPIO_25;
-            pub use esp_hal::gpio::GPIO_26;
-            pub use esp_hal::gpio::GPIO_27;
-            pub use esp_hal::gpio::GPIO_28;
-            pub use esp_hal::gpio::GPIO_29;
-            pub use esp_hal::gpio::GPIO_30;
+            pub type GPIO22 = esp_hal::gpio::GpioPin<22>;
+            pub type GPIO23 = esp_hal::gpio::GpioPin<23>;
+            pub type GPIO24 = esp_hal::gpio::GpioPin<24>;
+            pub type GPIO25 = esp_hal::gpio::GpioPin<25>;
+            pub type GPIO26 = esp_hal::gpio::GpioPin<26>;
+            pub type GPIO27 = esp_hal::gpio::GpioPin<27>;
+            pub type GPIO28 = esp_hal::gpio::GpioPin<28>;
+            pub type GPIO29 = esp_hal::gpio::GpioPin<29>;
+            pub type GPIO30 = esp_hal::gpio::GpioPin<30>;
         }
         else if #[cfg(context = "esp32")] {
-            pub use esp_hal::gpio::GPIO_22;
-            pub use esp_hal::gpio::GPIO_23;
-            pub use esp_hal::gpio::GPIO_24;
-            pub use esp_hal::gpio::GPIO_25;
-            pub use esp_hal::gpio::GPIO_26;
-            pub use esp_hal::gpio::GPIO_27;
-            pub use esp_hal::gpio::GPIO_32;
-            pub use esp_hal::gpio::GPIO_33;
-            pub use esp_hal::gpio::GPIO_34;
-            pub use esp_hal::gpio::GPIO_35;
-            pub use esp_hal::gpio::GPIO_36;
-            pub use esp_hal::gpio::GPIO_37;
-            pub use esp_hal::gpio::GPIO_38;
-            pub use esp_hal::gpio::GPIO_39;
+            pub type GPIO22 = esp_hal::gpio::GpioPin<22>;
+            pub type GPIO23 = esp_hal::gpio::GpioPin<23>;
+            pub type GPIO24 = esp_hal::gpio::GpioPin<24>;
+            pub type GPIO25 = esp_hal::gpio::GpioPin<25>;
+            pub type GPIO26 = esp_hal::gpio::GpioPin<26>;
+            pub type GPIO27 = esp_hal::gpio::GpioPin<27>;
+            pub type GPIO32 = esp_hal::gpio::GpioPin<32>;
+            pub type GPIO33 = esp_hal::gpio::GpioPin<33>;
+            pub type GPIO34 = esp_hal::gpio::GpioPin<34>;
+            pub type GPIO35 = esp_hal::gpio::GpioPin<35>;
+            pub type GPIO36 = esp_hal::gpio::GpioPin<36>;
+            pub type GPIO37 = esp_hal::gpio::GpioPin<37>;
+            pub type GPIO38 = esp_hal::gpio::GpioPin<38>;
+            pub type GPIO39 = esp_hal::gpio::GpioPin<39>;
         }
     }
 }
@@ -129,19 +131,11 @@ pub fn init() -> OptionalPeripherals {
         use esp_alloc as _;
         esp_alloc::heap_allocator!(72 * 1024);
 
-        use esp_wifi::{init, EspWifiInitFor};
-
         ariel_os_debug::log::debug!("ariel-os-embassy::hal::esp::init(): wifi");
 
         let timer = TimerGroup::new(peripherals.TIMG0.take().unwrap()).timer0;
 
-        let init = init(
-            EspWifiInitFor::Wifi,
-            timer,
-            rng,
-            peripherals.RADIO_CLK.take().unwrap(),
-        )
-        .unwrap();
+        let init = esp_wifi::init(timer, rng, peripherals.RADIO_CLK.take().unwrap()).unwrap();
 
         wifi::esp_wifi::WIFI_INIT.set(init).unwrap();
     }

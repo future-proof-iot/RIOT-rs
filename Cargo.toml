@@ -81,11 +81,11 @@ embedded-storage = { version = "0.3.1" }
 embedded-storage-async = { version = "0.4.1" }
 
 esp-alloc = { version = "0.5.0", default-features = false }
-esp-hal = { version = "0.21.1", default-features = false }
-esp-hal-embassy = { version = "0.4.0", default-features = false }
+esp-hal = { version = "0.22.0", default-features = false }
+esp-hal-embassy = { version = "0.5.0", default-features = false }
 esp-println = { version = "0.12.0" }
-esp-wifi = { version = "0.10.1", default-features = false }
-esp-storage = { version = "0.3.1" }
+esp-wifi = { version = "0.11.0", default-features = false }
+esp-storage = { version = "0.4.0" }
 
 linkme = { version = "0.3.21", features = ["used_linker"] }
 
@@ -162,12 +162,12 @@ cyw43 = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-20
 cyw43-pio = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
 
 # ariel-os esp-hal fork
-esp-alloc = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
-esp-hal = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
-esp-hal-embassy = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
-esp-println = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
-esp-wifi = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
-esp-storage = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
+esp-alloc = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-11-21-0.22.0" }
+esp-hal = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-11-21-0.22.0" }
+esp-hal-embassy = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-11-21-0.22.0" }
+esp-println = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-11-21-0.22.0" }
+esp-wifi = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-11-21-0.22.0" }
+esp-storage = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-11-21-0.22.0" }
 
 # patched to use portable-atomics <https://github.com/seanmonstar/try-lock/pull/11>
 try-lock = { git = "https://github.com/seanmonstar/try-lock", rev = "a1aadfac9840fe23672159c12af7272e44bc684c" }

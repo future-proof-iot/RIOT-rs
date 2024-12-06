@@ -25,7 +25,7 @@ impl Multicore for Chip {
     const IDLE_THREAD_STACK_SIZE: usize = 2048;
 
     fn core_id() -> CoreId {
-        esp_hal::get_core().into()
+        esp_hal::Cpu::current().into()
     }
 
     fn startup_other_cores() {

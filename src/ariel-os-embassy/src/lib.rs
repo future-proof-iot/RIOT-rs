@@ -175,9 +175,6 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
     #[cfg(all(context = "stm32", feature = "external-interrupts"))]
     hal::extint_registry::EXTINT_REGISTRY.init(&mut peripherals);
 
-    #[cfg(context = "esp")]
-    hal::gpio::init(&mut peripherals);
-
     #[cfg(feature = "i2c")]
     hal::i2c::init(&mut peripherals);
 
