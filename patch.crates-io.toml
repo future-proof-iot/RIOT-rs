@@ -29,4 +29,4 @@ esp-storage = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel
 try-lock = { git = "https://github.com/seanmonstar/try-lock", rev = "a1aadfac9840fe23672159c12af7272e44bc684c" }
 
 # added Ariel OS support
-embedded-test = { git = "https://github.com/kaspar030/embedded-test", branch = "for-ariel-os-2024-10-21" }
+embedded-test = { git = "https://github.com/ariel-os/embedded-test", branch = "for-ariel-os-2024-10-21" }
