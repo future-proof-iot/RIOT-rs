@@ -21,10 +21,10 @@ pub struct Config {
     /// Whether to enable the internal pull-up resistor on the SCL pin.
     pub scl_pullup: bool,
     /// Whether to set the SDA pin's drive strength to
-    /// [`DriveStrength::High`](crate::gpio::output::DriveStrength::High).
+    /// [`DriveStrength::High`](crate::gpio::DriveStrength::High).
     pub sda_high_drive: bool,
     /// Whether to set the SCL pin's drive strength to
-    /// [`DriveStrength::High`](crate::gpio::output::DriveStrength::High).
+    /// [`DriveStrength::High`](crate::gpio::DriveStrength::High).
     pub scl_high_drive: bool,
 }
 

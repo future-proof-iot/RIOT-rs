@@ -59,11 +59,7 @@ pub mod input {
 pub mod output {
     //! Output-specific types.
 
-    use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
-    use embassy_rp::{
-        gpio::{Drive, Level, SlewRate},
-        Peripheral,
-    };
+    use embassy_rp::{gpio::Level, Peripheral};
 
     #[doc(hidden)]
     pub use embassy_rp::gpio::{Output, Pin as OutputPin};
@@ -77,8 +73,8 @@ pub mod output {
     pub fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
         initial_level: ariel_os_embassy_common::gpio::Level,
-        drive_strength: DriveStrength,
-        speed: Speed,
+        drive_strength: super::DriveStrength,
+        speed: super::Speed,
     ) -> Output<'static> {
         let initial_level = match initial_level {
             ariel_os_embassy_common::gpio::Level::Low => Level::Low,
@@ -89,94 +85,94 @@ pub mod output {
         output.set_slew_rate(speed.into());
         output
     }
+}
 
-    /// Available drive strength settings.
-    // We provide our own type because the upstream type is not `Copy` and has no `Default` impl.
-    #[derive(Copy, Clone, PartialEq, Eq)]
-    pub enum DriveStrength {
-        /// 2 mA.
-        _2mA,
-        /// 4 mA.
-        _4mA,
-        /// 8 mA.
-        _8mA,
-        /// 12 mA.
-        _12mA,
+/// Available drive strength settings.
+// We provide our own type because the upstream type is not `Copy` and has no `Default` impl.
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum DriveStrength {
+    /// 2 mA.
+    _2mA,
+    /// 4 mA.
+    _4mA,
+    /// 8 mA.
+    _8mA,
+    /// 12 mA.
+    _12mA,
+}
+
+impl Default for DriveStrength {
+    fn default() -> Self {
+        // Reset value
+        Self::_4mA
     }
+}
 
-    impl Default for DriveStrength {
-        fn default() -> Self {
-            // Reset value
-            Self::_4mA
+impl From<DriveStrength> for embassy_rp::gpio::Drive {
+    fn from(drive_strength: DriveStrength) -> Self {
+        match drive_strength {
+            DriveStrength::_2mA => Self::_2mA,
+            DriveStrength::_4mA => Self::_4mA,
+            DriveStrength::_8mA => Self::_8mA,
+            DriveStrength::_12mA => Self::_12mA,
         }
     }
+}
 
-    impl From<DriveStrength> for Drive {
-        fn from(drive_strength: DriveStrength) -> Self {
-            match drive_strength {
-                DriveStrength::_2mA => Self::_2mA,
-                DriveStrength::_4mA => Self::_4mA,
-                DriveStrength::_8mA => Self::_8mA,
-                DriveStrength::_12mA => Self::_12mA,
-            }
+impl ariel_os_embassy_common::gpio::FromDriveStrength for DriveStrength {
+    fn from(drive_strength: ariel_os_embassy_common::gpio::DriveStrength<Self>) -> Self {
+        use ariel_os_embassy_common::gpio::DriveStrength::*;
+
+        // ESPs are able to output up to 40 mA, so we somewhat normalize this.
+        match drive_strength {
+            Hal(drive_strength) => drive_strength,
+            Lowest => Self::_2mA,
+            Standard => Self::default(),
+            Medium => Self::_8mA,
+            High => Self::_12mA,
+            Highest => Self::_12mA,
         }
     }
+}
 
-    impl FromDriveStrength for DriveStrength {
-        fn from(drive_strength: ariel_os_embassy_common::gpio::DriveStrength<Self>) -> Self {
-            use ariel_os_embassy_common::gpio::DriveStrength::*;
+/// Available output speed/slew rate settings.
+// These values do not seem to be quantitatively defined on the RP2040.
+// We provide our own type because the `SlewRate` upstream type is not `Copy` and has no
+// `Default` impl.
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum Speed {
+    /// Low.
+    Low,
+    /// High.
+    High,
+}
 
-            // ESPs are able to output up to 40 mA, so we somewhat normalize this.
-            match drive_strength {
-                Hal(drive_strength) => drive_strength,
-                Lowest => DriveStrength::_2mA,
-                Standard => DriveStrength::default(),
-                Medium => DriveStrength::_8mA,
-                High => DriveStrength::_12mA,
-                Highest => DriveStrength::_12mA,
-            }
+impl Default for Speed {
+    fn default() -> Self {
+        // Reset value
+        Self::Low
+    }
+}
+
+impl From<Speed> for embassy_rp::gpio::SlewRate {
+    fn from(speed: Speed) -> Self {
+        match speed {
+            Speed::Low => Self::Slow,
+            Speed::High => Self::Fast,
         }
     }
+}
 
-    /// Available output speed/slew rate settings.
-    // These values do not seem to be quantitatively defined on the RP2040.
-    // We provide our own type because the `SlewRate` upstream type is not `Copy` and has no
-    // `Default` impl.
-    #[derive(Copy, Clone, PartialEq, Eq)]
-    pub enum Speed {
-        /// Low.
-        Low,
-        /// High.
-        High,
-    }
+impl ariel_os_embassy_common::gpio::FromSpeed for Speed {
+    fn from(speed: ariel_os_embassy_common::gpio::Speed<Self>) -> Self {
+        use ariel_os_embassy_common::gpio::Speed::*;
 
-    impl Default for Speed {
-        fn default() -> Self {
-            // Reset value
-            Self::Low
-        }
-    }
-
-    impl From<Speed> for SlewRate {
-        fn from(speed: Speed) -> Self {
-            match speed {
-                Speed::Low => SlewRate::Slow,
-                Speed::High => SlewRate::Fast,
-            }
-        }
-    }
-
-    impl FromSpeed for Speed {
-        fn from(speed: ariel_os_embassy_common::gpio::Speed<Self>) -> Self {
-            use ariel_os_embassy_common::gpio::Speed::*;
-
-            match speed {
-                Hal(speed) => speed,
-                Low => Speed::Low,
-                Medium => Speed::Low,
-                High => Speed::High,
-                VeryHigh => Speed::High,
-            }
+        match speed {
+            Hal(speed) => speed,
+            Low => Self::Low,
+            Medium => Self::Low,
+            High => Self::High,
+            VeryHigh => Self::High,
         }
     }
 }

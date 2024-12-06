@@ -1,5 +1,3 @@
-use ariel_os_embassy_common::gpio::{DriveStrength, Level, Pull, Speed};
-
 macro_rules! define_input_like {
     ($type:ident) => {
         pub struct $type<'d> {
@@ -90,7 +88,7 @@ pub mod input {
 
     pub fn new(
         _pin: impl Peripheral<P: InputPin> + 'static,
-        _pull: crate::gpio::Pull,
+        _pull: ariel_os_embassy_common::gpio::Pull,
         _schmitt_trigger: bool,
     ) -> Result<Input<'static>, ariel_os_embassy_common::gpio::input::Error> {
         unimplemented!();
@@ -99,7 +97,7 @@ pub mod input {
     #[cfg(feature = "external-interrupts")]
     pub fn new_int_enabled(
         _pin: impl Peripheral<P: InputPin> + 'static,
-        _pull: crate::gpio::Pull,
+        _pull: ariel_os_embassy_common::gpio::Pull,
         _schmitt_trigger: bool,
     ) -> Result<IntEnabledInput<'static>, ariel_os_embassy_common::gpio::input::Error> {
         unimplemented!();
@@ -118,7 +116,6 @@ pub mod input {
 }
 
 pub mod output {
-    use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
     use embedded_hal::digital::StatefulOutputPin;
 
     use crate::peripheral::Peripheral;
@@ -130,37 +127,11 @@ pub mod output {
 
     pub fn new(
         _pin: impl Peripheral<P: OutputPin> + 'static,
-        _initial_level: crate::gpio::Level,
-        _drive_strength: DriveStrength,
-        _speed: Speed,
+        _initial_level: ariel_os_embassy_common::gpio::Level,
+        _drive_strength: super::DriveStrength,
+        _speed: super::Speed,
     ) -> Output<'static> {
         unimplemented!();
-    }
-
-    /// Actual type is HAL-specific.
-    #[derive(Copy, Clone, PartialEq, Eq)]
-    pub enum DriveStrength {
-        #[doc(hidden)]
-        Hidden,
-    }
-
-    impl FromDriveStrength for DriveStrength {
-        fn from(_drive_strength: crate::gpio::DriveStrength<DriveStrength>) -> Self {
-            unimplemented!();
-        }
-    }
-
-    /// Actual type is HAL-specific.
-    #[derive(Copy, Clone, PartialEq, Eq)]
-    pub enum Speed {
-        #[doc(hidden)]
-        Hidden,
-    }
-
-    impl FromSpeed for Speed {
-        fn from(_speed: crate::gpio::Speed<Speed>) -> Self {
-            unimplemented!();
-        }
     }
 
     pub struct Output<'d> {
@@ -189,5 +160,31 @@ pub mod output {
         fn is_set_low(&mut self) -> Result<bool, Self::Error> {
             unimplemented!();
         }
+    }
+}
+
+/// Actual type is HAL-specific.
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum DriveStrength {
+    #[doc(hidden)]
+    Hidden,
+}
+
+impl ariel_os_embassy_common::gpio::FromDriveStrength for DriveStrength {
+    fn from(_drive_strength: ariel_os_embassy_common::gpio::DriveStrength<Self>) -> Self {
+        unimplemented!();
+    }
+}
+
+/// Actual type is HAL-specific.
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum Speed {
+    #[doc(hidden)]
+    Hidden,
+}
+
+impl ariel_os_embassy_common::gpio::FromSpeed for Speed {
+    fn from(_speed: ariel_os_embassy_common::gpio::Speed<Self>) -> Self {
+        unimplemented!();
     }
 }
