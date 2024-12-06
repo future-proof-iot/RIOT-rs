@@ -1,3 +1,5 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "ariel-os-debug"
 version.workspace = true
@@ -26,7 +28,7 @@ esp-println = { workspace = true, optional = true, features = ["log"] }
 log = { version = "0.4.20" }
 
 [target.'cfg(context = "esp32")'.dependencies]
-esp-println = { workspace = true, features = ["esp32"] }
+esp-println = { workspace = true, optional = true, features = ["esp32"] }
 
 [target.'cfg(context = "esp32c3")'.dependencies]
 esp-println = { workspace = true, optional = true, features = ["esp32c3"] }
@@ -40,3 +42,7 @@ esp-println = { workspace = true, optional = true, features = ["esp32s3"] }
 [features]
 debug-console = []
 defmt = ["dep:defmt", "esp-println?/defmt-espflash", "rtt-target?/defmt"]
+semihosting = ["dep:semihosting"]
+
+esp-println = ["dep:esp-println"]
+rtt-target = ["dep:rtt-target"]

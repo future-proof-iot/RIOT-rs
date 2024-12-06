@@ -1,3 +1,5 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "nrf5340dk"
 version.workspace = true

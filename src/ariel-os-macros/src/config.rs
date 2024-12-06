@@ -75,7 +75,9 @@ pub fn config(args: TokenStream, item: TokenStream) -> TokenStream {
     // Place the provided function into another function whose type signature we enforce.
     // This is important as that function will be called unsafely via FFI.
     let expanded = quote! {
-        #[no_mangle]
+        // SAFETY: the compiler prevents from defining multiple functions with the same name in the
+        // same crate.
+        #[unsafe(no_mangle)]
         fn #config_fn_name() -> #return_type {
             #[inline(always)]
             #config_function

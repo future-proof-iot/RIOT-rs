@@ -1,3 +1,5 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "espressif-esp32-s3-wroom-1"
 version = "0.1.0"

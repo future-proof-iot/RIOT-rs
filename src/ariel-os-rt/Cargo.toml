@@ -1,3 +1,5 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "ariel-os-rt"
 version = "0.1.0"
@@ -19,7 +21,7 @@ cortex-m = { workspace = true }
 cortex-m-rt = { workspace = true }
 
 [target.'cfg(context = "rp2040")'.dependencies]
-embassy-rp = { workspace = true, optional = true }
+embassy-rp = { workspace = true }
 portable-atomic = { workspace = true, features = ["critical-section"] }
 
 [target.'cfg(context = "esp")'.dependencies]
