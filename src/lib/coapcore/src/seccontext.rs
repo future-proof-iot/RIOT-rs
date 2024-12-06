@@ -72,11 +72,15 @@ impl COwn {
             _ => None,
         }
     }
+
+    fn as_slice(&self) -> &[u8] {
+        core::slice::from_ref(&self.0)
+    }
 }
 
 impl From<COwn> for lakers::ConnId {
     fn from(cown: COwn) -> Self {
-        lakers::ConnId::from_slice(&[cown.0])
+        lakers::ConnId::from_slice(cown.as_slice())
             .expect("ConnId is always big enough for at least COwn")
     }
 }
