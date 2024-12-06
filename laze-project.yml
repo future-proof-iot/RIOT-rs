@@ -89,8 +89,22 @@ contexts:
           - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_TOOLCHAIN} ${CARGO_ARGS} run --${PROFILE} ${FEATURES}
 
       cargo-test:
+        required_vars:
+          - EMBEDDED_TEST
         cmd:
-          - cd ${relpath} && ${CARGO_ENV} cargo test --${PROFILE} --features=ariel-os-boards/${builder},ariel-os-rt/debug-console --manifest-path ${app}/Cargo.toml
+          - ${CARGO_ENV} cargo ${CARGO_TOOLCHAIN} ${CARGO_ARGS} -Z unstable-options -C${appdir} test ${FEATURES},ariel-os/threading
+        build: false
+
+      cargo-test-json:
+        required_vars:
+          - EMBEDDED_TEST
+        cmd:
+          - ${CARGO_ENV} cargo -Z unstable-options -C${appdir} test ${FEATURES},ariel-os/threading -- -Z unstable-options --format=json
+        build: false
+
+      cargo-test-expand:
+        cmd:
+          - ${CARGO_ENV} cargo -Z unstable-options -C${appdir} expand ${FEATURES},ariel-os/threading --test example_test
         build: false
 
       debug:
@@ -294,8 +308,8 @@ contexts:
         - --cfg context=\"esp\"
         # linkall first
         - -Clink-arg=-Tlinkall.x
-        # this might be needed for backtraces
-        # - -C force-frame-pointers
+        # this might be needed for backtraces. it is needed for probe-rs.
+        - -C force-frame-pointers
       CARGO_ARGS:
         - -Zbuild-std=core,alloc
 
@@ -823,6 +837,19 @@ modules:
       global:
         FEATURES:
           - ariel-os/semihosting
+
+  - name: embedded-test
+    selects:
+      - sw/threading
+      - rtt-target
+      - probe-rs
+        #- single-core
+    env:
+      global:
+        # this is used to filter `cargo-test` task availability
+        EMBEDDED_TEST: yes
+        RUSTFLAGS:
+          - -Clink-arg=-Tembedded-test.x
 
 builders:
   # host builder (for housekeeping tasks)
