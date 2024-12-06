@@ -9,3 +9,4 @@ subdirs:
   - spi-main
   - threading-dynamic-prios
   - threading-lock
+  - threading-mutex

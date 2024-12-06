@@ -1,0 +1,6 @@
+apps:
+  - name: threading-mutex
+    selects:
+      - ?release
+      - single-core
+      - sw/threading

@@ -34,6 +34,7 @@ members = [
   "tests/spi-main",
   "tests/threading-dynamic-prios",
   "tests/threading-lock",
+  "tests/threading-mutex",
 ]
 
 exclude = ["src/lib"]
