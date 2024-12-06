@@ -49,13 +49,7 @@ pub mod input {
 pub mod output {
     //! Output-specific types.
 
-    use ariel_os_embassy_common::gpio::FromSpeed;
-    use embassy_stm32::{
-        gpio::{Level, Speed as StmSpeed},
-        Peripheral,
-    };
-
-    pub use ariel_os_embassy_common::gpio::UnsupportedDriveStrength as DriveStrength;
+    use embassy_stm32::{gpio::Level, Peripheral};
 
     #[doc(hidden)]
     pub use embassy_stm32::gpio::{Output, Pin as OutputPin};
@@ -69,8 +63,8 @@ pub mod output {
     pub fn new(
         pin: impl Peripheral<P: OutputPin> + 'static,
         initial_level: ariel_os_embassy_common::gpio::Level,
-        _drive_strength: DriveStrength, // Not supported by hardware
-        speed: Speed,
+        _drive_strength: super::DriveStrength, // Not supported by hardware
+        speed: super::Speed,
     ) -> Output<'static> {
         let initial_level = match initial_level {
             ariel_os_embassy_common::gpio::Level::Low => Level::Low,
@@ -78,42 +72,44 @@ pub mod output {
         };
         Output::new(pin, initial_level, speed.into())
     }
+}
 
-    /// Available output speed/slew rate settings.
-    #[derive(Copy, Clone, PartialEq, Eq)]
-    pub enum Speed {
-        /// Low.
-        Low,
-        /// Medium.
-        Medium,
-        /// High.
-        High,
-        /// Very high.
-        VeryHigh,
-    }
+pub use ariel_os_embassy_common::gpio::UnsupportedDriveStrength as DriveStrength;
 
-    impl From<Speed> for StmSpeed {
-        fn from(speed: Speed) -> Self {
-            match speed {
-                Speed::Low => StmSpeed::Low,
-                Speed::Medium => StmSpeed::Medium,
-                Speed::High => StmSpeed::High,
-                Speed::VeryHigh => StmSpeed::VeryHigh,
-            }
+/// Available output speed/slew rate settings.
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum Speed {
+    /// Low.
+    Low,
+    /// Medium.
+    Medium,
+    /// High.
+    High,
+    /// Very high.
+    VeryHigh,
+}
+
+impl From<Speed> for embassy_stm32::gpio::Speed {
+    fn from(speed: Speed) -> Self {
+        match speed {
+            Speed::Low => Self::Low,
+            Speed::Medium => Self::Medium,
+            Speed::High => Self::High,
+            Speed::VeryHigh => Self::VeryHigh,
         }
     }
+}
 
-    impl FromSpeed for Speed {
-        fn from(speed: ariel_os_embassy_common::gpio::Speed<Self>) -> Self {
-            use ariel_os_embassy_common::gpio::Speed::*;
+impl ariel_os_embassy_common::gpio::FromSpeed for Speed {
+    fn from(speed: ariel_os_embassy_common::gpio::Speed<Self>) -> Self {
+        use ariel_os_embassy_common::gpio::Speed::*;
 
-            match speed {
-                Hal(speed) => speed,
-                Low => Speed::Low,
-                Medium => Speed::Medium,
-                High => Speed::High,
-                VeryHigh => Speed::VeryHigh,
-            }
+        match speed {
+            Hal(speed) => speed,
+            Low => Self::Low,
+            Medium => Self::Medium,
+            High => Self::High,
+            VeryHigh => Self::VeryHigh,
         }
     }
 }

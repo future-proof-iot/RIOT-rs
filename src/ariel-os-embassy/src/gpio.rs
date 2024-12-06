@@ -14,10 +14,8 @@ use crate::hal::{
     self,
     gpio::{
         input::{Input as HalInput, InputPin as HalInputPin},
-        output::{
-            DriveStrength as HalDriveStrength, Output as HalOutput, OutputPin as HalOutputPin,
-            Speed as HalSpeed,
-        },
+        output::{Output as HalOutput, OutputPin as HalOutputPin},
+        DriveStrength as HalDriveStrength, Speed as HalSpeed,
     },
     peripheral::Peripheral,
 };
