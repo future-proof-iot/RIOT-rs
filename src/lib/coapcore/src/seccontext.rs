@@ -5,6 +5,8 @@ use coap_message::{
 use coap_message_utils::{Error as CoAPError, OptionsExt as _};
 use defmt_or_log::{debug, error, info, warn, Debug2Format};
 
+use crate::authorization_server::AsDescription;
+
 // If this exceeds 47, COwn will need to be extended.
 const MAX_CONTEXTS: usize = 4;
 
@@ -26,9 +28,14 @@ pub type SecContextPool<Crypto> =
 // FIXME Could even limit to positive values if MAX_CONTEXTS < 24
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Copy, Clone, PartialEq, Debug)]
-struct COwn(u8);
+pub(crate) struct COwn(u8);
 
 impl COwn {
+    /// Maximum length of [`Self::as_slice`].
+    ///
+    /// This is exposed to allow sizing stack allocated buffers.
+    pub(crate) const MAX_SLICE_LEN: usize = 1;
+
     /// Find a value of self that is not found in the iterator.
     ///
     /// This asserts that the iterator is (known to be) short enough that this will always succeed.
@@ -73,7 +80,7 @@ impl COwn {
         }
     }
 
-    fn as_slice(&self) -> &[u8] {
+    pub(crate) fn as_slice(&self) -> &[u8] {
         core::slice::from_ref(&self.0)
     }
 }
@@ -283,12 +290,23 @@ pub struct OscoreEdhocHandler<
     H: coap_handler::Handler,
     Crypto: lakers::Crypto,
     CryptoFactory: Fn() -> Crypto,
+    AS: AsDescription,
+    RNG: rand_core::RngCore + rand_core::CryptoRng,
 > {
     // It'd be tempted to have sharing among multiple handlers for multiple CoAP stacks, but
     // locks for such sharing could still be acquired in a factory (at which point it may make
     // sense to make this a &mut).
     pool: SecContextPool<Crypto>,
     own_identity: (&'a lakers::Credential, &'a lakers::BytesP256ElemLen),
+
+    #[cfg_attr(
+        not(feature = "acetoken"),
+        expect(
+            dead_code,
+            reason = "Field is only initialized with ZST dummy type, but carried around because the alternative is to have a phantom field justifying the associated type, which can not be feature gated itself"
+        )
+    )]
+    authorities: AS,
 
     // FIXME: This currently bakes in the assumption that there is a single tree both for
     // unencrypted and encrypted resources. We may later generalize this by making this a factory,
@@ -302,23 +320,77 @@ pub struct OscoreEdhocHandler<
     inner: H,
 
     crypto_factory: CryptoFactory,
+    #[cfg_attr(
+        not(feature = "acetoken"),
+        expect(
+            dead_code,
+            reason = "Field is not needed in the non-ACE case, but not populating it causes trouble with the associated type."
+        )
+    )]
+    rng: RNG,
 }
 
-impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -> Crypto>
-    OscoreEdhocHandler<'a, H, Crypto, CryptoFactory>
+impl<
+        'a,
+        H: coap_handler::Handler,
+        Crypto: lakers::Crypto,
+        CryptoFactory: Fn() -> Crypto,
+        RNG: rand_core::RngCore + rand_core::CryptoRng,
+    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::Empty, RNG>
 {
     // FIXME: Apart from an own identity, this will also need a function to convert ID_CRED_I into
-    // a (CRED_I, AifStaticRest) pair.
+    // a (CRED_I, AifStaticRest) pair; this is currently hardcoded in all the places that construct
+    // an AifStaticRest.
     pub fn new(
         own_identity: (&'a lakers::Credential, &'a lakers::BytesP256ElemLen),
         inner: H,
         crypto_factory: CryptoFactory,
+        rng: RNG,
     ) -> Self {
         Self {
             pool: Default::default(),
             own_identity,
             inner,
             crypto_factory,
+            authorities: crate::authorization_server::Empty,
+            rng,
+        }
+    }
+}
+
+impl<
+        'a,
+        H: coap_handler::Handler,
+        Crypto: lakers::Crypto,
+        CryptoFactory: Fn() -> Crypto,
+        AS: AsDescription,
+        RNG: rand_core::RngCore + rand_core::CryptoRng,
+    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, AS, RNG>
+{
+    /// Adds a new authorization server (or set thereof) to the handler, which is queried before
+    /// any other authorization server.
+    #[cfg(feature = "acetoken")]
+    pub fn with_authorization_server<AS1: AsDescription>(
+        self,
+        prepended_as: AS1,
+    ) -> OscoreEdhocHandler<
+        'a,
+        H,
+        Crypto,
+        CryptoFactory,
+        crate::authorization_server::AsChain<AS1, AS>,
+        RNG,
+    > {
+        OscoreEdhocHandler {
+            authorities: crate::authorization_server::AsChain::chain(
+                prepended_as,
+                self.authorities,
+            ),
+            pool: self.pool,
+            own_identity: self.own_identity,
+            inner: self.inner,
+            crypto_factory: self.crypto_factory,
+            rng: self.rng,
         }
     }
 
@@ -352,7 +424,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
         )
     }
 
-    /// Process a CoAP request containing a message sent to /.well-known/edhoc.
+    /// Processes a CoAP request containing a message sent to /.well-known/edhoc.
     ///
     /// The caller has already checked Uri-Path and all other critical options.
     #[allow(
@@ -856,6 +928,56 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -
                 .transpose().map_err(Ok)?;
         Ok(())
     }
+
+    /// Process a CoAP request containing an ACE token for /authz-info
+    ///
+    /// This assumes that the content format was pre-checked to be application/ace+cbor, both in
+    /// Content-Format and Accept (absence is fine too), and no other critical options are present.
+    // FIXME code is *not* prechecked yet; works better as a separate refactoring step
+    #[cfg(feature = "acetoken")]
+    fn extract_token(
+        &mut self,
+        payload: &[u8],
+    ) -> Result<crate::ace::AceCborAuthzInfoResponse, CoAPError> {
+        let mut nonce2 = [0; crate::ace::OWN_NONCE_LEN];
+        self.rng.fill_bytes(&mut nonce2);
+
+        let (response, scope, oscore) = crate::ace::process_acecbor_authz_info(
+            payload,
+            &self.authorities,
+            nonce2,
+            |nonce1| {
+                // This preferably (even exclusively) produces EDHOC-ideal recipient IDs, but as long
+                // as we're having more of those than slots, no point in not reusing the code.
+                self.cown_but_not(nonce1)
+            },
+            |scope| {
+                // FIXME us a more sensible type
+                AifStaticRest {
+                    may_use_stdout: false,
+                }
+            },
+        )
+        .map_err(|e| {
+            error!("Sending out error:");
+            error!("{}", Debug2Format(&e));
+            e.position()
+                // FIXME: Could also come from processing inner
+                .map(CoAPError::bad_request_with_rbep)
+                .unwrap_or(CoAPError::bad_request())
+        })?;
+
+        info!("Established OSCORE context with recipient ID {:?} and authorization {:?} through ACE-OSCORE", oscore.recipient_id(), scope);
+        // FIXME: This should be flagged as "unconfirmed" for rapid eviction, as it could be part
+        // of a replay.
+        let evicted = self.pool.force_insert(SecContextState {
+            protocol_stage: SecContextStage::Oscore(oscore),
+            authorization: scope,
+        });
+        info!("Evicted {:?}", evicted);
+
+        Ok(response)
+    }
 }
 
 /// Wrapper around for a handler's inner RequestData
@@ -879,7 +1001,7 @@ pub enum OwnRequestData<I> {
         extracted: AuthorizationChecked<I>,
     },
     #[cfg(feature = "acetoken")]
-    ProcessedToken,
+    ProcessedToken(crate::ace::AceCborAuthzInfoResponse),
 }
 
 // FIXME: It'd be tempting to implement Drop for Response to set the slot back to Empty -- but
@@ -934,8 +1056,13 @@ impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrI
     }
 }
 
-impl<H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -> Crypto>
-    coap_handler::Handler for OscoreEdhocHandler<'_, H, Crypto, CryptoFactory>
+impl<
+        H: coap_handler::Handler,
+        Crypto: lakers::Crypto,
+        CryptoFactory: Fn() -> Crypto,
+        AS: AsDescription,
+        RNG: rand_core::RngCore + rand_core::CryptoRng,
+    > coap_handler::Handler for OscoreEdhocHandler<'_, H, Crypto, CryptoFactory, AS, RNG>
 {
     type RequestData = OrInner<
         OwnRequestData<Result<H::RequestData, H::ExtractRequestError>>,
@@ -1053,7 +1180,10 @@ impl<H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -> Cr
             }
             WellKnownEdhoc => self.extract_edhoc(&request).map(Own).map_err(Own),
             #[cfg(feature = "acetoken")]
-            AuthzInfo => Ok(Own(OwnRequestData::ProcessedToken)),
+            AuthzInfo => self
+                .extract_token(request.payload())
+                .map(|r| Own(OwnRequestData::ProcessedToken(r)))
+                .map_err(Own),
             Edhoc { oscore } => self
                 .extract_oscore_edhoc(&request, oscore, true)
                 .map(Own)
@@ -1083,8 +1213,8 @@ impl<H: coap_handler::Handler, Crypto: lakers::Crypto, CryptoFactory: Fn() -> Cr
                 self.build_edhoc_message_2(response, c_r).map_err(Own)?
             }
             #[cfg(feature = "acetoken")]
-            Own(OwnRequestData::ProcessedToken) => {
-                response.set_code(M::Code::new(coap_numbers::code::INTERNAL_SERVER_ERROR).unwrap());
+            Own(OwnRequestData::ProcessedToken(r)) => {
+                r.render(response).map_err(|e| Own(Err(e)))?;
             }
             Own(OwnRequestData::EdhocOscoreRequest {
                 kid,

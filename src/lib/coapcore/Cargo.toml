@@ -18,6 +18,7 @@ workspace = true
 coap-handler = "0.2.0"
 coap-message = "0.3.2"
 lakers = { version = "0.7.2", default-features = false }
+rand_core = "0.6.4"
 
 # private
 arrayvec = { version = "0.7.4", default-features = false }
@@ -29,15 +30,17 @@ lakers-crypto-rustcrypto = "0.7.2"
 liboscore = "0.2.2"
 liboscore-msgbackend = "0.2.2"
 
-minicbor = "0.25.1"
+minicbor = { version = "0.25.1", features = ["derive"] }
+minicbor-adapters = "0.0.1"
 heapless = "0.8.0"
 defmt-or-log = { version = "0.2.1", default-features = false }
 defmt = { workspace = true, optional = true }
 log = { version = "0.4", optional = true }
 
-dcaf = { version = "0.4", optional = true, default-features = false }
-
 document-features = "0.2.10"
+
+ccm = { version = "0.5.0", default-features = false, optional = true }
+aes = { version = "0.8.4", default-features = false, optional = true }
 
 [features]
 #! Cargo features
@@ -52,10 +55,10 @@ defmt = ["defmt-or-log/defmt", "dep:defmt", "lakers/defmt"]
 # https://github.com/t-moe/defmt-or-log/issues/4
 log = ["defmt-or-log/log", "dep:log"]
 
-## Support [ACE (RFC9200)](https://datatracker.ietf.org/doc/html/rfc9200) tokens
+## Support [ACE (RFC9200)](https://datatracker.ietf.org/doc/html/rfc9200) tokens.
 ##
-## This is feature-gated because it depends on [`dcaf`] and thus allocation.
-acetoken = ["dep:dcaf"]
+## This also enables describing non-trivial ACE Authorization Servers that issue them in the first place.
+acetoken = ["dep:ccm", "dep:aes"]
 
 # Private feature that enables doc_auto_cfg
 _nightly_docs = []

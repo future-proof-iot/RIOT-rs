@@ -24,6 +24,10 @@
 #![no_std]
 #![cfg_attr(feature = "_nightly_docs", feature(doc_auto_cfg))]
 
+#[cfg(feature = "acetoken")]
+mod ace;
+pub mod authorization_server;
+
 // Might warrant a standalone crate at some point
 //
 // This is pub only to make the doctests run (but the crate's pub-ness needs a major overhaul
