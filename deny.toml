@@ -35,6 +35,7 @@ exceptions = [
   { allow = ["BSL-1.0"], crate = "lhash" },
   # OSI-approved: https://opensource.org/license/blue-oak-model-license
   { allow = ["BlueOak-1.0.0"], crate = "minicbor" },
+  { allow = ["BlueOak-1.0.0"], crate = "minicbor-derive" },
   { allow = ["CC0-1.0"], crate = "tiny-keccak" },
 ]
 
