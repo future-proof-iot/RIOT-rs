@@ -34,6 +34,10 @@ impl COwn {
     /// Maximum length of [`Self::as_slice`].
     ///
     /// This is exposed to allow sizing stack allocated buffers.
+    #[cfg_attr(
+        not(feature = "acetoken"),
+        expect(dead_code, reason = "not used in all cfg variants")
+    )]
     pub(crate) const MAX_SLICE_LEN: usize = 1;
 
     /// Find a value of self that is not found in the iterator.
