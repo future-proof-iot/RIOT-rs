@@ -1,4 +1,4 @@
 apps:
-  - name: tests_gpio
+  - name: ariel-os-identity
     selects:
       - embedded-test

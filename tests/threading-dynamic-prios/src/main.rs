@@ -32,7 +32,7 @@ fn thread0() {
 
     assert_eq!(RUN_ORDER.fetch_add(1, Ordering::AcqRel), 2);
     ariel_os::debug::log::info!("Test passed!");
-    loop {}
+    ariel_os::debug::exit_success();
 }
 
 #[ariel_os::thread(autostart, priority = 1)]

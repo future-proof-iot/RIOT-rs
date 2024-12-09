@@ -8,6 +8,12 @@ publish = false
 [lints]
 workspace = true
 
+[[test]]
+name = "tests_gpio"
+path = "src/test.rs"
+harness = false
+
 [dependencies]
 ariel-os = { path = "../../src/ariel-os", features = ["external-interrupts"] }
 ariel-os-boards = { path = "../../src/ariel-os-boards" }
+embedded-test = { workspace = true }
