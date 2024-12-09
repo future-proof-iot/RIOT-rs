@@ -73,7 +73,7 @@ impl<T> Mutex<T> {
 
     /// Acquires a mutex, blocking the current thread until it is able to do so.
     ///
-    /// If the mutex was unlocked, it will be locked and a [`Guard`] is returned.
+    /// If the mutex was unlocked, it will be locked and a [`MutexGuard`] is returned.
     /// If the mutex is locked, this function will block the current thread until the mutex gets
     /// unlocked elsewhere.
     ///
@@ -85,7 +85,7 @@ impl<T> Mutex<T> {
     /// # Panics
     ///
     /// Panics if called outside of a thread context.
-    pub fn lock(&self) -> Guard<T> {
+    pub fn lock(&self) -> MutexGuard<T> {
         critical_section::with(|cs| {
             // SAFETY: access to the state only happens in critical sections, so it's always unique.
             let state = unsafe { &mut *self.state.get() };
@@ -118,20 +118,20 @@ impl<T> Mutex<T> {
         // to the waitlist. In the latter case, it only continues running here after it was popped again
         // from the waitlist and the thread acquired the mutex.
 
-        Guard { mutex: self }
+        MutexGuard { mutex: self }
     }
 
     /// Attempts to acquire this lock, in a non-blocking fashion.
     ///
-    /// If the mutex was unlocked, it will be locked and a [`Guard`] is returned.
+    /// If the mutex was unlocked, it will be locked and a [`MutexGuard`] is returned.
     /// If the mutex was locked `None` is returned.
-    pub fn try_lock(&self) -> Option<Guard<T>> {
+    pub fn try_lock(&self) -> Option<MutexGuard<T>> {
         critical_section::with(|cs| {
             // SAFETY: access to the state only happens in critical sections, so it's always unique.
             let state = unsafe { &mut *self.state.get() };
             if let LockState::Unlocked = *state {
                 *state = LockState::locked_with_current(cs);
-                Some(Guard { mutex: self })
+                Some(MutexGuard { mutex: self })
             } else {
                 None
             }
@@ -174,34 +174,38 @@ unsafe impl<T> Sync for Mutex<T> {}
 
 /// Grants access to the [`Mutex`] inner data.
 ///
-/// Dropping the [`Guard`] will unlock the [`Mutex`];
-pub struct Guard<'a, T> {
+/// Dropping the [`MutexGuard`] will unlock the [`Mutex`];
+#[expect(
+    clippy::module_name_repetitions,
+    reason = "consistency with std and embassy-sync"
+)]
+pub struct MutexGuard<'a, T> {
     mutex: &'a Mutex<T>,
 }
 
-impl<'a, T> Deref for Guard<'a, T> {
+impl<'a, T> Deref for MutexGuard<'a, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
-        // SAFETY: Guard always has unique access.
+        // SAFETY: MutexGuard always has unique access.
         unsafe { &*self.mutex.inner.get() }
     }
 }
 
-impl<'a, T> DerefMut for Guard<'a, T> {
+impl<'a, T> DerefMut for MutexGuard<'a, T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
-        // SAFETY: Guard always has unique access.
+        // SAFETY: MutexGuard always has unique access.
         unsafe { &mut *self.mutex.inner.get() }
     }
 }
 
-impl<'a, T> Drop for Guard<'a, T> {
+impl<'a, T> Drop for MutexGuard<'a, T> {
     fn drop(&mut self) {
         // Unlock the mutex when the guard is dropped.
         self.mutex.release();
     }
 }
 
-impl<T> !Send for Guard<'_, T> {}
+impl<T> !Send for MutexGuard<'_, T> {}
 
-unsafe impl<T: Sync> Sync for Guard<'_, T> {}
+unsafe impl<T: Sync> Sync for MutexGuard<'_, T> {}
