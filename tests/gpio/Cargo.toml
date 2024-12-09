@@ -10,8 +10,8 @@ workspace = true
 
 [[test]]
 name = "tests_gpio"
-harness = false
 path = "src/test.rs"
+harness = false
 
 [dependencies]
 ariel-os = { path = "../../src/ariel-os", features = ["external-interrupts"] }
