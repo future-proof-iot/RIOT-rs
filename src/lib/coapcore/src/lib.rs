@@ -24,7 +24,6 @@
 #![no_std]
 #![cfg_attr(feature = "_nightly_docs", feature(doc_auto_cfg))]
 
-#[cfg(feature = "acetoken")]
 mod ace;
 pub mod authorization_server;
 

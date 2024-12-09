@@ -39,8 +39,11 @@ log = { version = "0.4", optional = true }
 
 document-features = "0.2.10"
 
-ccm = { version = "0.5.0", default-features = false, optional = true }
-aes = { version = "0.8.4", default-features = false, optional = true }
+# They're only used when ACE tokens are set up, but they're the same as those
+# used in libOSCORE's and Lakers' backends, so no harm in having them as
+# dependencies.
+ccm = { version = "0.5.0", default-features = false }
+aes = { version = "0.8.4", default-features = false }
 
 [features]
 #! Cargo features
@@ -55,14 +58,9 @@ defmt = ["defmt-or-log/defmt", "dep:defmt", "lakers/defmt"]
 # https://github.com/t-moe/defmt-or-log/issues/4
 log = ["defmt-or-log/log", "dep:log"]
 
-## Support [ACE (RFC9200)](https://datatracker.ietf.org/doc/html/rfc9200) tokens.
-##
-## This also enables describing non-trivial ACE Authorization Servers that issue them in the first place.
-acetoken = ["dep:ccm", "dep:aes"]
-
 # Private feature that enables doc_auto_cfg
 _nightly_docs = []
 
 [package.metadata.docs.rs]
 # all non-conflicting features
-features = ["_nightly_docs", "acetoken"]
+features = ["_nightly_docs"]

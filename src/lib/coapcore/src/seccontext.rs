@@ -34,10 +34,6 @@ impl COwn {
     /// Maximum length of [`Self::as_slice`].
     ///
     /// This is exposed to allow sizing stack allocated buffers.
-    #[cfg_attr(
-        not(feature = "acetoken"),
-        expect(dead_code, reason = "not used in all cfg variants")
-    )]
     pub(crate) const MAX_SLICE_LEN: usize = 1;
 
     /// Find a value of self that is not found in the iterator.
@@ -303,13 +299,6 @@ pub struct OscoreEdhocHandler<
     pool: SecContextPool<Crypto>,
     own_identity: (&'a lakers::Credential, &'a lakers::BytesP256ElemLen),
 
-    #[cfg_attr(
-        not(feature = "acetoken"),
-        expect(
-            dead_code,
-            reason = "Field is only initialized with ZST dummy type, but carried around because the alternative is to have a phantom field justifying the associated type, which can not be feature gated itself"
-        )
-    )]
     authorities: AS,
 
     // FIXME: This currently bakes in the assumption that there is a single tree both for
@@ -324,13 +313,6 @@ pub struct OscoreEdhocHandler<
     inner: H,
 
     crypto_factory: CryptoFactory,
-    #[cfg_attr(
-        not(feature = "acetoken"),
-        expect(
-            dead_code,
-            reason = "Field is not needed in the non-ACE case, but not populating it causes trouble with the associated type."
-        )
-    )]
     rng: RNG,
 }
 
@@ -373,7 +355,6 @@ impl<
 {
     /// Adds a new authorization server (or set thereof) to the handler, which is queried before
     /// any other authorization server.
-    #[cfg(feature = "acetoken")]
     pub fn with_authorization_server<AS1: AsDescription>(
         self,
         prepended_as: AS1,
@@ -938,7 +919,6 @@ impl<
     /// This assumes that the content format was pre-checked to be application/ace+cbor, both in
     /// Content-Format and Accept (absence is fine too), and no other critical options are present.
     // FIXME code is *not* prechecked yet; works better as a separate refactoring step
-    #[cfg(feature = "acetoken")]
     fn extract_token(
         &mut self,
         payload: &[u8],
@@ -1004,7 +984,6 @@ pub enum OwnRequestData<I> {
         correlation: liboscore::raw::oscore_requestid_t,
         extracted: AuthorizationChecked<I>,
     },
-    #[cfg(feature = "acetoken")]
     ProcessedToken(crate::ace::AceCborAuthzInfoResponse),
 }
 
@@ -1083,8 +1062,9 @@ impl<
     ) -> Result<Self::RequestData, Self::ExtractRequestError> {
         use OrInner::{Inner, Own};
 
-        #[derive(Default, Clone, Debug)]
-        enum Recognition {
+        #[derive(Default, Debug)]
+        // AS could be boolean AS_IS_EMPTY but not until feature(generic_const_exprs)
+        enum Recognition<AS: AsDescription> {
             #[default]
             Start,
             /// Seen an OSCORE option
@@ -1097,15 +1077,20 @@ impl<
             WellKnownEdhoc,
             /// Seen path "authz-info"
             // FIXME: Should we allow arbitrary paths here?
-            #[cfg(feature = "acetoken")]
-            AuthzInfo,
+            //
+            // Also, in the IS_EMPTY case, this would ideally be marked uninhabitable, but that's
+            // hard to express in associated types and functions.
+            //
+            // Also, the PhantomData doesn't actually need to be precisely in here, but it needs to
+            // be somewhere.
+            AuthzInfo(core::marker::PhantomData<AS>),
             /// Seen anything else (where the request handler, or more likely the ACL filter, will
             /// trip over the critical options)
             Unencrypted,
         }
         use Recognition::*;
 
-        impl Recognition {
+        impl<AS: AsDescription> Recognition<AS> {
             /// Given a state and an option, produce the next state and whether the option should
             /// be counted as consumed for the purpose of assessing .well-known/edchoc's
             /// ignore_elective_others().
@@ -1120,17 +1105,20 @@ impl<
                         _ => (Start, true),
                     },
                     (Start, option::URI_PATH, b".well-known") => (WellKnown, false),
-                    #[cfg(feature = "acetoken")]
-                    (Start, option::URI_PATH, b"authz-info") => (AuthzInfo, false),
+                    (Start, option::URI_PATH, b"authz-info") if !AS::IS_EMPTY => {
+                        (AuthzInfo(Default::default()), false)
+                    }
                     (Start, option::URI_PATH, _) => (Unencrypted, true /* doesn't matter */),
                     (Oscore { oscore }, option::EDHOC, b"") => {
                         (Edhoc { oscore }, true /* doesn't matter */)
                     }
                     (WellKnown, option::URI_PATH, b"edhoc") => (WellKnownEdhoc, false),
-                    #[cfg(feature = "acetoken")]
-                    (AuthzInfo, option::CONTENT_FORMAT, &[19]) => (AuthzInfo, false),
-                    #[cfg(feature = "acetoken")]
-                    (AuthzInfo, option::ACCEPT, &[19]) => (AuthzInfo, false),
+                    (AuthzInfo(ai), option::CONTENT_FORMAT, &[19]) if !AS::IS_EMPTY => {
+                        (AuthzInfo(ai), false)
+                    }
+                    (AuthzInfo(ai), option::ACCEPT, &[19]) if !AS::IS_EMPTY => {
+                        (AuthzInfo(ai), false)
+                    }
                     (any, _, _) => (any, true),
                 }
             }
@@ -1142,26 +1130,27 @@ impl<
             fn errors_handled_here(&self) -> bool {
                 match self {
                     WellKnownEdhoc => true,
-                    #[cfg(feature = "acetoken")]
-                    AuthzInfo => true,
+                    AuthzInfo(_) => true,
                     _ => false,
                 }
             }
         }
 
-        let mut state = Recognition::Start;
+        // This will always be Some in practice, just taken while it is being updated.
+        let mut state = Some(Recognition::<AS>::Start);
 
         // Some small potential for optimization by cutting iteration short on Edhoc, but probably
         // not worth it.
         let extra_options = request
             .options()
             .filter(|o| {
-                let (new_state, filter) = state.clone().update(o);
-                state = new_state;
+                let (new_state, filter) = state.take().unwrap().update(o);
+                state = Some(new_state);
                 filter
             })
             // FIXME: This aborts early on critical options, even when the result is later ignored
             .ignore_elective_others();
+        let state = state.unwrap();
 
         if state.errors_handled_here() {
             if let Err(error) = extra_options {
@@ -1183,11 +1172,20 @@ impl<
                 }
             }
             WellKnownEdhoc => self.extract_edhoc(&request).map(Own).map_err(Own),
-            #[cfg(feature = "acetoken")]
-            AuthzInfo => self
-                .extract_token(request.payload())
-                .map(|r| Own(OwnRequestData::ProcessedToken(r)))
-                .map_err(Own),
+            AuthzInfo(_) => {
+                if AS::IS_EMPTY {
+                    // This makes extract_token and everything down the line effectively dead code on
+                    // setups with empty AS, without triggering clippy's nervous dead code warnigns.
+                    //
+                    // The compiler should be able to eliminiate even this one statement based on
+                    // this variant not being constructed under the same condition, but that
+                    // property is not being tested.
+                    unreachable!("State is not constructed");
+                }
+                self.extract_token(request.payload())
+                    .map(|r| Own(OwnRequestData::ProcessedToken(r)))
+                    .map_err(Own)
+            }
             Edhoc { oscore } => self
                 .extract_oscore_edhoc(&request, oscore, true)
                 .map(Own)
@@ -1216,7 +1214,6 @@ impl<
             Own(OwnRequestData::EdhocOkSend2(c_r)) => {
                 self.build_edhoc_message_2(response, c_r).map_err(Own)?
             }
-            #[cfg(feature = "acetoken")]
             Own(OwnRequestData::ProcessedToken(r)) => {
                 r.render(response).map_err(|e| Own(Err(e)))?;
             }

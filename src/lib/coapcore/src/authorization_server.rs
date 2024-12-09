@@ -1,21 +1,7 @@
 //! Descriptions of ACE Authorization Servers (AS), as viewed from the Resource Server (RS) which
 //! coapcore runs on.
 
-#[cfg(feature = "acetoken")]
 use crate::ace::HeaderMap;
-
-#[cfg(not(feature = "acetoken"))]
-mod dummy {
-    /// Unnameable type to stand in for `ace::HeaderMap` when the ACE token feature is disable. The
-    /// type is needed to allow still having the [`AsDescription`][super::AsDescription] trait
-    /// public, because not having that item would vary the generics of the whole crate.
-    pub struct HeaderMap {
-        _private: (),
-    }
-}
-
-#[cfg(not(feature = "acetoken"))]
-use dummy::HeaderMap;
 
 #[derive(Debug)]
 pub enum DecryptionError {
@@ -27,6 +13,12 @@ pub enum DecryptionError {
 
 /// A single or collection of authorization servers that a handler trusts to create ACE tokens.
 pub trait AsDescription {
+    /// True if the type will never find a token.
+    ///
+    /// This is used by the handler implementation to shortcut through some message processing
+    /// paths.
+    const IS_EMPTY: bool;
+
     /// Unprotect a symmetriclly encrypted token.
     ///
     /// It would be preferable to return a decryption key and let the `ace` module do the
@@ -81,6 +73,8 @@ impl<A1: AsDescription, A2: AsDescription> AsChain<A1, A2> {
 }
 
 impl<A1: AsDescription, A2: AsDescription> AsDescription for AsChain<A1, A2> {
+    const IS_EMPTY: bool = A1::IS_EMPTY && A2::IS_EMPTY;
+
     fn decrypt_symmetric_token<const N: usize>(
         &self,
         headers: &HeaderMap,
@@ -102,24 +96,25 @@ impl<A1: AsDescription, A2: AsDescription> AsDescription for AsChain<A1, A2> {
 /// The empty set of authorization servers.
 pub struct Empty;
 
-impl AsDescription for Empty {}
+impl AsDescription for Empty {
+    const IS_EMPTY: bool = true;
+}
 
 /// A test AS association that does not need to deal with key IDs and just tries a single static
 /// key with a single algorithm.
-#[cfg(feature = "acetoken")]
 pub struct StaticSymmetric31 {
     key: &'static [u8; 32],
 }
 
-#[cfg(feature = "acetoken")]
 impl StaticSymmetric31 {
     pub fn new(key: &'static [u8; 32]) -> Self {
         Self { key }
     }
 }
 
-#[cfg(feature = "acetoken")]
 impl AsDescription for StaticSymmetric31 {
+    const IS_EMPTY: bool = false;
+
     fn decrypt_symmetric_token<const N: usize>(
         &self,
         headers: &HeaderMap,
