@@ -37,7 +37,7 @@ async fn web_task(task_id: usize, app: &'static picoserve::Router<routes::AppRou
         task_id,
         app,
         &SERVER_CONFIG,
-        &stack,
+        stack,
         HTTP_PORT,
         &mut tcp_rx_buffer,
         &mut tcp_tx_buffer,
