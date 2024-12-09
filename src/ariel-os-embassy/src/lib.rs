@@ -4,6 +4,7 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 #![feature(doc_auto_cfg)]
+#![feature(negative_impls)]
 
 pub mod define_peripherals;
 pub mod gpio;
@@ -263,7 +264,10 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
     #[cfg(feature = "usb")]
     {
         for hook in usb::USB_BUILDER_HOOKS {
-            hook.lend(&mut usb_builder).await;
+            // SAFETY: `lend()` is only called once per hook instance, as required.
+            unsafe {
+                hook.lend(&mut usb_builder).await;
+            }
         }
         let usb = usb_builder.build();
         spawner.spawn(usb::usb_task(usb)).unwrap();
