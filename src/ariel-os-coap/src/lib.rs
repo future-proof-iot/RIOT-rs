@@ -72,9 +72,12 @@ pub async fn coap_run(handler: impl coap_handler::Handler + coap_handler::Report
     // FIXME: Should we allow users to override that? After all, this is just convenience and may
     // be limiting in special applications.
     let handler = handler.with_wkc();
-    let mut handler = seccontext::OscoreEdhocHandler::new(own_identity, handler, || {
-        lakers_crypto_rustcrypto::Crypto::new(ariel_os_random::crypto_rng())
-    });
+    let mut handler = seccontext::OscoreEdhocHandler::new(
+        own_identity,
+        handler,
+        || lakers_crypto_rustcrypto::Crypto::new(ariel_os_random::crypto_rng()),
+        ariel_os_random::crypto_rng(),
+    );
 
     info!("Server is ready.");
 
