@@ -6,7 +6,7 @@
 #[cfg(test)]
 #[embedded_test::tests]
 mod tests {
-    // Optional: A init function which is called before every test
+    // Optional: An init function which is called before every test
     #[init]
     fn init() -> u32 {
         return 42;
