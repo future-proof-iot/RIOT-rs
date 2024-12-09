@@ -19,6 +19,7 @@ include-dev = true
 allow = [
   "0BSD",
   "Apache-2.0",
+  "BlueOak-1.0.0",
   "BSD-3-Clause",
   "ISC",
   "MIT",
@@ -53,6 +54,7 @@ allow-git = [
   "https://github.com/hacspec/hax",
   "https://gitlab.com/oscore/liboscore",
   "https://github.com/seanmonstar/try-lock",
+  "https://gitlab.com/etonomy/riot-module-examples",
 ]
 
 [sources.allow-org]
