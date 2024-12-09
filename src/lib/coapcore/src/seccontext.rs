@@ -411,7 +411,8 @@ impl<
 
     /// Processes a CoAP request containing a message sent to /.well-known/edhoc.
     ///
-    /// The caller has already checked Uri-Path and all other critical options.
+    /// The caller has already checked Uri-Path and all other critical options, and that the
+    /// request was a POST.
     #[allow(
         clippy::type_complexity,
         reason = "Type is subset of RequestData that has no alias in the type"
@@ -420,10 +421,6 @@ impl<
         &mut self,
         request: &M,
     ) -> Result<OwnRequestData<Result<H::RequestData, H::ExtractRequestError>>, CoAPError> {
-        if request.code().into() != coap_numbers::code::POST {
-            return Err(CoAPError::method_not_allowed());
-        }
-
         let (first_byte, edhoc_m1) = request
             .payload()
             .split_first()
@@ -917,8 +914,8 @@ impl<
     /// Process a CoAP request containing an ACE token for /authz-info
     ///
     /// This assumes that the content format was pre-checked to be application/ace+cbor, both in
-    /// Content-Format and Accept (absence is fine too), and no other critical options are present.
-    // FIXME code is *not* prechecked yet; works better as a separate refactoring step
+    /// Content-Format and Accept (absence is fine too), and no other critical options are present,
+    /// and the code was POST.
     fn extract_token(
         &mut self,
         payload: &[u8],
@@ -1160,6 +1157,14 @@ impl<
             }
         }
 
+        let require_post = || {
+            if coap_numbers::code::POST == request.code().into() {
+                Ok(())
+            } else {
+                Err(CoAPError::method_not_allowed())
+            }
+        };
+
         match state {
             Start | WellKnown | Unencrypted => {
                 if self.nosec_authorization().request_is_allowed(request) {
@@ -1171,7 +1176,10 @@ impl<
                     Ok(Inner(AuthorizationChecked::NotAllowed))
                 }
             }
-            WellKnownEdhoc => self.extract_edhoc(&request).map(Own).map_err(Own),
+            WellKnownEdhoc => {
+                require_post()?;
+                self.extract_edhoc(&request).map(Own).map_err(Own)
+            }
             AuthzInfo(_) => {
                 if AS::IS_EMPTY {
                     // This makes extract_token and everything down the line effectively dead code on
@@ -1182,6 +1190,7 @@ impl<
                     // property is not being tested.
                     unreachable!("State is not constructed");
                 }
+                require_post()?;
                 self.extract_token(request.payload())
                     .map(|r| Own(OwnRequestData::ProcessedToken(r)))
                     .map_err(Own)
