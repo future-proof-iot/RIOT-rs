@@ -1,0 +1,12 @@
+manifest-version = 1
+
+[products.ferrocene]
+release = "nightly-2024-09-18"
+packages = [
+   "rust-std-thumbv7em-none-eabi",
+   "rust-std-${rustc-host}",
+   "cargo-${rustc-host}",
+   "llvm-tools-${rustc-host}",
+   "rustc-${rustc-host}",
+   "rust-src"
+]

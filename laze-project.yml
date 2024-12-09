@@ -66,7 +66,7 @@ contexts:
         pool: console
         always: true
         cmd: >-
-          cd ${relpath} && ${CARGO_ENV} cargo ${CARGO_TOOLCHAIN} ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
+          cd ${relpath} && ${CARGO_ENV} ${CARGO_WRAPPER} cargo ${CARGO_TOOLCHAIN} ${CARGO_ARGS} build --${PROFILE} ${FEATURES}
           && cp ${relroot}/${build-dir}/bin/${builder}/${app}/cargo/${RUSTC_TARGET}/${PROFILE}/${riot_binary} ${relroot}/${out}
 
       - name: GIT_DOWNLOAD
@@ -823,6 +823,16 @@ modules:
       global:
         FEATURES:
           - ariel-os/semihosting
+
+  - name: ferrocene
+    help: build using Ferrocene qualified Rust compiler
+    context:
+      # actually, all thumbv7em-none-eabi(hf)
+      - nrf52
+      - stm32
+    env:
+      global:
+        CARGO_WRAPPER: criticalup run
 
 builders:
   # host builder (for housekeeping tasks)
