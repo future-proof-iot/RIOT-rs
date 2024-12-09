@@ -7,4 +7,4 @@ mod mutex;
 pub use channel::Channel;
 pub use event::Event;
 pub use lock::Lock;
-pub use mutex::{Guard, Mutex};
+pub use mutex::{Mutex, MutexGuard};
