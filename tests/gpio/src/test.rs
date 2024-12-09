@@ -35,5 +35,5 @@ async fn main(peripherals: pins::Peripherals) {
     let _led_1 = led_1_builder.build();
 
     info!("Test passed!");
-    exit(EXIT_SUCCESS);
+    ariel_os::debug::exit_success();
 }
