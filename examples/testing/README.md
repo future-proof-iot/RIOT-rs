@@ -2,7 +2,7 @@
 
 ## About
 
-This application shows how to use the `embedded-test` based testing framework
+This application shows how to use the `embedded-test`-based testing framework
 with Ariel OS applications.
 
 ## How to run
