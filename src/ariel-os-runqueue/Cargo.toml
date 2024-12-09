@@ -1,3 +1,5 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "ariel-os-runqueue"
 version = "0.1.2"
@@ -16,3 +18,6 @@ defmt = { workspace = true, optional = true }
 # https://hacspec.org/book/quick_start/intro.html#setup-the-crate-you-want-to-verify
 [target.'cfg(hax)'.dependencies]
 hax-lib = { git = "https://github.com/hacspec/hax", rev = "cc29a3f8c0eee80a1682be78cb3b0447a0257d5b" }
+
+[features]
+defmt = ["dep:defmt"]

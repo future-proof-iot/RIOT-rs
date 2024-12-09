@@ -1,3 +1,5 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "ariel-os-chips"
 version = "0.1.0"
@@ -12,4 +14,4 @@ workspace = true
 stm32f4xx = { optional = true, path = "stm32f4xx" }
 
 [features]
-stm32f401 = ["stm32f4xx/stm32f401"]
+stm32f401 = ["dep:stm32f4xx", "stm32f4xx?/stm32f401"]

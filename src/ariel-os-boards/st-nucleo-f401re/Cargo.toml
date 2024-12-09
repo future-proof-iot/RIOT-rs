@@ -1,3 +1,5 @@
+cargo-features = ["edition2024"]
+
 [package]
 name = "st-nucleo-f401re"
 version = "0.1.0"
