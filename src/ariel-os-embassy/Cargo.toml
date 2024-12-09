@@ -11,6 +11,7 @@ workspace = true
 const_panic.workspace = true
 critical-section.workspace = true
 linkme.workspace = true
+portable-atomic.workspace = true
 static_cell.workspace = true
 cfg-if.workspace = true
 
