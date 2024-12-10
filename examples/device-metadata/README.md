@@ -20,3 +20,4 @@ For example:
     INFO  Available information:
     INFO  Board type: nrf52840dk
     INFO  Device ID: [80, 6a, ec, 55, 8c, c2, 43, 8e]
+    INFO  Device's first EUI-48 address: [02, 9a, 05, d7, 38, e9]
