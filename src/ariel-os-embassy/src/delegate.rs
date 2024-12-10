@@ -79,8 +79,7 @@ impl<T> Delegate<T> {
     /// Panics if called multiple times on the same [`Delegate`] instance.
     pub async fn with<U>(&self, func: impl FnOnce(&mut T) -> U) -> U {
         // Enforce that the value be only populated once, panic otherwise.
-        assert!(!self.was_exercised.load(Ordering::Acquire));
-        self.was_exercised.store(true, Ordering::Release);
+        assert!(!self.was_exercised.swap(true, Ordering::AcqRel));
 
         let data = self.send.wait().await;
         let spawner = Spawner::for_current_executor().await;
