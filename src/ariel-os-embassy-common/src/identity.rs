@@ -43,6 +43,13 @@ pub trait DeviceId: Sized {
 
     /// The device identifier in serialized bytes format.
     fn bytes(&self) -> Self::Bytes;
+
+    /// Generates an EUI-48 identifier ("6-byte MAC address") based on the device identity.
+    ///
+    /// See `ariel_os::identity::interface_eu48` for details.
+    fn interface_eui48(&self, if_index: u32) -> [u8; 6] {
+        todo!()
+    }
 }
 
 /// An uninhabited type implementing [`DeviceId`] that always errs.
