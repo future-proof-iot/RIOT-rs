@@ -48,8 +48,88 @@ pub trait DeviceId: Sized {
     ///
     /// See `ariel_os::identity::interface_eu48` for details.
     fn interface_eui48(&self, if_index: u32) -> [u8; 6] {
-        todo!()
+        // Not even trying to hash for privacy: Many CPU IDs just have 32 variable bits (eg. EFM32
+        // with a 32bit timstamp in a limited range, and a 32bit factory ID, or STM32's 96 bit
+        // containing lot and wafer numbers and coordinates), and all SHA256 hashes of 2^32
+        // possibilities can just be calculated on a graphics card in an hour.
+        //
+        // We do hash the board identifier, just to be sure to have a nice and random-looking
+        // starting point. The sha1 function was chosen because it is widespread (enabling
+        // re-implementation of the algorithm outside to predict addresses), available in a const
+        // implementation, and because its output is large enough to spread the input over the full
+        // address; it is not expected to be secure.
+
+        // Ideally, BOARD should be passed into generate_aai_mac_address, but that function needs
+        // to make sure the hashing is const, and we do not have str typed const generics yet.
+        const BOARD_HASH: [u8; 20] =
+            const_sha1::sha1(ariel_os_buildinfo::BOARD.as_bytes()).as_bytes();
+        let truncated_board_hash = const {
+            *BOARD_HASH
+                .first_chunk()
+                .expect("EUI-48 is shorter than SHA1")
+        };
+
+        // We use the whole device identity to be sure to use the variable parts even if they are
+        // just in some location (which may not be the first or the last bits of the bytes(), in
+        // general).
+        //
+        // We make it influence the middle 4 bytes of the MAC address: This is easy to do, and
+        // ensures that consecutive serial numbers (no matter in which byte) don't cause chip N
+        // interface 1 to have the same MAC as chip N+1 interface 0. Thus we miss the opportunity
+        // to influence 12 more bits (out of the 16, because 4 are fixed by construction of an
+        // Administratively Assigned Identifier), but the simplicity makes up for it, and whoever
+        // runs a risk of having a realistic chance of a MAC collision in 32 bit space will use
+        // globally unique addresses or actually manage addresses anyway.
+
+        let device_id_bytes = self.bytes();
+
+        generate_aai_mac_address(truncated_board_hash, device_id_bytes, if_index)
     }
+}
+
+fn generate_aai_mac_address(
+    truncated_board_hash: [u8; 6],
+    device_id_bytes: impl AsRef<[u8]>,
+    if_index: u32,
+) -> [u8; 6] {
+    // This alternative algorithm is identical (as easily evidenced by running both on
+    // arbitrary inputs) but rustc doesn't optimize this simple version:
+    //
+    // ```
+    // for (index, byte) in device_id_bytes.as_ref().into_iter().enumerate() {
+    //     eui48[1 + index % 4] ^= byte;
+    // }
+    // ```
+
+    let mut eui48 = truncated_board_hash;
+
+    // This would work the same in either little and big endian, but most machines are little
+    // these days (and Rust has no simple and safe host-endianness conversion).
+    let mut xor_me: u32 = u32::from_le_bytes(eui48[1..5].try_into().unwrap());
+    for chunk in device_id_bytes.as_ref().chunks(4) {
+        let mut full = [0; 4];
+        #[allow(
+            clippy::indexing_slicing,
+            reason = "Works by construction; the equivalent array chunks based construction with accessing the `.remainder` is neither stable nor equally concise"
+        )]
+        full[..chunk.len()].copy_from_slice(chunk);
+        xor_me ^= u32::from_le_bytes(full);
+    }
+    eui48[1..5].copy_from_slice(&xor_me.to_le_bytes()[..]);
+
+    // Enforce the `?2-??-??-??-??-??` pattern of an AII (Administratively Assigned Identifier)
+    eui48[0] &= 0xf0;
+    eui48[0] |= 0x02;
+
+    // Once the hashing is done in here too, there is some optimization potential in making
+    // everything above this line into a function and inlining the rest all the way into where the
+    // interface identifier is set, because then constant propagation may eliminate this unaligned
+    // thing, but let's delay that until someone measures it.
+
+    let with_if_index = u32::from_be_bytes(eui48[2..6].try_into().unwrap()).wrapping_add(if_index);
+    eui48[2..6].copy_from_slice(&(with_if_index).to_be_bytes()[..]);
+
+    eui48
 }
 
 /// An uninhabited type implementing [`DeviceId`] that always errs.
