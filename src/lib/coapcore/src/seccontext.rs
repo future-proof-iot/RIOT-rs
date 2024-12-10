@@ -12,8 +12,8 @@ const MAX_CONTEXTS: usize = 4;
 
 /// A pool of security contexts shareable by several users inside a thread.
 #[expect(private_interfaces, reason = "should be addressed eventually")]
-pub type SecContextPool<Crypto> =
-    crate::oluru::OrderedPool<SecContextState<Crypto>, MAX_CONTEXTS, LEVEL_COUNT>;
+pub type SecContextPool<Crypto, Authorization> =
+    crate::oluru::OrderedPool<SecContextState<Crypto, Authorization>, MAX_CONTEXTS, LEVEL_COUNT>;
 
 /// An own identifier for a security context
 ///
@@ -95,6 +95,54 @@ impl From<COwn> for lakers::ConnId {
 /// Copy of the OSCORE option
 type OscoreOption = heapless::Vec<u8, 16>;
 
+/// A data item representing the server access policy as evaluated for a particular security context.
+pub trait Scope: Sized + core::fmt::Debug + defmt::Format {
+    /// Returns true if a request may be performed by the bound security context.
+    fn request_is_allowed<M: ReadableMessage>(&self, request: &M) -> bool;
+
+    /// Returns true if a bound security context should be preferably retained when hitting
+    /// resource limits.
+    fn is_admin(&self) -> bool {
+        false
+    }
+
+    fn nosec_authorization() -> Self;
+
+    fn unauthenticated_edhoc_user_authorization() -> Self {
+        Self::nosec_authorization()
+    }
+
+    fn the_one_known_authorization() -> Self {
+        Self::nosec_authorization()
+    }
+}
+
+#[derive(Debug, defmt::Format)]
+struct AllowAll;
+
+impl Scope for AllowAll {
+    fn request_is_allowed<M: ReadableMessage>(&self, _request: &M) -> bool {
+        true
+    }
+
+    fn nosec_authorization() -> Self {
+        Self
+    }
+}
+
+#[derive(Debug, defmt::Format)]
+struct DenyAll;
+
+impl Scope for DenyAll {
+    fn request_is_allowed<M: ReadableMessage>(&self, _request: &M) -> bool {
+        false
+    }
+
+    fn nosec_authorization() -> Self {
+        Self
+    }
+}
+
 /// A representation of an RFC9237 using the REST-specific model in a CRI variation (Toid =
 /// [*path], Tperm = u32).
 ///
@@ -103,11 +151,11 @@ type OscoreOption = heapless::Vec<u8, 16>;
 /// likely be a CBOR item with pre-verified structure.
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Debug)]
-struct AifStaticRest {
+pub struct AifStaticRest {
     may_use_stdout: bool,
 }
 
-impl AifStaticRest {
+impl Scope for AifStaticRest {
     fn request_is_allowed<M: ReadableMessage>(&self, request: &M) -> bool {
         // BIG FIXME: We're iterating over options without checking for critical options. If the
         // resource handler router consumes any different set of options, that disagreement might
@@ -129,20 +177,48 @@ impl AifStaticRest {
             true
         }
     }
+
+    fn is_admin(&self) -> bool {
+        self.may_use_stdout
+    }
+
+    // FIXME: this should be configurable
+    fn unauthenticated_edhoc_user_authorization() -> AifStaticRest {
+        AifStaticRest {
+            may_use_stdout: false,
+        }
+    }
+
+    // FIXME: this should be configurable
+    fn nosec_authorization() -> AifStaticRest {
+        AifStaticRest {
+            may_use_stdout: false,
+        }
+    }
+
+    fn the_one_known_authorization() -> AifStaticRest {
+        AifStaticRest {
+            may_use_stdout: true,
+        }
+    }
 }
 
 #[derive(Debug)]
-struct SecContextState<Crypto: lakers::Crypto> {
+struct SecContextState<Crypto: lakers::Crypto, Authorization: Scope> {
     // FIXME: Should also include timeout. How do? Store expiry, do raytime in not-even-RTC mode,
     // and whenever there is a new time stamp from AS, remove old ones?
-    authorization: AifStaticRest,
+
+    // This is Some(...) unless the stage is unusable.
+    authorization: Option<Authorization>,
     protocol_stage: SecContextStage<Crypto>,
 }
 
 // Not sure why this is needed compared to a plain derive; seems that the derive is not happy with
 // Crypto not being Format, even though no instance of Crypto shows up.
 #[cfg(feature = "defmt")]
-impl<Crypto: lakers::Crypto> defmt::Format for SecContextState<Crypto> {
+impl<Crypto: lakers::Crypto, Authorization: Scope + defmt::Format> defmt::Format
+    for SecContextState<Crypto, Authorization>
+{
     fn format(&self, f: defmt::Formatter) {
         defmt::write!(
             f,
@@ -153,12 +229,12 @@ impl<Crypto: lakers::Crypto> defmt::Format for SecContextState<Crypto> {
     }
 }
 
-impl<Crypto: lakers::Crypto> Default for SecContextState<Crypto> {
+impl<Crypto: lakers::Crypto, Authorization: Scope> Default
+    for SecContextState<Crypto, Authorization>
+{
     fn default() -> Self {
         Self {
-            authorization: AifStaticRest {
-                may_use_stdout: false,
-            },
+            authorization: None,
             protocol_stage: SecContextStage::Empty,
         }
     }
@@ -214,7 +290,7 @@ impl<Crypto: lakers::Crypto> defmt::Format for SecContextStage<Crypto> {
     }
 }
 
-impl<Crypto: lakers::Crypto> core::fmt::Display for SecContextState<Crypto> {
+impl<Crypto: lakers::Crypto> core::fmt::Display for SecContextState<Crypto, AifStaticRest> {
     fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
         use SecContextStage::*;
         match &self.protocol_stage {
@@ -227,11 +303,13 @@ impl<Crypto: lakers::Crypto> core::fmt::Display for SecContextState<Crypto> {
                 COwn::from_kid(ctx.recipient_id()).unwrap()
             ),
         }?;
-        write!(
-            f,
-            " authorized to read stdin? {}",
-            self.authorization.may_use_stdout
-        )?;
+        if let Some(authorization) = &self.authorization {
+            write!(
+                f,
+                " authorized to read stdin? {}",
+                authorization.may_use_stdout
+            )?;
+        }
         Ok(())
     }
 }
@@ -242,7 +320,9 @@ const LEVEL_ONGOING: usize = 2;
 const LEVEL_EMPTY: usize = 3;
 const LEVEL_COUNT: usize = 4;
 
-impl<Crypto: lakers::Crypto> crate::oluru::PriorityLevel for SecContextState<Crypto> {
+impl<Crypto: lakers::Crypto, Authorization: Scope> crate::oluru::PriorityLevel
+    for SecContextState<Crypto, Authorization>
+{
     fn level(&self) -> usize {
         match &self.protocol_stage {
             SecContextStage::Empty => LEVEL_EMPTY,
@@ -257,7 +337,7 @@ impl<Crypto: lakers::Crypto> crate::oluru::PriorityLevel for SecContextState<Cry
                 LEVEL_ONGOING
             }
             SecContextStage::Oscore(_) => {
-                if self.authorization.may_use_stdout {
+                if self.authorization.as_ref().is_some_and(|a| a.is_admin()) {
                     LEVEL_ADMIN
                 } else {
                     LEVEL_AUTHENTICATED
@@ -267,7 +347,7 @@ impl<Crypto: lakers::Crypto> crate::oluru::PriorityLevel for SecContextState<Cry
     }
 }
 
-impl<Crypto: lakers::Crypto> SecContextState<Crypto> {
+impl<Crypto: lakers::Crypto, Authorization: Scope> SecContextState<Crypto, Authorization> {
     fn corresponding_cown(&self) -> Option<COwn> {
         match &self.protocol_stage {
             SecContextStage::Empty => None,
@@ -288,6 +368,7 @@ impl<Crypto: lakers::Crypto> SecContextState<Crypto> {
 pub struct OscoreEdhocHandler<
     'a,
     H: coap_handler::Handler,
+    Authorization: Scope,
     Crypto: lakers::Crypto,
     CryptoFactory: Fn() -> Crypto,
     AS: AsDescription,
@@ -296,7 +377,7 @@ pub struct OscoreEdhocHandler<
     // It'd be tempted to have sharing among multiple handlers for multiple CoAP stacks, but
     // locks for such sharing could still be acquired in a factory (at which point it may make
     // sense to make this a &mut).
-    pool: SecContextPool<Crypto>,
+    pool: SecContextPool<Crypto, Authorization>,
     own_identity: (&'a lakers::Credential, &'a lakers::BytesP256ElemLen),
 
     authorities: AS,
@@ -322,11 +403,20 @@ impl<
         Crypto: lakers::Crypto,
         CryptoFactory: Fn() -> Crypto,
         RNG: rand_core::RngCore + rand_core::CryptoRng,
-    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::Empty, RNG>
+    >
+    OscoreEdhocHandler<
+        'a,
+        H,
+        AifStaticRest,
+        Crypto,
+        CryptoFactory,
+        crate::authorization_server::Empty,
+        RNG,
+    >
 {
     // FIXME: Apart from an own identity, this will also need a function to convert ID_CRED_I into
     // a (CRED_I, AifStaticRest) pair; this is currently hardcoded in all the places that construct
-    // an AifStaticRest.
+    // an AifStaticRest (or generic Scope implementation).
     pub fn new(
         own_identity: (&'a lakers::Credential, &'a lakers::BytesP256ElemLen),
         inner: H,
@@ -347,11 +437,12 @@ impl<
 impl<
         'a,
         H: coap_handler::Handler,
+        Authorization: Scope,
         Crypto: lakers::Crypto,
         CryptoFactory: Fn() -> Crypto,
         AS: AsDescription,
         RNG: rand_core::RngCore + rand_core::CryptoRng,
-    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, AS, RNG>
+    > OscoreEdhocHandler<'a, H, Authorization, Crypto, CryptoFactory, AS, RNG>
 {
     /// Adds a new authorization server (or set thereof) to the handler, which is queried before
     /// any other authorization server.
@@ -361,6 +452,7 @@ impl<
     ) -> OscoreEdhocHandler<
         'a,
         H,
+        Authorization,
         Crypto,
         CryptoFactory,
         crate::authorization_server::AsChain<AS1, AS>,
@@ -376,20 +468,6 @@ impl<
             inner: self.inner,
             crypto_factory: self.crypto_factory,
             rng: self.rng,
-        }
-    }
-
-    // FIXME: this should be configurable
-    fn unauthenticated_edhoc_user_authorization(&self) -> AifStaticRest {
-        AifStaticRest {
-            may_use_stdout: false,
-        }
-    }
-
-    // FIXME: this should be configurable
-    fn nosec_authorization(&self) -> AifStaticRest {
-        AifStaticRest {
-            may_use_stdout: false,
         }
     }
 
@@ -462,7 +540,7 @@ impl<
                     c_i,
                     responder,
                 },
-                authorization: self.unauthenticated_edhoc_user_authorization(),
+                authorization: Some(Authorization::unauthenticated_edhoc_user_authorization()),
             });
             if let Some(evicted) = evicted {
                 warn!("To insert new EDHOC, evicted {}", evicted);
@@ -639,7 +717,10 @@ impl<
             oscore_option,
             &mut oscore_context,
             |request| {
-                if authorization.request_is_allowed(request) {
+                if authorization
+                    .as_ref()
+                    .is_some_and(|a| a.request_is_allowed(request))
+                {
                     AuthorizationChecked::Allowed(self.inner.extract_request_data(request))
                 } else {
                     AuthorizationChecked::NotAllowed
@@ -674,8 +755,8 @@ impl<
     /// that were in the message.
     fn process_edhoc_in_payload(
         payload: &[u8],
-        sec_context_state: SecContextState<Crypto>,
-    ) -> Result<(SecContextState<Crypto>, usize), CoAPError> {
+        sec_context_state: SecContextState<Crypto, Authorization>,
+    ) -> Result<(SecContextState<Crypto, Authorization>, usize), CoAPError> {
         // We're not supporting block-wise here -- but could later, to the extent we support
         // outer block-wise.
 
@@ -693,7 +774,7 @@ impl<
                     c_r,
                     c_i,
                 },
-            authorization: original_authorization, // So far, this is self.unauthenticated_edhoc_user_authorization()
+            authorization: Some(original_authorization), // So far, this is self.unauthenticated_edhoc_user_authorization()
         } = sec_context_state
         {
             #[allow(clippy::indexing_slicing, reason = "slice fits by construction")]
@@ -723,9 +804,7 @@ impl<
                             .expect("Static credential is not processable");
 
                         // FIXME: learn from CRED_I
-                        authorization = AifStaticRest {
-                            may_use_stdout: true,
-                        };
+                        authorization = Authorization::the_one_known_authorization();
                     }
                     _ => {
                         // FIXME: send better message
@@ -795,7 +874,7 @@ impl<
 
             SecContextState {
                 protocol_stage: SecContextStage::Oscore(context),
-                authorization,
+                authorization: Some(authorization),
             }
         } else {
             // Return the state. Best bet is that it was already advanced to an OSCORE
@@ -933,10 +1012,8 @@ impl<
                 self.cown_but_not(nonce1)
             },
             |scope| {
-                // FIXME us a more sensible type
-                AifStaticRest {
-                    may_use_stdout: false,
-                }
+                // FIXME learn from token
+                Authorization::the_one_known_authorization()
             },
         )
         .map_err(|e| {
@@ -953,7 +1030,7 @@ impl<
         // of a replay.
         let evicted = self.pool.force_insert(SecContextState {
             protocol_stage: SecContextStage::Oscore(oscore),
-            authorization: scope,
+            authorization: Some(scope),
         });
         info!("Evicted {:?}", evicted);
 
@@ -1038,11 +1115,13 @@ impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrI
 
 impl<
         H: coap_handler::Handler,
+        Authorization: Scope,
         Crypto: lakers::Crypto,
         CryptoFactory: Fn() -> Crypto,
         AS: AsDescription,
         RNG: rand_core::RngCore + rand_core::CryptoRng,
-    > coap_handler::Handler for OscoreEdhocHandler<'_, H, Crypto, CryptoFactory, AS, RNG>
+    > coap_handler::Handler
+    for OscoreEdhocHandler<'_, H, Authorization, Crypto, CryptoFactory, AS, RNG>
 {
     type RequestData = OrInner<
         OwnRequestData<Result<H::RequestData, H::ExtractRequestError>>,
@@ -1167,7 +1246,7 @@ impl<
 
         match state {
             Start | WellKnown | Unencrypted => {
-                if self.nosec_authorization().request_is_allowed(request) {
+                if Authorization::nosec_authorization().request_is_allowed(request) {
                     self.inner
                         .extract_request_data(request)
                         .map(|extracted| Inner(AuthorizationChecked::Allowed(extracted)))
