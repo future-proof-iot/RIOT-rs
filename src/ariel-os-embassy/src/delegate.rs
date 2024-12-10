@@ -1,11 +1,12 @@
-//! Delegate or lend an object to another task
+//! Delegate or lend an object to another task.
 
 use embassy_executor::Spawner;
 use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal};
+use portable_atomic::{AtomicBool, Ordering};
 
 use crate::sendcell::SendCell;
 
-/// [`Delegate`] or lend an object to another task.
+/// [`Delegate`]s or lends an object to another task.
 ///
 /// This struct can be used to lend a `&mut T` to another task on the same executor.
 /// The other task can then call a closure on it. After that, the `&mut T` is returned
@@ -14,14 +15,17 @@ use crate::sendcell::SendCell;
 /// Under the hood, [`Delegate`] leverages [`SendCell`] to ensure the delegated
 /// object stays on the same executor.
 ///
-/// Example:
-/// ```Rust
+/// # Example
+///
+/// ```
+/// # use ariel_os_embassy::delegate::Delegate;
 /// static SOME_VALUE: Delegate<u32> = Delegate::new();
 ///
 /// // in some task
 /// async fn foo() {
 ///   let mut my_val = 0u32;
-///   SOME_VALUE.lend(&mut my_val).await;
+///   // SAFETY: `lend` is only called once.
+///   unsafe { SOME_VALUE.lend(&mut my_val).await; }
 ///   assert_eq!(my_val, 1);
 /// }
 ///
@@ -30,18 +34,16 @@ use crate::sendcell::SendCell;
 ///   SOME_VALUE.with(|val| *val = 1).await;
 /// }
 /// ```
-///
-/// TODO: this is a PoC implementation.
-/// - takes 24b for each delegate (on arm), which seems too much.
-/// - doesn't protect at all against calling [`lend()`](Delegate::lend) or
-///   [`with()`](Delegate::with) multiple times
-///   each, breaking safety assumptions. So while the API seems OK, the implementation
-///   needs work.
+// TODO: this is a PoC implementation.
+// - Takes 25 B for each delegate (on arm), which seems too much.
 #[derive(Default)]
 pub struct Delegate<T> {
     send: Signal<CriticalSectionRawMutex, SendCell<*mut T>>,
     reply: Signal<CriticalSectionRawMutex, ()>,
+    was_exercised: AtomicBool,
 }
+
+impl<T> !Send for Delegate<T> {}
 
 impl<T> Delegate<T> {
     /// Creates a new [`Delegate`].
@@ -49,13 +51,18 @@ impl<T> Delegate<T> {
         Self {
             send: Signal::new(),
             reply: Signal::new(),
+            was_exercised: AtomicBool::new(false),
         }
     }
 
     /// Lends an object.
     ///
-    /// This blocks until another task called [`with()`](Delegate::with).
-    pub async fn lend<'a, 'b: 'a>(&'a self, something: &'b mut T) {
+    /// This blocks until [`Delegate::with()`] is called on the instance.
+    ///
+    /// # Safety
+    ///
+    /// This must only be called *once* per [`Delegate`] instance.
+    pub async unsafe fn lend<'a, 'b: 'a>(&'a self, something: &'b mut T) {
         let spawner = Spawner::for_current_executor().await;
         self.send
             .signal(SendCell::new(something as *mut T, spawner));
@@ -63,10 +70,17 @@ impl<T> Delegate<T> {
         self.reply.wait().await
     }
 
-    /// Calls a closure on a lended object.
+    /// Calls a closure on a lent object.
     ///
-    /// This blocks until another task called [`lend(something)`](Delegate::lend).
+    /// This blocks until [`Delegate::lend()`] is called on the instance.
+    ///
+    /// # Panics
+    ///
+    /// Panics if called multiple times on the same [`Delegate`] instance.
     pub async fn with<U>(&self, func: impl FnOnce(&mut T) -> U) -> U {
+        // Enforce that the value be only populated once, panic otherwise.
+        assert!(!self.was_exercised.swap(true, Ordering::AcqRel));
+
         let data = self.send.wait().await;
         let spawner = Spawner::for_current_executor().await;
         // SAFETY:
@@ -78,7 +92,6 @@ impl<T> Delegate<T> {
         //   => the mutable reference is never used more than once
         // - the lifetime bound on `lend` enforces that the raw pointer outlives this `Delegate`
         //   instance
-        // TODO: it is actually possible to call `with()` twice, which breaks assumptions.
         let result = func(unsafe { data.get(spawner).unwrap().as_mut().unwrap() });
         self.reply.signal(());
         result
