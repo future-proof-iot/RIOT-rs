@@ -6,6 +6,17 @@
 use ariel_os::{debug::log::*, network, reexports::embassy_net::tcp::TcpSocket, time::Duration};
 use embedded_io_async::Write;
 
+#[ariel_os::config(network)]
+const NETWORK_CONFIG: ariel_os::reexports::embassy_net::Config = {
+    use ariel_os::reexports::embassy_net::{self, Ipv4Address};
+
+    embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
+        address: embassy_net::Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
+        dns_servers: heapless::Vec::new(),
+        gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
+    })
+};
+
 #[ariel_os::task(autostart)]
 async fn tcp_echo() {
     let stack = network::network_stack().await.unwrap();
@@ -48,15 +59,4 @@ async fn tcp_echo() {
             };
         }
     }
-}
-
-#[ariel_os::config(network)]
-fn network_config() -> ariel_os::reexports::embassy_net::Config {
-    use ariel_os::reexports::embassy_net::{self, Ipv4Address};
-
-    embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
-        address: embassy_net::Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
-        dns_servers: heapless::Vec::new(),
-        gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
-    })
 }

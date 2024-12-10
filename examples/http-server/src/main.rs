@@ -20,6 +20,17 @@ const SERVER_CONFIG: picoserve::Config<Duration> = picoserve::Config::new(picose
     write: Some(Duration::from_secs(1)),
 });
 
+#[ariel_os::config(network)]
+const NETWORK_CONFIG: ariel_os::reexports::embassy_net::Config = {
+    use ariel_os::reexports::embassy_net::{self, Ipv4Address};
+
+    embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
+        address: embassy_net::Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
+        dns_servers: heapless::Vec::new(),
+        gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
+    })
+};
+
 static APP: StaticCell<picoserve::Router<routes::AppRouter>> = StaticCell::new();
 
 #[cfg(feature = "button-reading")]
@@ -64,15 +75,4 @@ fn main(spawner: Spawner, peripherals: pins::Peripherals) {
     for task_id in 0..WEB_TASK_POOL_SIZE {
         spawner.spawn(web_task(task_id, app)).unwrap();
     }
-}
-
-#[ariel_os::config(network)]
-fn network_config() -> ariel_os::reexports::embassy_net::Config {
-    use ariel_os::reexports::embassy_net::{self, Ipv4Address};
-
-    embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
-        address: embassy_net::Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
-        dns_servers: heapless::Vec::new(),
-        gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
-    })
 }

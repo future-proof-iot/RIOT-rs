@@ -16,6 +16,23 @@ use embassy_usb::{
 
 const MAX_FULL_SPEED_PACKET_SIZE: u8 = 64;
 
+#[ariel_os::config(usb)]
+const USB_CONFIG: ariel_os::reexports::embassy_usb::Config = {
+    let mut config = ariel_os::reexports::embassy_usb::Config::new(0xc0de, 0xcafe);
+    config.manufacturer = Some("Ariel OS");
+    config.product = Some("USB serial example");
+    config.serial_number = Some("12345678");
+    config.max_power = 100;
+    config.max_packet_size_0 = MAX_FULL_SPEED_PACKET_SIZE;
+
+    // Required for Windows support.
+    config.composite_with_iads = true;
+    config.device_class = 0xEF;
+    config.device_sub_class = 0x02;
+    config.device_protocol = 0x01;
+    config
+};
+
 #[ariel_os::task(autostart, usb_builder_hook)]
 async fn main() {
     info!("Hello World!");
@@ -61,21 +78,4 @@ async fn echo(class: &mut CdcAcmClass<'static, UsbDriver>) -> Result<(), Disconn
         info!("data: {:x}", data);
         class.write_packet(data).await?;
     }
-}
-
-#[ariel_os::config(usb)]
-fn usb_config() -> embassy_usb::Config<'static> {
-    let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
-    config.manufacturer = Some("Ariel OS");
-    config.product = Some("USB serial example");
-    config.serial_number = Some("12345678");
-    config.max_power = 100;
-    config.max_packet_size_0 = MAX_FULL_SPEED_PACKET_SIZE;
-
-    // Required for Windows support.
-    config.composite_with_iads = true;
-    config.device_class = 0xEF;
-    config.device_sub_class = 0x02;
-    config.device_protocol = 0x01;
-    config
 }

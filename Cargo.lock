@@ -1127,7 +1127,7 @@ dependencies = [
 [[package]]
 name = "cyw43"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "cortex-m",
  "cortex-m-rt",
@@ -1144,7 +1144,7 @@ dependencies = [
 [[package]]
 name = "cyw43-pio"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "cyw43",
  "embassy-rp",
@@ -1396,7 +1396,7 @@ dependencies = [
 [[package]]
 name = "embassy-executor"
 version = "0.6.3"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -1409,7 +1409,7 @@ dependencies = [
 [[package]]
 name = "embassy-executor-macros"
 version = "0.6.2"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "darling",
  "proc-macro2",
@@ -1429,7 +1429,7 @@ dependencies = [
 [[package]]
 name = "embassy-hal-internal"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "cortex-m",
  "critical-section",
@@ -1440,7 +1440,7 @@ dependencies = [
 [[package]]
 name = "embassy-net"
 version = "0.5.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "defmt",
  "document-features",
@@ -1457,7 +1457,7 @@ dependencies = [
 [[package]]
 name = "embassy-net-driver"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "defmt",
 ]
@@ -1465,7 +1465,7 @@ dependencies = [
 [[package]]
 name = "embassy-net-driver-channel"
 version = "0.3.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "embassy-futures",
  "embassy-net-driver",
@@ -1475,7 +1475,7 @@ dependencies = [
 [[package]]
 name = "embassy-nrf"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "bitflags 2.6.0",
  "cfg-if",
@@ -1505,7 +1505,7 @@ dependencies = [
 [[package]]
 name = "embassy-rp"
 version = "0.2.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "atomic-polyfill",
  "cfg-if",
@@ -1543,7 +1543,7 @@ dependencies = [
 [[package]]
 name = "embassy-stm32"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "aligned",
  "bit_field",
@@ -1601,7 +1601,7 @@ dependencies = [
 [[package]]
 name = "embassy-sync"
 version = "0.6.1"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "cfg-if",
  "critical-section",
@@ -1634,7 +1634,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-driver"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "document-features",
 ]
@@ -1642,7 +1642,7 @@ dependencies = [
 [[package]]
 name = "embassy-time-queue-driver"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 
 [[package]]
 name = "embassy-usb"
@@ -1663,7 +1663,7 @@ dependencies = [
 [[package]]
 name = "embassy-usb-driver"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "defmt",
 ]
@@ -1671,7 +1671,7 @@ dependencies = [
 [[package]]
 name = "embassy-usb-synopsys-otg"
 version = "0.1.0"
-source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#4d2bc5b2bab2e55b5f0fb2451032db74cea0dce5"
+source = "git+https://github.com/ariel-os/embassy?branch=for-ariel-os-2024-11-28#78161360952c2dc75c75604b8dfdbf586b7991de"
 dependencies = [
  "critical-section",
  "defmt",
