@@ -15,9 +15,9 @@ ariel-os = { path = "../../src/ariel-os", features = [
 ariel-os-boards = { path = "../../src/ariel-os-boards" }
 embassy-sync = { workspace = true }
 heapless = { workspace = true }
-picoserve = { version = "0.12.3", default-features = false, features = [
+picoserve = { version = "0.13.1", default-features = false, features = [
   "embassy",
-], git = "https://github.com/ariel-os/picoserve", branch = "bump-embassy-net-0.5.0" }
+] }
 serde = { workspace = true, optional = true }
 
 [features]
