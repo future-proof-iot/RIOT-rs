@@ -6,6 +6,7 @@ This directory contains example applications that showcase how to use Ariel OS.
 
 - [benchmark/](./benchmark): how to use `benchmark()`
 - [coap-server](./coap-server) and [coap-client](./coap-client): Application level networking examples
+- [device-metadata/](./device-metadata): Retrieve metadata about the running device
 - [hello-world/](./hello-world): a classic, async version
 - [hello-world-threading/](./hello-world-threading): a classic, using a thread
 - [http-server/](./http-server): HTTP server example
