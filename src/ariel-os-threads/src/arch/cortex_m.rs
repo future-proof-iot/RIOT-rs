@@ -191,7 +191,7 @@ unsafe extern "C" fn PendSV() {
 ///   - `r0`: stack-pointer for new thread
 ///
 /// This function is called in PendSV.
-unsafe fn sched() -> u128 {
+unsafe fn sched() -> (u32, u64) {
     let (next_sp, current_high_regs, next_high_regs) = loop {
         if let Some(res) = critical_section::with(|cs| {
             let scheduler = unsafe { &mut *SCHEDULER.as_ptr(cs) };
@@ -251,10 +251,8 @@ unsafe fn sched() -> u128 {
     // r0 = &next.sp
     // r1 = &current.high_regs
     // r2 = &next.high_regs
-    // On Cortex-M, a u128 as return value is passed in registers r0-r3.
-    // So let's use that.
-    let res =
-                //  (r0)                     (r1)                        (r2)
-                (next_sp as u128) |  ((current_high_regs as u128) << 32) | ((next_high_regs as u128) << 64);
-    res
+    (
+        next_sp,
+        ((current_high_regs as u64) | (next_high_regs as u64) << 32),
+    )
 }
