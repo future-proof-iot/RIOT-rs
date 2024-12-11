@@ -44,6 +44,8 @@ document-features = "0.2.10"
 # dependencies.
 ccm = { version = "0.5.0", default-features = false }
 aes = { version = "0.8.4", default-features = false }
+cbor-macro = "0.1.0"
+cboritem = "0.1.2"
 
 [features]
 #! Cargo features

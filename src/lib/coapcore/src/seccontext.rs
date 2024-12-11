@@ -3,7 +3,7 @@ use coap_message::{
     MutableWritableMessage, ReadableMessage,
 };
 use coap_message_utils::{Error as CoAPError, OptionsExt as _};
-use defmt_or_log::{debug, error, info, warn, Debug2Format};
+use defmt_or_log::{debug, error, info, Debug2Format};
 
 use crate::authorization_server::AsDescription;
 
@@ -143,67 +143,103 @@ impl Scope for DenyAll {
     }
 }
 
-/// A representation of an RFC9237 using the REST-specific model in a CRI variation (Toid =
-/// [*path], Tperm = u32).
+const AIF_SCOPE_MAX_LEN: usize = 64;
+
+/// A representation of an RFC9237 using the REST-specific model.
 ///
-/// FIXME: At the moment, this always represents an authorization that allows everything, and only
-/// has runtime information about whether or not stdout is allowed. On the long run, this will
-/// likely be a CBOR item with pre-verified structure.
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
-#[derive(Debug)]
-pub struct AifStaticRest {
-    may_use_stdout: bool,
-}
+/// It is aribtrarily limited in length; future versions may give more flexibility, eg. by
+/// referring to data in storage.
+///
+/// This type is constrained to valid CBOR representations of the REST-specific model; it may panic
+/// if that constraint is not upheld.
+///
+/// ## Caveats
+///
+/// Using this is not very efficient; worst case, it iterates over all options for all AIF entries.
+///
+/// This completely disregards proper URI splitting; this works for very simple URI references in
+/// the AIF.
+#[derive(Debug, defmt::Format)]
+pub struct AifValue([u8; AIF_SCOPE_MAX_LEN]);
 
-impl Scope for AifStaticRest {
+impl Scope for AifValue {
     fn request_is_allowed<M: ReadableMessage>(&self, request: &M) -> bool {
-        // BIG FIXME: We're iterating over options without checking for critical options. If the
-        // resource handler router consumes any different set of options, that disagreement might
-        // give us a security issue.
-        //
-        // and FIXME this is using block-lists, but at this point it should be obvious that this is
-        // just a stupid stand-in.
-
-        let mut uri_path_options = request
-            .options()
-            .filter(|o| o.number() == coap_numbers::option::URI_PATH);
-        if uri_path_options
-            .next()
-            .is_some_and(|o| o.value() == b"stdout")
-            && uri_path_options.next().is_none()
-        {
-            self.may_use_stdout
-        } else {
-            true
+        let code: u8 = request.code().into();
+        let (codebit, false) = 1u32.overflowing_shl(
+            u32::from(code)
+                .checked_sub(1)
+                .expect("Request codes are != 0"),
+        ) else {
+            return false;
+        };
+        let mut decoder = minicbor::Decoder::new(&self.0);
+        'outer: for item in decoder.array_iter::<(&str, u32)>().unwrap() {
+            let (path, perms) = item.unwrap();
+            if perms & codebit == 0 {
+                continue;
+            }
+            // BIG FIXME: We're iterating over options without checking for critical options. If the
+            // resource handler router consumes any different set of options, that disagreement might
+            // give us a security issue.
+            let mut pathopts = request
+                .options()
+                .filter(|o| o.number() == coap_numbers::option::URI_PATH)
+                .peekable();
+            if path == "/" && pathopts.peek().is_none() {
+                // Special case: For consistency should be a single empty option.
+                return true;
+            }
+            if !path.starts_with("/") {
+                panic!("Invalid AIF");
+            }
+            let mut remainder = &path[1..];
+            while remainder != "" {
+                let (next_part, next_remainder) = match remainder.split_once('/') {
+                    Some((next_part, next_remainder)) => (next_part, next_remainder),
+                    None => (remainder, ""),
+                };
+                let Some(this_opt) = pathopts.next() else {
+                    // Request path is shorter than this AIF record
+                    continue 'outer;
+                };
+                if this_opt.value() != next_part.as_bytes() {
+                    // Request path is just different from this AIF record
+                    continue 'outer;
+                }
+                remainder = next_remainder;
+            }
+            if pathopts.next().is_none() {
+                // Request path is longer than this AIF record
+                return true;
+            }
         }
+        // No matches found
+        false
+    }
+
+    // FIXME: So far, this emulates the old AifStaticRest; these functions will need to go somewhere else.
+    fn nosec_authorization() -> Self {
+        let mut value = [0; AIF_SCOPE_MAX_LEN];
+        use cbor_macro::cbor;
+        let allowed = cbor!([["/.well-known/core", 1], ["/poem", 1]]);
+        value[..allowed.len()].copy_from_slice(&allowed);
+        Self(value)
+    }
+
+    fn the_one_known_authorization() -> Self {
+        let mut value = [0; AIF_SCOPE_MAX_LEN];
+        use cbor_macro::cbor;
+        let allowed =
+            cbor!([["/stdout", 17 / GET and FETCH /], ["/.well-known/core", 1], ["/poem", 1]]);
+        value[..allowed.len()].copy_from_slice(&allowed);
+        Self(value)
     }
 
     fn is_admin(&self) -> bool {
-        self.may_use_stdout
-    }
-
-    // FIXME: this should be configurable
-    fn unauthenticated_edhoc_user_authorization() -> AifStaticRest {
-        AifStaticRest {
-            may_use_stdout: false,
-        }
-    }
-
-    // FIXME: this should be configurable
-    fn nosec_authorization() -> AifStaticRest {
-        AifStaticRest {
-            may_use_stdout: false,
-        }
-    }
-
-    fn the_one_known_authorization() -> AifStaticRest {
-        AifStaticRest {
-            may_use_stdout: true,
-        }
+        self.0[0] >= 0x83
     }
 }
 
-#[derive(Debug)]
 struct SecContextState<Crypto: lakers::Crypto, Authorization: Scope> {
     // FIXME: Should also include timeout. How do? Store expiry, do raytime in not-even-RTC mode,
     // and whenever there is a new time stamp from AS, remove old ones?
@@ -211,22 +247,6 @@ struct SecContextState<Crypto: lakers::Crypto, Authorization: Scope> {
     // This is Some(...) unless the stage is unusable.
     authorization: Option<Authorization>,
     protocol_stage: SecContextStage<Crypto>,
-}
-
-// Not sure why this is needed compared to a plain derive; seems that the derive is not happy with
-// Crypto not being Format, even though no instance of Crypto shows up.
-#[cfg(feature = "defmt")]
-impl<Crypto: lakers::Crypto, Authorization: Scope + defmt::Format> defmt::Format
-    for SecContextState<Crypto, Authorization>
-{
-    fn format(&self, f: defmt::Formatter) {
-        defmt::write!(
-            f,
-            "SecContextState {{ authorization: {}, protocol_stage: {} }}",
-            self.authorization,
-            self.protocol_stage
-        );
-    }
 }
 
 impl<Crypto: lakers::Crypto, Authorization: Scope> Default
@@ -268,50 +288,6 @@ enum SecContextStage<Crypto: lakers::Crypto> {
 
     // FIXME: Also needs a flag for whether M4 was received; if not, it's GC'able
     Oscore(liboscore::PrimitiveContext),
-}
-
-#[cfg(feature = "defmt")]
-impl<Crypto: lakers::Crypto> defmt::Format for SecContextStage<Crypto> {
-    fn format(&self, f: defmt::Formatter) {
-        match self {
-            SecContextStage::Empty => defmt::write!(f, "Empty"),
-            SecContextStage::EdhocResponderProcessedM1 { c_r, .. } => {
-                defmt::write!(f, "EdhocResponderProcessedM1 {{ c_r: {:?}, ... }}", c_r)
-            }
-            SecContextStage::EdhocResponderSentM2 { c_r, .. } => {
-                defmt::write!(f, "EdhocResponderSentM2 {{ c_r: {:?}, ... }}", c_r)
-            }
-            SecContextStage::Oscore(primitive_context) => defmt::write!(
-                f,
-                "Oscore(with recipient_id {:?})",
-                primitive_context.recipient_id()
-            ),
-        }
-    }
-}
-
-impl<Crypto: lakers::Crypto> core::fmt::Display for SecContextState<Crypto, AifStaticRest> {
-    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> Result<(), core::fmt::Error> {
-        use SecContextStage::*;
-        match &self.protocol_stage {
-            Empty => f.write_str("empty"),
-            EdhocResponderProcessedM1 { c_r, .. } => write!(f, "ProcessedM1, C_R = {:?}", c_r),
-            EdhocResponderSentM2 { c_r, .. } => write!(f, "SentM3, C_R = {:?}", c_r),
-            Oscore(ctx) => write!(
-                f,
-                "OSCORE, C_R = {:?}",
-                COwn::from_kid(ctx.recipient_id()).unwrap()
-            ),
-        }?;
-        if let Some(authorization) = &self.authorization {
-            write!(
-                f,
-                " authorized to read stdin? {}",
-                authorization.may_use_stdout
-            )?;
-        }
-        Ok(())
-    }
 }
 
 const LEVEL_ADMIN: usize = 0;
@@ -420,8 +396,8 @@ impl<
     /// [`.with_authorization_server()()`][Self::with_authorization_server()] or
     /// [`.allow_all()`][Self::allow_all()].
     // FIXME: Apart from an own identity, this will also need a function to convert ID_CRED_I into
-    // a (CRED_I, AifStaticRest) pair; this is currently hardcoded in all the places that construct
-    // an AifStaticRest (or generic Scope implementation).
+    // a (CRED_I, Scope) pair; this is currently hardcoded in all the places that construct
+    // any scope
     pub fn new(
         own_identity: (&'a lakers::Credential, &'a lakers::BytesP256ElemLen),
         inner: H,
@@ -494,7 +470,7 @@ impl<
     ) -> OscoreEdhocHandler<
         'a,
         H,
-        AifStaticRest,
+        AifValue,
         Crypto,
         CryptoFactory,
         crate::authorization_server::Empty,
@@ -613,7 +589,7 @@ impl<
             for index in self.pool.sorted.iter() {
                 debug!("* {}", index);
             }
-            let evicted = self.pool.force_insert(SecContextState {
+            let _evicted = self.pool.force_insert(SecContextState {
                 protocol_stage: SecContextStage::EdhocResponderProcessedM1 {
                     c_r,
                     c_i,
@@ -621,11 +597,6 @@ impl<
                 },
                 authorization: Some(Authorization::unauthenticated_edhoc_user_authorization()),
             });
-            if let Some(evicted) = evicted {
-                warn!("To insert new EDHOC, evicted {}", evicted);
-            } else {
-                debug!("To insert new EDHOC, evicted none");
-            }
 
             Ok(OwnRequestData::EdhocOkSend2(c_r))
         } else {
@@ -811,11 +782,11 @@ impl<
         //
         // Storing it even on decryption failure to avoid DoS from the first message (but
         // FIXME, should we increment an error count and lower priority?)
-        let evicted = self.pool.force_insert(SecContextState {
+        let _evicted = self.pool.force_insert(SecContextState {
             protocol_stage: SecContextStage::Oscore(oscore_context),
             authorization,
         });
-        debug_assert!(matches!(evicted, Some(SecContextState { protocol_stage: SecContextStage::Empty, .. }) | None), "A Default (Empty) was placed when an item was taken, which should have the lowest priority");
+        debug_assert!(matches!(_evicted, Some(SecContextState { protocol_stage: SecContextStage::Empty, .. }) | None), "A Default (Empty) was placed when an item was taken, which should have the lowest priority");
 
         let Ok((correlation, extracted)) = decrypted else {
             // FIXME is that the right code?
@@ -1107,11 +1078,10 @@ impl<
         info!("Established OSCORE context with recipient ID {:?} and authorization {:?} through ACE-OSCORE", oscore.recipient_id(), scope);
         // FIXME: This should be flagged as "unconfirmed" for rapid eviction, as it could be part
         // of a replay.
-        let evicted = self.pool.force_insert(SecContextState {
+        let _evicted = self.pool.force_insert(SecContextState {
             protocol_stage: SecContextStage::Oscore(oscore),
             authorization: Some(scope),
         });
-        info!("Evicted {:?}", evicted);
 
         Ok(response)
     }
