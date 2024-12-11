@@ -26,6 +26,7 @@
 
 mod ace;
 pub mod authorization_server;
+pub mod scope;
 
 // Might warrant a standalone crate at some point
 //
