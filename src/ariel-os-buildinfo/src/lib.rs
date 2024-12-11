@@ -1,4 +1,7 @@
 //! Exposes information about the build.
+#![no_std]
+#![deny(missing_docs)]
+#![deny(clippy::pedantic)]
 
 /// The board name.
 ///

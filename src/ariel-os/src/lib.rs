@@ -11,11 +11,11 @@
 #![no_std]
 #![feature(doc_auto_cfg)]
 
-pub mod buildinfo;
-
 #[cfg(feature = "bench")]
 #[doc(inline)]
 pub use ariel_os_bench as bench;
+#[doc(inline)]
+pub use ariel_os_buildinfo as buildinfo;
 #[cfg(feature = "coap")]
 #[doc(inline)]
 pub use ariel_os_coap as coap;
