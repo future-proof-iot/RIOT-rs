@@ -70,11 +70,13 @@ pub(crate) fn new_dummy() -> DummyDriver {
 pub(crate) struct DummyDriver(core::convert::Infallible);
 
 impl embassy_net::driver::Driver for DummyDriver {
-    type RxToken<'a> = Self
+    type RxToken<'a>
+        = Self
     where
         Self: 'a;
 
-    type TxToken<'a> = Self
+    type TxToken<'a>
+        = Self
     where
         Self: 'a;
 
