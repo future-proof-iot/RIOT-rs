@@ -8,11 +8,21 @@ compile_error!("no supported ARM variant selected");
 
 pub struct Cpu;
 
+#[derive(Default, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub struct ThreadData {
+    sp: usize,
+    high_regs: [usize; 8],
+}
+
 impl Arch for Cpu {
     /// Callee-save registers.
-    type ThreadData = [usize; 8];
+    type ThreadData = ThreadData;
 
-    const DEFAULT_THREAD_DATA: Self::ThreadData = [0; 8];
+    const DEFAULT_THREAD_DATA: Self::ThreadData = ThreadData {
+        sp: 0,
+        high_regs: [0; 8],
+    };
 
     /// The exact order in which Cortex-M pushes the registers to the stack when
     /// entering the ISR is:
@@ -48,7 +58,7 @@ impl Arch for Cpu {
             write_volatile(stack_pos.offset(7), 0x01000000); // -> APSR
         }
 
-        thread.sp = stack_pos as usize;
+        thread.data.sp = stack_pos as usize;
     }
 
     /// Triggers a PendSV exception.
@@ -86,26 +96,26 @@ unsafe extern "C" fn PendSV() {
         asm!(
             "
             bl {sched}
+
+            // r0 == 0 means that
+            // a) there was no previous thread, or
+            // This is only the case if the scheduler was triggered for the first time,
+            // which also means that next thread has no stored context yet.
+            // b) the current thread didn't change.
+            //
+            // In both cases, storing and loading of r4-r11 can be skipped.
             cmp r0, #0
+
             /* label rules:
              * - number only
              * - no combination of *only* [01]
              * - add f or b for 'next matching forward/backward'
-             * so let's use '99' forward ('99f')
              */
             beq 99f
 
-            msr.n psp, r0
+            stmia r0, {{r4-r11}}
+            ldmia r1, {{r4-r11}}
 
-            // r1 == 0 means that there was no previous thread.
-            // This is only the case if the scheduler was triggered for the first time,
-            // which also means that next thread has no stored context yet.
-            // Storing and loading of r4-r11 therefore can be skipped.
-            cmp r1, #0
-            beq 99f
-
-            stmia r1, {{r4-r11}}
-            ldmia r2, {{r4-r11}}
             99:
             movw LR, #0xFFFd
             movt LR, #0xFFFF
@@ -126,41 +136,39 @@ unsafe extern "C" fn PendSV() {
         asm!(
             "
             bl {sched}
-            cmp r0, #0
-            beq 99f
 
-            msr.n psp, r0
-
-            // r1 == 0 means that there was no previous thread.
+            // r0 == 0 means that
+            // a) there was no previous thread, or
             // This is only the case if the scheduler was triggered for the first time,
             // which also means that next thread has no stored context yet.
-            // Storing and loading of r4-r11 therefore can be skipped.
-            cmp r1, #0
-            beq 99f
+            // b) the current thread didn't change.
+            //
+            // In both cases, storing and loading of r4-r11 can be skipped.
+            cmp r0, #0
 
             //stmia r1!, {{r4-r7}}
-            str r4, [r1, #16]
-            str r5, [r1, #20]
-            str r6, [r1, #24]
-            str r7, [r1, #28]
+            str r4, [r0, #16]
+            str r5, [r0, #20]
+            str r6, [r0, #24]
+            str r7, [r0, #28]
 
             mov  r4, r8
             mov  r5, r9
             mov  r6, r10
             mov  r7, r11
 
-            str r4, [r1, #0]
-            str r5, [r1, #4]
-            str r6, [r1, #8]
-            str r7, [r1, #12]
+            str r4, [r0, #0]
+            str r5, [r0, #4]
+            str r6, [r0, #8]
+            str r7, [r0, #12]
 
             //
-            ldmia r2!, {{r4-r7}}
+            ldmia r1!, {{r4-r7}}
             mov r11, r7
             mov r10, r6
             mov r9,  r5
             mov r8,  r4
-            ldmia r2!, {{r4-r7}}
+            ldmia r1!, {{r4-r7}}
 
             99:
             ldr r0, 999f
@@ -183,16 +191,14 @@ unsafe extern "C" fn PendSV() {
 /// This may be current thread, or a new one.
 ///
 /// Returns:
-/// - `0` in `r0` if the next thread in the runqueue is the currently running thread
-/// - Else it writes into the following registers:
-///   - `r1`: pointer to [`Thread::high_regs`] from old thread (to store old register state)
-///           or null pointer if there was no previously running thread.
-///   - `r2`: pointer to [`Thread::high_regs`] from new thread (to load new register state)
-///   - `r0`: stack-pointer for new thread
+///   - `r0`: pointer to [`Thread::high_regs`] from old thread (to store old register state)
+///           or null pointer if there was no previously running thread, or the currently running
+///           thread should not be changed.
+///   - `r1`: pointer to [`Thread::high_regs`] from new thread (to load new register state)
 ///
-/// This function is called in PendSV.
-unsafe fn sched() -> u128 {
-    loop {
+/// This function is called in PendSV from assembly, so it must be `extern "C"`.
+unsafe extern "C" fn sched() -> u64 {
+    let (current_high_regs, next_high_regs) = loop {
         if let Some(res) = critical_section::with(|cs| {
             let scheduler = unsafe { &mut *SCHEDULER.as_ptr(cs) };
 
@@ -222,33 +228,34 @@ unsafe fn sched() -> u128 {
             let mut current_high_regs = core::ptr::null();
             if let Some(ref mut current_pid_ref) = scheduler.current_pid_mut() {
                 if next_pid == *current_pid_ref {
-                    return Some(0);
+                    return Some((0, 0));
                 }
                 let current_pid = *current_pid_ref;
                 *current_pid_ref = next_pid;
                 let current = scheduler.get_unchecked_mut(current_pid);
-                current.sp = cortex_m::register::psp::read() as usize;
-                current_high_regs = current.data.as_ptr();
+                current.data.sp = cortex_m::register::psp::read() as usize;
+                current_high_regs = current.data.high_regs.as_ptr();
             } else {
                 *scheduler.current_pid_mut() = Some(next_pid);
             }
 
             let next = scheduler.get_unchecked(next_pid);
-            let next_high_regs = next.data.as_ptr();
-            let next_sp = next.sp;
+            // SAFETY: changing the PSP as part of context switch
+            unsafe { cortex_m::register::psp::write(next.data.sp as u32) };
+            let next_high_regs = next.data.high_regs.as_ptr();
 
-            // The caller (`PendSV`) expects these three pointers in r0, r1 and r2:
-            // r0 = &next.sp
-            // r1 = &current.high_regs
-            // r2 = &next.high_regs
-            // On Cortex-M, a u128 as return value is passed in registers r0-r3.
-            // So let's use that.
-            let res: u128 =
-                //  (r0)                     (r1)                        (r2)
-                (next_sp as u128) |  ((current_high_regs as u128) << 32) | ((next_high_regs as u128) << 64);
-            Some(res)
+            Some((current_high_regs as u32, next_high_regs as u32))
         }) {
             break res;
         }
-    }
+    };
+
+    // The caller (`PendSV`) expects these two pointers in r0 and r1:
+    // r0 = &current.data.high_regs (or 0)
+    // r1 = &next.data.high_regs
+    // The C ABI on ARM (AAPCS) defines u64 to be returned in r0 and r1, so we use that to fit our
+    // values in there. `extern "C"` on this function ensures the Rust compiler adheres to those
+    // rules.
+    // See https://github.com/ARM-software/abi-aa/blob/a82eef0433556b30539c0d4463768d9feb8cfd0b/aapcs32/aapcs32.rst#6111handling-values-larger-than-32-bits
+    (current_high_regs as u64) | (next_high_regs as u64) << 32
 }

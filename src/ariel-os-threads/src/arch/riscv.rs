@@ -31,7 +31,6 @@ impl Arch for Cpu {
         // 16 byte alignment.
         let stack_pos = (stack_start + stack.len()) & 0xFFFFFFE0;
         // Set up PC, SP, RA and first argument for function.
-        thread.sp = stack_pos;
         thread.data.sp = stack_pos;
         thread.data.a0 = arg;
         thread.data.ra = cleanup as usize;

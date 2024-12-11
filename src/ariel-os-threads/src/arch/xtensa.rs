@@ -29,7 +29,6 @@ impl Arch for Cpu {
         // 16 byte alignment.
         let stack_pos = task_stack_ptr - (task_stack_ptr % 0x10);
 
-        thread.sp = stack_pos;
         thread.data.A1 = stack_pos as u32;
         thread.data.A6 = arg as u32;
         // Usually A0 holds the return address.
