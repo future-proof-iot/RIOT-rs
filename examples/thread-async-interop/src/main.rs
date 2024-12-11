@@ -7,7 +7,7 @@ use embassy_sync::{blocking_mutex::raw::CriticalSectionRawMutex, signal::Signal}
 
 use ariel_os::{
     asynch::{blocker, spawner},
-    debug::{exit, log::*},
+    debug::{exit, log::*, ExitCode},
     time::{Duration, Instant, Timer},
 };
 
@@ -47,5 +47,5 @@ fn main() {
 
     info!("main(): all good, exiting.");
 
-    exit(Ok(()));
+    exit(ExitCode::SUCCESS);
 }
