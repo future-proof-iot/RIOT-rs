@@ -77,7 +77,8 @@ pub async fn coap_run(handler: impl coap_handler::Handler + coap_handler::Report
         handler,
         || lakers_crypto_rustcrypto::Crypto::new(ariel_os_random::crypto_rng()),
         ariel_os_random::crypto_rng(),
-    );
+    )
+    .allow_arbitrary();
 
     info!("Server is ready.");
 

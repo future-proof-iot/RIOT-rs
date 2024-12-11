@@ -118,7 +118,7 @@ pub trait Scope: Sized + core::fmt::Debug + defmt::Format {
 }
 
 #[derive(Debug, defmt::Format)]
-struct AllowAll;
+pub struct AllowAll;
 
 impl Scope for AllowAll {
     fn request_is_allowed<M: ReadableMessage>(&self, _request: &M) -> bool {
@@ -131,7 +131,7 @@ impl Scope for AllowAll {
 }
 
 #[derive(Debug, defmt::Format)]
-struct DenyAll;
+pub struct DenyAll;
 
 impl Scope for DenyAll {
     fn request_is_allowed<M: ReadableMessage>(&self, _request: &M) -> bool {
@@ -407,13 +407,18 @@ impl<
     OscoreEdhocHandler<
         'a,
         H,
-        AifStaticRest,
+        DenyAll,
         Crypto,
         CryptoFactory,
         crate::authorization_server::Empty,
         RNG,
     >
 {
+    /// Create a new CoAP server implementation (a [Handler][coap_handler::Handler]).
+    ///
+    /// By default, this rejects all requests; access is allowed through builder calls such as
+    /// [`.with_authorization_server()()`][Self::with_authorization_server()] or
+    /// [`.allow_all()`][Self::allow_all()].
     // FIXME: Apart from an own identity, this will also need a function to convert ID_CRED_I into
     // a (CRED_I, AifStaticRest) pair; this is currently hardcoded in all the places that construct
     // an AifStaticRest (or generic Scope implementation).
@@ -422,7 +427,15 @@ impl<
         inner: H,
         crypto_factory: CryptoFactory,
         rng: RNG,
-    ) -> Self {
+    ) -> OscoreEdhocHandler<
+        'a,
+        H,
+        DenyAll,
+        Crypto,
+        CryptoFactory,
+        crate::authorization_server::Empty,
+        RNG,
+    > {
         Self {
             pool: Default::default(),
             own_identity,
@@ -430,6 +443,72 @@ impl<
             crypto_factory,
             authorities: crate::authorization_server::Empty,
             rng,
+        }
+    }
+}
+
+impl<
+        'a,
+        H: coap_handler::Handler,
+        Crypto: lakers::Crypto,
+        CryptoFactory: Fn() -> Crypto,
+        RNG: rand_core::RngCore + rand_core::CryptoRng,
+    >
+    OscoreEdhocHandler<
+        'a,
+        H,
+        DenyAll,
+        Crypto,
+        CryptoFactory,
+        crate::authorization_server::Empty,
+        RNG,
+    >
+{
+    /// Builds a CoAP server that accepts any request without any authentication.
+    pub fn allow_all(
+        self,
+    ) -> OscoreEdhocHandler<
+        'a,
+        H,
+        AllowAll,
+        Crypto,
+        CryptoFactory,
+        crate::authorization_server::Empty,
+        RNG,
+    > {
+        OscoreEdhocHandler {
+            // Starting from DenyAll allows us to diregard any old connections as they couldn't do
+            // anything
+            pool: Default::default(),
+            own_identity: self.own_identity,
+            authorities: self.authorities,
+            inner: self.inner,
+            crypto_factory: self.crypto_factory,
+            rng: self.rng,
+        }
+    }
+
+    /// Builds a CoAP server that behaves like coapcore has behaved in its sketch phase
+    pub fn allow_arbitrary(
+        self,
+    ) -> OscoreEdhocHandler<
+        'a,
+        H,
+        AifStaticRest,
+        Crypto,
+        CryptoFactory,
+        crate::authorization_server::Empty,
+        RNG,
+    > {
+        OscoreEdhocHandler {
+            // Starting from DenyAll allows us to diregard any old connections as they couldn't do
+            // anything
+            pool: Default::default(),
+            own_identity: self.own_identity,
+            authorities: self.authorities,
+            inner: self.inner,
+            crypto_factory: self.crypto_factory,
+            rng: self.rng,
         }
     }
 }
