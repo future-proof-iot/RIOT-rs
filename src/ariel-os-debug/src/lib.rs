@@ -1,5 +1,9 @@
+//! Provides debug interface facilities.
+
 #![cfg_attr(not(test), no_std)]
 #![cfg_attr(test, no_main)]
+#![deny(missing_docs)]
+#![deny(clippy::pedantic)]
 
 #[cfg(all(feature = "rtt-target", feature = "esp-println"))]
 compile_error!(
@@ -38,6 +42,7 @@ impl ExitCode {
     }
 }
 
+/// Terminates the debug output session.
 pub fn exit(code: ExitCode) {
     loop {
         #[cfg(feature = "semihosting")]
@@ -55,6 +60,7 @@ pub fn exit(code: ExitCode) {
 mod backend {
     pub use rtt_target::{rprint as print, rprintln as println};
 
+    #[doc(hidden)]
     pub fn init() {
         #[cfg(not(feature = "defmt"))]
         {
@@ -91,6 +97,8 @@ mod backend {
 #[cfg(all(feature = "debug-console", feature = "esp-println"))]
 mod backend {
     pub use esp_println::{print, println};
+
+    #[doc(hidden)]
     pub fn init() {
         // TODO: unify logging config.
         // Until then, `ESP_LOGLEVEL` can be used.
@@ -101,83 +109,46 @@ mod backend {
 
 #[cfg(not(feature = "debug-console"))]
 mod backend {
+    #[doc(hidden)]
     pub fn init() {}
 
+    /// Prints to the debug output, with a newline.
     #[macro_export]
-    macro_rules! nop_println {
+    macro_rules! println {
         ($($arg:tt)*) => {{
             let _ = ($($arg)*);
             // Do nothing
         }};
     }
 
+    /// Prints to the debug output.
+    ///
+    /// Equivalent to the [`println!`] macro except that a newline is not printed at the end of the message.
     #[macro_export]
-    macro_rules! nop_print {
+    macro_rules! print {
         ($($arg:tt)*) => {{
             let _ = ($($arg)*);
             // Do nothing
         }};
     }
-
-    pub use nop_print as print;
-    pub use nop_println as println;
 }
 
 pub use backend::*;
 
 #[cfg(feature = "defmt")]
 pub mod log {
+    //! Provides debug logging, powered by [`defmt`].
+
+    pub use defmt::{debug, error, info, trace, warn, Debug2Format, Display2Format};
+    // We would rather not re-export the whole crate, but the macros do rely on it being public.
     pub use defmt;
-
-    #[macro_export]
-    macro_rules! __trace {
-        ($($arg:tt)*) => {{
-            use $crate::log::defmt;
-            defmt::trace!($($arg)*);
-        }};
-    }
-
-    #[macro_export]
-    macro_rules! __debug {
-        ($($arg:tt)*) => {{
-            use $crate::log::defmt;
-            defmt::debug!($($arg)*);
-        }};
-    }
-
-    #[macro_export]
-    macro_rules! __info {
-        ($($arg:tt)*) => {{
-            use $crate::log::defmt;
-            defmt::info!($($arg)*);
-        }};
-    }
-
-    #[macro_export]
-    macro_rules! __warn {
-        ($($arg:tt)*) => {{
-            use $crate::log::defmt;
-            defmt::warn!($($arg)*);
-        }};
-    }
-
-    #[macro_export]
-    macro_rules! __error {
-        ($($arg:tt)*) => {{
-            use $crate::log::defmt;
-            defmt::error!($($arg)*);
-        }};
-    }
-
-    pub use __debug as debug;
-    pub use __error as error;
-    pub use __info as info;
-    pub use __trace as trace;
-    pub use __warn as warn;
 }
 
 #[cfg(not(feature = "defmt"))]
 pub mod log {
+    //! Stub module for when the `defmt` Cargo feature is not enabled.
+
+    #[doc(hidden)]
     #[macro_export]
     macro_rules! __stub {
         ($($arg:tt)*) => {{
