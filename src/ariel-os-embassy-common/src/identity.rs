@@ -219,3 +219,38 @@ impl core::fmt::Display for NotAvailable {
 }
 
 impl core::error::Error for NotAvailable {}
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn generate_mac() {
+        const BOARD_HASH: [u8; 20] = const_sha1::sha1(b"particle-xenon").as_bytes();
+        let truncated_board_hash = const {
+            *BOARD_HASH
+                .first_chunk()
+                .expect("EUI-48 is shorter than SHA1")
+        };
+        let device_id = [0xee, 0x13, 0xad, 0xd5, 0x7b, 0x08, 0x37, 0xe5];
+        let baseline = generate_aai_mac_address(truncated_board_hash, device_id, 0);
+        assert_eq!(baseline.0, [0x02, 0x9a, 0x05, 0xd7, 0x38, 0xe9]);
+
+        // Consecutive addresses differ little:
+        let interface_1 = generate_aai_mac_address(truncated_board_hash, device_id, 1);
+        assert_eq!(baseline.0[..5], interface_1.0[..5]);
+        assert_eq!(baseline.0[5].wrapping_add(1), interface_1.0[5]);
+
+        // Single-bit alterations in any place change the address:
+        let device_id_change0 = [0xef, 0x13, 0xad, 0xd5, 0x7b, 0x08, 0x37, 0xe5];
+        let device_id_change7 = [0xee, 0x13, 0xad, 0xd5, 0x7b, 0x08, 0x37, 0xe4];
+        assert_ne!(
+            generate_aai_mac_address(truncated_board_hash, device_id_change0, 0),
+            baseline
+        );
+        assert_ne!(
+            generate_aai_mac_address(truncated_board_hash, device_id_change7, 0),
+            baseline
+        );
+    }
+}
