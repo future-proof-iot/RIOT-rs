@@ -8,11 +8,21 @@ compile_error!("no supported ARM variant selected");
 
 pub struct Cpu;
 
+#[derive(Default, Debug)]
+#[cfg_attr(feature = "defmt", derive(defmt::Format))]
+pub struct ThreadData {
+    sp: usize,
+    high_regs: [usize; 8],
+}
+
 impl Arch for Cpu {
     /// Callee-save registers.
-    type ThreadData = [usize; 8];
+    type ThreadData = ThreadData;
 
-    const DEFAULT_THREAD_DATA: Self::ThreadData = [0; 8];
+    const DEFAULT_THREAD_DATA: Self::ThreadData = ThreadData {
+        sp: 0,
+        high_regs: [0; 8],
+    };
 
     /// The exact order in which Cortex-M pushes the registers to the stack when
     /// entering the ISR is:
@@ -48,7 +58,7 @@ impl Arch for Cpu {
             write_volatile(stack_pos.offset(7), 0x01000000); // -> APSR
         }
 
-        thread.sp = stack_pos as usize;
+        thread.data.sp = stack_pos as usize;
     }
 
     /// Triggers a PendSV exception.
@@ -227,15 +237,15 @@ unsafe fn sched() -> (u32, u64) {
                 let current_pid = *current_pid_ref;
                 *current_pid_ref = next_pid;
                 let current = scheduler.get_unchecked_mut(current_pid);
-                current.sp = cortex_m::register::psp::read() as usize;
-                current_high_regs = current.data.as_ptr();
+                current.data.sp = cortex_m::register::psp::read() as usize;
+                current_high_regs = current.data.high_regs.as_ptr();
             } else {
                 *scheduler.current_pid_mut() = Some(next_pid);
             }
 
             let next = scheduler.get_unchecked(next_pid);
-            let next_high_regs = next.data.as_ptr();
-            let next_sp = next.sp;
+            let next_sp = next.data.sp;
+            let next_high_regs = next.data.high_regs.as_ptr();
 
             Some((
                 next_sp as u32,
@@ -248,9 +258,9 @@ unsafe fn sched() -> (u32, u64) {
     };
 
     // The caller (`PendSV`) expects these three pointers in r0, r1 and r2:
-    // r0 = &next.sp
-    // r1 = &current.high_regs
-    // r2 = &next.high_regs
+    // r0 = &next.data.sp
+    // r1 = &current.data.high_regs
+    // r2 = &next.data.high_regs
     (
         next_sp,
         ((current_high_regs as u64) | (next_high_regs as u64) << 32),
