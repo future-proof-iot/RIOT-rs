@@ -3,7 +3,7 @@
 
 use cortex_m_rt::entry;
 use cortex_m_semihosting::{
-    debug::{self, EXIT_SUCCESS},
+    debug::{self, ExitCode},
     hprintln as println,
 };
 
@@ -56,7 +56,7 @@ fn main() -> ! {
 
     println!("main() shouldn't be here");
     // exit via semihosting call
-    debug::exit(EXIT_SUCCESS);
+    debug::exit(ExitCode::SUCCESS);
 
     // the cortex_m_rt `entry` macro requires `main()` to never return
     loop {}

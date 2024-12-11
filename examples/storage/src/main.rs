@@ -6,6 +6,7 @@
 use ariel_os::debug::{
     exit,
     log::{defmt, info},
+    ExitCode,
 };
 
 // Imports for using [`ariel_os::storage`]
@@ -35,7 +36,7 @@ async fn main() {
 
     if value > 10 {
         info!("counter value > 10, aborting test to safe flash cycles.");
-        exit(Ok(()));
+        exit(ExitCode::SUCCESS);
     }
 
     storage::insert("counter", value + 1).await.unwrap();
@@ -110,5 +111,5 @@ async fn main() {
     }
     info!("bye from storage test!");
 
-    exit(Ok(()));
+    exit(ExitCode::SUCCESS);
 }

@@ -2,7 +2,7 @@
 #![no_std]
 #![feature(used_with_arg)]
 
-use ariel_os::debug::{log::*, EXIT_SUCCESS};
+use ariel_os::debug::{log::*, ExitCode};
 use ariel_os::thread::{sync::Event, ThreadId};
 
 static EVENT: Event = Event::new();
@@ -16,7 +16,7 @@ fn waiter() {
 
     if my_id == ThreadId::new(0) {
         info!("All five threads should have reported \"Done.\". exiting.");
-        ariel_os::debug::exit(EXIT_SUCCESS);
+        ariel_os::debug::exit(ExitCode::SUCCESS);
     }
 }
 
