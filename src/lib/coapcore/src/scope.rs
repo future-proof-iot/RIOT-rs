@@ -146,3 +146,63 @@ impl Scope for AifValue {
         self.0[0] >= 0x83
     }
 }
+
+/// A scope that can use multiple backends.
+///
+/// This is useful when combining multiple authentication methods, eg. allowing ACE tokens (that
+/// need an [`AifValue`] to express their arbitrary scopes) as well as a configured admin key (that
+/// has "all" permission, which are not expressible in an [`AifValue`].
+#[derive(Debug, defmt::Format)]
+pub enum UnionScope {
+    AifValue(AifValue),
+    AllowAll,
+    DenyAll,
+}
+
+impl Scope for UnionScope {
+    fn request_is_allowed<M: ReadableMessage>(&self, request: &M) -> bool {
+        match self {
+            UnionScope::AifValue(v) => v.request_is_allowed(request),
+            UnionScope::AllowAll => AllowAll.request_is_allowed(request),
+            UnionScope::DenyAll => DenyAll.request_is_allowed(request),
+        }
+    }
+
+    fn nosec_authorization() -> Self {
+        todo!()
+    }
+
+    fn is_admin(&self) -> bool {
+        match self {
+            UnionScope::AifValue(v) => v.is_admin(),
+            UnionScope::AllowAll => AllowAll.is_admin(),
+            UnionScope::DenyAll => DenyAll.is_admin(),
+        }
+    }
+
+    fn unauthenticated_edhoc_user_authorization() -> Self {
+        todo!()
+    }
+
+    fn the_one_known_authorization() -> Self {
+        todo!()
+    }
+}
+
+impl From<AifValue> for UnionScope {
+    fn from(value: AifValue) -> Self {
+        UnionScope::AifValue(value)
+    }
+}
+
+impl From<AllowAll> for UnionScope {
+    fn from(_value: AllowAll) -> Self {
+        UnionScope::AllowAll
+    }
+}
+
+impl From<DenyAll> for UnionScope {
+    fn from(_value: DenyAll) -> Self {
+        UnionScope::DenyAll
+    }
+}
