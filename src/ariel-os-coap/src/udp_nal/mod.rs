@@ -117,7 +117,7 @@ impl<'a> UnconnectedUdp<'a> {
     }
 }
 
-impl<'a> nal::UnconnectedUdp for UnconnectedUdp<'a> {
+impl nal::UnconnectedUdp for UnconnectedUdp<'_> {
     type Error = Error;
     async fn send(
         &mut self,

@@ -388,8 +388,8 @@ impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrI
     }
 }
 
-impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
-    for OscoreEdhocHandler<'a, H, Crypto>
+impl<H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
+    for OscoreEdhocHandler<'_, H, Crypto>
 {
     type RequestData = OrInner<
         EdhocResponse<Result<H::RequestData, H::ExtractRequestError>>,

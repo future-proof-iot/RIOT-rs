@@ -175,15 +175,11 @@ unsafe impl<T> Sync for Mutex<T> {}
 /// Grants access to the [`Mutex`] inner data.
 ///
 /// Dropping the [`MutexGuard`] will unlock the [`Mutex`];
-#[expect(
-    clippy::module_name_repetitions,
-    reason = "consistency with std and embassy-sync"
-)]
 pub struct MutexGuard<'a, T> {
     mutex: &'a Mutex<T>,
 }
 
-impl<'a, T> Deref for MutexGuard<'a, T> {
+impl<T> Deref for MutexGuard<'_, T> {
     type Target = T;
 
     fn deref(&self) -> &Self::Target {
@@ -192,14 +188,14 @@ impl<'a, T> Deref for MutexGuard<'a, T> {
     }
 }
 
-impl<'a, T> DerefMut for MutexGuard<'a, T> {
+impl<T> DerefMut for MutexGuard<'_, T> {
     fn deref_mut(&mut self) -> &mut Self::Target {
         // SAFETY: MutexGuard always has unique access.
         unsafe { &mut *self.mutex.inner.get() }
     }
 }
 
-impl<'a, T> Drop for MutexGuard<'a, T> {
+impl<T> Drop for MutexGuard<'_, T> {
     fn drop(&mut self) {
         // Unlock the mutex when the guard is dropped.
         self.mutex.release();
