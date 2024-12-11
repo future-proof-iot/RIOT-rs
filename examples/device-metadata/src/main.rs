@@ -14,7 +14,7 @@ fn main() {
         info!("Device ID is unavailable.");
     }
     if let Ok(eui48) = ariel_os::identity::interface_eui48(0) {
-        info!("Device's first EUI-48 address: {=[u8]:02x}", eui48.as_ref());
+        info!("Device's first EUI-48 address: {}", eui48);
     }
 
     exit(EXIT_SUCCESS);

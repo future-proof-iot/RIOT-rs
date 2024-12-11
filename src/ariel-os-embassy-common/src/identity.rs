@@ -4,6 +4,44 @@
 //! of this API.
 #![deny(missing_docs)]
 
+/// An EUI-48 identifier, commonly known as a MAC address.
+///
+/// The allowed value space of this type is identical to its inner type, but the use of an address
+/// in this types implies awareness of its [bits'
+/// semantics](https://en.wikipedia.org/wiki/MAC_address#Address_details).
+// This type may be moved into a more common place in Ariel if it gets used more widely; until
+// then, this is the place where it is needed and implemented.
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub struct Eui48(pub [u8; 6]);
+
+impl core::fmt::Debug for Eui48 {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        write!(
+            f,
+            "{:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}",
+            self.0[0], self.0[1], self.0[2], self.0[3], self.0[4], self.0[5]
+        )
+    }
+}
+
+impl core::fmt::Display for Eui48 {
+    fn fmt(&self, f: &mut core::fmt::Formatter<'_>) -> core::fmt::Result {
+        core::fmt::Debug::fmt(self, f)
+    }
+}
+
+#[cfg(feature = "defmt")]
+impl defmt::Format for Eui48 {
+    fn format(&self, f: defmt::Formatter<'_>) {
+        use defmt::write;
+        write!(
+            f,
+            "{:02x}:{:02x}:{:02x}:{:02x}:{:02x}:{:02x}",
+            self.0[0], self.0[1], self.0[2], self.0[3], self.0[4], self.0[5]
+        )
+    }
+}
+
 /// Trait describing the unique identifier available on a device.
 ///
 /// See the module level documentation on the characteristics of the identifier.
@@ -47,7 +85,7 @@ pub trait DeviceId: Sized {
     /// Generates an EUI-48 identifier ("6-byte MAC address") based on the device identity.
     ///
     /// See `ariel_os::identity::interface_eu48` for details.
-    fn interface_eui48(&self, if_index: u32) -> [u8; 6] {
+    fn interface_eui48(&self, if_index: u32) -> Eui48 {
         // Not even trying to hash for privacy: Many CPU IDs just have 32 variable bits (eg. EFM32
         // with a 32bit timstamp in a limited range, and a 32bit factory ID, or STM32's 96 bit
         // containing lot and wafer numbers and coordinates), and all SHA256 hashes of 2^32
@@ -91,7 +129,7 @@ fn generate_aai_mac_address(
     truncated_board_hash: [u8; 6],
     device_id_bytes: impl AsRef<[u8]>,
     if_index: u32,
-) -> [u8; 6] {
+) -> Eui48 {
     // This alternative algorithm is identical (as easily evidenced by running both on
     // arbitrary inputs) but rustc doesn't optimize this simple version:
     //
@@ -129,7 +167,7 @@ fn generate_aai_mac_address(
     let with_if_index = u32::from_be_bytes(eui48[2..6].try_into().unwrap()).wrapping_add(if_index);
     eui48[2..6].copy_from_slice(&(with_if_index).to_be_bytes()[..]);
 
-    eui48
+    Eui48(eui48)
 }
 
 /// An uninhabited type implementing [`DeviceId`] that always errs.

@@ -28,6 +28,8 @@
 #![deny(missing_docs)]
 #![deny(clippy::pedantic)]
 
+pub use ariel_os_embassy_common::identity::Eui48;
+
 /// Obtains a unique identifier of the device in its byte serialized form.
 ///
 /// See module level documentation for that identifier's properties.
@@ -66,7 +68,7 @@ pub fn device_id_bytes() -> Result<impl AsRef<[u8]>, impl core::error::Error> {
 /// # Errors
 ///
 /// Same as in [`device_id_bytes()`].
-pub fn interface_eui48(if_index: u32) -> Result<[u8; 6], impl core::error::Error> {
+pub fn interface_eui48(if_index: u32) -> Result<Eui48, impl core::error::Error> {
     use ariel_os_embassy_common::identity::DeviceId;
 
     ariel_os_embassy::hal::identity::DeviceId::get().map(|d| d.interface_eui48(if_index))

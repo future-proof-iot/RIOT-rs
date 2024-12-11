@@ -237,7 +237,7 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
 
         // Host's MAC addr. This is the MAC the host "thinks" its USB-to-ethernet adapter has.
         let host_mac_addr = crate::hal::identity::DeviceId::get()
-            .map(|d| d.interface_eui48(1))
+            .map(|d| d.interface_eui48(1).0)
             .unwrap_or([0x8A, 0x88, 0x88, 0x88, 0x88, 0x88]);
 
         // Create classes on the builder.
@@ -250,7 +250,7 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
         );
 
         let our_mac_addr = crate::hal::identity::DeviceId::get()
-            .map(|d| d.interface_eui48(0))
+            .map(|d| d.interface_eui48(0).0)
             .unwrap_or([0xCA, 0xCC, 0xCC, 0xCC, 0xCC, 0xCC]);
 
         static NET_STATE: StaticCell<NetState<{ network::ETHERNET_MTU }, 4, 4>> = StaticCell::new();
