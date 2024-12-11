@@ -10,6 +10,7 @@ members = [
   "src/ariel-os-boards",
   "src/ariel-os-boards/nrf52",
   "src/ariel-os-boards/nrf52840dk",
+  "src/ariel-os-buildinfo",
   "src/ariel-os-chips",
   "src/ariel-os-coap",
   "src/ariel-os-debug",
@@ -93,6 +94,7 @@ linkme = { version = "0.3.21", features = ["used_linker"] }
 ariel-os = { path = "src/ariel-os", default-features = false }
 ariel-os-bench = { path = "src/ariel-os-bench", default-features = false }
 ariel-os-boards = { path = "src/ariel-os-boards", default-features = false }
+ariel-os-buildinfo = { path = "src/ariel-os-buildinfo", default-features = false }
 ariel-os-coap = { path = "src/ariel-os-coap", default-features = false }
 ariel-os-debug = { path = "src/ariel-os-debug", default-features = false }
 ariel-os-embassy = { path = "src/ariel-os-embassy", default-features = false }

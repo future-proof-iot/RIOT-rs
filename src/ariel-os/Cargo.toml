@@ -12,6 +12,7 @@ document-features = { workspace = true }
 linkme = { workspace = true }
 ariel-os-bench = { workspace = true, optional = true }
 ariel-os-boards = { path = "../ariel-os-boards" }
+ariel-os-buildinfo = { workspace = true }
 ariel-os-coap = { path = "../ariel-os-coap", optional = true }
 ariel-os-debug = { workspace = true }
 ariel-os-embassy = { path = "../ariel-os-embassy" }
@@ -21,7 +22,6 @@ ariel-os-random = { workspace = true, optional = true }
 ariel-os-rt = { path = "../ariel-os-rt" }
 ariel-os-storage = { workspace = true, optional = true }
 ariel-os-threads = { path = "../ariel-os-threads", optional = true }
-ariel-os-utils = { workspace = true }
 static_cell = { workspace = true }
 
 [features]

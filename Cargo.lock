@@ -87,6 +87,7 @@ version = "0.1.0"
 dependencies = [
  "ariel-os-bench",
  "ariel-os-boards",
+ "ariel-os-buildinfo",
  "ariel-os-coap",
  "ariel-os-debug",
  "ariel-os-embassy",
@@ -96,7 +97,6 @@ dependencies = [
  "ariel-os-rt",
  "ariel-os-storage",
  "ariel-os-threads",
- "ariel-os-utils",
  "document-features",
  "linkme",
  "static_cell",
@@ -135,6 +135,13 @@ dependencies = [
  "st-nucleo-f401re",
  "st-nucleo-h755zi-q",
  "st-nucleo-wb55",
+]
+
+[[package]]
+name = "ariel-os-buildinfo"
+version = "0.1.0"
+dependencies = [
+ "ariel-os-utils",
 ]
 
 [[package]]
