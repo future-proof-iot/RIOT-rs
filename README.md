@@ -76,7 +76,10 @@ example](https://github.com/ariel-os/ariel-os/tree/main/examples/hello-world):
 
 1. install [laze](https://github.com/kaspar030/laze): `cargo install laze`
 
-1. install [probe-rs](https://github.com/probe-rs/probe-rs): `cargo install probe-rs-tools --locked`
+1. install [probe-rs](https://github.com/probe-rs/probe-rs)
+   Currently (probe-rs before 0.25.0), Ariel OS depends on probe-rs from git for embedded-test integration.
+
+       cargo install --git https://github.com/probe-rs/probe-rs --rev 8cd15f5b probe-rs-tools --locked
 
 1. clone this repository and cd into it
 

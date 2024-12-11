@@ -81,6 +81,7 @@ embedded-hal-async = { version = "1.0.0", default-features = false }
 embedded-nal-coap = "0.1.0-alpha.4"
 embedded-storage = { version = "0.3.1" }
 embedded-storage-async = { version = "0.4.1" }
+embedded-test = { version = "0.5.0", default-features = false, features = ["ariel-os"] }
 
 esp-alloc = { version = "0.5.0", default-features = false }
 esp-hal = { version = "0.21.1", default-features = false }
