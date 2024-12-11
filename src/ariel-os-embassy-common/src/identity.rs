@@ -125,6 +125,10 @@ pub trait DeviceId: Sized {
     }
 }
 
+#[expect(
+    clippy::missing_panics_doc,
+    reason = "False positive. Clippy does not see that `u32::from_le_bytes(eui48[1..5].try_into().unwrap())` can not panic, even though the compiler produces panic free code."
+)]
 fn generate_aai_mac_address(
     truncated_board_hash: [u8; 6],
     device_id_bytes: impl AsRef<[u8]>,
