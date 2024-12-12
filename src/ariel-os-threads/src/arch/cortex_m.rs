@@ -91,7 +91,7 @@ impl Arch for Cpu {
 
 #[cfg(any(armv7m, armv8m))]
 #[naked]
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 unsafe extern "C" fn PendSV() {
     unsafe {
@@ -130,7 +130,7 @@ unsafe extern "C" fn PendSV() {
 
 #[cfg(any(armv6m))]
 #[naked]
-#[no_mangle]
+#[unsafe(no_mangle)]
 #[allow(non_snake_case)]
 unsafe extern "C" fn PendSV() {
     unsafe {
@@ -226,7 +226,7 @@ unsafe extern "C" fn sched() -> u64 {
             // The returned `r1` therefore will be null, and saving/ restoring
             // the context is skipped.
             let mut current_high_regs = core::ptr::null();
-            if let Some(ref mut current_pid_ref) = scheduler.current_pid_mut() {
+            if let Some(current_pid_ref) = scheduler.current_pid_mut() {
                 if next_pid == *current_pid_ref {
                     return Some((0, 0));
                 }

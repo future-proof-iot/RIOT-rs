@@ -12,4 +12,4 @@ workspace = true
 stm32f4xx = { optional = true, path = "stm32f4xx" }
 
 [features]
-stm32f401 = ["stm32f4xx/stm32f401"]
+stm32f401 = ["dep:stm32f4xx", "stm32f4xx?/stm32f401"]

@@ -42,7 +42,8 @@ cfg_if::cfg_if! {
 const ISR_STACKSIZE: usize =
     ariel_os_utils::usize_from_env_or!("CONFIG_ISR_STACKSIZE", 8192, "ISR stack size (in bytes)");
 
-#[link_section = ".isr_stack"]
+// SAFETY: a linker script inserts this section in RAM.
+#[unsafe(link_section = ".isr_stack")]
 #[used(linker)]
 static ISR_STACK: [u8; ISR_STACKSIZE] = [0u8; ISR_STACKSIZE];
 
@@ -87,7 +88,7 @@ fn startup() -> ! {
 
     #[cfg(feature = "executor-single-thread")]
     {
-        extern "Rust" {
+        unsafe extern "Rust" {
             fn __ariel_os_embassy_init() -> !;
         }
         debug!("ariel_os_rt::startup() launching single thread executor");
