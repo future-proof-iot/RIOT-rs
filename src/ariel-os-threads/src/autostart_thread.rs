@@ -5,6 +5,7 @@
 macro_rules! autostart_thread {
     ($fn_name:ident, stacksize = $stacksize:expr, priority = $priority:expr, affinity = $affinity:expr) => {
         $crate::macro_reexports::paste::paste! {
+            #[allow(non_snake_case)]
             #[$crate::macro_reexports::linkme::distributed_slice($crate::THREAD_FNS)]
             #[linkme(crate = $crate::macro_reexports::linkme)]
             fn [<__start_thread_ $fn_name>] () {

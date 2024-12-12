@@ -84,6 +84,7 @@ pub fn spawner(args: TokenStream, item: TokenStream) -> TokenStream {
     };
 
     let expanded = quote! {
+        #[allow(non_snake_case)]
         #[#ariel_os_crate::reexports::linkme::distributed_slice(#ariel_os_crate::EMBASSY_TASKS)]
         #[linkme(crate = #ariel_os_crate::reexports::linkme)]
         fn #new_function_name(

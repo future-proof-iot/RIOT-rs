@@ -96,6 +96,7 @@ pub fn task(args: TokenStream, item: TokenStream) -> TokenStream {
         quote! {
             #delegates
 
+            #[allow(non_snake_case)]
             #[#ariel_os_crate::reexports::linkme::distributed_slice(#ariel_os_crate::EMBASSY_TASKS)]
             #[linkme(crate = #ariel_os_crate::reexports::linkme)]
             fn #new_function_name(
