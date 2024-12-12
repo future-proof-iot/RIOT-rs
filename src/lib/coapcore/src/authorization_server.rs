@@ -74,7 +74,7 @@ pub trait AsDescription {
 /// Type list of authorization servers. Any operation is first tried on the first item, then on the
 /// second.
 ///
-/// It's convention to have a single A1 and then another chain in A2 or an [`Empty`], but that's
+/// It's convention to have a single A1 and then another chain in A2 or an [`DenyAll`], but that's
 /// mainly becuse that version is easiy to construct
 pub struct AsChain<A1, A2, Scope> {
     a1: A1,
@@ -154,31 +154,41 @@ where
 }
 
 /// The empty set of authorization servers.
-pub struct Empty;
+pub struct DenyAll;
 
-impl AsDescription for Empty {
+impl AsDescription for DenyAll {
     const IS_EMPTY: bool = true;
 
     type Scope = core::convert::Infallible;
     type ScopeGenerator = core::convert::Infallible;
 }
 
-/// A transition helper
-#[derive(Default)]
-pub struct GenerateDefault<Scope>(core::marker::PhantomData<Scope>);
-
-impl<Scope: crate::scope::Scope + Default> AsDescription for GenerateDefault<Scope> {
-    const IS_EMPTY: bool = true;
-
-    type Scope = Scope;
-    type ScopeGenerator = Self;
+/// A ScopeGenerator that can be used on [`AsDescription`] types that don't process tokens
+pub enum NullGenerator<Scope> {
+    _Phantom(core::convert::Infallible, core::marker::PhantomData<Scope>),
 }
 
-impl<Scope: crate::scope::Scope + Default> crate::scope::ScopeGenerator for GenerateDefault<Scope> {
+impl<Scope: crate::scope::Scope> crate::scope::ScopeGenerator for NullGenerator<Scope> {
     type Scope = Scope;
 
     fn from_token_scope(self, bytes: &[u8]) -> Result<Self::Scope, crate::scope::InvalidScope> {
-        Ok(Default::default())
+        match self {
+            NullGenerator::_Phantom(infallible, _) => match infallible {},
+        }
+    }
+}
+
+/// An AS representing unconditionally allowed access, including unencrypted.
+pub struct AllowAll;
+
+impl AsDescription for AllowAll {
+    const IS_EMPTY: bool = true;
+
+    type Scope = crate::scope::AllowAll;
+    type ScopeGenerator = NullGenerator<Self::Scope>;
+
+    fn nosec_authorization(&self) -> Option<Self::Scope> {
+        Some(crate::scope::AllowAll)
     }
 }
 
@@ -188,7 +198,7 @@ impl AsDescription for GenerateArbitrary {
     const IS_EMPTY: bool = true;
 
     type Scope = crate::scope::AifValue;
-    type ScopeGenerator = GenerateDefault<crate::scope::AifValue>;
+    type ScopeGenerator = NullGenerator<crate::scope::AifValue>;
 
     fn nosec_authorization(&self) -> Option<Self::Scope> {
         use cbor_macro::cbor;

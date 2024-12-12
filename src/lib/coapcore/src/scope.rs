@@ -41,8 +41,7 @@ impl ScopeGenerator for core::convert::Infallible {
 #[derive(Debug, Copy, Clone)]
 pub struct InvalidScope;
 
-// FIXME: Default just needed while GenerateDefault is a thing
-#[derive(Debug, defmt::Format, Default)]
+#[derive(Debug, defmt::Format)]
 pub struct AllowAll;
 
 impl Scope for AllowAll {
@@ -90,13 +89,6 @@ impl TryFrom<&[u8]> for AifValue {
         let mut new = [0; AIF_SCOPE_MAX_LEN];
         new[..value.len()].copy_from_slice(&value);
         Ok(AifValue(new))
-    }
-}
-
-// FIXME: Default just needed while GenerateDefault is a thing
-impl Default for AifValue {
-    fn default() -> Self {
-        AifValue([0; AIF_SCOPE_MAX_LEN])
     }
 }
 

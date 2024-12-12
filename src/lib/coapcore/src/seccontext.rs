@@ -7,7 +7,7 @@ use defmt_or_log::{debug, error, info, Debug2Format};
 
 use crate::authorization_server::AsDescription;
 
-use crate::scope::{AifValue, AllowAll, DenyAll, Scope};
+use crate::scope::Scope;
 
 // If this exceeds 47, COwn will need to be extended.
 const MAX_CONTEXTS: usize = 4;
@@ -235,7 +235,7 @@ impl<
         Crypto: lakers::Crypto,
         CryptoFactory: Fn() -> Crypto,
         RNG: rand_core::RngCore + rand_core::CryptoRng,
-    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::Empty, RNG>
+    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::DenyAll, RNG>
 {
     /// Create a new CoAP server implementation (a [Handler][coap_handler::Handler]).
     ///
@@ -250,14 +250,14 @@ impl<
         inner: H,
         crypto_factory: CryptoFactory,
         rng: RNG,
-    ) -> OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::Empty, RNG>
+    ) -> OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::DenyAll, RNG>
     {
         Self {
             pool: Default::default(),
             own_identity,
             inner,
             crypto_factory,
-            authorities: crate::authorization_server::Empty,
+            authorities: crate::authorization_server::DenyAll,
             rng,
         }
     }
@@ -269,25 +269,19 @@ impl<
         Crypto: lakers::Crypto,
         CryptoFactory: Fn() -> Crypto,
         RNG: rand_core::RngCore + rand_core::CryptoRng,
-    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::Empty, RNG>
+    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::DenyAll, RNG>
 {
     /// Builds a CoAP server that accepts any request without any authentication.
     pub fn allow_all(
         self,
-    ) -> OscoreEdhocHandler<
-        'a,
-        H,
-        Crypto,
-        CryptoFactory,
-        crate::authorization_server::GenerateDefault<AllowAll>,
-        RNG,
-    > {
+    ) -> OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::AllowAll, RNG>
+    {
         OscoreEdhocHandler {
             // Starting from DenyAll allows us to diregard any old connections as they couldn't do
             // anything
             pool: Default::default(),
             own_identity: self.own_identity,
-            authorities: Default::default(),
+            authorities: crate::authorization_server::AllowAll,
             inner: self.inner,
             crypto_factory: self.crypto_factory,
             rng: self.rng,
