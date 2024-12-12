@@ -12,25 +12,11 @@ pub trait Scope: Sized + core::fmt::Debug + defmt::Format {
     fn is_admin(&self) -> bool {
         false
     }
-
-    fn nosec_authorization() -> Self;
-
-    fn unauthenticated_edhoc_user_authorization() -> Self {
-        Self::nosec_authorization()
-    }
-
-    fn the_one_known_authorization() -> Self {
-        Self::nosec_authorization()
-    }
 }
 
 impl Scope for core::convert::Infallible {
     fn request_is_allowed<M: ReadableMessage>(&self, request: &M) -> bool {
         match *self {}
-    }
-
-    fn nosec_authorization() -> Self {
-        todo!()
     }
 }
 
@@ -63,10 +49,6 @@ impl Scope for AllowAll {
     fn request_is_allowed<M: ReadableMessage>(&self, _request: &M) -> bool {
         true
     }
-
-    fn nosec_authorization() -> Self {
-        Self
-    }
 }
 
 #[derive(Debug, defmt::Format)]
@@ -75,10 +57,6 @@ pub struct DenyAll;
 impl Scope for DenyAll {
     fn request_is_allowed<M: ReadableMessage>(&self, _request: &M) -> bool {
         false
-    }
-
-    fn nosec_authorization() -> Self {
-        Self
     }
 }
 
@@ -100,6 +78,20 @@ const AIF_SCOPE_MAX_LEN: usize = 64;
 /// the AIF.
 #[derive(Debug, defmt::Format)]
 pub struct AifValue([u8; AIF_SCOPE_MAX_LEN]);
+
+impl TryFrom<&[u8]> for AifValue {
+    // compatible with heapless's
+    type Error = ();
+
+    fn try_from(value: &[u8]) -> Result<Self, Self::Error> {
+        if value.len() >= AIF_SCOPE_MAX_LEN {
+            return Err(());
+        }
+        let mut new = [0; AIF_SCOPE_MAX_LEN];
+        new[..value.len()].copy_from_slice(&value);
+        Ok(AifValue(new))
+    }
+}
 
 // FIXME: Default just needed while GenerateDefault is a thing
 impl Default for AifValue {
@@ -163,24 +155,6 @@ impl Scope for AifValue {
         false
     }
 
-    // FIXME: So far, this emulates the old AifStaticRest; these functions will need to go somewhere else.
-    fn nosec_authorization() -> Self {
-        let mut value = [0; AIF_SCOPE_MAX_LEN];
-        use cbor_macro::cbor;
-        let allowed = cbor!([["/.well-known/core", 1], ["/poem", 1]]);
-        value[..allowed.len()].copy_from_slice(&allowed);
-        Self(value)
-    }
-
-    fn the_one_known_authorization() -> Self {
-        let mut value = [0; AIF_SCOPE_MAX_LEN];
-        use cbor_macro::cbor;
-        let allowed =
-            cbor!([["/stdout", 17 / GET and FETCH /], ["/.well-known/core", 1], ["/poem", 1]]);
-        value[..allowed.len()].copy_from_slice(&allowed);
-        Self(value)
-    }
-
     fn is_admin(&self) -> bool {
         self.0[0] >= 0x83
     }
@@ -237,24 +211,12 @@ impl Scope for UnionScope {
         }
     }
 
-    fn nosec_authorization() -> Self {
-        todo!()
-    }
-
     fn is_admin(&self) -> bool {
         match self {
             UnionScope::AifValue(v) => v.is_admin(),
             UnionScope::AllowAll => AllowAll.is_admin(),
             UnionScope::DenyAll => DenyAll.is_admin(),
         }
-    }
-
-    fn unauthenticated_edhoc_user_authorization() -> Self {
-        todo!()
-    }
-
-    fn the_one_known_authorization() -> Self {
-        todo!()
     }
 }
 

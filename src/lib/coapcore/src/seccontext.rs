@@ -302,7 +302,7 @@ impl<
         H,
         Crypto,
         CryptoFactory,
-        crate::authorization_server::GenerateDefault<AifValue>,
+        crate::authorization_server::GenerateArbitrary,
         RNG,
     > {
         OscoreEdhocHandler {
@@ -310,7 +310,7 @@ impl<
             // anything
             pool: Default::default(),
             own_identity: self.own_identity,
-            authorities: Default::default(),
+            authorities: crate::authorization_server::GenerateArbitrary,
             inner: self.inner,
             crypto_factory: self.crypto_factory,
             rng: self.rng,
@@ -428,7 +428,7 @@ impl<
                     c_i,
                     responder,
                 },
-                authorization: Some(AS::Scope::unauthenticated_edhoc_user_authorization()),
+                authorization: self.authorities.nosec_authorization(),
             });
 
             Ok(OwnRequestData::EdhocOkSend2(c_r))
@@ -542,7 +542,7 @@ impl<
             .ok_or_else(CoAPError::bad_request)?;
 
         let (taken, front_trim_payload) = if with_edhoc {
-            Self::process_edhoc_in_payload(payload, taken)?
+            self.process_edhoc_in_payload(payload, taken)?
         } else {
             (taken, 0)
         };
@@ -637,6 +637,7 @@ impl<
     /// Processes an EDHOC message 3 at the beginning of a payload, and returns the number of bytes
     /// that were in the message.
     fn process_edhoc_in_payload(
+        &self,
         payload: &[u8],
         sec_context_state: SecContextState<Crypto, AS::Scope>,
     ) -> Result<(SecContextState<Crypto, AS::Scope>, usize), CoAPError> {
@@ -657,7 +658,7 @@ impl<
                     c_r,
                     c_i,
                 },
-            authorization: Some(original_authorization), // So far, this is self.unauthenticated_edhoc_user_authorization()
+            authorization: original_authorization, // So far, this is self.nosec_authorization()
         } = sec_context_state
         {
             #[allow(clippy::indexing_slicing, reason = "slice fits by construction")]
@@ -687,7 +688,7 @@ impl<
                             .expect("Static credential is not processable");
 
                         // FIXME: learn from CRED_I
-                        authorization = AS::Scope::the_one_known_authorization();
+                        authorization = self.authorities.the_one_known_authorization();
                     }
                     _ => {
                         // FIXME: send better message
@@ -757,7 +758,7 @@ impl<
 
             SecContextState {
                 protocol_stage: SecContextStage::Oscore(context),
-                authorization: Some(authorization),
+                authorization: authorization,
             }
         } else {
             // Return the state. Best bet is that it was already advanced to an OSCORE
@@ -1118,7 +1119,11 @@ impl<
 
         match state {
             Start | WellKnown | Unencrypted => {
-                if AS::Scope::nosec_authorization().request_is_allowed(request) {
+                if self
+                    .authorities
+                    .nosec_authorization()
+                    .is_some_and(|s| s.request_is_allowed(request))
+                {
                     self.inner
                         .extract_request_data(request)
                         .map(|extracted| Inner(AuthorizationChecked::Allowed(extracted)))

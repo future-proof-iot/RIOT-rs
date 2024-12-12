@@ -17,6 +17,7 @@ pub trait AsDescription {
     ///
     /// This is used by the handler implementation to shortcut through some message processing
     /// paths.
+    // FIXME: Rename to "never *parses* one"
     const IS_EMPTY: bool;
 
     /// The way scopes issued with this system as audience by this AS are expressed here.
@@ -57,6 +58,16 @@ pub trait AsDescription {
         ciphertext_buffer: &mut heapless::Vec<u8, N>,
     ) -> Result<Self::ScopeGenerator, DecryptionError> {
         Err(DecryptionError::NoKeyFound)
+    }
+
+    /// Generates the scope representing unauthenticated access.
+    fn nosec_authorization(&self) -> Option<Self::Scope> {
+        None
+    }
+
+    // FIXME compatibility helper
+    fn the_one_known_authorization(&self) -> Option<Self::Scope> {
+        None
     }
 }
 
@@ -168,6 +179,31 @@ impl<Scope: crate::scope::Scope + Default> crate::scope::ScopeGenerator for Gene
 
     fn from_token_scope(self, bytes: &[u8]) -> Result<Self::Scope, crate::scope::InvalidScope> {
         Ok(Default::default())
+    }
+}
+
+pub struct GenerateArbitrary;
+
+impl AsDescription for GenerateArbitrary {
+    const IS_EMPTY: bool = true;
+
+    type Scope = crate::scope::AifValue;
+    type ScopeGenerator = GenerateDefault<crate::scope::AifValue>;
+
+    fn nosec_authorization(&self) -> Option<Self::Scope> {
+        use cbor_macro::cbor;
+        let slice: &[u8] = &cbor!([["/.well-known/core", 1], ["/poem", 1]]);
+        crate::scope::AifValue::try_from(slice).ok()
+    }
+
+    fn the_one_known_authorization(&self) -> Option<Self::Scope> {
+        use cbor_macro::cbor;
+        let slice: &[u8] = &cbor!([
+                ["/stdout", 17 / GET and FETCH /],
+                ["/.well-known/core", 1],
+                ["/poem", 1]
+        ]);
+        crate::scope::AifValue::try_from(slice).ok()
     }
 }
 
