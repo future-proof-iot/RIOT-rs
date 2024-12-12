@@ -12,3 +12,6 @@ pub const BOARD: &str = ariel_os_utils::str_from_env_or!(
     "unknown",
     "board name provided by the build system"
 );
+
+/// The operating system's name.
+pub const OS_NAME: &str = "Ariel OS";
