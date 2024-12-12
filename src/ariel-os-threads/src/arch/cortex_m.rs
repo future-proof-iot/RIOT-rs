@@ -1,6 +1,8 @@
 use crate::{cleanup, Arch, Thread, SCHEDULER};
-use core::arch::asm;
-use core::ptr::write_volatile;
+use core::{
+    arch::{asm, naked_asm},
+    ptr::write_volatile,
+};
 use cortex_m::peripheral::{scb::SystemHandler, SCB};
 
 #[cfg(not(any(armv6m, armv7m, armv8m)))]
@@ -93,7 +95,7 @@ impl Arch for Cpu {
 #[allow(non_snake_case)]
 unsafe extern "C" fn PendSV() {
     unsafe {
-        asm!(
+        naked_asm!(
             "
             bl {sched}
 
@@ -122,7 +124,6 @@ unsafe extern "C" fn PendSV() {
             bx LR
             ",
             sched = sym sched,
-            options(noreturn)
         )
     };
 }
@@ -133,7 +134,7 @@ unsafe extern "C" fn PendSV() {
 #[allow(non_snake_case)]
 unsafe extern "C" fn PendSV() {
     unsafe {
-        asm!(
+        naked_asm!(
             "
             bl {sched}
 
@@ -180,7 +181,6 @@ unsafe extern "C" fn PendSV() {
             .word 0xFFFFFFFD
             ",
             sched = sym sched,
-            options(noreturn)
         )
     };
 }

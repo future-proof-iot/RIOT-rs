@@ -372,7 +372,11 @@ impl<O, I> From<O> for OrInner<O, I> {
 }
 
 impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrInner<O, I> {
-    type Error<IE> = OrInner<O::Error<IE>, I::Error<IE>> where IE: RenderableOnMinimal, IE: core::fmt::Debug;
+    type Error<IE>
+        = OrInner<O::Error<IE>, I::Error<IE>>
+    where
+        IE: RenderableOnMinimal,
+        IE: core::fmt::Debug;
     fn render<M: MinimalWritableMessage>(
         self,
         msg: &mut M,
@@ -384,8 +388,8 @@ impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrI
     }
 }
 
-impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
-    for OscoreEdhocHandler<'a, H, Crypto>
+impl<H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
+    for OscoreEdhocHandler<'_, H, Crypto>
 {
     type RequestData = OrInner<
         EdhocResponse<Result<H::RequestData, H::ExtractRequestError>>,

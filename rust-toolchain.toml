@@ -1,7 +1,7 @@
 # this file is parsed with grep & sed for parsing out the actual toolchain
 # from the "channel" line. Please keep that in mind when modifying.
 [toolchain]
-channel = "nightly-2024-09-19"
+channel = "nightly-2024-12-10"
 targets = [
   "thumbv6m-none-eabi",
   "thumbv7m-none-eabi",

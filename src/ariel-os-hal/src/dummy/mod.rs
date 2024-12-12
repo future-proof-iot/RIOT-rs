@@ -4,7 +4,6 @@
     clippy::missing_errors_doc,
     reason = "this module's items are hidden in the docs"
 )]
-#![expect(clippy::duplicated_attributes, reason = "Clippy bug #13355")]
 #![allow(
     clippy::module_name_repetitions,
     reason = "this dummy module mimics manufacturer-specific crates"
