@@ -135,6 +135,11 @@ pub async fn remove(key: &str) -> Result<(), sequential_storage::Error<FlashErro
     lock().await.remove(key).await
 }
 
+/// Resets the flash in the entire flash range.
+pub async fn erase_all() -> Result<(), sequential_storage::Error<FlashError>> {
+    lock().await.erase_all().await
+}
+
 /// Gets a [`MutexGuard`] of the global [`Storage`] object.
 ///
 /// This can be used to implement atomic RMW (like counters).
