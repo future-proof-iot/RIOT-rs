@@ -115,50 +115,6 @@ contexts:
           - cd ${appdir} && ${CARGO_ENV} cargo ${CARGO_TOOLCHAIN} ${CARGO_ARGS} tree ${FEATURES}
         build: false
 
-      flash:
-        cmd:
-          - >-
-            _flash () { openocd
-            ${OPENOCD_ADAPTER_INIT}
-            ${OPENOCD_ARGS}
-            -c 'init'
-            -c 'targets'
-            -c 'reset halt'
-            -c "flash write_image erase \"${1}\" 0 elf"
-            -c "verify_image \"${1}\" 0 elf"
-            -c 'reset run'
-            -c 'shutdown' ; } ;
-            _flash ${out}
-
-      flash-riotboot:
-        required_vars:
-          - FLASH_OFFSET
-        cmd:
-          - riotboot-genhdr generate ${out} $$(date +%s) $(${FLASH_OFFSET} + ${FLASH_SLOT_OFFSET}) ${FLASH_SLOT_OFFSET} - > ${out}.hdr.bin
-          - ${OBJCOPY} -Obinary ${out} ${out}.bin
-          - cat ${out}.hdr.bin ${out}.bin > ${out}.riotboot.bin
-          - _flash () { openocd
-            ${OPENOCD_ARGS}
-            -c 'init'
-            -c 'targets'
-            -c 'reset halt'
-            -c "flash write_image erase \"${1}.riotboot.bin\" ${FLASH_OFFSET} bin"
-            -c "verify_image \"${1}.riotboot.bin\" ${FLASH_OFFSET} bin"
-            -c 'reset run'
-            -c 'shutdown' ; } ;
-            _flash ${out}
-
-      reset:
-        build: false
-        cmd:
-          - >-
-            openocd
-            ${OPENOCD_ARGS}
-            -c 'init'
-            -c 'targets'
-            -c 'reset'
-            -c 'shutdown'
-
       size:
         cmd:
           - llvm-size ${out}
@@ -175,28 +131,6 @@ contexts:
     env:
       RUSTFLAGS:
         - --cfg context=\"nrf\"
-    tasks:
-      flash-erase-all:
-        help: Erases the whole chip including user data. Unlocks it if locked.
-        build: false
-        required_vars:
-          - PROBE_RS_CHIP
-        cmd:
-          - probe-rs erase --chip ${PROBE_RS_CHIP} --allow-erase-all
-      flash-rs:
-        help: Flashes the target using probe-rs
-        required_vars:
-          - PROBE_RS_CHIP
-        cmd:
-          - probe-rs download ${out} --chip ${PROBE_RS_CHIP}
-          - probe-rs reset --chip ${PROBE_RS_CHIP}
-
-      debug-rs:
-        help: Starts a probe-rs gdb server
-        required_vars:
-          - PROBE_RS_CHIP
-        cmd:
-          - probe-rs gdb --chip ${PROBE_RS_CHIP}
 
   - name: nrf51
     parent: nrf
@@ -598,14 +532,79 @@ modules:
     selects:
       - ?debug-console
       - rtt-target
+
     env:
       global:
         CARGO_RUNNER: "'probe-rs run ${PROBE_RS_PROTOCOL} --chip ${PROBE_RS_CHIP}'"
 
-  - name: probe-rs-run
-    help: "deprecated alias for `probe-rs`"
-    selects:
-      - probe-rs
+    tasks:
+      flash-erase-all:
+        help: Erases the whole chip including user data. Unlocks it if locked.
+        build: false
+        cmd:
+          - probe-rs erase --chip ${PROBE_RS_CHIP} --allow-erase-all
+
+      flash:
+        help: Flashes the target using probe-rs
+        cmd:
+          - probe-rs download ${out} --chip ${PROBE_RS_CHIP}
+          - probe-rs reset --chip ${PROBE_RS_CHIP}
+
+      debug:
+        help: Starts a probe-rs gdb server
+        cmd:
+          - probe-rs gdb --chip ${PROBE_RS_CHIP}
+
+      reset:
+        help: Resets the target
+        cmd:
+          - probe-rs reset --chip ${PROBE_RS_CHIP}
+
+  - name: openocd
+    tasks:
+      flash:
+        cmd:
+          - >-
+            _flash () { openocd
+            ${OPENOCD_ADAPTER_INIT}
+            ${OPENOCD_ARGS}
+            -c 'init'
+            -c 'targets'
+            -c 'reset halt'
+            -c "flash write_image erase \"${1}\" 0 elf"
+            -c "verify_image \"${1}\" 0 elf"
+            -c 'reset run'
+            -c 'shutdown' ; } ;
+            _flash ${out}
+
+      flash-riotboot:
+        required_vars:
+          - FLASH_OFFSET
+        cmd:
+          - riotboot-genhdr generate ${out} $$(date +%s) $(${FLASH_OFFSET} + ${FLASH_SLOT_OFFSET}) ${FLASH_SLOT_OFFSET} - > ${out}.hdr.bin
+          - ${OBJCOPY} -Obinary ${out} ${out}.bin
+          - cat ${out}.hdr.bin ${out}.bin > ${out}.riotboot.bin
+          - _flash () { openocd
+            ${OPENOCD_ARGS}
+            -c 'init'
+            -c 'targets'
+            -c 'reset halt'
+            -c "flash write_image erase \"${1}.riotboot.bin\" ${FLASH_OFFSET} bin"
+            -c "verify_image \"${1}.riotboot.bin\" ${FLASH_OFFSET} bin"
+            -c 'reset run'
+            -c 'shutdown' ; } ;
+            _flash ${out}
+
+      reset:
+        build: false
+        cmd:
+          - >-
+            openocd
+            ${OPENOCD_ARGS}
+            -c 'init'
+            -c 'targets'
+            -c 'reset'
+            -c 'shutdown'
 
   - name: network
     selects:
