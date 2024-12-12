@@ -16,7 +16,7 @@ use ariel_os::{
     debug::{
         exit,
         log::{debug, info},
-        EXIT_SUCCESS,
+        ExitCode,
     },
     hal,
     i2c::controller::{highest_freq_in, I2cDevice, Kilohertz},
@@ -57,5 +57,5 @@ async fn main(peripherals: pins::Peripherals) {
 
     info!("Test passed!");
 
-    exit(EXIT_SUCCESS);
+    exit(ExitCode::SUCCESS);
 }

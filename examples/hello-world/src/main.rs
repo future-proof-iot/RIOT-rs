@@ -3,11 +3,11 @@
 #![feature(impl_trait_in_assoc_type)]
 #![feature(used_with_arg)]
 
-use ariel_os::debug::{exit, log::*};
+use ariel_os::debug::{exit, log::*, ExitCode};
 
 #[ariel_os::task(autostart)]
 async fn main() {
     info!("Hello World!");
 
-    exit(Ok(()));
+    exit(ExitCode::SUCCESS);
 }

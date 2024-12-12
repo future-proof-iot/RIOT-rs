@@ -2,7 +2,7 @@
 #![no_std]
 #![feature(used_with_arg)]
 
-use ariel_os::debug::{log::*, EXIT_SUCCESS};
+use ariel_os::debug::{log::*, ExitCode};
 use ariel_os::thread::sync::Channel;
 
 static CHANNEL: Channel<u8> = Channel::new();
@@ -24,5 +24,5 @@ fn thread1() {
         my_id,
         recv
     );
-    ariel_os::debug::exit(EXIT_SUCCESS);
+    ariel_os::debug::exit(ExitCode::SUCCESS);
 }
