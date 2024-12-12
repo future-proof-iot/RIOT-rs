@@ -2,6 +2,14 @@
 
 #![no_std]
 #![feature(doc_auto_cfg)]
+#![cfg_attr(
+    not(context = "xtensa"),
+    expect(
+        stable_features,
+        reason = "feature(const_option) is needed for Xtensa toolchain that is held behind"
+    )
+)]
+#![feature(const_option)]
 #![deny(clippy::pedantic)]
 #![deny(missing_docs)]
 
