@@ -45,7 +45,7 @@ pub(crate) fn config() -> embassy_usb::Config<'static> {
     {
         // Create embassy-usb Config
         let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
-        config.manufacturer = Some("Embassy");
+        config.manufacturer = Some(ariel_os_buildinfo::OS_NAME);
         config.product = Some("USB-Ethernet example");
         config.serial_number = Some("12345678");
         config.max_power = 100;
