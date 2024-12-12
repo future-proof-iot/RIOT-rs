@@ -3,7 +3,7 @@ use coap_message::{
     MutableWritableMessage, ReadableMessage,
 };
 use coap_message_utils::{Error as CoAPError, OptionsExt as _};
-use defmt_or_log::{debug, error, info, Debug2Format};
+use defmt_or_log::{error, info, Debug2Format};
 
 use crate::authorization_server::AsDescription;
 
@@ -408,14 +408,6 @@ impl<
 
             let c_r = self.cown_but_not(c_i.as_slice());
 
-            debug!("Entries in pool:");
-            for (i, e) in self.pool.entries.iter().enumerate() {
-                debug!("{}. {}", i, e);
-            }
-            debug!("Sequence:");
-            for index in self.pool.sorted.iter() {
-                debug!("* {}", index);
-            }
             let _evicted = self.pool.force_insert(SecContextState {
                 protocol_stage: SecContextStage::EdhocResponderProcessedM1 {
                     c_r,
@@ -719,14 +711,6 @@ impl<
             let oscore_salt = responder.edhoc_exporter(1u8, &[], 8); // label is 1
             let oscore_secret = &oscore_secret[..16];
             let oscore_salt = &oscore_salt[..8];
-            #[allow(
-                clippy::indexing_slicing,
-                reason = "secret necessarily contains more than 40 bits"
-            )]
-            {
-                debug!("OSCORE secret: {:?}...", &oscore_secret[..5]);
-            }
-            debug!("OSCORE salt: {:?}", &oscore_salt);
 
             let sender_id = c_i.as_slice();
             let recipient_id = c_r.0;
