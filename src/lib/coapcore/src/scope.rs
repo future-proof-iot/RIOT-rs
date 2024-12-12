@@ -229,3 +229,9 @@ impl From<DenyAll> for UnionScope {
         UnionScope::DenyAll
     }
 }
+
+impl From<core::convert::Infallible> for UnionScope {
+    fn from(value: core::convert::Infallible) -> Self {
+        match value {}
+    }
+}
