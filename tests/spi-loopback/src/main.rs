@@ -14,7 +14,7 @@ use ariel_os::{
     debug::{
         exit,
         log::{debug, info},
-        EXIT_SUCCESS,
+        ExitCode,
     },
     gpio, hal,
     spi::{
@@ -63,5 +63,5 @@ async fn main(peripherals: pins::Peripherals) {
 
     info!("Test passed!");
 
-    exit(EXIT_SUCCESS);
+    exit(ExitCode::SUCCESS);
 }

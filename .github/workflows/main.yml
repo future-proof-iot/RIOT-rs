@@ -253,6 +253,7 @@ jobs:
                     bench,
                     coap,
                     csprng,
+                    defmt,
                     executor-thread,
                     external-interrupts,
                     hwrng,
