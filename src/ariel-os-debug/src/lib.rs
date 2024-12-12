@@ -14,7 +14,7 @@ compile_error!(
     r#"feature "debug-console" enabled but no backend. Select feature "rtt-target" or feature "esp-println"."#
 );
 
-/// Represents the exit code of a debug output.
+/// Represents the exit code of a debug session.
 #[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum ExitCode {
     #[doc(hidden)]
