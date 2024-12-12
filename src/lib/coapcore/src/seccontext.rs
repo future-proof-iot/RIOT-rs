@@ -895,7 +895,7 @@ impl<H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                     .lookup(|c| c.corresponding_cown() == Some(kid), |matched| {
                         // Not checking authorization any more: we don't even have access to the
                         // request any more, that check was done.
-                        let SecContextState { protocol_stage: SecContextStage::Oscore(ref mut oscore_context), .. } = matched else {
+                        let SecContextState { protocol_stage: SecContextStage::Oscore(oscore_context), .. } = matched else {
                             // FIXME render late error (it'd help if CoAPError also offered a type that unions it
                             // with an arbitrary other error). As it is, depending on the CoAP stack, there may be
                             // DoS if a peer can send many requests before the server starts rendering responses.
