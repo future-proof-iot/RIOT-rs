@@ -1,3 +1,5 @@
+laze_required_version: 0.1.28
+
 contexts:
   # base context that all other contexts inherit from
   - name: default
