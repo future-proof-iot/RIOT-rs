@@ -17,6 +17,7 @@ This directory contains example applications that showcase how to use Ariel OS.
 - [tcp-echo/](./tcp-echo): TCP echo example
 - [thread-async-interop/](./thread-async-interop): how to make async tasks and preemptively scheduled threads interoperate
 - [threading/](./threading): how to start and use preemptively scheduled threads
+- [threading-channel/](./threading-channel): how to use `ariel_os::thread::sync::Channel` for passing messages between threads
 - [threading-event/](./threading-event): how to use `ariel_os::thread::sync::Event`
 - [udp-echo/](./udp-echo): UDP echo example
 - [usb-keyboard/](./usb-keyboard): USB HID example
