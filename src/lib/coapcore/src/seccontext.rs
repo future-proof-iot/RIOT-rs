@@ -201,7 +201,6 @@ impl<Crypto: lakers::Crypto, Authorization: Scope> SecContextState<Crypto, Autho
 pub struct OscoreEdhocHandler<
     'a,
     H: coap_handler::Handler,
-    Authorization: Scope,
     Crypto: lakers::Crypto,
     CryptoFactory: Fn() -> Crypto,
     AS: AsDescription,
@@ -210,7 +209,7 @@ pub struct OscoreEdhocHandler<
     // It'd be tempted to have sharing among multiple handlers for multiple CoAP stacks, but
     // locks for such sharing could still be acquired in a factory (at which point it may make
     // sense to make this a &mut).
-    pool: SecContextPool<Crypto, Authorization>,
+    pool: SecContextPool<Crypto, AS::Scope>,
     own_identity: (&'a lakers::Credential, &'a lakers::BytesP256ElemLen),
 
     authorities: AS,
@@ -236,16 +235,7 @@ impl<
         Crypto: lakers::Crypto,
         CryptoFactory: Fn() -> Crypto,
         RNG: rand_core::RngCore + rand_core::CryptoRng,
-    >
-    OscoreEdhocHandler<
-        'a,
-        H,
-        DenyAll,
-        Crypto,
-        CryptoFactory,
-        crate::authorization_server::Empty,
-        RNG,
-    >
+    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::Empty, RNG>
 {
     /// Create a new CoAP server implementation (a [Handler][coap_handler::Handler]).
     ///
@@ -260,15 +250,8 @@ impl<
         inner: H,
         crypto_factory: CryptoFactory,
         rng: RNG,
-    ) -> OscoreEdhocHandler<
-        'a,
-        H,
-        DenyAll,
-        Crypto,
-        CryptoFactory,
-        crate::authorization_server::Empty,
-        RNG,
-    > {
+    ) -> OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::Empty, RNG>
+    {
         Self {
             pool: Default::default(),
             own_identity,
@@ -286,16 +269,7 @@ impl<
         Crypto: lakers::Crypto,
         CryptoFactory: Fn() -> Crypto,
         RNG: rand_core::RngCore + rand_core::CryptoRng,
-    >
-    OscoreEdhocHandler<
-        'a,
-        H,
-        DenyAll,
-        Crypto,
-        CryptoFactory,
-        crate::authorization_server::Empty,
-        RNG,
-    >
+    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::Empty, RNG>
 {
     /// Builds a CoAP server that accepts any request without any authentication.
     pub fn allow_all(
@@ -303,10 +277,9 @@ impl<
     ) -> OscoreEdhocHandler<
         'a,
         H,
-        AllowAll,
         Crypto,
         CryptoFactory,
-        crate::authorization_server::Empty,
+        crate::authorization_server::GenerateDefault<AllowAll>,
         RNG,
     > {
         OscoreEdhocHandler {
@@ -314,7 +287,7 @@ impl<
             // anything
             pool: Default::default(),
             own_identity: self.own_identity,
-            authorities: self.authorities,
+            authorities: Default::default(),
             inner: self.inner,
             crypto_factory: self.crypto_factory,
             rng: self.rng,
@@ -327,10 +300,9 @@ impl<
     ) -> OscoreEdhocHandler<
         'a,
         H,
-        AifValue,
         Crypto,
         CryptoFactory,
-        crate::authorization_server::Empty,
+        crate::authorization_server::GenerateDefault<AifValue>,
         RNG,
     > {
         OscoreEdhocHandler {
@@ -338,7 +310,7 @@ impl<
             // anything
             pool: Default::default(),
             own_identity: self.own_identity,
-            authorities: self.authorities,
+            authorities: Default::default(),
             inner: self.inner,
             crypto_factory: self.crypto_factory,
             rng: self.rng,
@@ -349,33 +321,37 @@ impl<
 impl<
         'a,
         H: coap_handler::Handler,
-        Authorization: Scope,
         Crypto: lakers::Crypto,
         CryptoFactory: Fn() -> Crypto,
         AS: AsDescription,
         RNG: rand_core::RngCore + rand_core::CryptoRng,
-    > OscoreEdhocHandler<'a, H, Authorization, Crypto, CryptoFactory, AS, RNG>
+    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, AS, RNG>
 {
     /// Adds a new authorization server (or set thereof) to the handler, which is queried before
     /// any other authorization server.
+    // Ideally we wouldn't statically produce UnionScope but anything smaller depending on AS1/AS2
     pub fn with_authorization_server<AS1: AsDescription>(
         self,
         prepended_as: AS1,
     ) -> OscoreEdhocHandler<
         'a,
         H,
-        Authorization,
         Crypto,
         CryptoFactory,
-        crate::authorization_server::AsChain<AS1, AS>,
+        crate::authorization_server::AsChain<AS1, AS, crate::scope::UnionScope>,
         RNG,
-    > {
+    >
+    where
+        crate::scope::UnionScope:
+            From<<AS1 as AsDescription>::Scope> + From<<AS as AsDescription>::Scope>,
+    {
         OscoreEdhocHandler {
             authorities: crate::authorization_server::AsChain::chain(
                 prepended_as,
                 self.authorities,
             ),
-            pool: self.pool,
+            // FIXME: This discards old connections rather than .into()'ing all their scopes.
+            pool: Default::default(),
             own_identity: self.own_identity,
             inner: self.inner,
             crypto_factory: self.crypto_factory,
@@ -452,7 +428,7 @@ impl<
                     c_i,
                     responder,
                 },
-                authorization: Some(Authorization::unauthenticated_edhoc_user_authorization()),
+                authorization: Some(AS::Scope::unauthenticated_edhoc_user_authorization()),
             });
 
             Ok(OwnRequestData::EdhocOkSend2(c_r))
@@ -662,8 +638,8 @@ impl<
     /// that were in the message.
     fn process_edhoc_in_payload(
         payload: &[u8],
-        sec_context_state: SecContextState<Crypto, Authorization>,
-    ) -> Result<(SecContextState<Crypto, Authorization>, usize), CoAPError> {
+        sec_context_state: SecContextState<Crypto, AS::Scope>,
+    ) -> Result<(SecContextState<Crypto, AS::Scope>, usize), CoAPError> {
         // We're not supporting block-wise here -- but could later, to the extent we support
         // outer block-wise.
 
@@ -711,7 +687,7 @@ impl<
                             .expect("Static credential is not processable");
 
                         // FIXME: learn from CRED_I
-                        authorization = Authorization::the_one_known_authorization();
+                        authorization = AS::Scope::the_one_known_authorization();
                     }
                     _ => {
                         // FIXME: send better message
@@ -909,28 +885,20 @@ impl<
         let mut nonce2 = [0; crate::ace::OWN_NONCE_LEN];
         self.rng.fill_bytes(&mut nonce2);
 
-        let (response, scope, oscore) = crate::ace::process_acecbor_authz_info(
-            payload,
-            &self.authorities,
-            nonce2,
-            |nonce1| {
+        let (response, scope, oscore) =
+            crate::ace::process_acecbor_authz_info(payload, &self.authorities, nonce2, |nonce1| {
                 // This preferably (even exclusively) produces EDHOC-ideal recipient IDs, but as long
                 // as we're having more of those than slots, no point in not reusing the code.
                 self.cown_but_not(nonce1)
-            },
-            |scope| {
-                // FIXME learn from token
-                Authorization::the_one_known_authorization()
-            },
-        )
-        .map_err(|e| {
-            error!("Sending out error:");
-            error!("{}", Debug2Format(&e));
-            e.position()
-                // FIXME: Could also come from processing inner
-                .map(CoAPError::bad_request_with_rbep)
-                .unwrap_or(CoAPError::bad_request())
-        })?;
+            })
+            .map_err(|e| {
+                error!("Sending out error:");
+                error!("{}", Debug2Format(&e));
+                e.position()
+                    // FIXME: Could also come from processing inner
+                    .map(CoAPError::bad_request_with_rbep)
+                    .unwrap_or(CoAPError::bad_request())
+            })?;
 
         info!("Established OSCORE context with recipient ID {:?} and authorization {:?} through ACE-OSCORE", oscore.recipient_id(), scope);
         // FIXME: This should be flagged as "unconfirmed" for rapid eviction, as it could be part
@@ -1021,13 +989,11 @@ impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrI
 
 impl<
         H: coap_handler::Handler,
-        Authorization: Scope,
         Crypto: lakers::Crypto,
         CryptoFactory: Fn() -> Crypto,
         AS: AsDescription,
         RNG: rand_core::RngCore + rand_core::CryptoRng,
-    > coap_handler::Handler
-    for OscoreEdhocHandler<'_, H, Authorization, Crypto, CryptoFactory, AS, RNG>
+    > coap_handler::Handler for OscoreEdhocHandler<'_, H, Crypto, CryptoFactory, AS, RNG>
 {
     type RequestData = OrInner<
         OwnRequestData<Result<H::RequestData, H::ExtractRequestError>>,
@@ -1152,7 +1118,7 @@ impl<
 
         match state {
             Start | WellKnown | Unencrypted => {
-                if Authorization::nosec_authorization().request_is_allowed(request) {
+                if AS::Scope::nosec_authorization().request_is_allowed(request) {
                     self.inner
                         .extract_request_data(request)
                         .map(|extracted| Inner(AuthorizationChecked::Allowed(extracted)))

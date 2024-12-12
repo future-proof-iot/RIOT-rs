@@ -238,12 +238,12 @@ impl AceCborAuthzInfoResponse {
 /// This needs to be provided with
 ///
 /// * the request's `payload`
-/// * a list of recognized `authorities` (Authorization Servers) to authenticate the token
+/// * a list of recognized `authorities` (Authorization Servers) to authenticate the token,
+///   the output of which is also later used to parse the token's scope.
 /// * a random nonce2
 /// * a callback that, once the peer's recipient ID is known, chooses an own recipient ID
 ///   (because it's up to the pool of security contexts to pick one, and the peers can not pick
 ///   identical ones)
-/// * a callback that parses the scope into the client's concept of a scope
 ///
 /// ## Caveats
 ///
@@ -263,10 +263,9 @@ impl AceCborAuthzInfoResponse {
 ///   call duration.
 pub fn process_acecbor_authz_info<Scope>(
     payload: &[u8],
-    authorities: &impl crate::authorization_server::AsDescription,
+    authorities: &impl crate::authorization_server::AsDescription<Scope = Scope>,
     nonce2: [u8; OWN_NONCE_LEN],
     server_recipient_id: impl FnOnce(&[u8]) -> COwn,
-    parse_scope: impl FnOnce(&[u8]) -> Scope,
 ) -> Result<(AceCborAuthzInfoResponse, Scope, liboscore::PrimitiveContext), minicbor::decode::Error>
 {
     trace!("Processing authz_info {:#02x}", payload);
@@ -329,14 +328,17 @@ pub fn process_acecbor_authz_info<Scope>(
         heapless::Vec::<u8, MAX_SUPPORTED_ACCESSTOKEN_LEN>::from_slice(encrypt0.encrypted)
             .map_err(|_| minicbor::decode::Error::message("Token too long to decrypt"))?;
 
-    authorities
+    let scope_generator = authorities
         .decrypt_symmetric_token(&headers, &aad_encoded, &mut ciphertext_buffer)
         .map_err(|_| minicbor::decode::Error::message("Decryption failed"))?;
 
     let claims: CwtClaimsSet = minicbor::decode(ciphertext_buffer.as_slice())?;
     trace!("Decrypted CWT claims: {}", claims);
 
-    let scope = parse_scope(claims.scope);
+    use crate::scope::ScopeGenerator;
+    let scope = scope_generator
+        .from_token_scope(claims.scope)
+        .map_err(|_| minicbor::decode::Error::message("Scope could not be processed"))?;
 
     let Cnf { osc: Some(osc) } = claims.cnf else {
         return Err(minicbor::decode::Error::message(

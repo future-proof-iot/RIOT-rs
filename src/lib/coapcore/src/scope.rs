@@ -24,7 +24,39 @@ pub trait Scope: Sized + core::fmt::Debug + defmt::Format {
     }
 }
 
-#[derive(Debug, defmt::Format)]
+impl Scope for core::convert::Infallible {
+    fn request_is_allowed<M: ReadableMessage>(&self, request: &M) -> bool {
+        match *self {}
+    }
+
+    fn nosec_authorization() -> Self {
+        todo!()
+    }
+}
+
+pub trait ScopeGenerator: Sized {
+    type Scope: Scope;
+
+    fn from_token_scope(self, bytes: &[u8]) -> Result<Self::Scope, InvalidScope>;
+}
+
+impl ScopeGenerator for core::convert::Infallible {
+    type Scope = core::convert::Infallible;
+
+    fn from_token_scope(self, bytes: &[u8]) -> Result<Self::Scope, InvalidScope> {
+        match self {}
+    }
+}
+
+/// Error type indicating that a scope could not be created from the given token scope.
+///
+/// As tokens are only accepted from trusted sources, the presence of this error typically
+/// indicates a misconfigured trust anchor.
+#[derive(Debug, Copy, Clone)]
+pub struct InvalidScope;
+
+// FIXME: Default just needed while GenerateDefault is a thing
+#[derive(Debug, defmt::Format, Default)]
 pub struct AllowAll;
 
 impl Scope for AllowAll {
@@ -68,6 +100,13 @@ const AIF_SCOPE_MAX_LEN: usize = 64;
 /// the AIF.
 #[derive(Debug, defmt::Format)]
 pub struct AifValue([u8; AIF_SCOPE_MAX_LEN]);
+
+// FIXME: Default just needed while GenerateDefault is a thing
+impl Default for AifValue {
+    fn default() -> Self {
+        AifValue([0; AIF_SCOPE_MAX_LEN])
+    }
+}
 
 impl Scope for AifValue {
     fn request_is_allowed<M: ReadableMessage>(&self, request: &M) -> bool {
@@ -144,6 +183,36 @@ impl Scope for AifValue {
 
     fn is_admin(&self) -> bool {
         self.0[0] >= 0x83
+    }
+}
+
+/// A scope generator that parses the scope's bytes as AIF, accepting any value.
+pub struct ParsingAif;
+
+impl ScopeGenerator for ParsingAif {
+    type Scope = AifValue;
+
+    fn from_token_scope(self, bytes: &[u8]) -> Result<Self::Scope, InvalidScope> {
+        let mut buffer = [0; AIF_SCOPE_MAX_LEN];
+
+        if bytes.len() <= buffer.len() {
+            buffer[..bytes.len()].copy_from_slice(bytes);
+        } else {
+            return Err(InvalidScope);
+        }
+
+        let mut decoder = minicbor::Decoder::new(bytes);
+        for item in decoder
+            .array_iter::<(&str, u32)>()
+            .map_err(|_| InvalidScope)?
+        {
+            let (path, mask) = item.map_err(|_| InvalidScope)?;
+            if !path.starts_with("/") {
+                return Err(InvalidScope);
+            }
+        }
+
+        Ok(AifValue(buffer))
     }
 }
 

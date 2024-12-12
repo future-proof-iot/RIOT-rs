@@ -19,6 +19,12 @@ pub trait AsDescription {
     /// paths.
     const IS_EMPTY: bool;
 
+    /// The way scopes issued with this system as audience by this AS are expressed here.
+    type Scope: crate::scope::Scope;
+    // Can't `-> Result<impl ..., _>` here because that would capture lifetimes we don't want
+    // captured
+    type ScopeGenerator: crate::scope::ScopeGenerator<Scope = Self::Scope>;
+
     /// Unprotect a symmetriclly encrypted token.
     ///
     /// It would be preferable to return a decryption key and let the `ace` module do the
@@ -33,25 +39,23 @@ pub trait AsDescription {
     /// latter is not on the latest heaples version in its released version.
     ///
     /// On success, the ciphertext_buffer contains the decrypted and verified plaintext.
-    ///
-    /// # Evolution
-    ///
-    /// * Rather than report OK, might this return a closure that maps the decrypted token to an
-    ///   application scope? (This would be useful if one wanted to have an AS that uses different
-    ///   scope expressions, or is not authorized to issue the full value space of the
-    ///   applications' scope type).
     #[allow(
         unused_variables,
         reason = "Names are human visible part of API description"
     )]
     // Note that due to the unnameability of the `HeaderMap` type by outside crates, this is
     // effectively sealed, even though there is no need to seal the whole trait.
+    //
+    // Note that even though this is dressed as a decrypt-then-read-scope step, tricks such as
+    // using ACE-OSCORE with constant short tokens that stand in for known contexts still works --
+    // as long as the stored data is small enough to fit in the heapless buffer, where nothing
+    // keeps the implementation from expanding data rather than trimming off a signature.
     fn decrypt_symmetric_token<const N: usize>(
         &self,
         headers: &HeaderMap,
         aad: &[u8],
         ciphertext_buffer: &mut heapless::Vec<u8, N>,
-    ) -> Result<(), DecryptionError> {
+    ) -> Result<Self::ScopeGenerator, DecryptionError> {
         Err(DecryptionError::NoKeyFound)
     }
 }
@@ -61,35 +65,80 @@ pub trait AsDescription {
 ///
 /// It's convention to have a single A1 and then another chain in A2 or an [`Empty`], but that's
 /// mainly becuse that version is easiy to construct
-pub struct AsChain<A1: AsDescription, A2: AsDescription> {
+pub struct AsChain<A1, A2, Scope> {
     a1: A1,
     a2: A2,
+    _phantom: core::marker::PhantomData<Scope>,
 }
 
-impl<A1: AsDescription, A2: AsDescription> AsChain<A1, A2> {
+impl<A1, A2, Scope> AsChain<A1, A2, Scope> {
     pub fn chain(head: A1, tail: A2) -> Self {
-        AsChain { a1: head, a2: tail }
+        AsChain {
+            a1: head,
+            a2: tail,
+            _phantom: Default::default(),
+        }
     }
 }
 
-impl<A1: AsDescription, A2: AsDescription> AsDescription for AsChain<A1, A2> {
+// FIXME: seal
+pub enum EitherScopeGenerator<SG1, SG2, Scope> {
+    First(SG1),
+    Second(SG2),
+    Phantom(core::convert::Infallible, core::marker::PhantomData<Scope>),
+}
+
+impl<SG1, SG2, Scope> crate::scope::ScopeGenerator for EitherScopeGenerator<SG1, SG2, Scope>
+where
+    Scope: crate::scope::Scope,
+    SG1: crate::scope::ScopeGenerator,
+    SG2: crate::scope::ScopeGenerator,
+    SG1::Scope: Into<Scope>,
+    SG2::Scope: Into<Scope>,
+{
+    type Scope = Scope;
+
+    fn from_token_scope(self, bytes: &[u8]) -> Result<Self::Scope, crate::scope::InvalidScope> {
+        Ok(match self {
+            EitherScopeGenerator::First(gen) => gen.from_token_scope(bytes)?.into(),
+            EitherScopeGenerator::Second(gen) => gen.from_token_scope(bytes)?.into(),
+            EitherScopeGenerator::Phantom(infallible, _) => match infallible {},
+        })
+    }
+}
+
+impl<A1, A2, Scope> AsDescription for AsChain<A1, A2, Scope>
+where
+    A1: AsDescription,
+    A2: AsDescription,
+    Scope: crate::scope::Scope,
+    A1::Scope: Into<Scope>,
+    A2::Scope: Into<Scope>,
+{
     const IS_EMPTY: bool = A1::IS_EMPTY && A2::IS_EMPTY;
+
+    type Scope = Scope;
+    type ScopeGenerator = EitherScopeGenerator<A1::ScopeGenerator, A2::ScopeGenerator, Self::Scope>;
 
     fn decrypt_symmetric_token<const N: usize>(
         &self,
         headers: &HeaderMap,
         aad: &[u8],
         ciphertext_buffer: &mut heapless::Vec<u8, N>,
-    ) -> Result<(), DecryptionError> {
-        if self
+    ) -> Result<Self::ScopeGenerator, DecryptionError> {
+        if let Ok(sg) = self
             .a1
             .decrypt_symmetric_token(headers, aad, ciphertext_buffer)
-            .is_ok()
         {
-            return Ok(());
+            return Ok(EitherScopeGenerator::First(sg));
         }
-        self.a2
+        match self
+            .a2
             .decrypt_symmetric_token(headers, aad, ciphertext_buffer)
+        {
+            Ok(sg) => Ok(EitherScopeGenerator::Second(sg)),
+            Err(e) => Err(e),
+        }
     }
 }
 
@@ -98,10 +147,32 @@ pub struct Empty;
 
 impl AsDescription for Empty {
     const IS_EMPTY: bool = true;
+
+    type Scope = core::convert::Infallible;
+    type ScopeGenerator = core::convert::Infallible;
+}
+
+/// A transition helper
+#[derive(Default)]
+pub struct GenerateDefault<Scope>(core::marker::PhantomData<Scope>);
+
+impl<Scope: crate::scope::Scope + Default> AsDescription for GenerateDefault<Scope> {
+    const IS_EMPTY: bool = true;
+
+    type Scope = Scope;
+    type ScopeGenerator = Self;
+}
+
+impl<Scope: crate::scope::Scope + Default> crate::scope::ScopeGenerator for GenerateDefault<Scope> {
+    type Scope = Scope;
+
+    fn from_token_scope(self, bytes: &[u8]) -> Result<Self::Scope, crate::scope::InvalidScope> {
+        Ok(Default::default())
+    }
 }
 
 /// A test AS association that does not need to deal with key IDs and just tries a single static
-/// key with a single algorithm.
+/// key with a single algorithm, and parses the scope in there as AIF.
 pub struct StaticSymmetric31 {
     key: &'static [u8; 32],
 }
@@ -115,12 +186,15 @@ impl StaticSymmetric31 {
 impl AsDescription for StaticSymmetric31 {
     const IS_EMPTY: bool = false;
 
+    type Scope = crate::scope::AifValue;
+    type ScopeGenerator = crate::scope::ParsingAif;
+
     fn decrypt_symmetric_token<const N: usize>(
         &self,
         headers: &HeaderMap,
         aad: &[u8],
         ciphertext_buffer: &mut heapless::Vec<u8, N>,
-    ) -> Result<(), DecryptionError> {
+    ) -> Result<Self::ScopeGenerator, DecryptionError> {
         use ccm::aead::AeadInPlace;
         use ccm::KeyInit;
 
@@ -162,6 +236,6 @@ impl AsDescription for StaticSymmetric31 {
 
         ciphertext_buffer.truncate(ciphertext_len);
 
-        Ok(())
+        Ok(crate::scope::ParsingAif)
     }
 }
