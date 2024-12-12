@@ -57,7 +57,7 @@ fn flash_range_from_linker() -> Range<u32> {
 fn init_(p: &mut OptionalPeripherals) {
     use ariel_os_debug::log::info;
     let flash_range = flash_range_from_linker();
-    info!("storage: using flash range {}", &flash_range);
+    info!("storage: using flash range {:#x}", &flash_range);
 
     let flash = flash_init(p);
     let _ = STORAGE.init(Mutex::new(Storage::new(flash, flash_range)));
