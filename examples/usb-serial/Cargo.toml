@@ -9,8 +9,5 @@ publish = false
 workspace = true
 
 [dependencies]
-ariel-os = { path = "../../src/ariel-os", features = [
-  "override-usb-config",
-  "usb",
-] }
+ariel-os = { path = "../../src/ariel-os", features = ["override-usb-config"] }
 ariel-os-boards = { path = "../../src/ariel-os-boards" }

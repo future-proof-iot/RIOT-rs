@@ -647,7 +647,7 @@ modules:
     provides_unique:
       - network_device
     selects:
-      - hw/usb-device-port
+      - usb
     conflicts:
       # there is an issue on esp32s3, the only esp32 that we have usb support for.
       - xtensa
@@ -655,6 +655,14 @@ modules:
       global:
         FEATURES:
           - ariel-os/usb-ethernet
+
+  - name: usb
+    selects:
+      - hw/usb-device-port
+    env:
+      global:
+        FEATURES:
+          - ariel-os/usb
 
   - name: hw/usb-device-port
     help: provided if a device has a USB device port wired up
