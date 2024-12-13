@@ -45,6 +45,7 @@ jobs:
                 -p ariel-os-embassy \
                 -p ariel-os-embassy-common \
                 -p ariel-os-identity \
+                -p ariel-os-log \
                 -p ariel-os-macros \
                 -p ariel-os-runqueue \
                 -p ariel-os-threads \
@@ -163,6 +164,7 @@ jobs:
             -p ariel-os-embassy-common
             -p ariel-os-hal
             -p ariel-os-identity
+            -p ariel-os-log
             -p ariel-os-macros
             -p ariel-os-random
             -p ariel-os-rt

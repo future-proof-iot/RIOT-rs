@@ -14,6 +14,9 @@ compile_error!(
     r#"feature "debug-console" enabled but no backend. Select feature "rtt-target" or feature "esp-println"."#
 );
 
+#[doc(inline)]
+pub use ariel_os_log as log;
+
 pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
 pub const EXIT_FAILURE: Result<(), ()> = Err(());
 pub fn exit(code: Result<(), ()>) {
@@ -106,70 +109,3 @@ mod backend {
 }
 
 pub use backend::*;
-
-#[cfg(feature = "defmt")]
-pub mod log {
-    pub use defmt;
-
-    #[macro_export]
-    macro_rules! __trace {
-        ($($arg:tt)*) => {{
-            use $crate::log::defmt;
-            defmt::trace!($($arg)*);
-        }};
-    }
-
-    #[macro_export]
-    macro_rules! __debug {
-        ($($arg:tt)*) => {{
-            use $crate::log::defmt;
-            defmt::debug!($($arg)*);
-        }};
-    }
-
-    #[macro_export]
-    macro_rules! __info {
-        ($($arg:tt)*) => {{
-            use $crate::log::defmt;
-            defmt::info!($($arg)*);
-        }};
-    }
-
-    #[macro_export]
-    macro_rules! __warn {
-        ($($arg:tt)*) => {{
-            use $crate::log::defmt;
-            defmt::warn!($($arg)*);
-        }};
-    }
-
-    #[macro_export]
-    macro_rules! __error {
-        ($($arg:tt)*) => {{
-            use $crate::log::defmt;
-            defmt::error!($($arg)*);
-        }};
-    }
-
-    pub use __debug as debug;
-    pub use __error as error;
-    pub use __info as info;
-    pub use __trace as trace;
-    pub use __warn as warn;
-}
-
-#[cfg(not(feature = "defmt"))]
-pub mod log {
-    #[macro_export]
-    macro_rules! __stub {
-        ($($arg:tt)*) => {{
-            let _ = ($($arg)*); // Do nothing
-        }};
-    }
-
-    pub use __stub as debug;
-    pub use __stub as error;
-    pub use __stub as info;
-    pub use __stub as trace;
-    pub use __stub as warn;
-}
