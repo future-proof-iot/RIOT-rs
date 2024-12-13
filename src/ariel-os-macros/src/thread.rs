@@ -82,6 +82,7 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
         #[inline(always)]
         #thread_function
 
+        #[allow(non_snake_case)]
         fn #trampoline_function_name() {
             #maybe_wait_for_start_event;
             #fn_name()
