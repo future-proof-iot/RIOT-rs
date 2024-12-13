@@ -18,7 +18,7 @@ pub mod defmt {
         pub use defmt;
     }
 
-    pub use defmt::{Debug2Format, Display2Format};
+    pub use defmt::{Debug2Format, Display2Format, Format};
 }
 
 // The declarative macros are required because the defmt macros expect defmt to be in scope.
