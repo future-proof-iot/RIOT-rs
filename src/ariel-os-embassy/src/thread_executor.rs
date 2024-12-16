@@ -23,6 +23,7 @@ fn __pender(context: *mut ()) {
 
 /// Thread mode executor for Ariel OS threads.
 pub struct Executor {
+    // Do not call methods on this other before `run()` has called `inner::initialize()`!
     inner: raw::Executor,
     // This executor is tied to a specific thread by storing the `ThreadId` inside
     // the inner `raw::Executor`. It thus cannot be `Send`.
@@ -64,6 +65,12 @@ impl Executor {
     /// - a `static mut` (unsafe)
     /// - a local variable in a function you know never returns (like `fn main() -> !`), upgrading its lifetime with `transmute`. (unsafe)
     pub fn run(&'static mut self, init: impl FnOnce(Spawner)) -> ! {
+        // Safety: 1. `&'static mut self` ensures this is only called once, 2. `ThreadExecutor`
+        // does not call functions on `inner` before this.
+        unsafe {
+            self.inner.initialize();
+        }
+
         init(self.inner.spawner());
 
         loop {
