@@ -329,7 +329,12 @@ pub fn process_acecbor_authz_info<Scope>(
             .map_err(|_| minicbor::decode::Error::message("Token too long to decrypt"))?;
 
     let scope_generator = authorities
-        .decrypt_symmetric_token(&headers, &aad_encoded, &mut ciphertext_buffer)
+        .decrypt_symmetric_token(
+            &headers,
+            &aad_encoded,
+            &mut ciphertext_buffer,
+            crate::PrivateMethod,
+        )
         .map_err(|_| minicbor::decode::Error::message("Decryption failed"))?;
 
     let claims: CwtClaimsSet = minicbor::decode(ciphertext_buffer.as_slice())?;

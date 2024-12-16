@@ -12,7 +12,7 @@ pub enum DecryptionError {
 }
 
 /// A single or collection of authorization servers that a handler trusts to create ACE tokens.
-pub trait ServerSecurityConfig {
+pub trait ServerSecurityConfig: crate::Sealed {
     /// True if the type will at any time need to process tokens at /authz-info
     ///
     /// This is used by the handler implementation to shortcut through some message processing
@@ -43,18 +43,14 @@ pub trait ServerSecurityConfig {
         unused_variables,
         reason = "Names are human visible part of API description"
     )]
-    // Note that due to the unnameability of the `HeaderMap` type by outside crates, this is
-    // effectively sealed, even though there is no need to seal the whole trait.
-    //
-    // Note that even though this is dressed as a decrypt-then-read-scope step, tricks such as
-    // using ACE-OSCORE with constant short tokens that stand in for known contexts still works --
-    // as long as the stored data is small enough to fit in the heapless buffer, where nothing
-    // keeps the implementation from expanding data rather than trimming off a signature.
+    // The method is already sealed by the use of a HeaderMap, but that may become more public over
+    // time, and that should not impct this method's publicness.
     fn decrypt_symmetric_token<const N: usize>(
         &self,
         headers: &HeaderMap,
         aad: &[u8],
         ciphertext_buffer: &mut heapless::Vec<u8, N>,
+        _: crate::PrivateMethod,
     ) -> Result<Self::ScopeGenerator, DecryptionError> {
         Err(DecryptionError::NoKeyFound)
     }
@@ -127,6 +123,8 @@ where
     }
 }
 
+impl<A1, A2, Scope> crate::Sealed for AsChain<A1, A2, Scope> {}
+
 impl<A1, A2, Scope> ServerSecurityConfig for AsChain<A1, A2, Scope>
 where
     A1: ServerSecurityConfig,
@@ -145,16 +143,17 @@ where
         headers: &HeaderMap,
         aad: &[u8],
         ciphertext_buffer: &mut heapless::Vec<u8, N>,
+        _priv: crate::PrivateMethod,
     ) -> Result<Self::ScopeGenerator, DecryptionError> {
         if let Ok(sg) = self
             .a1
-            .decrypt_symmetric_token(headers, aad, ciphertext_buffer)
+            .decrypt_symmetric_token(headers, aad, ciphertext_buffer, _priv)
         {
             return Ok(EitherScopeGenerator::First(sg));
         }
         match self
             .a2
-            .decrypt_symmetric_token(headers, aad, ciphertext_buffer)
+            .decrypt_symmetric_token(headers, aad, ciphertext_buffer, _priv)
         {
             Ok(sg) => Ok(EitherScopeGenerator::Second(sg)),
             Err(e) => Err(e),
@@ -171,6 +170,8 @@ where
 
 /// The empty set of authorization servers.
 pub struct DenyAll;
+
+impl crate::Sealed for DenyAll {}
 
 impl ServerSecurityConfig for DenyAll {
     const PARSES_TOKENS: bool = false;
@@ -197,6 +198,8 @@ impl<Scope: crate::scope::Scope> crate::scope::ScopeGenerator for NullGenerator<
 /// An SSC representing unconditionally allowed access, including unencrypted.
 pub struct AllowAll;
 
+impl crate::Sealed for AllowAll {}
+
 impl ServerSecurityConfig for AllowAll {
     const PARSES_TOKENS: bool = false;
 
@@ -209,6 +212,8 @@ impl ServerSecurityConfig for AllowAll {
 }
 
 pub struct GenerateArbitrary;
+
+impl crate::Sealed for GenerateArbitrary {}
 
 impl ServerSecurityConfig for GenerateArbitrary {
     const PARSES_TOKENS: bool = false;
@@ -250,6 +255,7 @@ impl StaticSymmetric31 {
         }
     }
 }
+impl crate::Sealed for StaticSymmetric31 {}
 
 impl ServerSecurityConfig for StaticSymmetric31 {
     const PARSES_TOKENS: bool = true;
@@ -262,6 +268,7 @@ impl ServerSecurityConfig for StaticSymmetric31 {
         headers: &HeaderMap,
         aad: &[u8],
         ciphertext_buffer: &mut heapless::Vec<u8, N>,
+        _: crate::PrivateMethod,
     ) -> Result<Self::ScopeGenerator, DecryptionError> {
         use ccm::aead::AeadInPlace;
         use ccm::KeyInit;

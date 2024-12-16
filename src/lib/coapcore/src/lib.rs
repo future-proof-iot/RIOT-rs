@@ -24,6 +24,9 @@
 #![no_std]
 #![cfg_attr(feature = "_nightly_docs", feature(doc_auto_cfg))]
 
+mod sealed;
+use sealed::{PrivateMethod, Sealed};
+
 mod ace;
 pub mod scope;
 pub mod seccfg;
