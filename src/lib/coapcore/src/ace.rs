@@ -4,7 +4,7 @@
 //! <https://github.com/namib-project/dcaf-rs/issues/29>.
 //!
 //! The module is private, but contains a few pub items so that they can be used in the
-//! [`authorization_server`][crate::authorization_server] crate on sealed traits.
+//! [`seccfg`][crate::seccfg] crate on sealed traits.
 
 use defmt_or_log::trace;
 
@@ -263,7 +263,7 @@ impl AceCborAuthzInfoResponse {
 ///   call duration.
 pub fn process_acecbor_authz_info<Scope>(
     payload: &[u8],
-    authorities: &impl crate::authorization_server::AsDescription<Scope = Scope>,
+    authorities: &impl crate::seccfg::ServerSecurityConfig<Scope = Scope>,
     nonce2: [u8; OWN_NONCE_LEN],
     server_recipient_id: impl FnOnce(&[u8]) -> COwn,
 ) -> Result<(AceCborAuthzInfoResponse, Scope, liboscore::PrimitiveContext), minicbor::decode::Error>

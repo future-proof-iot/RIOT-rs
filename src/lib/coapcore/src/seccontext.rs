@@ -5,7 +5,7 @@ use coap_message::{
 use coap_message_utils::{Error as CoAPError, OptionsExt as _};
 use defmt_or_log::{error, info, Debug2Format};
 
-use crate::authorization_server::AsDescription;
+use crate::seccfg::ServerSecurityConfig;
 
 use crate::scope::Scope;
 
@@ -99,7 +99,7 @@ type OscoreOption = heapless::Vec<u8, 16>;
 
 struct SecContextState<Crypto: lakers::Crypto, Authorization: Scope> {
     // FIXME: Should also include timeout. How do? Store expiry, do raytime in not-even-RTC mode,
-    // and whenever there is a new time stamp from AS, remove old ones?
+    // and whenever there is a new time stamp from SSC, remove old ones?
 
     // This is Some(...) unless the stage is unusable.
     authorization: Option<Authorization>,
@@ -203,16 +203,16 @@ pub struct OscoreEdhocHandler<
     H: coap_handler::Handler,
     Crypto: lakers::Crypto,
     CryptoFactory: Fn() -> Crypto,
-    AS: AsDescription,
+    SSC: ServerSecurityConfig,
     RNG: rand_core::RngCore + rand_core::CryptoRng,
 > {
     // It'd be tempted to have sharing among multiple handlers for multiple CoAP stacks, but
     // locks for such sharing could still be acquired in a factory (at which point it may make
     // sense to make this a &mut).
-    pool: SecContextPool<Crypto, AS::Scope>,
+    pool: SecContextPool<Crypto, SSC::Scope>,
     own_identity: (&'a lakers::Credential, &'a lakers::BytesP256ElemLen),
 
-    authorities: AS,
+    authorities: SSC,
 
     // FIXME: This currently bakes in the assumption that there is a single tree both for
     // unencrypted and encrypted resources. We may later generalize this by making this a factory,
@@ -235,12 +235,12 @@ impl<
         Crypto: lakers::Crypto,
         CryptoFactory: Fn() -> Crypto,
         RNG: rand_core::RngCore + rand_core::CryptoRng,
-    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::DenyAll, RNG>
+    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::seccfg::DenyAll, RNG>
 {
     /// Create a new CoAP server implementation (a [Handler][coap_handler::Handler]).
     ///
     /// By default, this rejects all requests; access is allowed through builder calls such as
-    /// [`.with_authorization_server()()`][Self::with_authorization_server()] or
+    /// [`.with_seccfg()()`][Self::with_seccfg()] or
     /// [`.allow_all()`][Self::allow_all()].
     // FIXME: Apart from an own identity, this will also need a function to convert ID_CRED_I into
     // a (CRED_I, Scope) pair; this is currently hardcoded in all the places that construct
@@ -250,14 +250,13 @@ impl<
         inner: H,
         crypto_factory: CryptoFactory,
         rng: RNG,
-    ) -> OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::DenyAll, RNG>
-    {
+    ) -> OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::seccfg::DenyAll, RNG> {
         Self {
             pool: Default::default(),
             own_identity,
             inner,
             crypto_factory,
-            authorities: crate::authorization_server::DenyAll,
+            authorities: crate::seccfg::DenyAll,
             rng,
         }
     }
@@ -269,19 +268,18 @@ impl<
         Crypto: lakers::Crypto,
         CryptoFactory: Fn() -> Crypto,
         RNG: rand_core::RngCore + rand_core::CryptoRng,
-    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::DenyAll, RNG>
+    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::seccfg::DenyAll, RNG>
 {
     /// Builds a CoAP server that accepts any request without any authentication.
     pub fn allow_all(
         self,
-    ) -> OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::authorization_server::AllowAll, RNG>
-    {
+    ) -> OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::seccfg::AllowAll, RNG> {
         OscoreEdhocHandler {
             // Starting from DenyAll allows us to diregard any old connections as they couldn't do
             // anything
             pool: Default::default(),
             own_identity: self.own_identity,
-            authorities: crate::authorization_server::AllowAll,
+            authorities: crate::seccfg::AllowAll,
             inner: self.inner,
             crypto_factory: self.crypto_factory,
             rng: self.rng,
@@ -291,20 +289,14 @@ impl<
     /// Builds a CoAP server that behaves like coapcore has behaved in its sketch phase
     pub fn allow_arbitrary(
         self,
-    ) -> OscoreEdhocHandler<
-        'a,
-        H,
-        Crypto,
-        CryptoFactory,
-        crate::authorization_server::GenerateArbitrary,
-        RNG,
-    > {
+    ) -> OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::seccfg::GenerateArbitrary, RNG>
+    {
         OscoreEdhocHandler {
             // Starting from DenyAll allows us to diregard any old connections as they couldn't do
             // anything
             pool: Default::default(),
             own_identity: self.own_identity,
-            authorities: crate::authorization_server::GenerateArbitrary,
+            authorities: crate::seccfg::GenerateArbitrary,
             inner: self.inner,
             crypto_factory: self.crypto_factory,
             rng: self.rng,
@@ -317,14 +309,14 @@ impl<
         H: coap_handler::Handler,
         Crypto: lakers::Crypto,
         CryptoFactory: Fn() -> Crypto,
-        AS: AsDescription,
+        SSC: ServerSecurityConfig,
         RNG: rand_core::RngCore + rand_core::CryptoRng,
-    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, AS, RNG>
+    > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, SSC, RNG>
 {
     /// Adds a new authorization server (or set thereof) to the handler, which is queried before
     /// any other authorization server.
     // Ideally we wouldn't statically produce UnionScope but anything smaller depending on AS1/AS2
-    pub fn with_authorization_server<AS1: AsDescription>(
+    pub fn with_seccfg<AS1: ServerSecurityConfig>(
         self,
         prepended_as: AS1,
     ) -> OscoreEdhocHandler<
@@ -332,18 +324,15 @@ impl<
         H,
         Crypto,
         CryptoFactory,
-        crate::authorization_server::AsChain<AS1, AS, crate::scope::UnionScope>,
+        crate::seccfg::AsChain<AS1, SSC, crate::scope::UnionScope>,
         RNG,
     >
     where
         crate::scope::UnionScope:
-            From<<AS1 as AsDescription>::Scope> + From<<AS as AsDescription>::Scope>,
+            From<<AS1 as ServerSecurityConfig>::Scope> + From<<SSC as ServerSecurityConfig>::Scope>,
     {
         OscoreEdhocHandler {
-            authorities: crate::authorization_server::AsChain::chain(
-                prepended_as,
-                self.authorities,
-            ),
+            authorities: crate::seccfg::AsChain::chain(prepended_as, self.authorities),
             // FIXME: This discards old connections rather than .into()'ing all their scopes.
             pool: Default::default(),
             own_identity: self.own_identity,
@@ -625,8 +614,8 @@ impl<
     fn process_edhoc_in_payload(
         &self,
         payload: &[u8],
-        sec_context_state: SecContextState<Crypto, AS::Scope>,
-    ) -> Result<(SecContextState<Crypto, AS::Scope>, usize), CoAPError> {
+        sec_context_state: SecContextState<Crypto, SSC::Scope>,
+    ) -> Result<(SecContextState<Crypto, SSC::Scope>, usize), CoAPError> {
         // We're not supporting block-wise here -- but could later, to the extent we support
         // outer block-wise.
 
@@ -985,9 +974,9 @@ impl<
         H: coap_handler::Handler,
         Crypto: lakers::Crypto,
         CryptoFactory: Fn() -> Crypto,
-        AS: AsDescription,
+        SSC: ServerSecurityConfig,
         RNG: rand_core::RngCore + rand_core::CryptoRng,
-    > coap_handler::Handler for OscoreEdhocHandler<'_, H, Crypto, CryptoFactory, AS, RNG>
+    > coap_handler::Handler for OscoreEdhocHandler<'_, H, Crypto, CryptoFactory, SSC, RNG>
 {
     type RequestData = OrInner<
         OwnRequestData<Result<H::RequestData, H::ExtractRequestError>>,
@@ -1005,8 +994,8 @@ impl<
         use OrInner::{Inner, Own};
 
         #[derive(Default, Debug)]
-        // AS could be boolean AS_IS_EMPTY but not until feature(generic_const_exprs)
-        enum Recognition<AS: AsDescription> {
+        // SSC could be boolean AS_IS_EMPTY but not until feature(generic_const_exprs)
+        enum Recognition<SSC: ServerSecurityConfig> {
             #[default]
             Start,
             /// Seen an OSCORE option
@@ -1025,14 +1014,14 @@ impl<
             //
             // Also, the PhantomData doesn't actually need to be precisely in here, but it needs to
             // be somewhere.
-            AuthzInfo(core::marker::PhantomData<AS>),
+            AuthzInfo(core::marker::PhantomData<SSC>),
             /// Seen anything else (where the request handler, or more likely the ACL filter, will
             /// trip over the critical options)
             Unencrypted,
         }
         use Recognition::*;
 
-        impl<AS: AsDescription> Recognition<AS> {
+        impl<SSC: ServerSecurityConfig> Recognition<SSC> {
             /// Given a state and an option, produce the next state and whether the option should
             /// be counted as consumed for the purpose of assessing .well-known/edchoc's
             /// ignore_elective_others().
@@ -1047,7 +1036,7 @@ impl<
                         _ => (Start, true),
                     },
                     (Start, option::URI_PATH, b".well-known") => (WellKnown, false),
-                    (Start, option::URI_PATH, b"authz-info") if !AS::IS_EMPTY => {
+                    (Start, option::URI_PATH, b"authz-info") if !SSC::IS_EMPTY => {
                         (AuthzInfo(Default::default()), false)
                     }
                     (Start, option::URI_PATH, _) => (Unencrypted, true /* doesn't matter */),
@@ -1055,10 +1044,10 @@ impl<
                         (Edhoc { oscore }, true /* doesn't matter */)
                     }
                     (WellKnown, option::URI_PATH, b"edhoc") => (WellKnownEdhoc, false),
-                    (AuthzInfo(ai), option::CONTENT_FORMAT, &[19]) if !AS::IS_EMPTY => {
+                    (AuthzInfo(ai), option::CONTENT_FORMAT, &[19]) if !SSC::IS_EMPTY => {
                         (AuthzInfo(ai), false)
                     }
-                    (AuthzInfo(ai), option::ACCEPT, &[19]) if !AS::IS_EMPTY => {
+                    (AuthzInfo(ai), option::ACCEPT, &[19]) if !SSC::IS_EMPTY => {
                         (AuthzInfo(ai), false)
                     }
                     (any, _, _) => (any, true),
@@ -1079,7 +1068,7 @@ impl<
         }
 
         // This will always be Some in practice, just taken while it is being updated.
-        let mut state = Some(Recognition::<AS>::Start);
+        let mut state = Some(Recognition::<SSC>::Start);
 
         // Some small potential for optimization by cutting iteration short on Edhoc, but probably
         // not worth it.
@@ -1130,9 +1119,9 @@ impl<
                 self.extract_edhoc(&request).map(Own).map_err(Own)
             }
             AuthzInfo(_) => {
-                if AS::IS_EMPTY {
+                if SSC::IS_EMPTY {
                     // This makes extract_token and everything down the line effectively dead code on
-                    // setups with empty AS, without triggering clippy's nervous dead code warnigns.
+                    // setups with empty SSC, without triggering clippy's nervous dead code warnigns.
                     //
                     // The compiler should be able to eliminiate even this one statement based on
                     // this variant not being constructed under the same condition, but that

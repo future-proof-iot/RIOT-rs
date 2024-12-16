@@ -25,8 +25,8 @@
 #![cfg_attr(feature = "_nightly_docs", feature(doc_auto_cfg))]
 
 mod ace;
-pub mod authorization_server;
 pub mod scope;
+pub mod seccfg;
 
 // Might warrant a standalone crate at some point
 //

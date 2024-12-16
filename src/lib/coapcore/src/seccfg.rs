@@ -1,5 +1,5 @@
-//! Descriptions of ACE Authorization Servers (AS), as viewed from the Resource Server (RS) which
-//! coapcore runs on.
+//! Descriptions of ACE Authorization Servers (AS) and other trust anchors, as viewed from the
+//! Resource Server (RS) which coapcore runs on.
 
 use crate::ace::HeaderMap;
 
@@ -12,7 +12,7 @@ pub enum DecryptionError {
 }
 
 /// A single or collection of authorization servers that a handler trusts to create ACE tokens.
-pub trait AsDescription {
+pub trait ServerSecurityConfig {
     /// True if the type will never find a token.
     ///
     /// This is used by the handler implementation to shortcut through some message processing
@@ -128,10 +128,10 @@ where
     }
 }
 
-impl<A1, A2, Scope> AsDescription for AsChain<A1, A2, Scope>
+impl<A1, A2, Scope> ServerSecurityConfig for AsChain<A1, A2, Scope>
 where
-    A1: AsDescription,
-    A2: AsDescription,
+    A1: ServerSecurityConfig,
+    A2: ServerSecurityConfig,
     Scope: crate::scope::Scope,
     A1::Scope: Into<Scope>,
     A2::Scope: Into<Scope>,
@@ -173,14 +173,14 @@ where
 /// The empty set of authorization servers.
 pub struct DenyAll;
 
-impl AsDescription for DenyAll {
+impl ServerSecurityConfig for DenyAll {
     const IS_EMPTY: bool = true;
 
     type Scope = core::convert::Infallible;
     type ScopeGenerator = core::convert::Infallible;
 }
 
-/// A ScopeGenerator that can be used on [`AsDescription`] types that don't process tokens
+/// A ScopeGenerator that can be used on [`ServerSecurityConfig`] types that don't process tokens
 pub enum NullGenerator<Scope> {
     _Phantom(core::convert::Infallible, core::marker::PhantomData<Scope>),
 }
@@ -195,10 +195,10 @@ impl<Scope: crate::scope::Scope> crate::scope::ScopeGenerator for NullGenerator<
     }
 }
 
-/// An AS representing unconditionally allowed access, including unencrypted.
+/// An SSC representing unconditionally allowed access, including unencrypted.
 pub struct AllowAll;
 
-impl AsDescription for AllowAll {
+impl ServerSecurityConfig for AllowAll {
     const IS_EMPTY: bool = true;
 
     type Scope = crate::scope::AllowAll;
@@ -211,7 +211,7 @@ impl AsDescription for AllowAll {
 
 pub struct GenerateArbitrary;
 
-impl AsDescription for GenerateArbitrary {
+impl ServerSecurityConfig for GenerateArbitrary {
     const IS_EMPTY: bool = true;
 
     type Scope = crate::scope::AifValue;
@@ -234,7 +234,7 @@ impl AsDescription for GenerateArbitrary {
     }
 }
 
-/// A test AS association that does not need to deal with key IDs and just tries a single static
+/// A test SSC association that does not need to deal with key IDs and just tries a single static
 /// key with a single algorithm, and parses the scope in there as AIF.
 ///
 /// It sends a static response (empty slice is a fine default) on unauthorized responses.
@@ -252,7 +252,7 @@ impl StaticSymmetric31 {
     }
 }
 
-impl AsDescription for StaticSymmetric31 {
+impl ServerSecurityConfig for StaticSymmetric31 {
     const IS_EMPTY: bool = false;
 
     type Scope = crate::scope::AifValue;
