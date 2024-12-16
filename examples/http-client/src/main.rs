@@ -4,16 +4,11 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use ariel_os::{
-    debug::log::*,
-    network,
-    reexports::{embassy_net, embassy_time},
-};
+use ariel_os::{debug::log::*, network, reexports::embassy_net};
 use embassy_net::{
     dns::DnsSocket,
     tcp::client::{TcpClient, TcpClientState},
 };
-use embassy_time::{Duration, Timer};
 use reqwless::{
     client::{HttpClient, TlsConfig, TlsVerify},
     request::Method,
@@ -67,16 +62,13 @@ async fn main() {
 
     let mut client = HttpClient::new_with_tls(&tcp_client, &dns_client, tls_config);
 
-    loop {
-        if let Err(err) = send_http_get_request(&mut client, ENDPOINT_URL).await {
-            error!(
-                "Error while sending an HTTP request: {:?}",
-                defmt::Debug2Format(&err)
-            );
-        }
+    stack.wait_config_up().await;
 
-        // Wait a bit before retrying/sending a new request.
-        Timer::after(Duration::from_secs(3)).await;
+    if let Err(err) = send_http_get_request(&mut client, ENDPOINT_URL).await {
+        error!(
+            "Error while sending an HTTP request: {:?}",
+            defmt::Debug2Format(&err)
+        );
     }
 }
 
@@ -97,7 +89,7 @@ async fn send_http_get_request(
 
     if let Ok(body) = response.body().read_to_end().await {
         if let Ok(body) = core::str::from_utf8(&body) {
-            info!("Response body: {}", body);
+            info!("Response body:\n{}", body);
         } else {
             info!("Received a response body, but it is not valid UTF-8");
         }
