@@ -28,7 +28,7 @@ const HTTP_BUFFER_SIZE: usize = 1024;
 const MAX_CONCURRENT_CONNECTIONS: usize = 2;
 
 // Endpoint to send the GET request to.
-const ENDPOINT_URL: &str = env!("ENDPOINT_URL");
+const ENDPOINT_URL: Option<&str> = option_env!("ENDPOINT_URL");
 
 #[ariel_os::config(network)]
 const NETWORK_CONFIG: embassy_net::Config = {
@@ -64,7 +64,8 @@ async fn main() {
 
     stack.wait_config_up().await;
 
-    if let Err(err) = send_http_get_request(&mut client, ENDPOINT_URL).await {
+    let url = ENDPOINT_URL.unwrap_or("https://crab.ariel-os.org");
+    if let Err(err) = send_http_get_request(&mut client, url).await {
         error!(
             "Error while sending an HTTP request: {:?}",
             defmt::Debug2Format(&err)
