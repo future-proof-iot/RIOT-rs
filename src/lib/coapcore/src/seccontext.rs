@@ -13,8 +13,7 @@ const MAX_CONTEXTS: usize = 4;
 const _MAX_CONTEXTS_CHECK: () = assert!(MAX_CONTEXTS <= COwn::GENERATABLE_VALUES);
 
 /// A pool of security contexts shareable by several users inside a thread.
-#[expect(private_interfaces, reason = "should be addressed eventually")]
-pub type SecContextPool<Crypto, Authorization> =
+type SecContextPool<Crypto, Authorization> =
     crate::oluru::OrderedPool<SecContextState<Crypto, Authorization>, MAX_CONTEXTS, LEVEL_COUNT>;
 
 /// Copy of the OSCORE option
