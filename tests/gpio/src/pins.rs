@@ -1,7 +1,7 @@
 use ariel_os::hal::peripherals;
 
 #[cfg(context = "nrf52")]
-ariel_os::define_peripherals!(Peripherals {
+ariel_os::hal::define_peripherals!(Peripherals {
     pin_0: P0_00,
     pin_1: P0_01,
     pin_2: P0_02,
@@ -9,7 +9,7 @@ ariel_os::define_peripherals!(Peripherals {
 });
 
 #[cfg(context = "nrf5340")]
-ariel_os::define_peripherals!(Peripherals {
+ariel_os::hal::define_peripherals!(Peripherals {
     pin_0: P0_00,
     pin_1: P0_01,
     pin_2: P0_04,
@@ -17,7 +17,7 @@ ariel_os::define_peripherals!(Peripherals {
 });
 
 #[cfg(context = "rp2040")]
-ariel_os::define_peripherals!(Peripherals {
+ariel_os::hal::define_peripherals!(Peripherals {
     pin_0: PIN_0,
     pin_1: PIN_1,
     pin_2: PIN_2,
@@ -25,7 +25,7 @@ ariel_os::define_peripherals!(Peripherals {
 });
 
 #[cfg(context = "esp32")]
-ariel_os::define_peripherals!(Peripherals {
+ariel_os::hal::define_peripherals!(Peripherals {
     pin_0: GPIO_16,
     pin_1: GPIO_17,
     pin_2: GPIO_18,
@@ -33,7 +33,7 @@ ariel_os::define_peripherals!(Peripherals {
 });
 
 #[cfg(all(context = "esp", not(context = "esp32")))]
-ariel_os::define_peripherals!(Peripherals {
+ariel_os::hal::define_peripherals!(Peripherals {
     pin_0: GPIO_0,
     pin_1: GPIO_1,
     pin_2: GPIO_2,
@@ -41,7 +41,7 @@ ariel_os::define_peripherals!(Peripherals {
 });
 
 #[cfg(context = "stm32")]
-ariel_os::define_peripherals!(Peripherals {
+ariel_os::hal::define_peripherals!(Peripherals {
     pin_0: PA0,
     pin_1: PA1,
     pin_2: PA2,
