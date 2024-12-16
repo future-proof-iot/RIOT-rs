@@ -4,7 +4,11 @@
 #![feature(type_alias_impl_trait)]
 #![feature(used_with_arg)]
 
-use ariel_os::{debug::log::*, network, reexports::embassy_net};
+use ariel_os::{
+    debug::{exit, log::*, EXIT_SUCCESS},
+    network,
+    reexports::embassy_net,
+};
 use embassy_net::{
     dns::DnsSocket,
     tcp::client::{TcpClient, TcpClientState},
@@ -71,6 +75,8 @@ async fn main() {
             defmt::Debug2Format(&err)
         );
     }
+
+    exit(EXIT_SUCCESS);
 }
 
 async fn send_http_get_request(
