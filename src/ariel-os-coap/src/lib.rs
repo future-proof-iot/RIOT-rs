@@ -15,7 +15,6 @@ mod udp_nal;
 use ariel_os_debug::log::info;
 use ariel_os_embassy::sendcell::SendCell;
 use coap_handler_implementations::ReportingHandlerBuilder;
-use coapcore::seccontext;
 use embassy_net::udp::{PacketMetadata, UdpSocket};
 use embassy_sync::once_lock::OnceLock;
 use static_cell::StaticCell;
@@ -72,7 +71,7 @@ pub async fn coap_run(handler: impl coap_handler::Handler + coap_handler::Report
     // FIXME: Should we allow users to override that? After all, this is just convenience and may
     // be limiting in special applications.
     let handler = handler.with_wkc();
-    let mut handler = seccontext::OscoreEdhocHandler::new(
+    let mut handler = coapcore::OscoreEdhocHandler::new(
         own_identity,
         handler,
         || lakers_crypto_rustcrypto::Crypto::new(ariel_os_random::crypto_rng()),

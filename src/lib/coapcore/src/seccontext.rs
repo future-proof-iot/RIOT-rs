@@ -1,3 +1,5 @@
+//! The main workhorse module of this crate.
+
 use coap_message::{
     error::RenderableOnMinimal, Code, MessageOption, MinimalWritableMessage,
     MutableWritableMessage, ReadableMessage,
