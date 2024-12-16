@@ -994,7 +994,7 @@ impl<
         use OrInner::{Inner, Own};
 
         #[derive(Default, Debug)]
-        // SSC could be boolean AS_IS_EMPTY but not until feature(generic_const_exprs)
+        // SSC could be boolean AS_PARSES_TOKENS but not until feature(generic_const_exprs)
         enum Recognition<SSC: ServerSecurityConfig> {
             #[default]
             Start,
@@ -1009,7 +1009,7 @@ impl<
             /// Seen path "authz-info"
             // FIXME: Should we allow arbitrary paths here?
             //
-            // Also, in the IS_EMPTY case, this would ideally be marked uninhabitable, but that's
+            // Also, in the !PARSES_TOKENS case, this would ideally be marked uninhabitable, but that's
             // hard to express in associated types and functions.
             //
             // Also, the PhantomData doesn't actually need to be precisely in here, but it needs to
@@ -1036,7 +1036,7 @@ impl<
                         _ => (Start, true),
                     },
                     (Start, option::URI_PATH, b".well-known") => (WellKnown, false),
-                    (Start, option::URI_PATH, b"authz-info") if !SSC::IS_EMPTY => {
+                    (Start, option::URI_PATH, b"authz-info") if SSC::PARSES_TOKENS => {
                         (AuthzInfo(Default::default()), false)
                     }
                     (Start, option::URI_PATH, _) => (Unencrypted, true /* doesn't matter */),
@@ -1044,10 +1044,10 @@ impl<
                         (Edhoc { oscore }, true /* doesn't matter */)
                     }
                     (WellKnown, option::URI_PATH, b"edhoc") => (WellKnownEdhoc, false),
-                    (AuthzInfo(ai), option::CONTENT_FORMAT, &[19]) if !SSC::IS_EMPTY => {
+                    (AuthzInfo(ai), option::CONTENT_FORMAT, &[19]) if SSC::PARSES_TOKENS => {
                         (AuthzInfo(ai), false)
                     }
-                    (AuthzInfo(ai), option::ACCEPT, &[19]) if !SSC::IS_EMPTY => {
+                    (AuthzInfo(ai), option::ACCEPT, &[19]) if SSC::PARSES_TOKENS => {
                         (AuthzInfo(ai), false)
                     }
                     (any, _, _) => (any, true),
@@ -1119,7 +1119,7 @@ impl<
                 self.extract_edhoc(&request).map(Own).map_err(Own)
             }
             AuthzInfo(_) => {
-                if SSC::IS_EMPTY {
+                if !SSC::PARSES_TOKENS {
                     // This makes extract_token and everything down the line effectively dead code on
                     // setups with empty SSC, without triggering clippy's nervous dead code warnigns.
                     //

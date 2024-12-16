@@ -13,12 +13,11 @@ pub enum DecryptionError {
 
 /// A single or collection of authorization servers that a handler trusts to create ACE tokens.
 pub trait ServerSecurityConfig {
-    /// True if the type will never find a token.
+    /// True if the type will at any time need to process tokens at /authz-info
     ///
     /// This is used by the handler implementation to shortcut through some message processing
     /// paths.
-    // FIXME: Rename to "never *parses* one"
-    const IS_EMPTY: bool;
+    const PARSES_TOKENS: bool;
 
     /// The way scopes issued with this system as audience by this AS are expressed here.
     type Scope: crate::scope::Scope;
@@ -136,7 +135,7 @@ where
     A1::Scope: Into<Scope>,
     A2::Scope: Into<Scope>,
 {
-    const IS_EMPTY: bool = A1::IS_EMPTY && A2::IS_EMPTY;
+    const PARSES_TOKENS: bool = A1::PARSES_TOKENS || A2::PARSES_TOKENS;
 
     type Scope = Scope;
     type ScopeGenerator = EitherScopeGenerator<A1::ScopeGenerator, A2::ScopeGenerator, Self::Scope>;
@@ -174,7 +173,7 @@ where
 pub struct DenyAll;
 
 impl ServerSecurityConfig for DenyAll {
-    const IS_EMPTY: bool = true;
+    const PARSES_TOKENS: bool = false;
 
     type Scope = core::convert::Infallible;
     type ScopeGenerator = core::convert::Infallible;
@@ -199,7 +198,7 @@ impl<Scope: crate::scope::Scope> crate::scope::ScopeGenerator for NullGenerator<
 pub struct AllowAll;
 
 impl ServerSecurityConfig for AllowAll {
-    const IS_EMPTY: bool = true;
+    const PARSES_TOKENS: bool = false;
 
     type Scope = crate::scope::AllowAll;
     type ScopeGenerator = NullGenerator<Self::Scope>;
@@ -212,7 +211,7 @@ impl ServerSecurityConfig for AllowAll {
 pub struct GenerateArbitrary;
 
 impl ServerSecurityConfig for GenerateArbitrary {
-    const IS_EMPTY: bool = true;
+    const PARSES_TOKENS: bool = false;
 
     type Scope = crate::scope::AifValue;
     type ScopeGenerator = NullGenerator<crate::scope::AifValue>;
@@ -253,7 +252,7 @@ impl StaticSymmetric31 {
 }
 
 impl ServerSecurityConfig for StaticSymmetric31 {
-    const IS_EMPTY: bool = false;
+    const PARSES_TOKENS: bool = true;
 
     type Scope = crate::scope::AifValue;
     type ScopeGenerator = crate::scope::ParsingAif;
