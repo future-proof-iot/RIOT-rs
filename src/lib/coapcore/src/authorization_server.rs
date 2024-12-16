@@ -69,6 +69,13 @@ pub trait AsDescription {
     fn the_one_known_authorization(&self) -> Option<Self::Scope> {
         None
     }
+
+    fn render_not_allowed<M: coap_message::MutableWritableMessage>(
+        &self,
+        message: &mut M,
+    ) -> Result<(), ()> {
+        Err(())
+    }
 }
 
 /// Type list of authorization servers. Any operation is first tried on the first item, then on the
@@ -76,6 +83,9 @@ pub trait AsDescription {
 ///
 /// It's convention to have a single A1 and then another chain in A2 or an [`DenyAll`], but that's
 /// mainly becuse that version is easiy to construct
+///
+/// In case of doubt, the head is used; in particular, it is only the head that gets to render the
+/// unauthorized response.
 pub struct AsChain<A1, A2, Scope> {
     a1: A1,
     a2: A2,
@@ -151,6 +161,13 @@ where
             Err(e) => Err(e),
         }
     }
+
+    fn render_not_allowed<M: coap_message::MutableWritableMessage>(
+        &self,
+        message: &mut M,
+    ) -> Result<(), ()> {
+        self.a1.render_not_allowed(message)
+    }
 }
 
 /// The empty set of authorization servers.
@@ -219,13 +236,19 @@ impl AsDescription for GenerateArbitrary {
 
 /// A test AS association that does not need to deal with key IDs and just tries a single static
 /// key with a single algorithm, and parses the scope in there as AIF.
+///
+/// It sends a static response (empty slice is a fine default) on unauthorized responses.
 pub struct StaticSymmetric31 {
     key: &'static [u8; 32],
+    unauthorized_response: &'static [u8],
 }
 
 impl StaticSymmetric31 {
-    pub fn new(key: &'static [u8; 32]) -> Self {
-        Self { key }
+    pub fn new(key: &'static [u8; 32], unauthorized_response: &'static [u8]) -> Self {
+        Self {
+            key,
+            unauthorized_response,
+        }
     }
 }
 
@@ -283,5 +306,17 @@ impl AsDescription for StaticSymmetric31 {
         ciphertext_buffer.truncate(ciphertext_len);
 
         Ok(crate::scope::ParsingAif)
+    }
+
+    fn render_not_allowed<M: coap_message::MutableWritableMessage>(
+        &self,
+        message: &mut M,
+    ) -> Result<(), ()> {
+        use coap_message::Code;
+        message.set_code(M::Code::new(coap_numbers::code::UNAUTHORIZED).map_err(|_| ())?);
+        message
+            .set_payload(self.unauthorized_response)
+            .map_err(|_| ())?;
+        Ok(())
     }
 }

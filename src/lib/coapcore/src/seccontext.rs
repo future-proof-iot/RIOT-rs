@@ -763,6 +763,20 @@ impl<
     ) -> Result<(), Result<CoAPError, M::UnionError>> {
         response.set_code(M::Code::new(coap_numbers::code::CHANGED).map_err(|x| Err(x.into()))?);
 
+        // BIG FIXME: We have currently no way to rewind through a message once we've started
+        // building it.
+        //
+        // We *could* to some extent rewind if we sent things out in an error, but that error would
+        // need to have a clone of the correlation data, and that means that all our errors would
+        // become much larger than needed, because they all consume own sequence numbers.
+        //
+        // Putting this aside for the moment and accepting that in some few cases there will be
+        // unexpected options from the first attempt to render in the eventual message (in theory
+        // even panics when a payload is already set and then the error adds options), but the
+        // easiest path there is to wait for the next iteration of handler where everything is
+        // async and the handler has a method to start writing to the message (which kind'a
+        // implies rewinding)
+
         self.pool
                     .lookup(|c| c.corresponding_cown() == Some(kid), |matched| {
                         // Not checking authorization any more: we don't even have access to the
@@ -835,9 +849,10 @@ impl<
                                     }
                                 }
                                 AuthorizationChecked::NotAllowed => {
-                                    response.set_code(
-                                        coap_numbers::code::UNAUTHORIZED,
-                                    );
+                                    if self.authorities.render_not_allowed(response).is_err() {
+                                        // FIXME rewind message
+                                        response.set_code(coap_numbers::code::UNAUTHORIZED);
+                                    }
                                 }
                             },
                         )
@@ -1172,10 +1187,9 @@ impl<
                 self.inner.build_response(response, i).map_err(Inner)?
             }
             Inner(AuthorizationChecked::NotAllowed) => {
-                response.set_code(
-                    M::Code::new(coap_numbers::code::UNAUTHORIZED)
-                        .map_err(|x| Own(Err(x.into())))?,
-                );
+                self.authorities
+                    .render_not_allowed(response)
+                    .map_err(|_| Own(Ok(CoAPError::unauthorized())))?;
             }
         };
         Ok(())
