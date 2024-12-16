@@ -1,8 +1,5 @@
 use crate::{cleanup, Arch, Thread, SCHEDULER};
-use core::{
-    arch::{asm, naked_asm},
-    ptr::write_volatile,
-};
+use core::{arch::naked_asm, ptr::write_volatile};
 use cortex_m::peripheral::{scb::SystemHandler, SCB};
 
 #[cfg(not(any(armv6m, armv7m, armv8m)))]
