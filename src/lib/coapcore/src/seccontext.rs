@@ -5,94 +5,17 @@ use coap_message::{
 use coap_message_utils::{Error as CoAPError, OptionsExt as _};
 use defmt_or_log::{error, info, Debug2Format};
 
+use crate::helpers::COwn;
+use crate::scope::Scope;
 use crate::seccfg::ServerSecurityConfig;
 
-use crate::scope::Scope;
-
-// If this exceeds 47, COwn will need to be extended.
 const MAX_CONTEXTS: usize = 4;
+const _MAX_CONTEXTS_CHECK: () = assert!(MAX_CONTEXTS <= COwn::GENERATABLE_VALUES);
 
 /// A pool of security contexts shareable by several users inside a thread.
 #[expect(private_interfaces, reason = "should be addressed eventually")]
 pub type SecContextPool<Crypto, Authorization> =
     crate::oluru::OrderedPool<SecContextState<Crypto, Authorization>, MAX_CONTEXTS, LEVEL_COUNT>;
-
-/// An own identifier for a security context
-///
-/// This is used as C_I when in an initiator role, C_R when in a responder role, and recipient ID
-/// in OSCORE.
-///
-/// This type represents any of the 48 efficient identifiers that use CBOR one-byte integer
-/// encodings (see RFC9528 Section 3.3.2), or equivalently the 1-byte long OSCORE identifiers
-///
-/// Lakers supports a much larger value space for C_x, and coapcore processes larger values
-/// selected by the peer -- but on its own, will select only those that fit in this type.
-// FIXME Could even limit to positive values if MAX_CONTEXTS < 24
-#[cfg_attr(feature = "defmt", derive(defmt::Format))]
-#[derive(Copy, Clone, PartialEq, Debug)]
-pub(crate) struct COwn(u8);
-
-impl COwn {
-    /// Maximum length of [`Self::as_slice`].
-    ///
-    /// This is exposed to allow sizing stack allocated buffers.
-    pub(crate) const MAX_SLICE_LEN: usize = 1;
-
-    /// Find a value of self that is not found in the iterator.
-    ///
-    /// This asserts that the iterator is (known to be) short enough that this will always succeed.
-    fn not_in_iter(iterator: impl Iterator<Item = Self>) -> Self {
-        // In theory, this would allow the compiler to see that the unreachable below is indeed
-        // unreachable
-        assert!(
-            iterator.size_hint().1.is_some_and(|v| v < 48),
-            "Too many slots to reliably assign connection identifier"
-        );
-        let mut seen_pos = 0u32;
-        let mut seen_neg = 0u32;
-        for i in iterator {
-            let major = i.0 >> 5;
-            // Let's not make unsafe assumptions on the own value range
-            let target = if major == 0 {
-                &mut seen_pos
-            } else {
-                &mut seen_neg
-            };
-            // Convenienlty, masking to the minor part puts us in the very range that allows u32
-            // shifting
-            *target |= 1 << (i.0 & 0x1f);
-        }
-        // trailing_ones = n implies that bit 1<<n is a zero and thus COwn(n) is free
-        let pos_to = seen_pos.trailing_ones();
-        if pos_to < 24 {
-            return Self(pos_to as u8);
-        }
-        let neg_to = seen_neg.trailing_ones();
-        if neg_to < 24 {
-            return Self(0x20 | neg_to as u8);
-        }
-        unreachable!("Iterator is not long enough to set this many bits.");
-    }
-
-    /// Given an OSCORE Key ID (kid), find the corresponding context identifier value
-    fn from_kid(kid: &[u8]) -> Option<Self> {
-        match kid {
-            [first] if *first <= 0x17 || (*first >= 0x20 && *first <= 0x37) => Some(Self(*first)),
-            _ => None,
-        }
-    }
-
-    pub(crate) fn as_slice(&self) -> &[u8] {
-        core::slice::from_ref(&self.0)
-    }
-}
-
-impl From<COwn> for lakers::ConnId {
-    fn from(cown: COwn) -> Self {
-        lakers::ConnId::from_slice(cown.as_slice())
-            .expect("ConnId is always big enough for at least COwn")
-    }
-}
 
 /// Copy of the OSCORE option
 type OscoreOption = heapless::Vec<u8, 16>;
@@ -702,7 +625,7 @@ impl<
             let oscore_salt = &oscore_salt[..8];
 
             let sender_id = c_i.as_slice();
-            let recipient_id = c_r.0;
+            let recipient_id = c_r.as_slice();
 
             // FIXME probe cipher suite
             let hkdf = liboscore::HkdfAlg::from_number(5).unwrap();
@@ -715,8 +638,7 @@ impl<
                 None,
                 aead,
                 sender_id,
-                // FIXME need KID form (but for all that's supported that works still)
-                &[recipient_id],
+                recipient_id,
             )
             // FIXME convert error
             .unwrap();

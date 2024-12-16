@@ -8,7 +8,7 @@
 
 use defmt_or_log::trace;
 
-use crate::seccontext::COwn;
+use crate::helpers::COwn;
 
 /// Fixed length of the ACE OSCORE nonce issued by this module.
 pub const OWN_NONCE_LEN: usize = 8;

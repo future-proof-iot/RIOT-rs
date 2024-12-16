@@ -27,6 +27,8 @@
 mod sealed;
 use sealed::{PrivateMethod, Sealed};
 
+mod helpers;
+
 mod ace;
 pub mod scope;
 pub mod seccfg;
