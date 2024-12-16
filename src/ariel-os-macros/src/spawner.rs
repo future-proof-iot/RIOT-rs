@@ -5,7 +5,7 @@
 /// - a `Spawner` as first parameter,
 /// - a peripheral struct, as optional second parameter.
 ///
-/// The peripheral struct must be defined with the `ariel_os::define_peripherals!` macro.
+/// The peripheral struct must be defined with the `ariel_os::hal::define_peripherals!` macro.
 ///
 /// See [`macro@task`] to use a long-lived async function instead.
 ///
@@ -91,7 +91,7 @@ pub fn spawner(args: TokenStream, item: TokenStream) -> TokenStream {
             spawner: #ariel_os_crate::asynch::Spawner,
             mut peripherals: &mut #ariel_os_crate::hal::OptionalPeripherals,
         ) {
-            use #ariel_os_crate::define_peripherals::TakePeripherals;
+            use #ariel_os_crate::hal::define_peripherals::TakePeripherals;
             #spawner_function_name(spawner #peripheral_param);
         }
 

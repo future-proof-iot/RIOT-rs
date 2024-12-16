@@ -5,7 +5,6 @@
 #![feature(used_with_arg)]
 #![feature(doc_auto_cfg)]
 
-pub mod define_peripherals;
 pub mod gpio;
 
 pub use ariel_os_hal as hal;
@@ -33,9 +32,7 @@ pub use static_cell::{ConstStaticCell, StaticCell};
 
 // All items of this module are re-exported at the root of `ariel_os`.
 pub mod api {
-    pub use crate::{
-        asynch, define_peripherals, delegate, gpio, group_peripherals, hal, EMBASSY_TASKS,
-    };
+    pub use crate::{asynch, delegate, gpio, hal, EMBASSY_TASKS};
 
     #[cfg(feature = "time")]
     pub mod time {
