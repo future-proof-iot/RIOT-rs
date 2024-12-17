@@ -18,6 +18,7 @@ members = [
   "src/ariel-os-esp",
   "src/ariel-os-hal",
   "src/ariel-os-identity",
+  "src/ariel-os-log",
   "src/ariel-os-macros",
   "src/ariel-os-nrf",
   "src/ariel-os-random",
@@ -62,6 +63,7 @@ critical-section = { version = "1.1.2" }
 portable-atomic = { version = "1.8.0", default-features = false, features = [
   "require-cas",
 ] }
+semihosting = { version = "0.1.17", default-features = false }
 
 embassy-embedded-hal = { version = "0.2.0", default-features = false }
 embassy-executor = { version = "0.6.3", default-features = false }
@@ -102,6 +104,7 @@ ariel-os-embassy-common = { path = "src/ariel-os-embassy-common" }
 ariel-os-esp = { path = "src/ariel-os-esp" }
 ariel-os-hal = { path = "src/ariel-os-hal", default-features = false }
 ariel-os-identity = { path = "src/ariel-os-identity" }
+ariel-os-log = { path = "src/ariel-os-log", default-features = false }
 ariel-os-nrf = { path = "src/ariel-os-nrf" }
 ariel-os-random = { path = "src/ariel-os-random" }
 ariel-os-rp = { path = "src/ariel-os-rp" }

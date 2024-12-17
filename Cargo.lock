@@ -178,7 +178,7 @@ dependencies = [
 name = "ariel-os-debug"
 version = "0.1.0"
 dependencies = [
- "defmt",
+ "ariel-os-log",
  "esp-println",
  "log 0.4.22",
  "rtt-target",
@@ -281,6 +281,13 @@ version = "0.1.0"
 dependencies = [
  "ariel-os-embassy",
  "ariel-os-embassy-common",
+]
+
+[[package]]
+name = "ariel-os-log"
+version = "0.1.0"
+dependencies = [
+ "defmt",
 ]
 
 [[package]]

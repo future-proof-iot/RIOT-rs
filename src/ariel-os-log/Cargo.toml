@@ -1,0 +1,15 @@
+[package]
+name = "ariel-os-log"
+version.workspace = true
+license.workspace = true
+edition.workspace = true
+repository.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+defmt = { workspace = true, optional = true }
+
+[features]
+defmt = ["dep:defmt"]
