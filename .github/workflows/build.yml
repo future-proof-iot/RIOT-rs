@@ -74,6 +74,7 @@ jobs:
       - name: Install Rust for Xtensa
         uses: esp-rs/xtensa-toolchain@v1.5
         with:
+          version: "1.82.0.3"
           buildtargets: esp32s3
 
       - name: Keep general build environment clean of Xtensa peculiarities
