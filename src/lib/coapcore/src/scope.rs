@@ -20,6 +20,13 @@ impl Scope for core::convert::Infallible {
     }
 }
 
+/// A parser for [`Scope`] from a serialized form.
+///
+/// This is expressed as a type with possibly non-ZST self to allow carrying over data from the
+/// configuration of the Authorization Server (AS) that issued the token into its processed form. For
+/// example, while many applications can use the zero-sized [`ParsingAif`] implementation, others
+/// may build on that and limit the resulting in a multi-AS scenario (when not all ASes may issue
+/// all scopes).
 pub trait ScopeGenerator: Sized {
     type Scope: Scope;
 
@@ -41,6 +48,7 @@ impl ScopeGenerator for core::convert::Infallible {
 #[derive(Debug, Copy, Clone)]
 pub struct InvalidScope;
 
+/// A scope expression that allows all requests.
 #[derive(Debug, defmt::Format)]
 pub struct AllowAll;
 
@@ -50,6 +58,7 @@ impl Scope for AllowAll {
     }
 }
 
+/// A scope expression that denies all requests.
 #[derive(Debug, defmt::Format)]
 pub struct DenyAll;
 
@@ -72,9 +81,10 @@ const AIF_SCOPE_MAX_LEN: usize = 64;
 /// ## Caveats
 ///
 /// Using this is not very efficient; worst case, it iterates over all options for all AIF entries.
+/// This could be mitigated by sorting the records at construction time.
 ///
 /// This completely disregards proper URI splitting; this works for very simple URI references in
-/// the AIF.
+/// the AIF. This could be mitigated by switching to a CRI based model.
 #[derive(Debug, defmt::Format)]
 pub struct AifValue([u8; AIF_SCOPE_MAX_LEN]);
 
@@ -152,7 +162,7 @@ impl Scope for AifValue {
     }
 }
 
-/// A scope generator that parses the scope's bytes as AIF, accepting any value.
+/// A scope generator that parses the scope's bytes as AIF, accepting any value within that model.
 pub struct ParsingAif;
 
 impl ScopeGenerator for ParsingAif {
@@ -182,7 +192,9 @@ impl ScopeGenerator for ParsingAif {
     }
 }
 
-/// A scope that can use multiple backends.
+/// A scope that can use multiple backends, erasing its type.
+///
+/// (Think "`dyn Scope`" but without requiring dyn compatibility).
 ///
 /// This is useful when combining multiple authentication methods, eg. allowing ACE tokens (that
 /// need an [`AifValue`] to express their arbitrary scopes) as well as a configured admin key (that

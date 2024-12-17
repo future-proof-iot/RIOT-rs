@@ -151,6 +151,7 @@ struct OscoreInputMaterial<'a> {
     ms: &'a [u8],
 }
 
+/// The error type of [`OscoreInputMaterial::derive()`].
 struct DeriveError;
 
 impl<'a> OscoreInputMaterial<'a> {
@@ -199,6 +200,11 @@ impl<'a> OscoreInputMaterial<'a> {
     }
 }
 
+/// An owned variety of the subset of [`AceCbor`] data.
+///
+/// It needs a slim owned form that is kept by the server between processing an ACE-OSCORE token
+/// POST request and sending the response, and conveniently encapsulates its own rendering into a
+/// response message.
 pub struct AceCborAuthzInfoResponse {
     nonce2: [u8; OWN_NONCE_LEN],
     ace_server_recipientid: COwn,
@@ -247,16 +253,11 @@ impl AceCborAuthzInfoResponse {
 ///
 /// ## Caveats
 ///
-/// * Currently, this hardcodes the key.
-///
 /// * This allocates on the stack for two fields: the AAD and the token's plaintext. Both will
 ///   eventually need to be configurable.
 ///
 ///   Alternatives to allocation are streaming AADs for the AEAD traits, and coap-handler offering
 ///   an exclusive reference to the incoming message.
-///
-/// * Should the scope parser be provided with anything else, in particular maybe the AS's
-///   identity?
 ///
 /// * Instead of the random nonce2, it would be preferable to pass in an RNG -- but some owners of
 ///   an RNG may have a hard time lending out an exclusive reference to it for the whole function

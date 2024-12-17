@@ -74,6 +74,14 @@ impl COwn {
         }
     }
 
+    /// Reports the value of self as an OSCORE Key ID.
+    ///
+    /// This is currently the only slice form this type supports: There is no function to view this
+    /// as an encoded EDHOC compressed byte string (which is identical to the OSCORE key ID for
+    /// some, and has an extra byte string length prefix for others). Such a method is not needed
+    /// because the type currently only generates, and because the [`lakers::ConnId`] (being an
+    /// owned type) copies data into itself anyway, from where it can produce all forms; that type
+    /// also has a [`lakers::ConnId::as_cbor`] accessor.
     pub fn as_slice(&self) -> &[u8] {
         core::slice::from_ref(&self.0)
     }

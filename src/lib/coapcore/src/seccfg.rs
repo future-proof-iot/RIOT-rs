@@ -3,11 +3,18 @@
 
 use crate::ace::HeaderMap;
 
+/// The error type for [`ServerSecurityConfig::decrypt_symmetric_token`] and future similar
+/// methods.
 #[derive(Debug)]
 pub enum DecryptionError {
+    /// A key was indicated that is not available.
     NoKeyFound,
-    // Nonce size mismatch, message too short, that kind of thing
+    /// Details of the encrypted message msimatch.
+    ///
+    /// For example, the nonce size could not match the nonce size expected by the indicated key's
+    /// algorithm.
     InconsistentDetails,
+    /// The decryption itself failed, indicating mismatch of the keys.
     DecryptionError,
 }
 
@@ -60,11 +67,17 @@ pub trait ServerSecurityConfig: crate::Sealed {
         None
     }
 
-    // FIXME compatibility helper
+    /// Generates the single scope expected by the `tests/coap` demo.
+    ///
+    /// FIXME: This should be replaced with configuration in that example.
     fn the_one_known_authorization(&self) -> Option<Self::Scope> {
         None
     }
 
+    /// Render the "not allowed" message in this scenario.
+    ///
+    /// The default (or any error) renderer produces a generic 4.01 Unauthorized in the handler;
+    /// specifics can be useful in ACE scenarios to return a Request Creation Hint.
     fn render_not_allowed<M: coap_message::MutableWritableMessage>(
         &self,
         message: &mut M,
@@ -88,6 +101,8 @@ pub struct AsChain<A1, A2, Scope> {
 }
 
 impl<A1, A2, Scope> AsChain<A1, A2, Scope> {
+    /// Creates a configuration that processes all operations through the `head`, and only if that
+    /// fails retries with the `tail`.
     pub fn chain(head: A1, tail: A2) -> Self {
         AsChain {
             a1: head,
@@ -97,7 +112,11 @@ impl<A1, A2, Scope> AsChain<A1, A2, Scope> {
     }
 }
 
-// FIXME: seal
+/// An `Either` style type for encapsulating two [`ScopeGenerator`] implementations.
+///
+/// Other crates should not rely on this (but making it an enum wrapped in a struct for privacy is
+/// considered excessive at this point).
+#[doc(hidden)]
 pub enum EitherScopeGenerator<SG1, SG2, Scope> {
     First(SG1),
     Second(SG2),
@@ -168,7 +187,7 @@ where
     }
 }
 
-/// The empty set of authorization servers.
+/// The default empty configuration that denies all access.
 pub struct DenyAll;
 
 impl crate::Sealed for DenyAll {}
@@ -181,6 +200,9 @@ impl ServerSecurityConfig for DenyAll {
 }
 
 /// A ScopeGenerator that can be used on [`ServerSecurityConfig`] types that don't process tokens
+///
+/// Unlike [`core::convert::Infallible`], this produces none of any scope, rather tha none of
+/// [`Infallible`][core::convert::Infallible].
 pub enum NullGenerator<Scope> {
     _Phantom(core::convert::Infallible, core::marker::PhantomData<Scope>),
 }
@@ -211,6 +233,10 @@ impl ServerSecurityConfig for AllowAll {
     }
 }
 
+/// A scope that provides a non-trivial implementation of
+/// [`ServerSecurityConfig::the_one_known_authorization()`], see there.
+///
+/// FIXME: Like that function, this should be moved into the demo.
 pub struct GenerateArbitrary;
 
 impl crate::Sealed for GenerateArbitrary {}

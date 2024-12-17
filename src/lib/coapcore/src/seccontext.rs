@@ -117,11 +117,11 @@ impl<Crypto: lakers::Crypto, Authorization: Scope> SecContextState<Crypto, Autho
     }
 }
 
-/// A CoAP handler wrapping inner resources, and adding EDHOC and OSCORE support.
+/// A CoAP handler wrapping inner resources, and adding EDHOC and OSCORE and ACE support.
 ///
-/// While the EDHOC part could be implemented as a handler that is to be added into the tree, the
-/// OSCORE part needs to wrap the inner handler anyway, and EDHOC and OSCORE are intertwined rather
-/// strongly in processing the EDHOC option.
+/// While the ACE (authz-info) and EDHOC parts could be implemented as a handler that is to be
+/// added into the tree, the OSCORE part needs to wrap the inner handler anyway, and EDHOC and
+/// OSCORE are intertwined rather strongly in processing the EDHOC option.
 pub struct OscoreEdhocHandler<
     'a,
     H: coap_handler::Handler,
@@ -161,7 +161,7 @@ impl<
         RNG: rand_core::RngCore + rand_core::CryptoRng,
     > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::seccfg::DenyAll, RNG>
 {
-    /// Create a new CoAP server implementation (a [Handler][coap_handler::Handler]).
+    /// Creates a new CoAP server implementation (a [Handler][coap_handler::Handler]).
     ///
     /// By default, this rejects all requests; access is allowed through builder calls such as
     /// [`.with_seccfg()()`][Self::with_seccfg()] or
@@ -194,7 +194,7 @@ impl<
         RNG: rand_core::RngCore + rand_core::CryptoRng,
     > OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::seccfg::DenyAll, RNG>
 {
-    /// Builds a CoAP server that accepts any request without any authentication.
+    /// Alters the server's policy so that it accepts any request without any authentication.
     pub fn allow_all(
         self,
     ) -> OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::seccfg::AllowAll, RNG> {
@@ -210,7 +210,7 @@ impl<
         }
     }
 
-    /// Builds a CoAP server that behaves like coapcore has behaved in its sketch phase
+    /// Alters a server's policy so that behaves like coapcore has behaved in its sketch phase
     pub fn allow_arbitrary(
         self,
     ) -> OscoreEdhocHandler<'a, H, Crypto, CryptoFactory, crate::seccfg::GenerateArbitrary, RNG>
@@ -266,7 +266,7 @@ impl<
         }
     }
 
-    /// Produce a COwn (as a recipient identifier) that is both available and not equal to the
+    /// Produces a COwn (as a recipient identifier) that is both available and not equal to the
     /// peer's recipient identifier.
     fn cown_but_not(&self, c_peer: &[u8]) -> COwn {
         // Let's pick one now already: this allows us to use the identifier in our
@@ -337,6 +337,8 @@ impl<
         }
     }
 
+    /// Builds an EDHOC response message 2 after successful processing of a request in
+    /// [`Self::extract_edhoc()`]
     fn build_edhoc_message_2<M: MutableWritableMessage>(
         &mut self,
         response: &mut M,
@@ -405,7 +407,7 @@ impl<
         Ok(())
     }
 
-    /// Process a CoAP request containing an OSCORE option and possibly an EDHOC option.
+    /// Processes a CoAP request containing an OSCORE option and possibly an EDHOC option.
     #[allow(
         clippy::type_complexity,
         reason = "Type is subset of RequestData that has no alias in the type"
@@ -666,6 +668,8 @@ impl<
         Ok((sec_context_state, cutoff))
     }
 
+    /// Builds an OSCORE response message after successful processing of a request in
+    /// [Self::extract_oscore_edhoc()].
     fn build_oscore_response<M: MutableWritableMessage>(
         &mut self,
         response: &mut M,
@@ -779,10 +783,10 @@ impl<
         Ok(())
     }
 
-    /// Process a CoAP request containing an ACE token for /authz-info
+    /// Processes a CoAP request containing an ACE token for /authz-info.
     ///
     /// This assumes that the content format was pre-checked to be application/ace+cbor, both in
-    /// Content-Format and Accept (absence is fine too), and no other critical options are present,
+    /// Content-Format and Accept (absence is fine too), no other critical options are present,
     /// and the code was POST.
     fn extract_token(
         &mut self,
@@ -818,14 +822,23 @@ impl<
     }
 }
 
-/// Wrapper around for a handler's inner RequestData
+/// A wrapper around for a handler's inner RequestData used by [`OscoreEdhocHandler`] both for
+/// OSCORE and plain text requests.
+///
+/// Other crates should not rely on this (but making it an enum wrapped in a struct for privacy is
+/// considered excessive at this point).
+#[doc(hidden)]
 pub enum AuthorizationChecked<I> {
     /// Middleware checks were successful, data was extracted
     Allowed(I),
-    /// Middleware checks failed, return an encrypted 4.03
+    /// Middleware checks failed, return a 4.01 Unauthorized
     NotAllowed,
 }
 
+/// Request state created by an [`OscoreEdhocHandler`] for successful non-plaintext cases.
+///
+/// Other crates should not rely on this (but making it an enum wrapped in a struct for privacy is
+/// considered excessive at this point).
 pub enum OwnRequestData<I> {
     // Taking a small state here: We already have a slot in the pool, storing the big data there
     #[expect(private_interfaces, reason = "should be addressed eventually")]
@@ -846,7 +859,7 @@ pub enum OwnRequestData<I> {
 // not supported in match or let destructuring. (But our is_gc_eligible should be good enough
 // anyway).
 
-/// Render a MessageBufferError into the common Error type.
+/// Renders a [`lakers::MessageBufferError`] into the common Error type.
 ///
 /// It is yet to be determined whether anything more informative should be returned (likely it
 /// should; maybe Request Entity Too Large or some error code about unusable credential.
@@ -857,7 +870,7 @@ fn too_small(_e: lakers::MessageBufferError) -> CoAPError {
     CoAPError::bad_request()
 }
 
-/// Render an EDHOCError into the common Error type.
+/// Renders a [`lakers::EDHOCError`] into the common Error type.
 ///
 /// It is yet to be decided based on the EDHOC specification which EDHOCError values would be
 /// reported with precise data, and which should rather produce a generic response.
@@ -868,6 +881,11 @@ fn render_error(_e: lakers::EDHOCError) -> CoAPError {
     CoAPError::bad_request()
 }
 
+/// An Either-style type used internally by [`OscoreEdhocHandler`].
+///
+/// Other crates should not rely on this (but making it an enum wrapped in a struct for privacy is
+/// considered excessive at this point).
+#[doc(hidden)]
 #[derive(Debug)]
 pub enum OrInner<O, I> {
     Own(O),
