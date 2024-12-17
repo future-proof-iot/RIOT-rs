@@ -4,10 +4,10 @@
 #![feature(used_with_arg)]
 
 use ariel_os::{
+    cell::StaticCell,
     debug::log::info,
     reexports::embassy_usb,
     usb::{UsbBuilderHook, UsbDriver},
-    StaticCell,
 };
 use embassy_usb::{
     class::cdc_acm::{CdcAcmClass, State},
