@@ -25,6 +25,11 @@
 #![no_std]
 #![deny(clippy::pedantic)]
 
+#[doc(hidden)]
+pub mod define_peripherals;
+
+pub use define_peripherals::*;
+
 cfg_if::cfg_if! {
     if #[cfg(context = "nrf")] {
         pub use ariel_os_nrf::*;

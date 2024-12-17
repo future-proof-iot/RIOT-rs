@@ -1,5 +1,5 @@
-/// This macro allows to obtain peripherals from the one listed in the `peripherals` module of the
-/// target's HAL crate (selected by [`ariel_os::hal`](ariel_os_hal)).
+/// This macro allows to obtain peripherals from the one listed in the `peripherals` module
+/// exported by this crate.
 ///
 /// It makes sense to use this macro multiple times, coupled with conditional compilation (using
 /// the [`cfg`
@@ -8,7 +8,8 @@
 ///
 /// # Note
 ///
-/// The `define_peripherals!` macro expects the `ariel_os::hal::peripherals` module to be in scope.
+/// The [`define_peripherals!`](crate::define_peripherals!) macro expects the
+/// `ariel_os::hal::peripherals` module to be in scope.
 ///
 // Inspired by https://github.com/adamgreig/assign-resources/tree/94ad10e2729afdf0fd5a77cd12e68409a982f58a
 // under MIT license
@@ -38,7 +39,7 @@ macro_rules! define_peripherals {
             pub type $peripheral_alias = peripherals::$peripheral_field;
         )?)*
 
-        impl $crate::define_peripherals::TakePeripherals<$peripherals> for &mut $crate::hal::OptionalPeripherals {
+        impl $crate::TakePeripherals<$peripherals> for &mut $crate::OptionalPeripherals {
             fn take_peripherals(&mut self) -> $peripherals {
                 $peripherals {
                     $(
@@ -51,8 +52,8 @@ macro_rules! define_peripherals {
     }
 }
 
-/// This macro allows to group peripheral structs defined with `define_peripherals!` into a single
-/// peripheral struct.
+/// This macro allows to group peripheral structs defined with
+/// [`define_peripherals!`](crate::define_peripherals!) into a single peripheral struct.
 #[macro_export]
 macro_rules! group_peripherals {
     (
@@ -74,7 +75,7 @@ macro_rules! group_peripherals {
             ),*
         }
 
-        impl $crate::define_peripherals::TakePeripherals<$group> for &mut $crate::hal::OptionalPeripherals {
+        impl $crate::TakePeripherals<$group> for &mut $crate::OptionalPeripherals {
             fn take_peripherals(&mut self) -> $group {
                 $group {
                     $(
@@ -87,6 +88,7 @@ macro_rules! group_peripherals {
     }
 }
 
+#[doc(hidden)]
 pub trait TakePeripherals<T> {
     fn take_peripherals(&mut self) -> T;
 }

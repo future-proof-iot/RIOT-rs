@@ -11,7 +11,7 @@ use ariel_os::{
 
 // These pins should be available on all STM32 chips.
 #[cfg(context = "stm32")]
-ariel_os::define_peripherals!(ButtonPeripherals {
+ariel_os::hal::define_peripherals!(ButtonPeripherals {
     btn_a0: PA0,
     btn_a1: PA1,
     btn_b0: PB0,

@@ -11,7 +11,8 @@
 ///     - `peripherals`: (*optional*) provide the function with a peripheral struct as the first
 ///         parameter.
 ///         The `peripherals` parameter can only be used on `autostart` tasks.
-///         The peripheral struct must be defined with the `ariel_os::define_peripherals!` macro.
+///         The peripheral struct must be defined with the `ariel_os::hal::define_peripherals!`
+///         macro.
 ///     - hooks: (*optional*) available hooks are:
 ///         - `usb_builder_hook`: when present, the macro will define a static `USB_BUILDER_HOOK`
 ///           of type `UsbBuilderHook`, allowing to access and modify the system-provided
@@ -103,7 +104,7 @@ pub fn task(args: TokenStream, item: TokenStream) -> TokenStream {
                 spawner: #ariel_os_crate::asynch::Spawner,
                 mut peripherals: &mut #ariel_os_crate::hal::OptionalPeripherals,
             ) {
-                use #ariel_os_crate::define_peripherals::TakePeripherals;
+                use #ariel_os_crate::hal::TakePeripherals;
                 let task = #task_function_name(#peripheral_param);
                 spawner.spawn(task).unwrap();
             }

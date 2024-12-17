@@ -22,14 +22,14 @@ The [`group_peripherals!`][group_peripherals-docs] macro can also be useful.
 The [`define_peripherals!`][define_peripherals-docs] macro allows to define a *Ariel OS peripheral struct*, an instance of which can be obtained with [`spawner` or `task`][spawner-or-task]:
 
 ```rust,ignore
-ariel_os::define_peripherals!(LedPeripherals { led: P0_13 });
+ariel_os::hal::define_peripherals!(LedPeripherals { led: P0_13 });
 ```
 
 Multiple Ariel OS peripheral structs can be grouped into another Ariel OS peripheral struct using the [`group_peripherals!`][group_peripherals-docs] macro:
 
 <!-- TODO: this needs to be kept up to date -->
 ```rust,ignore
-ariel_os::group_peripherals!(Peripherals {
+ariel_os::hal::group_peripherals!(Peripherals {
     leds: LedPeripherals,
     buttons: ButtonPeripherals,
 });
@@ -80,5 +80,5 @@ TODO
 [task-attr-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/ariel_os/attr.task.html
 [spawner-or-task]: #the-spawner-and-task-ariel-os-macros
 [blinky-example-src]: https://github.com/ariel-os/ariel-os/tree/main/examples/blinky
-[define_peripherals-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/ariel_os/macro.define_peripherals.html
-[group_peripherals-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/ariel_os/macro.group_peripherals.html
+[define_peripherals-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/ariel_os/hal/macro.define_peripherals.html
+[group_peripherals-docs]: https://ariel-os.github.io/ariel-os/dev/docs/api/ariel_os/hal/macro.group_peripherals.html
