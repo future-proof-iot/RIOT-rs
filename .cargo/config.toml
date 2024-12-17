@@ -1,4 +1,4 @@
-include = "../patch.crates-io.toml"
+include = "../ariel-os-cargo.toml"
 
 [unstable]
 # This is needed for cbindgen to work in no_std cross compiles.
