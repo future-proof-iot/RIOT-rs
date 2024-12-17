@@ -46,7 +46,6 @@ pub use ariel_os_macros::thread;
 use ariel_os_boards as _;
 
 pub use ariel_os_embassy::api::*;
-pub use static_cell::{ConstStaticCell, StaticCell};
 
 /// This module contains all third party crates as used by Ariel OS.
 ///

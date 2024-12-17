@@ -28,11 +28,16 @@ use ariel_os_debug::log::debug;
 
 // re-exports
 pub use linkme::{self, distributed_slice};
-pub use static_cell::{ConstStaticCell, StaticCell};
 
 // All items of this module are re-exported at the root of `ariel_os`.
 pub mod api {
     pub use crate::{asynch, delegate, gpio, hal, EMBASSY_TASKS};
+
+    pub mod cell {
+        //! Shareable containers.
+
+        pub use static_cell::{ConstStaticCell, StaticCell};
+    }
 
     #[cfg(feature = "time")]
     pub mod time {
@@ -126,6 +131,8 @@ pub(crate) fn init() {
 #[cfg(feature = "executor-single-thread")]
 #[export_name = "__ariel_os_embassy_init"]
 fn init() -> ! {
+    use static_cell::StaticCell;
+
     debug!("ariel-os-embassy::init(): using single thread executor");
     let p = hal::init();
 
@@ -153,6 +160,8 @@ mod executor_thread {
 #[cfg(feature = "executor-thread")]
 #[ariel_os_macros::thread(autostart, no_wait, stacksize = executor_thread::STACKSIZE, priority = executor_thread::PRIORITY)]
 fn init() {
+    use static_cell::StaticCell;
+
     debug!("ariel-os-embassy::init(): using thread executor");
     let p = hal::init();
 
@@ -204,6 +213,8 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
 
     #[cfg(feature = "usb")]
     let mut usb_builder = {
+        use static_cell::ConstStaticCell;
+
         let usb_config = usb::config();
 
         let usb_driver = hal::usb::driver(usb_peripherals);
@@ -231,6 +242,7 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
         use embassy_usb::class::cdc_ncm::{
             embassy_net::State as NetState, CdcNcmClass, State as CdcNcmState,
         };
+        use static_cell::StaticCell;
 
         // Host's MAC addr. This is the MAC the host "thinks" its USB-to-ethernet adapter has.
         let host_mac_addr = crate::hal::identity::DeviceId::get()
@@ -283,6 +295,7 @@ async fn init_task(mut peripherals: hal::OptionalPeripherals) {
     #[cfg(feature = "net")]
     {
         use embassy_net::StackResources;
+        use static_cell::StaticCell;
 
         use crate::sendcell::SendCell;
 
