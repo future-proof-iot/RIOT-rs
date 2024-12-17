@@ -7,7 +7,7 @@
 mod pins;
 mod routes;
 
-use ariel_os::{asynch::Spawner, network, time::Duration, StaticCell};
+use ariel_os::{asynch::Spawner, cell::StaticCell, network, time::Duration};
 
 #[cfg(feature = "button-reading")]
 use embassy_sync::once_lock::OnceLock;

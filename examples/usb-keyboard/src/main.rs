@@ -6,6 +6,7 @@
 mod pins;
 
 use ariel_os::{
+    cell::ConstStaticCell,
     debug::log::*,
     reexports::{
         embassy_usb::class::hid::{self, HidReaderWriter},
@@ -13,7 +14,6 @@ use ariel_os::{
     },
     time::{Duration, Timer},
     usb::{UsbBuilderHook, UsbDriver},
-    ConstStaticCell,
 };
 
 // Assuming a QWERTY US layout, see https://docs.qmk.fm/#/how_keyboards_work
