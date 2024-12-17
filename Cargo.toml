@@ -90,6 +90,7 @@ esp-wifi = { version = "0.10.1", default-features = false }
 esp-storage = { version = "0.3.1" }
 
 linkme = { version = "0.3.21", features = ["used_linker"] }
+log = { version = "0.4.20" }
 
 ariel-os = { path = "src/ariel-os", default-features = false }
 ariel-os-bench = { path = "src/ariel-os-bench", default-features = false }
