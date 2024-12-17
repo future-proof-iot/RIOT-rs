@@ -13,4 +13,3 @@ workspace = true
 # random, but helps with interactive tools.
 ariel-os = { path = "../../src/ariel-os", features = ["random"] }
 ariel-os-boards = { path = "../../src/ariel-os-boards" }
-rand = { version = "0.8.5", default-features = false }

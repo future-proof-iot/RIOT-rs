@@ -9,6 +9,7 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
+rand = { version = "0.8.5", default-features = false }
 rand_core = "0.6.4"
 
 embassy-sync.workspace = true
