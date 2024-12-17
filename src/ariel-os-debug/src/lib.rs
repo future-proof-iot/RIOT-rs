@@ -14,17 +14,35 @@ compile_error!(
     r#"feature "debug-console" enabled but no backend. Select feature "rtt-target" or feature "esp-println"."#
 );
 
-pub const EXIT_SUCCESS: Result<(), ()> = Ok(());
-pub const EXIT_FAILURE: Result<(), ()> = Err(());
-pub fn exit(code: Result<(), ()>) {
-    let code = match code {
-        EXIT_FAILURE => 1,
-        EXIT_SUCCESS => 0,
-    };
+/// Represents the exit code of a debug session.
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
+pub enum ExitCode {
+    #[doc(hidden)]
+    Success,
+    #[doc(hidden)]
+    Failure,
+}
 
+impl ExitCode {
+    /// The [`ExitCode`] for success.
+    pub const SUCCESS: Self = Self::Success;
+    /// The [`ExitCode`] for failure.
+    pub const FAILURE: Self = Self::Failure;
+
+    #[allow(dead_code, reason = "not always used due to conditional compilation")]
+    fn to_semihosting_code(self) -> i32 {
+        match self {
+            Self::Success => 0,
+            Self::Failure => 1,
+        }
+    }
+}
+
+pub fn exit(code: ExitCode) {
     loop {
         #[cfg(feature = "semihosting")]
-        semihosting::process::exit(code);
+        semihosting::process::exit(code.to_semihosting_code());
+
         #[cfg(not(feature = "semihosting"))]
         {
             let _ = code;

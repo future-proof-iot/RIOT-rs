@@ -52,7 +52,7 @@ fn panic(_info: &core::panic::PanicInfo) -> ! {
     #[cfg(not(feature = "silent-panic"))]
     {
         ariel_os_debug::println!("panic: {}\n", _info);
-        ariel_os_debug::exit(ariel_os_debug::EXIT_FAILURE);
+        ariel_os_debug::exit(ariel_os_debug::ExitCode::FAILURE);
     }
     #[allow(clippy::empty_loop)]
     loop {}

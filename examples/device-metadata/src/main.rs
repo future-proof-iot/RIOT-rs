@@ -2,7 +2,7 @@
 #![no_std]
 #![feature(used_with_arg)]
 
-use ariel_os::debug::{exit, log::*, EXIT_SUCCESS};
+use ariel_os::debug::{exit, log::*, ExitCode};
 
 #[ariel_os::thread(autostart)]
 fn main() {
@@ -17,5 +17,5 @@ fn main() {
         info!("Device's first EUI-48 address: {}", eui48);
     }
 
-    exit(EXIT_SUCCESS);
+    exit(ExitCode::SUCCESS);
 }
