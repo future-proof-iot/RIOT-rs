@@ -91,6 +91,7 @@ pub mod thread_executor;
 
 pub type Task = fn(asynch::Spawner, &mut hal::OptionalPeripherals);
 
+#[doc(hidden)]
 #[distributed_slice]
 pub static EMBASSY_TASKS: [Task] = [..];
 
