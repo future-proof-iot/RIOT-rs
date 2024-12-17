@@ -1,2 +1,3 @@
 subdirs:
+  - ariel-os-identity
   - ariel-os-rt

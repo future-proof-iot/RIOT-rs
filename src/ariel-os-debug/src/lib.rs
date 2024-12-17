@@ -173,3 +173,11 @@ pub mod log {
     pub use __stub as trace;
     pub use __stub as warn;
 }
+
+pub fn exit_success() {
+    exit(EXIT_SUCCESS)
+}
+
+pub fn exit_failure() {
+    exit(EXIT_FAILURE)
+}

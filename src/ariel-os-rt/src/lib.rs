@@ -73,6 +73,9 @@ fn startup() -> ! {
 
     debug!("ariel_os_rt::startup()");
 
+    #[cfg(test)]
+    debug!("ariel_os_rt::startup() cfg(test)");
+
     for f in INIT_FUNCS {
         f();
     }

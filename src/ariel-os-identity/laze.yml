@@ -1,0 +1,4 @@
+apps:
+  - name: ariel-os-identity
+    selects:
+      - embedded-test

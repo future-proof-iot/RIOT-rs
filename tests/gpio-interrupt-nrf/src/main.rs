@@ -91,4 +91,5 @@ async fn main(peripherals: ButtonPeripherals) {
     }
 
     info!("Test passed!");
+    ariel_os::debug::exit_success();
 }

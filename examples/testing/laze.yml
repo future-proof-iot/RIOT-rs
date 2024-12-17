@@ -1,4 +1,5 @@
 apps:
-  - name: tests_gpio
+  - name: testing
     selects:
+      - defmt
       - embedded-test-only

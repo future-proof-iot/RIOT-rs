@@ -18,6 +18,7 @@ subdirs:
   - random
   - storage
   - tcp-echo
+  - testing
   - thread-async-interop
   - threading
   - threading-channel
