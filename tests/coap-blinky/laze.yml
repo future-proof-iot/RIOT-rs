@@ -1,0 +1,26 @@
+apps:
+  - name: coap-blinky
+    env:
+      global:
+        CARGO_ENV:
+          - CONFIG_ISR_STACKSIZE=16384
+    selects:
+      - network
+      - random
+    conflicts:
+      # see https://github.com/ariel-os/ariel-os/issues/418
+      - thumbv6m-none-eabi
+      # no xtensa / riscv gcc on CI
+      - xtensa
+      - riscv
+    context:
+      # list of contexts that have an entry in `pins.rs`
+      - esp
+      - microbit-v2
+      - nrf52840dk
+      - nrf5340dk
+      - particle-xenon
+      - rp
+      - st-nucleo-f401re
+      - st-nucleo-h755zi-q
+      - st-nucleo-wb55
