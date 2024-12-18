@@ -9,6 +9,17 @@ mod pins;
 use ariel_os::gpio::Level;
 use ariel_os::gpio::Output;
 
+#[ariel_os::config(network)]
+const NETWORK_CONFIG: embassy_net::Config = {
+    use embassy_net::Ipv4Address;
+
+    embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
+        address: embassy_net::Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
+        dns_servers: heapless::Vec::new(),
+        gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
+    })
+};
+
 #[ariel_os::task(autostart, peripherals)]
 async fn coap_run(peripherals: pins::LedPeripherals) {
     use coap_handler_implementations::{new_dispatcher, HandlerBuilder, ReportingHandlerBuilder};
@@ -28,16 +39,4 @@ async fn coap_run(peripherals: pins::LedPeripherals) {
         .with_wkc();
 
     ariel_os::coap::coap_run(handler).await;
-}
-
-// So far, this is necessary boilerplate; see ../../README.md#networking for details
-#[ariel_os::config(network)]
-fn network_config() -> ariel_os::reexports::embassy_net::Config {
-    use ariel_os::reexports::embassy_net::{self, Ipv4Address};
-
-    embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
-        address: embassy_net::Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
-        dns_servers: Default::default(),
-        gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
-    })
 }

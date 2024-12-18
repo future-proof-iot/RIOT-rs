@@ -4,4 +4,4 @@ error: custom attribute panicked
 9 | #[ariel_os::config(network, usb)]
   | ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
   |
-  = help: message: only one configuration is supported at a time, use a separate function for `usb` configuration
+  = help: message: only one configuration is supported at a time, use a separate constant for `usb` configuration

@@ -6,7 +6,7 @@ use embassy_usb::driver::{
 /// Driver that implements [`embassy_usb::driver::Driver`].
 pub struct UsbDriver;
 
-impl<'a> Driver<'a> for UsbDriver {
+impl Driver<'_> for UsbDriver {
     type EndpointOut = DummyEndpointOut;
     type EndpointIn = DummyEndpointIn;
     type ControlPipe = DummyControlPipe;
@@ -41,6 +41,7 @@ impl Peripherals {
     }
 }
 
+#[must_use]
 pub fn driver(_peripherals: Peripherals) -> UsbDriver {
     unimplemented!();
 }

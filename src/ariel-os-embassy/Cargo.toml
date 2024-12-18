@@ -83,6 +83,10 @@ hwrng = ["ariel-os-hal/hwrng"]
 tcp = ["embassy-net?/tcp"]
 ## Enables support for UDP.
 udp = ["embassy-net?/udp"]
+## Enables support for DNS.
+dns = ["embassy-net?/dns"]
+## Enables support for mDNS.
+mdns = ["embassy-net?/mdns"]
 
 ## Enable storage support [`ariel-os::storage`].
 storage = ["dep:ariel-os-storage", "ariel-os-hal/storage", "time"]

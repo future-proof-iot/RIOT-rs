@@ -1,3 +1,8 @@
-# This is needed for cbindgen to work in no_std cross compiles.
+include = "../patch.crates-io.toml"
+
 [unstable]
+# This is needed for cbindgen to work in no_std cross compiles.
 features = ['all']
+
+# This is needed so the "include" statement above works.
+config-include = true

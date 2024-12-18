@@ -88,10 +88,10 @@ fn startup() -> ! {
     #[cfg(feature = "executor-single-thread")]
     {
         extern "Rust" {
-            fn ariel_os_embassy_init() -> !;
+            fn __ariel_os_embassy_init() -> !;
         }
         debug!("ariel_os_rt::startup() launching single thread executor");
-        unsafe { ariel_os_embassy_init() };
+        unsafe { __ariel_os_embassy_init() };
     }
 
     #[cfg(not(any(feature = "threading", feature = "executor-single-thread")))]

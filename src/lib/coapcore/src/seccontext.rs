@@ -20,6 +20,9 @@ pub type SecContextPool<Crypto> =
 ///
 /// This type represents any of the 48 efficient identifiers that use CBOR one-byte integer
 /// encodings (see RFC9528 Section 3.3.2), or equivalently the 1-byte long OSCORE identifiers
+///
+/// Lakers supports a much larger value space for C_x, and coapcore processes larger values
+/// selected by the peer -- but on its own, will select only those that fit in this type.
 // FIXME Could even limit to positive values if MAX_CONTEXTS < 24
 #[cfg_attr(feature = "defmt", derive(defmt::Format))]
 #[derive(Copy, Clone, PartialEq, Debug)]
@@ -73,7 +76,8 @@ impl COwn {
 
 impl From<COwn> for lakers::ConnId {
     fn from(cown: COwn) -> Self {
-        lakers::ConnId::from_int_raw(cown.0)
+        lakers::ConnId::from_slice(&[cown.0])
+            .expect("ConnId is always big enough for at least COwn")
     }
 }
 
@@ -145,15 +149,8 @@ enum SecContextStage<Crypto: lakers::Crypto> {
     // :-)
 
     // actionable in response building
-    //
-    // FIXME: The 'static here means that our identity key needs to be 'static -- if identity
-    // roll-over is a topic, that'd be a no-go. An alternative is to both store the message and the
-    // ResponderWaitM3 state -- but that'll make our SecContextPool slots larger; best evaluate
-    // that once the states are ready and we see which ones are the big ones. Possible outcomes are
-    // to just do it, to store the message in the handler's `RequestData`, or to have one or a few
-    // slots in parallel to this in the [`SecContextPool`].
     EdhocResponderProcessedM1 {
-        responder: lakers::EdhocResponderProcessedM1<'static, Crypto>,
+        responder: lakers::EdhocResponderProcessedM1<Crypto>,
         // May be removed if lakers keeps access to those around if they are set at this point at
         // all
         c_r: COwn,
@@ -266,9 +263,7 @@ pub struct OscoreEdhocHandler<'a, H: coap_handler::Handler, Crypto: lakers::Cryp
     // locks for such sharing could still be acquired in a factory (at which point it may make
     // sense to make this a &mut).
     pool: SecContextPool<Crypto>,
-    // FIXME: That 'static is going to bite us -- but EdhocResponderProcessedM1 holds a reference
-    // to it -- see SecContextStage::EdhocResponderProcessedM1
-    own_identity: (&'a lakers::CredentialRPK, &'static [u8]),
+    own_identity: (&'a lakers::Credential, &'a lakers::BytesP256ElemLen),
 
     // FIXME: This currently bakes in the assumption that there is a single tree both for
     // unencrypted and encrypted resources. We may later generalize this by making this a factory,
@@ -288,7 +283,7 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> OscoreEdhocHandler<'a
     // FIXME: Apart from an own identity, this will also need a function to convert ID_CRED_I into
     // a (CRED_I, AifStaticRest) pair.
     pub fn new(
-        own_identity: (&'a lakers::CredentialRPK, &'static [u8]),
+        own_identity: (&'a lakers::Credential, &'a lakers::BytesP256ElemLen),
         inner: H,
         crypto_factory: fn() -> Crypto,
     ) -> Self {
@@ -377,7 +372,11 @@ impl<O, I> From<O> for OrInner<O, I> {
 }
 
 impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrInner<O, I> {
-    type Error<IE> = OrInner<O::Error<IE>, I::Error<IE>> where IE: RenderableOnMinimal, IE: core::fmt::Debug;
+    type Error<IE>
+        = OrInner<O::Error<IE>, I::Error<IE>>
+    where
+        IE: RenderableOnMinimal,
+        IE: core::fmt::Debug;
     fn render<M: MinimalWritableMessage>(
         self,
         msg: &mut M,
@@ -389,8 +388,8 @@ impl<O: RenderableOnMinimal, I: RenderableOnMinimal> RenderableOnMinimal for OrI
     }
 }
 
-impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
-    for OscoreEdhocHandler<'a, H, Crypto>
+impl<H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
+    for OscoreEdhocHandler<'_, H, Crypto>
 {
     type RequestData = OrInner<
         EdhocResponse<Result<H::RequestData, H::ExtractRequestError>>,
@@ -496,7 +495,8 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
 
                     let (responder, c_i, ead_1) = lakers::EdhocResponder::new(
                         (self.crypto_factory)(),
-                        self.own_identity.1,
+                        lakers::EDHOCMethod::StatStat,
+                        *self.own_identity.1,
                         *self.own_identity.0,
                     )
                     .process_message_1(message_1)
@@ -514,7 +514,8 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                             .iter()
                             .filter_map(|entry| entry.corresponding_cown())
                             // C_R does not only need to be unique, it also must not be identical
-                            // to C_I
+                            // to C_I. If it is not expressible as a COwn (as_slice gives []),
+                            // that's fine and we don't have to consider it.
                             .chain(COwn::from_kid(c_i.as_slice()).as_slice().iter().cloned()),
                     );
 
@@ -550,7 +551,9 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                 let payload = request.payload();
 
                 // This whole loop-and-tree could become a single take_responder_wait3 method?
-                let kid = COwn::from_kid(&[kid]).unwrap();
+                let kid = COwn::from_kid(&[kid])
+                    // same as if it's not found in the pool
+                    .ok_or_else(CoAPError::bad_request)?;
                 // If we don't make progress, we're dropping it altogether. Unless we use the
                 // responder we might legally continue (because we didn't send data to EDHOC), but
                 // once we've received something that (as we now know) looks like a message 3 and
@@ -600,17 +603,15 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                         let authorization;
 
                         if id_cred_i.reference_only() {
-                            match id_cred_i.kid {
-                                43 => {
+                            match id_cred_i.as_encoded_value() {
+                                &[43] => {
                                     info!("Peer indicates use of the one preconfigured key");
 
                                     use hexlit::hex;
                                     const CRED_I: &[u8] = &hex!("A2027734322D35302D33312D46462D45462D33372D33322D333908A101A5010202412B2001215820AC75E9ECE3E50BFC8ED60399889522405C47BF16DF96660A41298CB4307F7EB62258206E5DE611388A4B8A8211334AC7D37ECB52A387D257E6DB3C2A93DF21FF3AFFC8");
 
-                                    cred_i = lakers::CredentialRPK::new(
-                                        CRED_I.try_into().expect("Static credential is too large"),
-                                    )
-                                    .expect("Static credential is not processable");
+                                    cred_i = lakers::Credential::parse_ccs(CRED_I)
+                                        .expect("Static credential is not processable");
 
                                     // FIXME: learn from CRED_I
                                     authorization = AifStaticRest {
@@ -623,12 +624,15 @@ impl<'a, H: coap_handler::Handler, Crypto: lakers::Crypto> coap_handler::Handler
                                 }
                             }
                         } else {
+                            let ccs = id_cred_i
+                                .get_ccs()
+                                .expect("Lakers only knows IdCred as reference or as credential");
                             info!(
-                                "Got credential by value: {:?}..",
-                                &id_cred_i.value.get_slice(0, 5)
+                                "Got credential CCS by value: {:?}..",
+                                &ccs.bytes.get_slice(0, 5)
                             );
 
-                            cred_i = lakers::CredentialRPK::new(id_cred_i.value)
+                            cred_i = lakers::Credential::parse_ccs(ccs.bytes.as_slice())
                                 // FIXME What kind of error do we send here?
                                 .map_err(|_| Own(CoAPError::bad_request()))?;
 

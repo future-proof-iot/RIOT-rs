@@ -2,7 +2,7 @@
 #![no_std]
 #![feature(used_with_arg)]
 
-use ariel_os::debug::{exit, log::*};
+use ariel_os::debug::{exit, log::*, EXIT_SUCCESS};
 
 #[ariel_os::thread(autostart)]
 fn main() {
@@ -13,6 +13,9 @@ fn main() {
     } else {
         info!("Device ID is unavailable.");
     }
+    if let Ok(eui48) = ariel_os::identity::interface_eui48(0) {
+        info!("Device's first EUI-48 address: {}", eui48);
+    }
 
-    exit(Ok(()));
+    exit(EXIT_SUCCESS);
 }

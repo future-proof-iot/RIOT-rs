@@ -1,7 +1,6 @@
 [package]
 name = "usb-serial"
 version = "0.1.0"
-authors.workspace = true
 license.workspace = true
 edition.workspace = true
 publish = false
@@ -11,7 +10,7 @@ workspace = true
 
 [dependencies]
 ariel-os = { path = "../../src/ariel-os", features = [
-  "usb",
   "override-usb-config",
+  "usb",
 ] }
 ariel-os-boards = { path = "../../src/ariel-os-boards" }

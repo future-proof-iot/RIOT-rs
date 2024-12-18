@@ -5,6 +5,17 @@
 
 use ariel_os::debug::log::info;
 
+#[ariel_os::config(network)]
+const NETWORK_CONFIG: ariel_os::reexports::embassy_net::Config = {
+    use ariel_os::reexports::embassy_net::{self, Ipv4Address};
+
+    embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
+        address: embassy_net::Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
+        dns_servers: heapless::Vec::new(),
+        gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
+    })
+};
+
 /// Run a CoAP stack without serving any actual resources.
 #[ariel_os::task(autostart)]
 async fn coap_run() {
@@ -36,16 +47,4 @@ async fn run_client_operations() {
         });
     let response = client.to(demoserver).request(request).await;
     info!("Response {:?}", response.map_err(|_| "TransportError"));
-}
-
-// So far, this is necessary boilerplate; see ../../README.md#networking for details
-#[ariel_os::config(network)]
-fn network_config() -> ariel_os::reexports::embassy_net::Config {
-    use ariel_os::reexports::embassy_net::{self, Ipv4Address};
-
-    embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
-        address: embassy_net::Ipv4Cidr::new(Ipv4Address::new(10, 42, 0, 61), 24),
-        dns_servers: heapless::Vec::new(),
-        gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
-    })
 }

@@ -9,20 +9,21 @@ use ariel_os::{
     usb::{UsbBuilderHook, UsbDriver},
     StaticCell,
 };
-
 use embassy_usb::{
     class::cdc_acm::{CdcAcmClass, State},
     driver::EndpointError,
 };
 
+const MAX_FULL_SPEED_PACKET_SIZE: u8 = 64;
+
 #[ariel_os::config(usb)]
-fn usb_config() -> embassy_usb::Config<'static> {
-    let mut config = embassy_usb::Config::new(0xc0de, 0xcafe);
+const USB_CONFIG: ariel_os::reexports::embassy_usb::Config = {
+    let mut config = ariel_os::reexports::embassy_usb::Config::new(0xc0de, 0xcafe);
     config.manufacturer = Some("Ariel OS");
     config.product = Some("USB serial example");
     config.serial_number = Some("12345678");
     config.max_power = 100;
-    config.max_packet_size_0 = 64;
+    config.max_packet_size_0 = MAX_FULL_SPEED_PACKET_SIZE;
 
     // Required for Windows support.
     config.composite_with_iads = true;
@@ -30,7 +31,7 @@ fn usb_config() -> embassy_usb::Config<'static> {
     config.device_sub_class = 0x02;
     config.device_protocol = 0x01;
     config
-}
+};
 
 #[ariel_os::task(autostart, usb_builder_hook)]
 async fn main() {
@@ -38,9 +39,15 @@ async fn main() {
 
     static STATE: StaticCell<State> = StaticCell::new();
 
-    // Inject class on the system USB builder.
+    // Create and inject the USB class on the system USB builder.
     let mut class = USB_BUILDER_HOOK
-        .with(|builder| CdcAcmClass::new(builder, STATE.init_with(|| State::new()), 64))
+        .with(|builder| {
+            CdcAcmClass::new(
+                builder,
+                STATE.init_with(|| State::new()),
+                MAX_FULL_SPEED_PACKET_SIZE.into(),
+            )
+        })
         .await;
 
     // Do stuff with the class!
@@ -64,7 +71,7 @@ impl From<EndpointError> for Disconnected {
 }
 
 async fn echo(class: &mut CdcAcmClass<'static, UsbDriver>) -> Result<(), Disconnected> {
-    let mut buf = [0; 64];
+    let mut buf = [0; MAX_FULL_SPEED_PACKET_SIZE as usize];
     loop {
         let n = class.read_packet(&mut buf).await?;
         let data = &buf[..n];

@@ -49,11 +49,12 @@ pub mod input {
 pub mod output {
     //! Output-specific types.
 
-    use ariel_os_embassy_common::gpio::{FromDriveStrength, FromSpeed};
     use embassy_nrf::{
         gpio::{Level, OutputDrive},
         Peripheral,
     };
+
+    use super::DriveStrength;
 
     #[doc(hidden)]
     pub use embassy_nrf::gpio::{Output, Pin as OutputPin};
@@ -68,7 +69,7 @@ pub mod output {
         pin: impl Peripheral<P: OutputPin> + 'static,
         initial_level: ariel_os_embassy_common::gpio::Level,
         drive_strength: DriveStrength,
-        _speed: Speed, // Not supported by hardware
+        _speed: super::Speed, // Not supported by hardware
     ) -> Output<'static> {
         let output_drive = match drive_strength {
             DriveStrength::Standard => OutputDrive::Standard,
@@ -80,48 +81,37 @@ pub mod output {
         };
         Output::new(pin, initial_level, output_drive)
     }
+}
 
-    /// Available drive strength settings.
-    #[derive(Copy, Clone, PartialEq, Eq)]
-    pub enum DriveStrength {
-        /// Standard.
-        Standard,
-        /// High.
-        High, // Around 10 mA
+pub use ariel_os_embassy_common::gpio::UnsupportedSpeed as Speed;
+
+/// Available drive strength settings.
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum DriveStrength {
+    /// Standard.
+    Standard,
+    /// High.
+    High, // Around 10 mA
+}
+
+impl Default for DriveStrength {
+    fn default() -> Self {
+        Self::Standard
     }
+}
 
-    impl Default for DriveStrength {
-        fn default() -> Self {
-            Self::Standard
-        }
-    }
+impl ariel_os_embassy_common::gpio::FromDriveStrength for DriveStrength {
+    fn from(drive_strength: ariel_os_embassy_common::gpio::DriveStrength<Self>) -> Self {
+        use ariel_os_embassy_common::gpio::DriveStrength::*;
 
-    impl FromDriveStrength for DriveStrength {
-        fn from(drive_strength: ariel_os_embassy_common::gpio::DriveStrength<Self>) -> Self {
-            use ariel_os_embassy_common::gpio::DriveStrength::*;
-
-            // ESPs are able to output up to 40 mA, so we somewhat normalize this.
-            match drive_strength {
-                Hal(drive_strength) => drive_strength,
-                Lowest => DriveStrength::Standard,
-                Standard => DriveStrength::default(),
-                Medium => DriveStrength::Standard,
-                High => DriveStrength::High,
-                Highest => DriveStrength::High,
-            }
-        }
-    }
-
-    /// Available output speed/slew rate settings.
-    #[derive(Copy, Clone, PartialEq, Eq)]
-    pub enum Speed {
-        /// Configuring the speed of outputs is not supported.
-        UnsupportedByHardware,
-    }
-
-    impl FromSpeed for Speed {
-        fn from(_speed: ariel_os_embassy_common::gpio::Speed<Self>) -> Self {
-            Self::UnsupportedByHardware
+        // ESPs are able to output up to 40 mA, so we somewhat normalize this.
+        match drive_strength {
+            Hal(drive_strength) => drive_strength,
+            Lowest => Self::Standard,
+            Standard => Self::default(),
+            Medium => Self::Standard,
+            High => Self::High,
+            Highest => Self::High,
         }
     }
 }

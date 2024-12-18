@@ -30,6 +30,23 @@ const KEYCODE_MAPPING: [u8; buttons::KEY_COUNT] = [KC_A, KC_C, KC_G, KC_T];
 const HID_READER_BUFFER_SIZE: usize = 1;
 const HID_WRITER_BUFFER_SIZE: usize = 8;
 
+#[ariel_os::config(usb)]
+const USB_CONFIG: ariel_os::reexports::embassy_usb::Config = {
+    let mut config = ariel_os::reexports::embassy_usb::Config::new(0xc0de, 0xcafe);
+    config.manufacturer = Some("Ariel OS");
+    config.product = Some("HID keyboard example");
+    config.serial_number = Some("12345678");
+    config.max_power = 100;
+    config.max_packet_size_0 = 64;
+
+    // Required for Windows support.
+    config.composite_with_iads = true;
+    config.device_class = 0xEF;
+    config.device_sub_class = 0x02;
+    config.device_protocol = 0x01;
+    config
+};
+
 static HID_STATE: ConstStaticCell<hid::State> = ConstStaticCell::new(hid::State::new());
 
 #[ariel_os::task(autostart, peripherals, usb_builder_hook)]
@@ -108,21 +125,4 @@ mod buttons {
             self.0.iter_mut()
         }
     }
-}
-
-#[ariel_os::config(usb)]
-fn usb_config() -> ariel_os::reexports::embassy_usb::Config<'static> {
-    let mut config = ariel_os::reexports::embassy_usb::Config::new(0xc0de, 0xcafe);
-    config.manufacturer = Some("Ariel OS");
-    config.product = Some("HID keyboard example");
-    config.serial_number = Some("12345678");
-    config.max_power = 100;
-    config.max_packet_size_0 = 64;
-
-    // Required for Windows support.
-    config.composite_with_iads = true;
-    config.device_class = 0xEF;
-    config.device_sub_class = 0x02;
-    config.device_protocol = 0x01;
-    config
 }

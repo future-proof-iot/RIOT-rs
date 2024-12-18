@@ -63,12 +63,6 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
         }
     };
 
-    let no_mangle_attr = if attrs.no_mangle {
-        quote! {#[no_mangle]}
-    } else {
-        quote! {}
-    };
-
     let maybe_wait_for_start_event = if attrs.no_wait {
         quote! {}
     } else {
@@ -85,7 +79,6 @@ pub fn thread(args: TokenStream, item: TokenStream) -> TokenStream {
     } = Parameters::from(attrs);
 
     let expanded = quote! {
-        #no_mangle_attr
         #[inline(always)]
         #thread_function
 
@@ -143,7 +136,6 @@ mod thread {
         pub stack_size: Option<syn::Expr>,
         pub priority: Option<syn::Expr>,
         pub affinity: Option<syn::Expr>,
-        pub no_mangle: bool,
         pub no_wait: bool,
     }
 
@@ -171,11 +163,6 @@ mod thread {
 
             if meta.path.is_ident("affinity") {
                 self.affinity = Some(meta.value()?.parse()?);
-                return Ok(());
-            }
-
-            if meta.path.is_ident("no_mangle") {
-                self.no_mangle = true;
                 return Ok(());
             }
 

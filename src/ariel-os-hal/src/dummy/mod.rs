@@ -1,5 +1,18 @@
 //! Dummy module used to satisfy platform-independent tooling.
 
+#![allow(
+    clippy::missing_errors_doc,
+    reason = "this module's items are hidden in the docs"
+)]
+#![allow(
+    clippy::module_name_repetitions,
+    reason = "this dummy module mimics manufacturer-specific crates"
+)]
+#![allow(
+    clippy::needless_pass_by_value,
+    reason = "this dummy module mimics manufacturer-specific crates"
+)]
+
 mod executor;
 
 #[doc(hidden)]
@@ -56,6 +69,7 @@ impl From<Peripherals> for OptionalPeripherals {
 }
 
 #[doc(hidden)]
+#[must_use]
 pub fn init() -> OptionalPeripherals {
     unimplemented!();
 }

@@ -12,7 +12,8 @@ use embassy_executor::{raw, Spawner};
 // doesn't matter.
 const THREAD_FLAG_WAKEUP: ThreadFlags = 0x01;
 
-#[export_name = "__pender"]
+// This name is required by embassy-executor.
+#[no_mangle]
 fn __pender(context: *mut ()) {
     // SAFETY: `context` is a `ThreadId` passed by `ThreadExecutor::new`.
     let thread_id = ThreadId::new(context as usize as u8);

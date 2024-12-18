@@ -8,7 +8,6 @@ pub struct Thread {
         dead_code,
         reason = "sp is used in context-specific scheduler implementation"
     )]
-    pub sp: usize,
     /// The thread's current state.
     pub state: ThreadState,
     /// Priority of the thread between 0..[`super::SCHED_PRIO_LEVELS`].
@@ -54,7 +53,6 @@ impl Thread {
     /// Creates an empty [`Thread`] object with [`ThreadState::Invalid`].
     pub const fn default() -> Thread {
         Thread {
-            sp: 0,
             state: ThreadState::Invalid,
             data: Cpu::DEFAULT_THREAD_DATA,
             flags: 0,
@@ -72,12 +70,9 @@ mod tests {
 
     #[test]
     fn check_type_sizes() {
-        // `ThreadData` is arch-specific, and is replaced with a dummy value is tests; its size is
+        // `ThreadData` is arch-specific, and is replaced with a dummy value in tests; its size is
         // non-zero otherwise.
         assert_eq!(size_of::<ThreadData>(), 0);
-        assert_eq!(
-            size_of::<Thread>(),
-            size_of::<usize>() + size_of::<ThreadData>() + 24
-        );
+        assert_eq!(size_of::<Thread>(), size_of::<ThreadData>() + 24);
     }
 }

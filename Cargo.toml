@@ -10,6 +10,7 @@ members = [
   "src/ariel-os-boards",
   "src/ariel-os-boards/nrf52",
   "src/ariel-os-boards/nrf52840dk",
+  "src/ariel-os-buildinfo",
   "src/ariel-os-chips",
   "src/ariel-os-coap",
   "src/ariel-os-debug",
@@ -35,6 +36,7 @@ members = [
   "tests/spi-main",
   "tests/threading-dynamic-prios",
   "tests/threading-lock",
+  "tests/threading-mutex",
 ]
 
 exclude = ["src/lib"]
@@ -44,7 +46,6 @@ resolver = "2"
 
 [workspace.package]
 version = "0.1.0"
-authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 license = "MIT OR Apache-2.0"
 edition = "2021"
 repository = "https://github.com/ariel-os/ariel-os"
@@ -94,6 +95,7 @@ linkme = { version = "0.3.21", features = ["used_linker"] }
 ariel-os = { path = "src/ariel-os", default-features = false }
 ariel-os-bench = { path = "src/ariel-os-bench", default-features = false }
 ariel-os-boards = { path = "src/ariel-os-boards", default-features = false }
+ariel-os-buildinfo = { path = "src/ariel-os-buildinfo", default-features = false }
 ariel-os-coap = { path = "src/ariel-os-coap", default-features = false }
 ariel-os-debug = { path = "src/ariel-os-debug", default-features = false }
 ariel-os-embassy = { path = "src/ariel-os-embassy", default-features = false }
@@ -143,36 +145,6 @@ opt-level = "s"
 
 [profile.release.package.esp-wifi]
 opt-level = 3
-
-[patch.crates-io]
-# ariel-os embassy fork
-embassy-executor = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-embassy-executor-macros = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-embassy-hal-internal = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-embassy-nrf = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-embassy-net = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-embassy-rp = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-embassy-net-driver = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-embassy-net-driver-channel = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-embassy-stm32 = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-embassy-sync = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-embassy-time-driver = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-embassy-time-queue-driver = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-embassy-usb-driver = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-embassy-usb-synopsys-otg = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-cyw43 = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-cyw43-pio = { git = "https://github.com/ariel-os/embassy", branch = "for-ariel-os-2024-11-28" }
-
-# ariel-os esp-hal fork
-esp-alloc = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
-esp-hal = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
-esp-hal-embassy = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
-esp-println = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
-esp-wifi = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
-esp-storage = { git = "https://github.com/ariel-os/esp-hal", branch = "for-ariel-os-2024-10-16-0.21.1-pr2377-nousbquirk" }
-
-# patched to use portable-atomics <https://github.com/seanmonstar/try-lock/pull/11>
-try-lock = { git = "https://github.com/seanmonstar/try-lock", rev = "a1aadfac9840fe23672159c12af7272e44bc684c" }
 
 [workspace.lints.rust]
 # rustc lints are documented here: https://doc.rust-lang.org/rustc/lints/listing/index.html

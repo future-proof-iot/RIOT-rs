@@ -1,6 +1,6 @@
 //! Access to unique identifiers provided by the device.
 //!
-//! This module provides [`device_id_bytes()`], which returns an identifier for the
+//! This module provides [`device_id_bytes()`] and related functions, which returns an identifier for the
 //! concrete piece of hardware that the software is running on in byte serialized form.
 //!
 //! Concrete properties of a device identity are:
@@ -21,9 +21,14 @@
 //!
 //! It is considered a breaking change in Ariel OS if a device's identifier changes or becomes an
 //! error. Errors changing to valid identifiers is a compatible change.
+//!
+//! Other identifiers, such as the EUI-48 addresses provided by [`interface_eui48()`], are usually
+//! derived from the main identity, but have different properties.
 #![no_std]
 #![deny(missing_docs)]
 #![deny(clippy::pedantic)]
+
+pub use ariel_os_embassy_common::identity::Eui48;
 
 /// Obtains a unique identifier of the device in its byte serialized form.
 ///
@@ -39,4 +44,32 @@ pub fn device_id_bytes() -> Result<impl AsRef<[u8]>, impl core::error::Error> {
     use ariel_os_embassy_common::identity::DeviceId;
 
     ariel_os_embassy::hal::identity::DeviceId::get().map(|d| d.bytes())
+}
+
+/// Generates an EUI-48 identifier ("6-byte MAC address") based on the device identity.
+///
+/// The argument `if_index` allows the system to generate addresses for consecutive interfaces.
+///
+/// The default implementation creates a static random identifier based on the board name, the
+/// device ID bytes, incrementing by the interface index (following the common scheme of
+/// sequential MAC addresses being assigned to multi-interface hardware). Those take the shape
+/// `?2-??-??-??-??-??`: Their bits set to individual (I/G, unicast), administratively
+/// locally administered (U/L, not indicating any particular manufacturer), and following the
+/// SLAP (Structured Local Address Plan) semantics, they fall into the AII (Administratively
+/// Assigned Identifier) quadrant. Wikipedia has a [good description of those address
+/// details](https://en.wikipedia.org/wiki/MAC_address#Address_details).
+///
+/// The randomly generated identifiers aim to appear random, but can
+/// be traced back to the device ID it is calculated from.
+///
+/// On devices that have access to globally unique EUI-48 identifiers, those are returned
+/// for interface indices up to the number of available identifiers.
+///
+/// # Errors
+///
+/// Same as in [`device_id_bytes()`].
+pub fn interface_eui48(if_index: u32) -> Result<Eui48, impl core::error::Error> {
+    use ariel_os_embassy_common::identity::DeviceId;
+
+    ariel_os_embassy::hal::identity::DeviceId::get().map(|d| d.interface_eui48(if_index))
 }

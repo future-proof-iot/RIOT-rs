@@ -191,3 +191,46 @@ pub mod input {
         NoIntChannelAvailable,
     }
 }
+
+/// Available output speed/slew rate settings.
+///
+/// *Note: configuring the speed of outputs is not supported on this MCU family.*
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum UnsupportedSpeed {
+    #[doc(hidden)]
+    UnsupportedByHardware,
+}
+
+impl FromSpeed for UnsupportedSpeed {
+    fn from(_speed: Speed<Self>) -> Self {
+        Self::UnsupportedByHardware
+    }
+}
+
+/// Available drive strength settings.
+///
+/// *Note: configuring the drive strength of outputs is not supported on this MCU family.*
+#[derive(Copy, Clone, PartialEq, Eq)]
+pub enum UnsupportedDriveStrength {
+    #[doc(hidden)]
+    UnsupportedByHardware,
+}
+
+impl Default for UnsupportedDriveStrength {
+    fn default() -> Self {
+        Self::UnsupportedByHardware
+    }
+}
+
+impl FromDriveStrength for UnsupportedDriveStrength {
+    fn from(drive_strength: DriveStrength<Self>) -> Self {
+        match drive_strength {
+            DriveStrength::Hal(drive_strength) => drive_strength,
+            DriveStrength::Lowest
+            | DriveStrength::Medium
+            | DriveStrength::High
+            | DriveStrength::Highest => UnsupportedDriveStrength::UnsupportedByHardware,
+            DriveStrength::Standard => UnsupportedDriveStrength::default(),
+        }
+    }
+}

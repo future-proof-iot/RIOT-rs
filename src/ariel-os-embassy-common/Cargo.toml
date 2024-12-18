@@ -1,7 +1,6 @@
 [package]
 name = "ariel-os-embassy-common"
 version.workspace = true
-authors.workspace = true
 license.workspace = true
 edition.workspace = true
 repository.workspace = true
@@ -10,12 +9,14 @@ repository.workspace = true
 workspace = true
 
 [dependencies]
+ariel-os-buildinfo = { workspace = true }
 defmt = { workspace = true, optional = true }
 fugit = { workspace = true, optional = true }
 embassy-futures = { workspace = true }
 embassy-time = { workspace = true }
 embedded-hal = { workspace = true }
 embedded-hal-async = { workspace = true }
+const-sha1 = { version = "0.3.0", default-features = false }
 
 [features]
 ## Enables GPIO interrupt support.

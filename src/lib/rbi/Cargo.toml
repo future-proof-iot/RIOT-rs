@@ -1,7 +1,6 @@
 [package]
 name = "rbi"
 version = "0.1.1"
-authors = ["Kaspar Schleiser <kaspar@schleiser.de>"]
 license.workspace = true
 edition.workspace = true
 

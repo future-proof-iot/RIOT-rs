@@ -31,7 +31,6 @@ impl Arch for Cpu {
         // 16 byte alignment.
         let stack_pos = (stack_start + stack.len()) & 0xFFFFFFE0;
         // Set up PC, SP, RA and first argument for function.
-        thread.sp = stack_pos;
         thread.data.sp = stack_pos;
         thread.data.a0 = arg;
         thread.data.ra = cleanup as usize;
@@ -129,6 +128,9 @@ extern "C" fn FROM_CPU_INTR0(trap_frame: &mut TrapFrame) {
 unsafe fn sched(trap_frame: &mut TrapFrame) {
     loop {
         if SCHEDULER.with_mut(|mut scheduler| {
+            #[cfg(feature = "multi-core")]
+            scheduler.add_current_thread_to_rq();
+
             let next_pid = match scheduler.get_next_pid() {
                 Some(pid) => pid,
                 None => {

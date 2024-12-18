@@ -1,19 +1,18 @@
-/// Registers the function this attribute macro is applied on to provide the configuration for the
-/// associated driver during initial system configuration.
+/// Allows to provide configuration for the associated driver during initial system configuration.
 ///
 /// **Important**: for this configuration to be taken into account, a specific Cargo feature may
 /// need to be enabled on the `ariel-os` dependency, for each configuration type (see table below).
 ///
-/// The name of the function does not matter as it will be renamed by the macro.
+/// There is no requirements on the constant's name.
 ///
 /// # Parameters
 ///
-/// - The name of the driver the function provides configuration for.
+/// - The name of the driver the constant provides configuration for.
 ///
-/// | Driver    | Expected return type           | Cargo feature to enable   |
+/// | Driver    | Expected type                  | Cargo feature to enable   |
 /// | --------- | ------------------------------ | ------------------------- |
 /// | `network` | `embassy_net::Config`          | `override-network-config` |
-/// | `usb`     | `embassy_usb::Config<'static>` | `override-usb-config`     |
+/// | `usb`     | `embassy_usb::Config`          | `override-usb-config`     |
 ///
 /// # Note
 ///
@@ -21,13 +20,13 @@
 ///
 /// # Examples
 ///
-/// The following function provides configuration for the network stack:
+/// The following provides configuration for the network stack:
 ///
 /// ```ignore
 /// use ariel_os::reexports::embassy_net;
 ///
 /// #[ariel_os::config(network)]
-/// fn network_config() -> embassy_net::Config {
+/// const NETWORK_CONFIG: embassy_net::Config = {
 ///     use embassy_net::Ipv4Address;
 ///
 ///     embassy_net::Config::ipv4_static(embassy_net::StaticConfigV4 {
@@ -35,7 +34,7 @@
 ///         dns_servers: heapless::Vec::new(),
 ///         gateway: Some(Ipv4Address::new(10, 42, 0, 1)),
 ///     })
-/// }
+/// };
 /// ```
 ///
 /// # Panics
@@ -50,21 +49,21 @@ pub fn config(args: TokenStream, item: TokenStream) -> TokenStream {
     use quote::{format_ident, quote};
 
     let mut attrs = ConfigAttributes::default();
-    let thread_parser = syn::meta::parser(|meta| attrs.parse(&meta));
-    syn::parse_macro_input!(args with thread_parser);
+    let config_attr_parser = syn::meta::parser(|meta| attrs.parse(&meta));
+    syn::parse_macro_input!(args with config_attr_parser);
 
-    let config_function = syn::parse_macro_input!(item as syn::ItemFn);
-    let config_function_name = &config_function.sig.ident;
+    let config_const = syn::parse_macro_input!(item as syn::ItemConst);
+    let config_const_name = &config_const.ident;
 
     let ariel_os_crate = utils::ariel_os_crate();
 
     let (config_fn_name, return_type) = match attrs.kind {
         Some(ConfigKind::Network) => (
-            format_ident!("ariel_os_network_config"),
+            format_ident!("__ariel_os_network_config"),
             quote! {#ariel_os_crate::reexports::embassy_net::Config},
         ),
         Some(ConfigKind::Usb) => (
-            format_ident!("ariel_os_usb_config"),
+            format_ident!("__ariel_os_usb_config"),
             quote! {#ariel_os_crate::reexports::embassy_usb::Config<'static>},
         ),
         None => {
@@ -72,15 +71,14 @@ pub fn config(args: TokenStream, item: TokenStream) -> TokenStream {
         }
     };
 
-    // Place the provided function into another function whose type signature we enforce.
+    // Place the provided constant into a function whose type signature we enforce.
     // This is important as that function will be called unsafely via FFI.
     let expanded = quote! {
+        #config_const
+
         #[no_mangle]
         fn #config_fn_name() -> #return_type {
-            #[inline(always)]
-            #config_function
-
-            #config_function_name()
+            #config_const_name
         }
     };
 
@@ -127,7 +125,7 @@ mod config_macro {
         fn check_only_one_kind(&self, param: &str) {
             assert!(
                 self.kind.is_none(),
-                "only one configuration is supported at a time, use a separate function for `{param}` configuration",
+                "only one configuration is supported at a time, use a separate constant for `{param}` configuration",
             );
         }
     }

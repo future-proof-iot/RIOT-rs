@@ -21,6 +21,8 @@ contexts:
       FEATURES:
         - ariel-os-boards/${BOARD}
       SCRIPTS: ${relroot}/scripts
+      CARGO_ARGS:
+        - --config ${root}/${relroot}/patch.crates-io.toml
       # laze doesn't know the concept of "export" as make does, so each variable
       # that needs to be passed via environment needs to be listed in that rule
       # or task's command list.
