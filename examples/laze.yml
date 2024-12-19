@@ -12,6 +12,7 @@ subdirs:
   - gpio
   - hello-world
   - hello-world-threading
+  - http-client
   - http-server
   - log
   - minimal

@@ -1,0 +1,25 @@
+[package]
+name = "http-client"
+version = "0.1.0"
+license.workspace = true
+edition.workspace = true
+publish = false
+
+[lints]
+workspace = true
+
+[dependencies]
+ariel-os = { path = "../../src/ariel-os", features = [
+  "csprng",
+  "dns",
+  "mdns",
+  "override-network-config",
+  "tcp",
+  "time",
+] }
+ariel-os-boards = { path = "../../src/ariel-os-boards" }
+heapless = { workspace = true }
+rand = { workspace = true }
+reqwless = { version = "0.13.0", default-features = true, features = [
+  "embedded-tls",
+] }
